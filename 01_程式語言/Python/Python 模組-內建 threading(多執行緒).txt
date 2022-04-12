@@ -1,0 +1,56 @@
+# Python 模組-內建 threading(多執行緒)
+
+## threading模組
+
+可使用以下方式導入執行緒
+def threadWork():  #用函數定義執行序的工作內容
+    xxx #這個執行緒的工作內容
+    threadObj = threading.Thread(target=threadWork,args=['xx',...,'yy']) #建立執行緒物件
+    threadObj.start()   #啟動執行緒
+
+類別 BoundedSemaphore(n)：
+    參數 n：設置允許執行緒訪問的數量
+類別 Barrier:當所有執行緒抵達後才往下執行。
+
+類別 Event:一種執行緒的通信技術，通常有2個執行緒，一個主要設定Event的flag，可以使用set()設定flag。另一個則是等待Event的flag，可以用wait()等待。當收到flag訊號工作完成後，可以使用clear()情除flag()訊號。
+    
+方法 currentThread():即時在執行的執行緒
+    方法 getName():取得執行緒的名稱
+    方法 setName():為執行緒命名
+方法 is_alive():檢查子執行緒是否仍然在工作
+方法 active_count():在工作中執行緒的數量
+方法 enumerate():可迭代列出所有工作中的執行緒
+類別 threading.Lock():建立Lock物件
+    方法 acquire():鎖定
+    方法 release():解鎖
+類別 threading.RLock():建立RLock物件，acquire()和release()需成隊出現。
+    方法 acquire():鎖定
+    方法 release():解鎖
+類別 threading.Condition():建立Condition物件。
+    方法 wait():等待
+    方法 notify():通知其他執行緒
+    方法 acquire():鎖定
+    方法 release():解鎖
+    
+
+Daemon執行緒：若程式結束，而Daemon執行緒還在執行，會自行結束並終止Daemon執行緒
+預設情形下，執行續非Daemon，程式結束會等候執行緒工作結束，才終止。
+語法：threadObj.setDaemon(True)
+## queue模組
+
+先進先出的資料結構
+
+方法 put()：插入元素，若queue空間滿了，會調用wait()進行等待
+方法 get()：取得元素，若queue空間空了，會調用wait()進行等待
+## subprocess模組
+
+在程式內建立子行程
+
+方法 Popen()：開啟電腦內其他應用程式
+方法 poll()：傳回子行程是否完成
+方法 wait()：讓子行程暫停執行，直到啟動他的行程結束才開始工作。
+方法 run()：呼叫子行程
+
+## collections模組
+
+deque(maxlen=3)  # deque(maxlen=N) 產生固定佇列 新的項目加入 佇列已滿 舊的會移除

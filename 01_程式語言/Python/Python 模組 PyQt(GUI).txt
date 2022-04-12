@@ -1,0 +1,6 @@
+# Python 模組 PyQt(GUI)
+
+## 參考資料
+
+官方文檔
+https://doc.qt.io/

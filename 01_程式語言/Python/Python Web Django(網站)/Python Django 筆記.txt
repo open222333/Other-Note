@@ -1,0 +1,832 @@
+##################################
+            參考資料
+##################################
+
+##################################
+            基本介紹
+##################################
+------------------概覽------------------
+Project and apps
+    每一個 Django project 裡面可以有多個 Django apps，可以想成是類似模組的概念。在實務上，通常會依功能分成不同 app，方便未來的維護和重複使用。
+Views and URLconfs
+    處理 request 的流程如下：
+        1.瀏覽器送出 HTTP request
+        2.Django 依據 URL configuration 分配至對應的 View
+        3.View 進行資料庫的操作或其他運算，並回傳 HttpResponse 物件
+        4.瀏覽器依據 HTTP response 顯示網頁畫面
+    Django Views:
+        Django view 其實是一個 function，處理 HttpRequest 物件，並回傳 HttpResponse 物件
+            1.會收到 HttpRequest 參數：
+                Django 從網頁接收到 request 後，會將 request 中的資訊封裝產生一個 HttpRequest 物件，並當成第一個參數，傳入對應的 view function。
+            2.需要回傳 HttpResponse 物件：
+                HttpResponse 物件裡面包含：
+                    HttpResponse.content
+                    HttpResponse.status_code …等
+    Django URL 設定:
+        Django 需要知道 URL 與 view 的對應關係。
+        URL Conf
+            通常定義在 urls.py
+            是一連串的規則 (URL patterns)
+            Django 收到 request 時，會一一比對 URL conf 中的規則，決定要執行哪個 view function
+Template 資料夾
+    設定 Templates 資料夾的位置
+        修改 [project_name]/settings.py 中的 TEMPLATES 設定：
+            將 'DIRS' 原本的[]修改成：
+            [os.path.join(BASE_DIR, 'templates').replace('\\', '/')]
+            讓 Django 找得到剛剛建立的 templates 資料夾。
+    在 Template 中顯示變數{{ variable_name }}
+        使用兩個大括號，來顯示變數current_time。
+Models
+    設定資料庫
+        Python 預設的資料庫引擎 - SQLite。
+            [project_name]/settings.py，DATABASES 的設定
+                ENGINE -- 你要使用的資料庫引擎。
+                    MySQL: django.db.backends.mysql
+                    SQLite 3: django.db.backends.sqlite3
+                    PostgreSQL: django.db.backends.postgresql_psycopg2
+                NAME -- 你的資料庫名稱
+        Django Models
+            Model Field 與其參數，請參考 Django 文件https://docs.djangoproject.com/en/1.8/ref/models/fields/  
+            [app_name]/models.py
+                CharField -- 字串欄位，適合像 title、location 這種有長度限制的字串。
+                TextField -- 合放大量文字的欄位
+                URLField -- URL 設計的欄位
+                DateTimeField -- 日期與時間的欄位，使用時會轉成 Python datetime 型別。
+Admin
+    設定管理後台
+        將 Django Admin 加入 INSTALLED_APPS
+        [project_name]/settings.py，INSTALLED_APPS 的設定 添加 django.contrib.admin
+    設定管理後台的 URL
+        將管理後台的網址設定為 /admin/。
+        [project_name]/urls.py 中的 urlpatterns 包含下面這行：
+        url(r'^admin/', include(admin.site.urls)),
+    註冊 Model class
+        需要在讓 Django 知道，有哪些 Model 需要管理後台。
+        [app_name]/admin.py
+            from django.contrib import admin
+            from .models import Post
+            admin.site.register(Post)
+使用 Django ORM 操作資料庫
+    資料庫互動 (CRUD)：Create (新增)、Read (讀取)、Update (修改)、Delete (刪除) 等常見的資料庫操作。
+        [models_class].objects.create(...)：創建資料。
+        [models_class].objects.all()：顯示所有的資料。
+        [models_class].objects.get：返回符合條件的唯一一筆資料。
+                注意：如果找不到符合條件的資料、或是有多筆資料符合條件，都會產生 exception
+        [models_class].objects.filter：返回符合條件的陣列。如果找不到任何資料則會返回空陣列。
+        使用 update 更新一筆或多筆資料    
+        使用 delete 刪除資料
+Template
+    需要能在 Template 裡執行一些簡單的 Python 語法
+        邏輯判斷 (if-else) -- 若使用者己經登入，則顯示使用者的暱稱若未登入，則顯示登入按鈕
+        重覆 HTML 片段 (for loop) -- 列出所有好友的帳號和顯示圖片
+        格式化 Template 中的變數 -- 日期的格式化等等
+    建立一個新的 view function
+        [app_name]/views.py
+            建立 View
+                匯入所需的 model -- 記得 import 需要用到的 Model 
+        [app_name]/urls.py
+            設定 URL
+Dynamic URL
+    建立單篇文章的 View
+    設定動態網址的對應
+    使用 Regex 提取部份 URL 為參數
+    建立單篇日記頁的 Template
+------------------指令------------------
+django-admin.py startproject [project_name] # 建立Django專案
+
+python3 manage.py startapp [app_name]   # 新增Django app
+    通常會依功能分成不同 app，方便未來的維護和重複使用。
+    將新增的Django app加入設定檔
+    [app_name]/settings.py，找到INSTALLED_APPS
+    
+python3 manage.py -h [command_name] # 查看Django commands的使用方法
+python3 manage.py runserver # 啟動開發伺服器
+
+python3 manage.py shell #進入 Django Shell
+
+python3 manage.py createsuperuser # 新增superuser 輸入帳號、Email、密碼等資訊
+
+python3 manage.py makemigrations # 建立一個檔案紀錄你更新了哪些東西
+python3 manage.py migrate # 根據makemigrations建立的檔案去更新資料庫
+    運行以上命令，來定義資料庫中這些模型的表(位於manage.py的目錄中)
+    每次更新[app_name]/models.py，都需要執行一次以上命令
+
+python3 manage.py runserver # 運行網頁服務器
+
+
+快速啟動
+pip3 install -r requirements.txt
+python3 manage.py makemigrations
+python3 manage.py migrate
+python3 manage.py collectstatic
+python3 manage.py test # Run the standard tests. These should all pass.
+python3 manage.py createsuperuser # Create a superuser
+python3 manage.py runserver
+
+轉譯成html方法之一
+$ python mangae.py shell
+>>> from restaurants.forms import CommentForm
+>>> f = CommentForm()
+>>> print f
+------------------程式碼------------------
+[app_name]/urls.py
+url(regex, view)
+    regex -- 定義的 URL 規則
+        規則以 regular expression（正規表示式）來表達
+        r'^hello/$' 代表的是 hello/ 這種 URL
+    view -- 對應的 view function
+        指的是 hello_world 這個 view
+
+[app_name]/views.py
+render(request, template_name, dictionary)
+    request -- HttpRequest 物件
+    template_name -- 要使用的 template
+    dictionary -- 包含要新增至 template 的變數
+    
+Template Filter
+    它能在變數顯示之前幫你做計算、設定預設值，置中、或是截斷過長的內容等等
+        {{<variable_name>|<filter_name>:<filter_arguments>}}
+            <variable_name> -- 變數名稱
+            <filter_name> -- filter 名稱，例如 add、cut 等等
+            <filter_arguments> -- 要傳入 filter 的參數
+        常用範例：    
+            {{ post.created_at|date:"Y / m / d" }} 
+Template Tags
+    {% for ... in ... %}...{% endfor %} 
+        for 迴圈，反覆執行 for 區塊中的內容
+    {% if %} ... {% else %} ... {% endif %} 
+        進行 if／else 的邏輯判斷
+    {% url '<url_name>' %}
+        根據在 urls.py 中設定的「name」值，找到對應的 URL
+        https://docs.djangoproject.com/en/1.8/ref/templates/builtins/#url
+        
+[app_name]/views.py
+def post_detail(request, pk):
+    post = Post.objects.get(pk=pk)
+    return render(request, 'post.html', {'post': post})
+------------------詳解------------------
+HttpResponse以及JsonResponse的差別：
+HttpResponse(json.dumps(data),content_type="application/json")
+    content_type="application/json":將收到的返回訊息(Content-Type='text/html')轉成(Content-Type='application/json')
+JsonResponse(data, safe=False)
+    safe=False：JsonResponse拋出訊息時需要設置
+    
+serializers.UserSerializer的模板：
+1: get
+# 需要導入模塊: from api import serializers [as 別名]
+# 或者: from api.serializers import UserSerializer [as 別名]
+def get(self, request, format=None):
+        users = self.queryset
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data) 
+        
+2: post
+# 需要導入模塊: from api import serializers [as 別名]
+# 或者: from api.serializers import UserSerializer [as 別名]
+def post(self, request, format=None):
+        serializer = UserSerializer(data=request.DATA)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        
+3: put
+# 需要導入模塊: from api import serializers [as 別名]
+# 或者: from api.serializers import UserSerializer [as 別名]
+def put(self, request, uid, format=None):
+        user = self._get_object(uid)
+        serializer = UserSerializer(user, data=request.DATA)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+        
+4: me
+# 需要導入模塊: from api import serializers [as 別名]
+# 或者: from api.serializers import UserSerializer [as 別名]
+def me(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            if 'expand_accounts' in request.GET:
+                request.user.all_accounts = request.user.accounts_set.all()
+            if 'expand_links' in request.GET:
+                request.user.all_links = request.user.links.all()
+            serializer = serializers.UserSerializer(request.user, context={'request':request})
+            return Response(serializer.data)
+        raise PermissionDenied() 
+------------------套件------------------   
+drf-yasg 是一個可以在 Django REST framework 自動生成 Swagger 的套件
+
+
+##################################
+    Python Django_uWSGI_nginx
+##################################
+Python Django_uWSGI_nginx
+https://tonyteaches.tech/django-nginx-uwsgi-tutorial/
+
+
+Configure the Nginx Web Server
+
+/etc/nginx/sites-available/microdomains.conf
+
+# the upstream component nginx needs to connect to
+upstream django {
+    server unix:///home/udoms/microdomains/microdomains.sock;
+}
+
+# configuration of the server
+server {
+    listen      80;
+    server_name micro.domains www.micro.domains;
+    charset     utf-8;
+
+    # max upload size
+    client_max_body_size 75M;
+
+    # Django media and static files
+    location /media  {
+        alias /home/udoms/microdomains/media;
+    }
+    location /static {
+        alias /home/udoms/microdomains/static;
+    }
+
+    # Send all non-media requests to the Django server.
+    location / {
+        uwsgi_pass  django;
+        include     /home/udoms/microdomains/uwsgi_params;
+    }
+}
+
+
+$ sudo ln -s /etc/nginx/sites-available/microdomains.conf /etc/nginx/sites-enabled/
+
+We must edit the microdomains/settings.py file to explicitly tell Nginx where our static files reside.
+===============================================================
+
+
+大致架構
+# Dynamic respones
+browser <-> 80 port <-> nginx <-> 8003 port <-> uwsgi <-> django
+# Static files
+browser <-> 80 port <-> nginx <-> static files
+
+Python 安裝uwsgi發生錯誤
+conda install -c conda-forge uwsgi
+
+===================================================================================
+##################################
+            uwsgi
+##################################
+启动服务：uwsgi --ini uwsgi.ini
+停止服务：uwsgi --stop uwsgi.pid
+===================================================================================
+uwsgi --chdir=/path/to/your/project \
+    --module=mysite.wsgi:application \
+    --env DJANGO_SETTINGS_MODULE=mysite.settings \
+    --master --pidfile=/tmp/project-master.pid \
+    --socket=127.0.0.1:49152 \      # can also be a file
+    --processes=5 \                 # number of worker processes
+    --uid=1000 --gid=2000 \         # if root, uwsgi can drop privileges
+    --harakiri=20 \                 # respawn processes taking more than 20 seconds
+    --max-requests=5000 \           # respawn processes after serving 5000 requests
+    --vacuum \                      # clear environment on exit
+    --home=/path/to/virtual/env \   # optional path to a virtual environment
+    --daemonize=/var/log/uwsgi/yourproject.log      # background the process
+
+
+===================================================================================
+[uwsgi]
+chdir=/path/to/your/project
+module=mysite.wsgi:application
+master=True
+pidfile=/tmp/project-master.pid
+vacuum=True
+max-requests=5000
+daemonize=/var/log/uwsgi/yourproject.log
+
+===================================================================================
+用 gunicorn 代替 uwsgi 的方法
+
+須藤 pip 安裝 gunicorn
+ 
+在項目目錄下運行下面的命令進行測試：
+gunicorn -w 4 -b 0.0.0.0:8001 zqxt.wsgi
+-w 表示開啟多少個worker，-b 表示要使用的ip和端口，我們這裡用的是8001，0.0.0.0代表監控電腦的所有ip。
+
+##################################
+            ssl
+##################################
+certbot install --cert-name open222333.ddns.net
+
+ssl_nginx文檔設定:
+server {
+    server_name open222333.ddns.net;
+
+    listen 443;  # <-
+
+    ssl on;  # <-
+    ssl_certificate /etc/letsencrypt/live/open222333.ddns.net/fullchain.pem;  # <-
+    ssl_certificate_key /etc/letsencrypt/live/open222333.ddns.net/privkey.pem;  # <-
+
+    client_max_body_size 4G;
+
+    # access_log /opt/simple_academy/logs/nginx-access.log;
+    # error_log /opt/simple_academy/logs/nginx-error.log;
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;  # <-
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+
+        if (!-f $request_filename) {
+            proxy_pass http://open222333.ddns.net;
+            break;
+        }
+    }
+}
+
+
+Nginx 設定檔內容：
+# mysite_nginx.conf
+
+# the upstream component nginx needs to connect to
+upstream django {
+    server unix:///home/openuser01/APIWeb_Django/APIWeb_Django.sock; # for a file socket
+    # server 127.0.0.1:8000; # for a web port socket (we'll use this first)
+}
+
+# configuration of the server
+server {
+    # the port your site will be served on
+    listen      8000;
+    # the domain name it will serve for
+    server_name open222333.ddns.net; # substitute your machine's IP address or FQDN
+    charset     utf-8;
+
+    # max upload size
+    client_max_body_size 75M;   # adjust to taste
+
+    # Django media
+    location /media  {
+        alias /home/openuser01/APIWeb_Django/media;
+    }
+
+    location /static {
+        alias /home/openuser01/APIWeb_Django/static;
+    }
+
+    # Finally, send all non-media requests to the Django server.
+    location / {
+        uwsgi_pass  django;
+        # uwsgi_pass  127.0.0.1:8000;
+        include     /etc/nginx/uwsgi_params;
+    }
+
+    # 增加SSL
+    location /.well-known/acme-challenge {
+        alias /home/openuser01/APIWeb_Django/.well-known/acme-challenge;
+    }
+}
+
+sudo ln -s ~/etc/nginx/conf.d/mysite_nginx.conf /etc/nginx/sites-enabled/
+
+
+##################################
+        Django部署HTTPS
+##################################
+參考
+https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/706308/
+
+https://blog.gtwang.org/linux/secure-nginx-with-lets-encrypt-ssl-certificate-on-ubuntu-and-debian/
+
+2. 獲取 SSL 證書
+2.1. 預先工作
+2.2. 下載Certbot
+2.3. 生成證書
+3. Django配置
+4. Nginx配置
+5. Let’s Encrypt 自動續期
+
+nginx 配置文件中：
+server {
+    location /.well-known/acme-challenge {
+        alias /path/to/yoursite/.well-known/acme-challenge;
+    }
+}
+
+是 nginx 而不是 Apache，所以使用 webroot選項獲取證書：
+certbot certonly --webroot -w /path/to/yoursite -d blogof33.com -d www.blogof33.com
+
+請修改 /path/to/yoursite字段，和上面預先工作的修改一樣，然後後面的 blogof33.com 和 www.blogof33.com 請修改成自己的域名，如果現在的域名不能加 www 訪問的話（即沒有提供 WWW 的解析），請去掉最後這條字段。
+
+
+Certificate is saved at: /etc/letsencrypt/live/open222333.ddns.net/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/open222333.ddns.net/privkey.pem
+This certificate expires on 2021-10-09.
+These files will be updated when the certificate renews.
+Certbot has set up a scheduled task to automatically renew this certificate in the background.
+
+Deploying certificate
+Could not install certificate
+
+NEXT STEPS:
+- The certificate was saved, but could not be installed (installer: nginx). After fixing the error shown below, try installing it again by running:
+  certbot install --cert-name open222333.ddns.net
+
+Could not automatically find a matching server block for open222333.ddns.net. Set the `server_name` directive to use the Nginx installer.
+Ask for help or search for solutions at https://community.letsencrypt.org. See the logfile /var/log/letsencrypt/letsencrypt.log or re-run Certbot with -v for more details.
+
+
+server {
+  listen   443;
+  server_name  open222333.ddns.net;
+  access_log  off;
+  ssl on;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_prefer_server_ciphers on;
+  ssl_ciphers 'kEECDH+ECDSA+AES128 kEECDH+ECDSA+AES256 kEECDH+AES128 kEECDH+AES256 kEDH+AES128 kEDH+AES256 DES-CBC3-SHA +SHA !aNULL !eNULL !LOW !kECDH !DSS !MD5 !EXP !PSK !SRP !CAMELLIA !SEED';
+  ssl_session_cache builtin:1000 shared:SSL:10m;
+  ssl_stapling on;
+
+  # Use 2048 bit Diffie-Hellman RSA key parameters
+  # (otherwise Nginx defaults to 1024 bit, lowering the strength of encryption 
+  # when using PFS)
+  # Generated by OpenSSL with the following command:
+  # openssl dhparam -outform pem -out /etc/nginx/ssl/dhparam2048.pem 2048
+        
+  ssl_certificate /etc/letsencrypt/live/open222333.ddns.net/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/open222333.ddns.net/privkey.pem;
+
+  location = /i {
+    proxy_pass http://127.0.0.1:3001;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+    
+  location ^~ /i/ {
+    proxy_pass http://127.0.0.1:3001;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+
+  location = /o {
+    proxy_pass http://127.0.0.1:3001;
+  }
+    
+  location ^~ /o/ {
+    proxy_pass http://127.0.0.1:3001;
+  }
+
+  location / {
+    proxy_pass http://127.0.0.1:6001;
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}
+
+##################################
+        django的csrf驗證
+##################################
+參考：
+Django的POST请求报403，及四种解决方法
+https://cloud.tencent.com/developer/article/1352455
+
+
+django的csrf安全工作順序是：先從後台獲取csrf_token 並發送給前端，然後前端在進行form表單提交時，把帶有名為csrfmiddlewaretoken，值為 csrf_token 的字段一起發送給後端進行校驗。
+
+所以此解決方案便是按照此邏輯，先通過一個接口獲取 csrf_token，然後在form表單中一起提交給後端校驗
+
+from django . template . context_processors import csrf
+
+def get_csrf ( request ) :
+        #生成csrf 數據，發送給前端
+    x =  csrf ( request ) 
+    csrf_token = x [ 'csrf_token' ] 
+    return  HttpResponse ( '{} ; {}' . format ( str ( re ) , csrf_token ) )
+然後在另一個POST請求中 加參數 名為：csrfmiddlewaretoken 值為 get_csrf函數返回的csrf_token ,這樣校驗便成功
+
+優點：完成了 csrf 安全校驗
+
+##################################
+        django html
+##################################
+參考：
+Django 模板语言
+https://docs.djangoproject.com/zh-hans/3.2/ref/templates/language/
+
+JinJa (html template語言)
+https://jinja.palletsprojects.com/en/3.0.x/
+
+Django 模板
+https://www.runoob.com/django/django-template.html
+
+
+view ：｛"HTML變量名" : "views變量名" ｝
+HTML ：｛｛變量名｝｝ 
+
+templates中的runoob.html中，可以用.鍵取出對應的值。
+
+HelloWorld/HelloWorld/views.py 文件代碼：
+from django. shortcuts import render
+
+def runoob ( request ) :
+    views_dict = { "name" : "菜鳥教程" }
+    return render ( request , "runoob.html" , { "views_dict" : views_dict } )
+HelloWorld/templates/runoob.html 文件代碼：
+< p > {{ views_dict }} </ p > < p > {{ views_dict.name }} </ p >
+
+=================================
+=================================
+{{變量名|過濾器：可選參數}}  
+模板過濾器可以在變量被顯示前修改它，過濾器使用管道字符，如下所示：
+
+{{ name | lower }}
+{{ name }} 變量被過濾器lower 處理後，文檔大寫轉換文本為小寫。
+
+過濾管道可以被* 套接* ，既是說，一個過濾器管道的輸出又可以作為下一個管道的輸入：
+
+{{ my_list | first | upper }}
+以上實例將第一個元素並將其轉化為大寫。
+
+有些過濾器有參數。過濾器的參數跟隨冒號之後並且總是以雙引號包含。例如：
+
+{{ bio | truncatewords : "30" }} 
+這個將顯示變量bio 的前30個詞。
+
+其他過濾器：
+
+addslashes
+添加反斜杠到任何反斜杠、單引號或者雙引號前面。
+
+date
+根據給定格式對一個日期變量進行格式化。
+格式Ymd H:i:s返回年-月-日小時:分鐘:秒的格式時間。
+
+default
+為變量提供一個默認值。
+
+length
+返回對象的長度，適用於字符串和列表。
+
+filesizeformat
+以更易讀的方式顯示文件的大小（即'13 KB', '4.1 MB', '102 bytes'等）。
+
+truncatechars
+如果字符串包含的字符總個數多於指定的字符數量，那麼會被截斷掉後面的部分。
+截斷的字符串將以...結尾。
+
+safe
+將字符串標記為安全，不需要轉義。
+要保證views.py 傳過來的數據絕對安全，才能用safe。
+和後端views.py 的mark_safe 效果相同。
+Django 會自動對views.py 傳到HTML文件中的標籤語法進行轉義，令其語義失效。加safe 過濾器是告訴Django 該數據是安全的，不必對其進行轉義，可以讓該數據語義生效。
+=================================
+=================================
+if/else 標籤
+基本語法格式如下：
+
+{% if condition %} 
+    ... display
+{% endif %} 
+或者：
+{% if condition1 %}
+    ... display 1 
+{% elif condition2 %}
+    ... display 2
+{% else %}
+    ... display 3
+{% endif %} 
+
+{% if athlete_list and coach_list %} 
+     athletes和coaches變量都是可用的。{% endif %} 
+=================================
+=================================
+for 標籤
+<ul>
+{% for athlete in athlete_list %}
+    <li> {{ athlete.name }} </li>
+{% endfor %}
+</ul>
+
+{% empty %}
+可選的{% empty %} 從句：在循環為空的時候執行（即in 後面的參數布爾值為False ）。
+{% for i in listvar %} {{ forloop.counter0 }} {% empty %} 空空如也～ {% endfor %}
+
+=================================
+=================================
+ifequal/ifnotequal 標籤
+下面的例子比較兩個模板變量user 和currentuser
+{% ifequal user currentuser %} <h1> Welcome !</ h1 > {% endifequal %}
+
+{% ifequal section 'sitenews' %} <h1> Site News </ h1 > {% else %} <h1> No News Here </ h1 > {% endifequal %} 
+=================================
+=================================
+註釋標籤
+{#這是一個註釋#}
+
+
+=================================
+=================================
+include 標籤
+{% include %} 標籤允許在模板中包含其它的模板的內容。
+下面這個例子都包含了nav.html 模板：
+{% include "nav.html" %}
+=================================
+=================================
+csrf_token
+csrf_token 用於form表單中，作用是跨站請求偽造保護。
+
+如果不用｛% csrf_token %｝標籤，在用form 表單時，要再次跳轉頁面會報403權限錯誤。
+
+用了｛% csrf_token %｝標籤，在form 表單提交數據時，才會成功。
+
+解析：
+
+首先，向服務器發送請求，獲取登錄頁面，此時中間件csrf 會自動生成一個隱藏input標籤，該標籤裡的value 屬性的值是一個隨機的字符串，用戶獲取到登錄頁面的同時也獲取到了這個隱藏的input標籤。
+
+然後，等用戶需要用到form表單提交數據的時候，會攜帶這個input 標籤一起提交給中間件csrf，原因是form 表單提交數據時，會包括所有的input 標籤，中間件csrf 接收到數據時，會判斷，這個隨機字符串是不是第一次它發給用戶的那個，如果是，則數據提交成功，如果不是，則返回403權限錯誤。
+=================================
+=================================
+自定義標籤和過濾器
+1、在應用目錄下創建templatetags目錄(與templates目錄同級，目錄名只能是templatetags)。
+2、在templatetags目錄下創建任意py文件，如：my_tags.py。
+3、my_tags.py 文件代碼如下：
+
+    from django import template 
+    register = template . Library () #register的名字是固定的,不可改變
+
+修改settings.py 文件的TEMPLATES 選項配置，添加libraries 配置：
+
+    TEMPLATES = [
+        {
+            'BACKEND' : 'django.template.backends.django.DjangoTemplates' ,
+            'DIRS' : [ BASE_DIR , "/templates" , ] ,
+            'APP_DIRS' : True ,
+            'OPTIONS' : {
+                'context_processors ' : [
+                    'django.template.context_processors.debug' ,
+                    'django.template.context_processors.request' ,
+                    'django.contrib.auth.context_processors.auth' ,
+                    'django.contrib.messages.context_processors.messages' ,
+                ] ,
+                "libraries" : {                          #添加這邊三行配置
+                    'my_tags' : 'templatetags.my_tags'   #添加這邊三行配置        
+                }                                      #添加這邊三行配置
+            } ,
+        } ,
+    ]
+
+4、利用裝飾器@register.filter 自定義過濾器。
+注意：裝飾器的參數最多只能有2個。
+    @register . filter
+    def my_filter ( v1 , v2 ): return v1 * v2
+
+5、利用裝飾器@register.simple_tag 自定義標籤。
+    @register . simple_tag
+    def my_tag1 ( v1 , v2 , v3 ): return v1 * v2 * v3
+
+6、在使用自定義標籤和過濾器前，要在html 文件body 的最上方中導入該py 文件。
+    {% load my_tags %}
+
+7、在HTML 中使用自定義過濾器。
+    {{ 11 | my_filter : 22 }} 
+
+8、在HTML 中使用自定義標籤。
+    {% my_tag1 11 22 33 %}
+
+9、語義化標籤
+在該py 文件中導入mark_safe。
+from django . utils . safestring import mark_safe
+
+定義標籤時，用上mark_safe 方法，令標籤語義化，相當於jQuery 中的html() 方法。
+
+和前端HTML文件中的過濾器safe 效果一樣。
+
+@register . simple_tag
+def my_html ( v1 , v2 ): 
+    temp_html = "<input type='text' id='%s' class='%s' />" %( v1 , v2 ) return mark_safe ( temp_html )  
+    
+在HTML中使用該自定義標籤，在頁面中動態創建標籤。
+{% my_html "zzz" "xxx" %}  
+=================================
+=================================
+模板繼承
+
+標籤block...endblock:父模板中的預留區域，該區域留給子模板填充差異性的內容，不同預留區域名字不能相同。
+{% block名稱%}預留給子模板的區域，可以設置設置默認內容{% endblock名稱%}
+
+
+子模板使用標籤extends 繼承父模板：
+{% extends "父模板路徑" %}
+子模板如果沒有設置父模板預留區域的內容，則使用在父模板設置的默認內容，當然也可以都不設置，就為空。
+子模板設置父模板預留區域的內容：
+{ % block名稱% }內容{% endblock名稱%}   
+
+##################################
+    Django html forms 套css
+##################################
+參考：
+CSS styling in Django forms
+https://stackoverflow.com/questions/5827590/css-styling-in-django-forms
+
+方法一
+在forms.py 修改
+class ContactForm(forms.Form):
+    subject = forms.CharField(max_length=100)
+    subject.widget.attrs.update({'class' : 'css設定'})
+
+
+方法二
+addclass在my_app/templatetags/myfilters.py 中創建自定義過濾器：
+
+from django import template
+
+register = template.Library()
+
+@register.filter(name='addclass')
+def addclass(value, arg):
+    return value.as_widget(attrs={'class': arg})
+
+應用您的過濾器：
+
+{% load myfilters %}
+
+<form action="/contact/" method="post">
+  {{ form.non_field_errors }}
+  <div class="fieldWrapper">
+    {{ form.subject.errors }}
+    {{ form.subject.label_tag }}
+    {{ form.subject|addclass:'MyClass' }}
+    <span class="helptext">{{ form.subject.help_text }}</span>
+  </div>
+</form>
+
+
+##################################
+            登入寫法 範例
+##################################
+登入頁面
+mysite/templates/login.html
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>登入</title>
+    </head>
+    <body>
+        <form action="" method="post">
+            <label for="username">用戶名稱:</label>
+            <input type="text" name="username" value="" id="username"> <br/>
+            <label for="password">用戶密碼:</label>
+            <input type="password" name="password" value="" id="password"> <br/>
+            <input type="submit" value="登入" />
+        </form>
+    </body>
+</html>
+
+views.py
+
+...
+from django.contrib import auth
+
+def login(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect('/index/')
+    username = request.POST.get('username', '')
+    password = request.POST.get('password', '')
+    user = auth.authenticate(username=username, password=password)
+    if user is not None and user.is_active:
+        auth.login(request, user)
+        return HttpResponseRedirect('/index/')
+    else:
+        return render(request, 'login.html', locals())
+...
+
+
+##################################
+    使用 Regex 提取部份 URL 為參數
+##################################
+Django的URL是一個 regular expression (regex)。Regular expression 語法可用來描述一個字串的樣式。
+
+(?P<pk>\d+)
+\d 代表一個阿拉伯數字。
+
++ 代表「一個以上」。
+
+所以 \d+ 代表一個以上的阿拉伯數字，例如「0」、「99」、「12345」。可是像「8a」就不符合，因為「a」不是數字。
+
+(?P<pk>) 代表「把這一串東西抓出來，命名為 pk。
+
+所以 (?P<pk>\d+) 代表：抓出一個以上阿拉伯數字，並把抓出來的東西取名為 pk。
+
+綜合以上的規則，r'^post/(?P<pk>\d+)/$' 會達成以下的效果：
+
+URL 符合結果
+http://127.0.0.1/posts/ 不符合，因為前面不是 post/ 開頭。
+http://127.0.0.1/post/  不符合，因為後面抓不到數字。
+http://127.0.0.1/post/1/    符合，抓到的 pk 是 1。
+http://127.0.0.1/post/1234/ 符合，抓到的 pk 是 1234。
+http://127.0.0.1/post/12ab/ 不符合，因為後面有不是數字的東西。

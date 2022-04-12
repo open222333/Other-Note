@@ -1,0 +1,18 @@
+version: '3'
+services:
+  redis_celery:
+    image: redis
+  worker:
+    build: .
+    env_file:
+      - ./env/celery.env
+    volumes:
+      - .:/usr/src/app
+    command: celery worker -A celery -l info -E -P gevent --purge -n worker%i@%h
+  beat:
+    build: .
+    env_file:
+      - ./env/celery.env
+    volumes:
+      - .:/usr/src/app
+    command: celery beat -A celery -l info --pidfile=

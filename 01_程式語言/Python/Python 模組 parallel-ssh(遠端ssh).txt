@@ -1,0 +1,6 @@
+# Python 模組 parallel-ssh(遠端ssh)
+
+## 參考資料
+
+官方文檔
+https://parallel-ssh.readthedocs.io/en/latest/

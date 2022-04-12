@@ -1,0 +1,6 @@
+# Python 模組 schedule(排程)
+
+## 參考資料
+
+schedule 文檔
+https://schedule.readthedocs.io/en/stable/

@@ -1,0 +1,9 @@
+# Python 模組 paramiko(遠端 ssh)
+
+## 參考資料
+
+官方文檔
+https://www.paramiko.org/
+
+Git
+https://github.com/paramiko/paramiko

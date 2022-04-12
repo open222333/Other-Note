@@ -1,0 +1,27 @@
+version: '3'
+services:
+  centos:
+    container_name: centos
+    build: .
+    ports:
+      - 8080:80
+      - 8443:443
+    command: ping 127.0.0.1
+    volumes:
+      - ./html:/var/www/html
+    links:
+      - php_fpm
+    networks:
+      - app-network
+  php_fpm:
+    container_name: php_fpm
+    build: ./php
+    ports:
+      - 9000:9000
+    volumes:
+      - ./html:/var/www/html
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge

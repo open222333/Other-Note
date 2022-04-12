@@ -1,0 +1,6 @@
+# Python 模組 OpenCV(圖像處理)
+
+## 參考資料
+
+opencv官網
+https://docs.opencv.org/4.x/index.html

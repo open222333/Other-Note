@@ -1,0 +1,30 @@
+##################################
+            參考資料
+##################################
+
+【Flask 教學系列】淺談 JWT 與 Flask JWT 實作
+https://www.maxlist.xyz/2020/05/01/flask-jwt-extended/
+
+目前 Flask 常見的 JWT 套件大概以下三種：
+
+Flask-JWT-Extended
+	推薦選擇 Flask-JWT-Extended，因為此套件除了提供實現 JSON Web Tokens 功能外，還提供許多其他功能，像是 Refresh Tokens 功能，或是 Partially protecting routes 功能
+Flask-JWT
+PyJWT
+	可看 Python 模組 PyJWT(JSON Web Token).txt
+
+##################################
+			JWT基本介紹
+##################################
+
+流程 1 – 產生 JWT Token
+
+流程 2 – 驗證 JWT Token
+
+JWT 其實是由三段亂碼組成，分別是
+	Header
+		Header 存放的是一種聲明，alg 中說明著數位簽章使用的加密演算法是 HS256，而 type 說明這個 token 是 JWT。
+	Payload
+		將使用者的狀態存放於此，官方有建議註冊參數，像是 iss (issuer), exp (expiration time), sub (subject), aud (audience), and others.
+	Signature
+		數位簽章的部分，首先會在 Server 建立一組 secret_key，然後再將 Header、Playload 和這組 secret_key，使用 Hash 256 加密。
