@@ -1,0 +1,11 @@
+# Python 模組 setuptools(安裝工具)
+
+## 參考資料
+
+官方文檔
+https://setuptools.pypa.io/en/latest/
+
+PEP-517 和 PEP-518
+https://bernat.tech/posts/pep-517-518/
+
+Setuptools是一個程序包開發過程庫，旨在通過增強Python標準庫distutils來簡化Python項目的打包。

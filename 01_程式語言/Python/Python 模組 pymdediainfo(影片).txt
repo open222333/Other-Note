@@ -1,0 +1,7 @@
+# Python 模組 pymdediainfo(影片)
+
+## 參考資料
+
+Welcome to pymediainfo’s documentation!(文檔)
+https://pymediainfo.readthedocs.io/en/stable/
+

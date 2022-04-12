@@ -1,0 +1,20 @@
+# Python 模組-內建 venv(虛擬環境)
+
+在建立虛擬環境的時候，在你決定要放該虛擬環境的資料夾之後，在 script 中執行 venv 模組並且給定資料夾 path：
+
+python3 -m venv tutorial-env
+
+
+Python Virtual Environment
+The venv module allows you to create virtual Python environments. This allows you to isolate installed packages from the system.
+
+After installing venv, make a directory to house your virtual environments, and then create a virtual environment named md using venv. You can call your virtual environment whatever you prefer.
+
+apt-get install python3-venv
+mkdir /home/udoms/env/
+python3 -m venv /home/udoms/env/md
+Now activate your virtual environment.
+
+source /home/udoms/env/md/bin/activate
+You will see the name of your virtual environment in parenthesis as a prefix to your username and server name in your terminal window.
+

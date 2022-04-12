@@ -1,0 +1,32 @@
+version: '3'
+services:
+  mysql:
+    container_name: mysql
+    hostname: mysql-container
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./log/mysql:/var/log/mysql
+      - ./conf/mysql:/etc/mysql/conf.d
+  phpmyadmin:
+    container_name: phpmyadmin
+    hostname: phpmyadmin-container
+    image: phpmyadmin/phpmyadmin
+    volumes:
+      - ./conf/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+      - ./data/phpmyadmin/:/srv/phpmyadmin/
+    ports:
+      - 80:80
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      # UPLOAD_LIMIT: '100M'
+    depends_on:
+      - mysql
