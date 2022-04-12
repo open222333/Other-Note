@@ -1,19 +1,18 @@
-##################################
-            參考資料
-##################################
-官方文檔
-https://docs.gunicorn.org/en/stable/run.html
+# Python 模組 gunicorn(WSGI(Web伺服器閘道器介面)Server)
 
-配置文件
-https://docs.gunicorn.org/en/stable/settings.html
+## 參考資料
 
-##################################
-            基本
-##################################
-安裝
+[官方文檔](https://docs.gunicorn.org/en/stable/run.html)
+
+[配置文件](https://docs.gunicorn.org/en/stable/settings.html)
+
+# 操作
+
+```bash
+# 安裝
 pip install gunicorn
 
-啟動
+# 啟動
 gunicorn -w 4 -b 0.0.0.0:8000 檔名:Flask()實例
 
 	-c CONFIG
@@ -87,3 +86,4 @@ gunicorn -w 4 -b 0.0.0.0:8000 檔名:Flask()實例
 
 	-e ENV,  --env ENV
 		設置環境變量
+```
