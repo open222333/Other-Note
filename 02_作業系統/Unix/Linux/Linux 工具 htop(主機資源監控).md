@@ -1,28 +1,26 @@
-##################################
-            參考資料
-##################################
-htop explained
-https://peteris.rocks/blog/htop/
+# Linux 工具 htop(主機資源監控)
 
-Linux htop 系統程序監控工具簡介
-https://matthung0807.blogspot.com/2019/06/linux-htop.html
+## 參考資料
 
-##################################
-            說明
-##################################
-安裝
-CentOS Linux:
-    sudo yum install epel-release
-    sudo yum update
+[htop explained](https://peteris.rocks/blog/htop/)
 
-Debian/Ubuntu Linux:
-    sudo apt-get install htop
+[Linux htop 系統程序監控工具簡介](https://matthung0807.blogspot.com/2019/06/linux-htop.html)
 
-設定檔位置
-    $HOME/.config/htop/htoprc
-    直接把這個檔案刪除，會恢復預設的設定值
+# 安裝
 
+```bash
+# 安裝
+# CentOS Linux:
+sudo yum install epel-release
+sudo yum update
 
+# Debian/Ubuntu Linux:
+sudo apt-get install htop
+```
+
+設定檔位置:`$HOME/.config/htop/htoprc` - 直接把這個檔案刪除，會恢復預設的設定值
+
+```
 標頭中每個代號的意思如下：
 
     PID：Process ID，程序編號
@@ -43,3 +41,4 @@ Debian/Ubuntu Linux:
     MEM%：記憶體使用率。
     TIME+：程序執行時間。
     Comamnd：執行程序的命令。
+```
