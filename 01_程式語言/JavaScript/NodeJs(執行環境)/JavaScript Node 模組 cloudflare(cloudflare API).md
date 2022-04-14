@@ -10,6 +10,8 @@
 
 [cloudflare api 文檔](https://cloudflare.github.io/node-cloudflare/)
 
+[cloudflare JSDoc](https://cloudflare.github.io/node-cloudflare/)
+
 # 指令
 
 ```bash

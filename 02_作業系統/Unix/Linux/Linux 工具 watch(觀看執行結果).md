@@ -8,7 +8,6 @@
 
 ## watch 指令
 
-
 ```bash
 
 watch -n 1 'echo $date' -n 每秒執行
