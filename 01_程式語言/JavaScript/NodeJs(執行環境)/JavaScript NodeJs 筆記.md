@@ -16,7 +16,6 @@ Node.js 是能夠在伺服器端運行 JavaScript 的開放原始碼、跨平台
 
 [Node.js 中文网](http://nodejs.cn/learn/introduction-to-nodejs)
 
-
 # nvm 指令
 
 [nvm github](https://github.com/nvm-sh/nvm)

@@ -1,4 +1,5 @@
-# PHP 模組 sample()
+# PHP 套件 sample()
+# PHP 函式庫 sample()
 
 ```
 ```

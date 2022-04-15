@@ -1,4 +1,4 @@
-# Python 模組 requests(爬蟲)
+# Python 模組 requests(http工具)
 
 ## 參考資料
 
@@ -8,36 +8,27 @@
 
 [cURL 轉換器](https://curl.se/docs/manpage.html)
 
+[cURL轉成個別語言範本](https://curlconverter.com/#python)
+
 ## requests模組
 
 ```bash
-requests模組(需安裝)
+# requests模組(需安裝)
 pip install requests
 ```
-
-方法 requests.get(url,headers=)：傳回網頁的HTML原始檔案。
-    參數 url:欲下載網頁資訊的網址參數。
-    參數 headers:設定標頭。
-
-物件 Response物件：
-    屬性 status_code：若值是requests.codes.ok，表示獲得的網頁內容成功。
-    屬性 text：網頁內容。
-    方法 raise_for_status():針對網址正確但後續檔案名稱錯誤產生異常處理。
 
 [Python Request增加代理伺服器(proxy)](https://stackoverflow.com/questions/8287628/proxies-with-python-requests-module/8287752#8287752)
 
 ```Python
 proxy1 = {
     # 前面指使用什麼協定 後面用什麼proxy
-    "http": "http://IP:PORT", 
+    "http": "http://IP:PORT",
     "https": "http://IP:PORT",
     "ftp": "",
 }
 ```
 
-## cURL 實作範本
-
-瀏覽器取得 cURL
+# cURL 實作範本 瀏覽器取得 cURL
 
 ```
 Curl from Google Chrome
@@ -47,20 +38,42 @@ Right click (or Ctrl-click) a request
 Click "Copy" → "Copy as cURL"
 ```
 
-### Basic Auth
+# 用法
 
-```python
+```Python
+# Basic Auth
+
+# cURL Command
+'''
+curl "https://api.test.com/" -u "some_username:some_password"
+'''
+
 import requests
 
 response = requests.get(
-    'https://api.test.com/', 
+    'https://api.test.com/',
     auth=('some_username', 'some_password')
 )
 ```
 
-### POST
+```Python
+# POST
 
-```python
+# cURL Command
+'''
+curl 'http://fiddle.jshell.net/echo/html/' \
+    -H 'Origin: http://fiddle.jshell.net' \
+    -H 'Accept-Encoding: gzip, deflate' \
+    -H 'Accept-Language: en-US,en;q=0.8' \
+    -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36' \
+    -H 'Content-Type: application/x-www-form-urlencoded; charset=UTF-8' \
+    -H 'Accept: */*' \
+    -H 'Referer: http://fiddle.jshell.net/_display/' \
+    -H 'X-Requested-With: XMLHttpRequest' \
+    -H 'Connection: keep-alive' \
+    --data 'msg1=wow&msg2=such&msg3=data' --compressed
+'''
+
 import requests
 
 headers = {
@@ -86,12 +99,22 @@ response = requests.post(
     headers=headers,
     data=data
 )
-
 ```
 
-### GET
+```Python
+# GET
 
-```python
+# cURL Command
+'''
+curl 'http://en.wikipedia.org/' \
+    -H 'Accept-Encoding: gzip, deflate, sdch' \
+    -H 'Accept-Language: en-US,en;q=0.8' \
+    -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36' \
+    -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' \
+    -H 'Referer: http://www.wikipedia.org/' \
+    -H 'Connection: keep-alive' --compressed
+'''
+
 import requests
 
 headers = {
