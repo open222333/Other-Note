@@ -1,4 +1,4 @@
-# PHP 模組 Carbon(日期時間)
+# PHP 套件 carbon(日期時間)
 
 ## 參考資料
 
