@@ -36,6 +36,8 @@
 
 [菜鳥教程 製作Scrapy爬蟲](https://www.runoob.com/w3cnote/scrapy-detail.html)
 
+[[Scrapy教學3]如何有效利用Scrapy框架建立網頁爬蟲看這篇就懂](https://www.learncodewithmike.com/2021/01/scrapy-create-spider.html)
+
 [Scrapy Item Pipeline 存入資料庫](https://ithelp.ithome.com.tw/articles/10207157)
 
 [response objects - 爬取後回傳](https://doc.scrapy.org/en/1.3/topics/request-response.html#response-objects)
@@ -257,6 +259,102 @@ class SampleSpider(scrapy.Spider):
 ```
 
 ```Python
+# 多層頁面
+class SampleTwoParseSpider(scrapy.Spider):
+    '''需爬內頁'''
+    name = 'SampleTwoParse'
+    site_name = ''
+    video_type = ''
+    video_item = ''
+    video_filter = ''
+    target_url = ''
+    user_agent = FakeUserAgent().google
+
+    def __init__(self, pages=5, wait_sec=30, *tags):
+        self.pages = int(pages)
+        self.wait_sec = int(wait_sec)
+        self.tags = [tag for tag in tags]
+
+    def start_requests(self):
+        start_urls = []
+        items = ['/']
+
+        start_urls.append(self.target_url)
+        if self.pages > 1:
+            for item in items:
+                for num in range(1, self.pages + 1):
+                    start_urls.append(self.target_url + f'{item}{num}')
+
+        for url in start_urls:
+            yield SplashRequest(
+                url=url,
+                callback=self.first_parse,
+                args={
+                    'wait': self.wait_sec,
+                    'splash_headers': {'User-Agent': self.user_agent}
+                }
+            )
+
+    def first_parse(self, response):
+        soup = BeautifulSoup(response.body, 'lxml')
+
+        videos = soup.select('')
+        for video in videos:
+            data = {}
+            try:
+                cover = video.select_one('')
+                title = video.select_one('')
+                video_page_url = video.select_one('')
+            except:
+                traceback.print_exc()
+
+            data['cover'] = cover
+            data['title'] = title
+            data['video_page_url'] = video_page_url
+
+            yield SplashRequest(
+                url=data['video_page_url'],
+                callback=self.parse,
+				# meta 可將資料保留 並傳到下一個parse
+                meta={'data': data},
+                args={
+                    'wait': self.wait_sec,
+                    'splash_headers': {'User-Agent': self.user_agent}
+                }
+            )
+
+    def parse(self, response):
+        item = VideoItem()
+        soup = BeautifulSoup(response.body, 'lxml')
+        data = response.request.meta['data']
+        target = True
+
+        try:
+            views = soup.select_one('')
+        except:
+            traceback.print_exc()
+
+        # 排除標籤內有tags
+        tags_select = soup.select('')
+        for tag in tags_select:
+            if tag.text in self.tags:
+                target = False
+                break
+
+        if target:
+            data['spider_code'] = self.name
+            data['site_name'] = self.site_name
+            data['video_type'] = self.video_type
+            data['video_item'] = self.video_item
+            data['video_filter'] = self.video_filter
+            data['views'] = get_SI_prefix_num(str(views))
+
+            item.set_item(data)
+            yield item
+
+```
+
+```Python
 #mySpider/spider/itcast.py
 import scrapy
 
@@ -329,4 +427,51 @@ class QuotesSpider(scrapy.Spider):
         if num:
             url = f'hppt://quotes.com/{num}'
             yield scrapy.Request(url)
+```
+
+### 使用程式啟動scrapy spider
+
+```Python
+def run_spider_one(spider):
+    # 設定工作資料夾
+    import os
+    from scrapy import cmdline
+
+    os.chdir(os.path.dirname(__file__))
+
+    args = f"scrapy crawl {spider_name}".split()
+    cmdline.execute(args)
+
+
+def run_spider_two(spider: scrapy.Spider):
+    '''spider: scrapy.Spider 類別實例'''
+    from scrapy.crawler import CrawlerProcess
+    from scrapy.utils.project import get_project_settings
+    import os
+    os.chdir('scrapy_project')
+    process = CrawlerProcess(get_project_settings())
+    process.crawl(spider)
+    process.start()
+```
+
+### 中間件 proxy 實作範例
+
+```Python
+from w3lib.http import basic_auth_header
+
+class CustomProxyMiddleware(object):
+    '''proxy
+    使用 proxy
+
+    要確保在HttpProxyMiddleware之前
+    DOWNLOADER_MIDDLEWARES = {
+        'myproject.middlewares.CustomProxyMiddleware': 350,
+        'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 400,
+    }
+
+    '''
+
+    def process_request(self, request, spider):
+        request.meta['proxy'] = "http://192.168.1.1:8050"
+        request.headers['Proxy-Authorization'] = basic_auth_header('proxy_user', 'proxy_pass')
 ```
