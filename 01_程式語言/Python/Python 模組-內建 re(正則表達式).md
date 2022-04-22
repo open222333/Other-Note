@@ -18,19 +18,26 @@
 ```python
 import re
 # MatchObject物件(Regex物件)方法
-# 方法 compile():建立Regex物件
-#     參數:re.VERBOSE：在正則表達式內增加註解
-# 方法 search():re.search(pattern,string,flags)
-#     參數:re.I(re.IGNORECASE)：搜尋時忽略大小寫
-#     參數:re.VERBOSE：在正則表達式內增加註解
-# 方法 findall():re.findall(pattern,string,flags)
-#     參數:re.I(re.IGNORECASE)：搜尋時忽略大小寫
-#     參數:re.VERBOSE：在正則表達式內增加註解
-# 方法 group():將搜尋結果回傳
-# 方法 end():可傳回搜尋到字串的結束位置
-# 方法 start():可傳回搜尋到字串的起始位置
-# 方法 span():可傳回搜尋到字串的(起始,結束)位置
-# 方法 sub(pattern,newstr,msg):使用新的字串取代原本字串的內容
+
+# 建立Regex物件
+compile()
+    # 參數:re.VERBOSE：在正則表達式內增加註解
+re.search(pattern,string,flags)
+    # 參數:re.I(re.IGNORECASE)：搜尋時忽略大小寫
+    # 參數:re.VERBOSE：在正則表達式內增加註解
+re.findall(pattern,string,flags)
+    # 參數:re.I(re.IGNORECASE)：搜尋時忽略大小寫
+    # 參數:re.VERBOSE：在正則表達式內增加註解
+# 將搜尋結果回傳
+group()
+# 可傳回搜尋到字串的結束位置
+end()
+# 可傳回搜尋到字串的起始位置
+start()
+# 可傳回搜尋到字串的(起始,結束)位置
+span()
+# 使用新的字串取代原本字串的內容
+sub(pattern,newstr,msg)
 ```
 
 # 正則表達式

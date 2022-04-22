@@ -53,7 +53,7 @@
 
 [Scrapy and proxies](https://stackoverflow.com/questions/4710483/scrapy-and-proxies)
 
-## 基本指令
+# 基本指令
 
 ```bash
 # 安裝套件
@@ -88,6 +88,9 @@ scrapy runspider 檔案名.py
 
 # 不遵守 robot協議
 ROBOTSTXT_OBEY = False
+
+# docker 寫法可用
+SPLASH_URL = "http://splash:8050"
 ```
 
 ```bash
