@@ -1,9 +1,0 @@
-# Python 模組-內建 argparse(命令列解析模組)
-
-## 參考資料
-
-官方
-https://docs.python.org/zh-tw/3/howto/argparse.html
-
-argparse --- 命令行选项、参数和子命令解析器
-https://docs.python.org/zh-tw/3/library/argparse.html#module-argparse

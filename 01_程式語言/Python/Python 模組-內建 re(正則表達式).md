@@ -1,19 +1,17 @@
 # Python 模組-內建 re(正則表達式)
 
+```
+正則表達式(Regular Expression)
+執行模式的比對與搜尋。
+```
+
 ## 參考資料
 
 [re --- 正则表达式操作 (文檔)](https://docs.python.org/zh-tw/3/library/re.html)
 
 [正則表達式再現工具](https://c.runoob.com/front-end/854/)
 
-## 筆記
-
-```
-正則表達式(Regular Expression)
-執行模式的比對與搜尋。
-```
-
-## re模組
+# 用法
 
 ```python
 import re
