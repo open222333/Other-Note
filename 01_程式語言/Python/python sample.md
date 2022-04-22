@@ -1,4 +1,4 @@
-# Python 模組-內建 sample()
+# Python 模組 sample()
 
 ```
 ```
