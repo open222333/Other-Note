@@ -232,7 +232,7 @@ docker push myusername/docker-whale
 ```
 
 ---
-## 範例 Dockerfile
+# 範例 Dockerfile
 
 [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
 
@@ -299,7 +299,7 @@ ENTRYPOINT      ["/entrypoint.sh"]
 ```
 
 ---
-## 範例 docker-compose
+# 範例 docker-compose
 
 [Github 範例](https://github.com/docker/awesome-compose)
 
@@ -406,7 +406,7 @@ networks:
 # 換言之，networks是可以省略的
 ```
 
-## 多個服務使用同資料 示例用例
+# 多個服務使用同資料 示例用例
 當您有多個具有通用配置的服務時，擴展單個服務非常有用。
 下面的示例是具有兩個服務的 Compose 應用程序：一個 Web 應用程序和一個隊列工作器。
 這兩種服務使用相同的代碼庫並共享許多配置選項。
@@ -447,4 +447,21 @@ services:
     command: /code/run_worker
     depends_on:
       - queue
+```
+
+# 連線 主機別名
+
+`IMAGE`://`DOCKER_IP`:`PORT`
+
+```yml
+version: "3.9"
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+  db:
+    image: postgres
+    ports:
+      - "8001:5432"
 ```

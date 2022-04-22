@@ -17,6 +17,8 @@
 
 [正規表示式 Regular Expression](https://atedev.wordpress.com/2007/11/23/%E6%AD%A3%E8%A6%8F%E8%A1%A8%E7%A4%BA%E5%BC%8F-regular-expression/)
 
+[JavaScript RegExp Reference](https://www.w3schools.com/jsref/jsref_obj_regexp.asp)
+
 # 用法
 
 ```JavaScript
@@ -58,3 +60,15 @@ String.prototype.search()
 // 在字串根據匹配到的項目拆成陣列。
 String.prototype.split()
 ```
+
+# pattern
+
+`語法`
+
+```
+/pattern/modifier(s);
+```
+
+* i : 不區分大小寫的比對
+* g : 表示會可比對多個成功的結果，預設沒有 g 時，就是比對到一個就停止
+* m : 意思是變成每一行文字都有字首與字尾，變成可能每一行文字都是一組字首字尾，原本沒有定義 m 時，則為所有文字的開頭為字首，與最後一個字為字尾，這樣只有一組字首字尾。`\r\n 意思是換行`

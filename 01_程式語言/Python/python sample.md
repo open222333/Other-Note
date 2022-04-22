@@ -5,11 +5,13 @@
 
 ## 參考資料
 
-[]()
+[sample pypi](https://pypi.org/project/sample/)
 
 # 指令
 
 ```bash
+# 安裝
+pip install sample
 ```
 
 # 用法
