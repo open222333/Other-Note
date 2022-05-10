@@ -14,6 +14,8 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 
 [MongoDB CRUD Operations(各種程式使用的範例)](https://docs.mongodb.com/manual/crud/)
 
+[Mondb 邏輯運算子](https://www.mongodb.com/docs/manual/reference/operator/query/)
+
 [mongodb下載地址](https://www.mongodb.com/download-center#community)
 
 
@@ -125,7 +127,7 @@ security:
 
 ```bash
 ### 開放對外埠 方法一
-	
+
 # 檢視防火牆狀態
 systemctl status firewalld
 # mongodb預設埠號
@@ -168,7 +170,7 @@ systemctl stop mongod
 systemctl enable mongod
 
 # 創建數據庫文件的存放位置，啟動mongodb服務時需要先確定數據庫文件存放的位置，否則係統不會自動創建，啟動會不成功。
-mongod --dbpath 
+mongod --dbpath
 # 表示日誌文件存放的路徑
 mongod --logpath
 # 表示以追加的方式寫日誌文件
@@ -232,7 +234,7 @@ save()
 db.users.save({"name":"lecaf"})
 
 // 在users集合中寫入新資料，如果没有users，mongodb會自動建立一個
-db.users.insert({"name":"ghost", "age":10})    
+db.users.insert({"name":"ghost", "age":10})
 
 // save()和insert()也存在著些許區別：若新增的數據主鍵已經存在，insert()會不做操作並提示錯誤，而save() 則更改原來的內容為新內容。
 
@@ -283,7 +285,7 @@ db.collection.find({ "key" : { $gt: value1 , $lt: value2 } })
 // 查詢key <> value
 db.collection.find({ "key" : { $ne: value } })
 
-// 條件運算, 相當於key % 10 == 1 
+// 條件運算, 相當於key % 10 == 1
 db.collection.find({ "key" : { $mod : [ 10 , 1 ] } })
 
 // 不屬於 1,2,3任一
@@ -312,7 +314,7 @@ db.collection.find({ "key.subkey" :value })
 db.collection.find({ "key": { $not : /^val.*val$/i } })
 
 // 1代表升冪排列，-1代表降冪
-db.collection.find({}).sort({ "key1" : -1 ,"key2" : 1 })    
+db.collection.find({}).sort({ "key1" : -1 ,"key2" : 1 })
 
 // 控制返回結果數量，如果參數是0，則當作沒有約束，limit()將不起作用(會對傳入參數求求絕對值)
 b.collection.find({}).limit(5)
@@ -343,9 +345,9 @@ db.users.findAndModify({
 
 // mongodb query範例
 // 聚合
-// 判斷 最後更新和創造只差一個月 以及一個月內  
+// 判斷 最後更新和創造只差一個月 以及一個月內
 db.avdata_video.aggregate([
-    { 
+    {
         $addFields:{days:{$divide:[{$subtract: ["$avdata_updated_at","$avdata_created_at"]}, 60 * 60 * 24 * 1000]}}
     },
     {
