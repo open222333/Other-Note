@@ -3,3 +3,5 @@
 ## 參考資料
 
 [Flask-MongoEngine 文檔](http://docs.mongoengine.org/projects/flask-mongoengine/en/latest/)
+
+[MongoEngine - Query Operators](https://www.tutorialspoint.com/mongoengine/mongoengine_query_operators.htm)
