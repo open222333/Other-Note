@@ -207,6 +207,8 @@ docker-compose exec <service> bash  -f  docker exec -it <id or container-name> b
 
 # 要查看應用程序的輸出
 docker logs $container_id
+	# --tail 顯示筆數
+	# -f
 ```
 
 ---
