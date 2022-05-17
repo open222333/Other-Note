@@ -10,6 +10,8 @@ S3fs:Amazon S3或Amazon Simple Storage Service
 
 [Install s3fs on Centos 7](https://pikedom.com/install-s3fs-on-centos-7/)
 
+[s3fs 的command](https://github.com/s3fs-fuse/s3fs-fuse/wiki/Fuse-Over-Amazon#use_cache-default-which-means-disabled)
+
 
 # CentOS 步驟
 
@@ -33,7 +35,7 @@ s3fs downloads-repository {/path/to/mountpoint} -o passwd_file=${HOME}/.passwd-s
 # 編輯/etc/fstab 添加下列內容({mybucket}, {/path/to/mountpoint}:路徑要先建立, {region})：
 s3fs#{mybucket} {/path/to/mountpoint} fuse _netdev,allow_other,use_path_request_style,url=https://{region}.linodeobjects.com/,uid=userid,gid=groupid 0 0
 
-s3fs#{mybucket} {/path/to/mountpoint} fuse _netdev,allow_other,use_path_request_style,url=https://{region}.linodeobjects.com/,uid=userid,gid=groupid 0 0
+s3fs#{mybucket} {/path/to/mountpoint} tmpdir={},retries=3,fuse _netdev,allow_other,use_path_request_style,url=https://{region}.linodeobjects.com/,uid=userid,gid=groupid 0 0
 
 
 # 掛載 -a：依照設定檔 /etc/fstab 的資料將所有未掛載的磁碟都掛載上來
