@@ -10,7 +10,7 @@ Node.js 是能夠在伺服器端運行 JavaScript 的開放原始碼、跨平台
 
 [NVM 安裝與使用 Node.js](https://pjchender.dev/nodejs/nvm/)
 
-[官網API文檔](https://nodejs.org/api/)
+[官方API文檔](https://nodejs.org/api/)
 
 [使用 VS Code 來開發 Node.js](https://ithelp.ithome.com.tw/articles/10225889)
 
