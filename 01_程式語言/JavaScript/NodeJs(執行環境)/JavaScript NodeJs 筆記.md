@@ -128,6 +128,9 @@ npm install $package@$version
 
 # 更新套件
 npm update
+
+# 列出所有已安裝的套件
+npm list
 ```
 
 # yarn 指令
