@@ -10,6 +10,8 @@
 
 [cURL轉成個別語言範本](https://curlconverter.com/#python)
 
+[requests proxy](https://www.scrapingbee.com/blog/python-requests-proxy/)
+
 ## requests模組
 
 ```bash
