@@ -5,3 +5,8 @@
 [Breadth-first search WIKI](https://en.wikipedia.org/wiki/Breadth-first_search)
 
 [廣度優先搜尋](https://alrightchiu.github.io/SecondRound/graph-breadth-first-searchbfsguang-du-you-xian-sou-xun.html)
+
+# 實作
+
+```Python
+```
