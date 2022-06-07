@@ -58,7 +58,7 @@ certbot --register-unsafely-without-email
 # 生成憑證
 certbot -c cli.ini certonly --dns-cloudflare --no-autorenew -d test.com -d *.test.com
 	certonly
-		單純取得憑證
+		單純取得憑證 獲取證書但不安裝
 	-c, --config CONFIG_FILE
 		path to config file (default: /etc/letsencrypt/cli.ini and ~/.config/letsencrypt/cli.ini)
 	-d DOMAINS
@@ -67,4 +67,65 @@ certbot -c cli.ini certonly --dns-cloudflare --no-autorenew -d test.com -d *.tes
 		Obtain certificates using a DNS TXT record (if you are using Cloudflare for DNS). (default: False)
 	--no-autorenew
 		Disable auto renewal of certificates. (default: True)
+
+# 測試單次執行刷新憑證
+certbot renew -c cli-setting.ini --dns-cloudflare --cert-name %domain% --dry-run
+	-c CONFIG_FILE, --config CONFIG_FILE
+		配置文件的路徑（默認：/etc/letsencrypt/cli.ini 和 ~/.config/letsencrypt/cli.ini)
+	--dry-run
+		讓 certbot 不要真的替換憑證
+	--dns-cloudflare
+		使用 DNS TXT 記錄獲取證書（如果您是 使用 Cloudflare 進行 DNS）
+
+# 測試檢查當前機器的憑證
+certbot certificates
+	'''
+	這將返回以下格式的信息：
+	Found the following certificates:
+	Certificate Name: example.com
+		Domains: example.com, www.example.com
+		Expiry Date: 2017-02-19 19:53:00+00:00 (VALID: 30 days)
+		Certificate Path: /etc/letsencrypt/live/example.com/fullchain.pem
+		Key Type: RSA
+		Private Key Path: /etc/letsencrypt/live/example.com/privkey.pem
+	'''
+```
+
+# 配置文件
+
+```ini
+# This is an example of the kind of things you can do in a configuration file.
+# All flags used by the client can be configured here. Run Certbot with
+# "--help" to learn more about the available options.
+#
+# Note that these options apply automatically to all use of Certbot for
+# obtaining or renewing certificates, so options specific to a single
+# certificate on a system with several certificates should not be placed
+# here.
+
+# Use ECC for the private key
+key-type = ecdsa
+elliptic-curve = secp384r1
+
+# Use a 4096 bit RSA key instead of 2048
+rsa-key-size = 4096
+
+# Uncomment and update to register with the specified e-mail address
+# email = foo@example.com
+
+# Uncomment to use the standalone authenticator on port 443
+# authenticator = standalone
+
+# Uncomment to use the webroot authenticator. Replace webroot-path with the
+# path to the public_html / webroot folder being served by your web server.
+# authenticator = webroot
+# webroot-path = /usr/share/nginx/html
+
+# Uncomment to automatically agree to the terms of service of the ACME server
+# agree-tos = true
+
+# An example of using an alternate ACME server that uses EAB credentials
+# server = https://acme.sectigo.com/v2/InCommonRSAOV
+# eab-kid = somestringofstuffwithoutquotes
+# eab-hmac-key = yaddayaddahexhexnotquoted
 ```
