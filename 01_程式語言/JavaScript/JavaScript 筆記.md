@@ -12,6 +12,10 @@ Web APIs - 說明
 以下清單列出所有能夠用在你開發網路程式或網站時的介面（即是物件的類型）。
 ```
 
+[JavaScript 基礎 - 基本語法、值的型別、變數、迴圈、函數](https://hackmd.io/@Heidi-Liu/note-js101#%E5%80%BC%E7%9A%84%E5%9E%8B%E6%85%8B)
+
+[函式中的參數 (parameters), 引數 (arguments), 預設值 (default parameters), 和其餘運算子 (rest operator)](https://medium.com/itsems-frontend/javascript-parameters-and-arguments-5844261fe6cd)
+
 [JavaScript系列叢書](https://github.com/getify/You-Dont-Know-JS/tree/1ed-zh-CN)
 
 [Google Hosted Libraries(將常用框架放在google伺服器)](https://developers.google.com/speed/libraries#jquery)
@@ -411,4 +415,25 @@ Ajax (Asynchronous JavaScript and XML) 技術
 
 ```
 把框架想像成是「整合html、js和css的格式」
+```
+
+# 使用 format 格式化字符串
+
+```JavaScript
+// 方式1：使用ES6
+var name = 'letian'
+var s = `Hello ${name}`
+console.log(s)
+
+// 方法2：在 String 原型中增加 format 函数
+String.prototype.format = function() {
+    var formatted = this;
+    for( var arg in arguments ) {
+        formatted = formatted.replace("{" + arg + "}", arguments[arg]);
+    }
+    return formatted;
+};
+
+var s = '你好 {0} {1}'.formar('value1', 123)
+console.log(s)
 ```
