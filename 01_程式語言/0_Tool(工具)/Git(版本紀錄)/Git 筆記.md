@@ -1,20 +1,10 @@
 # Git 筆記
 
-## 參考資料
+# 參考資料
 
 [官方網站](https://git-scm.com/)
 
 [為你自己學 Git](https://gitbook.tw/)
-
-```
-為你自己學 Git - 說明
-
-常用 Git 指令介紹。
-各種 Git 的常見問題及使用情境。
-如何修改 Git 的歷史紀錄？
-如何使用 GitHub 與其它人一起工作？
-清楚完整建立 Git 使用觀念。
-```
 
 [Git 安裝教學](https://git-scm.com/book/zh-tw/v2/%E9%96%8B%E5%A7%8B-Git-%E5%AE%89%E8%A3%9D%E6%95%99%E5%AD%B8)
 
@@ -27,7 +17,7 @@
 [Git上的三種工作流程]
 (https://medium.com/i-think-so-i-live/git%E4%B8%8A%E7%9A%84%E4%B8%89%E7%A8%AE%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B-10f4f915167e)
 
-# 管理 commit log
+### 管理 commit log
 
 [使用 git commit template 管理 git log](https://medium.com/dev-chill/%E4%BD%BF%E7%94%A8-git-commit-template-%E7%AE%A1%E7%90%86-git-log-cb70f95fda2f)
 
@@ -38,22 +28,11 @@
 目的：統一團隊之中的 commit message 格式。
 ```
 
-# 圖形化介面軟體
+### 圖形化介面軟體
 
 [Fork](https://git-fork.com/)
 
 [Sourcetree](https://www.sourcetreeapp.com/)
-
-## Git pull 錯誤操作
-
-[git pull 撤销误操作](https://blog.csdn.net/code_segment/article/details/78597441)
-
-```bash
-# 查看歷史變更紀錄
-git reflog (分支名)
-
-git reset --hard 分支名(HEAD 或 branch)@{n}
-```
 
 # Git 基本概念
 
@@ -95,9 +74,12 @@ apt-get install git-all
 ```bash
 # Homebrew
 brew install git
+
+# 更新
+brew upgrade git
 ```
 
-## SSH 綁定 創建
+# SSH 綁定 創建
 
 [Linux 基本 網路相關](../../02_作業系統/01_Unix/01_Linux/Linux%20基本%20網路相關.md)
 
@@ -116,9 +98,12 @@ eval "$(ssh-agent -s)"	# 先使用下列指令開啟SSH代理伺服器
 ssh-add ~/.ssh/id_rsa	# 接著將我們剛剛產生的金鑰加入到SSH Agent
 ```
 
-## Git 指令
+# Git 指令
 
 ```bash
+# 查看git版本
+git version
+
 ### Git Config 環境設定 ###
 # 設定全域(--global) 帳號名
 git config --global user.name "username"
@@ -347,7 +332,9 @@ git fetch origin
 # 抓取 reps-branch, 並將此 branch 以相同名稱建立於 local 的 reps-branch
 git checkout --track origin/reps-branch
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # 抓取 reps-branch, 並將此 branch 以自訂名稱建立於 local 的 reps-branch
+# 須先執行 git fetch
 git checkout --track -b reps-branch origin/reps-branch
 
 ### Git track all remote branch 抓取所有遠端分支 ###
@@ -640,6 +627,17 @@ git checkout --ours filename
 git blame [file]
  # 僅列出56至62行
 git blame -L 56,62 [file]
+
+# 設定永遠快取密碼，則可執行以下指令進行設定
+# 如果使用 store 認證輔助方法，帳號密碼將會以明碼的方式儲存在 ~/.git-credentials 檔案中。
+git config --global credential.helper store
+
+	輸入
+	protocol=https
+	host=bitbucket.org
+	username=deploy@appdet.com
+	password=$password
+
 ```
 
 # 設置git忽略
@@ -698,4 +696,15 @@ for file in files:
         print(file)
         os.system(f"cd {file} && git config user.name {name}")
         os.system(f"cd {file} && git config user.email {email}")
+```
+
+# Git pull 錯誤操作
+
+[git pull 撤销误操作](https://blog.csdn.net/code_segment/article/details/78597441)
+
+```bash
+# 查看歷史變更紀錄
+git reflog (分支名)
+
+git reset --hard 分支名(HEAD 或 branch)@{n}
 ```

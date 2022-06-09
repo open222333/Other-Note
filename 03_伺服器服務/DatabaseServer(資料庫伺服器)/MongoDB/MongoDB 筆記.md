@@ -18,6 +18,8 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 
 [mongodb下載地址](https://www.mongodb.com/download-center#community)
 
+[mongodb 正則表達式](https://www.mongodb.com/docs/manual/reference/operator/query/regex/)
+
 
 # 安全的 關閉 MongoDB 需要連入資料庫
 
