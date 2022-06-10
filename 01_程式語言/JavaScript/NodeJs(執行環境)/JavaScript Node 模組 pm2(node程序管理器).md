@@ -19,6 +19,8 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 
 [pm2 npm 頁面](https://www.npmjs.com/package/pm2)
 
+[pm2 官方文檔](https://pm2.keymetrics.io/docs/usage/pm2-doc-single-page/)
+
 [pm2 - 用法大全](https://tn710617.github.io/zh-tw/pm2/#%E6%9C%89%E8%AE%8A%E6%9B%B4%E6%99%82%E9%87%8D%E5%95%9F)
 
 # 指令
@@ -64,6 +66,9 @@ pm2 completion install
 ```bash
 # 查看列表
 pm2 list
+
+# 顯示$app_name的詳細資訊
+pm2 show $app_name
 
 # 啟動
 pm2 start app.js
