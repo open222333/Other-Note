@@ -1,11 +1,11 @@
-# 
+# Linux 工具 dig(DNS偵錯工具)
 
 ```
 dig是一個網絡管理命令行工具，用於查詢域名系統。
 dig是域名伺服器軟體套件BIND的組成部分。
 ```
 
-## 參考資料
+# 參考資料
 
 [dig (domain information groper)](https://ss64.com/bash/dig.html)
 

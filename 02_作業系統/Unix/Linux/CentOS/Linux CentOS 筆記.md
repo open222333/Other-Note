@@ -12,17 +12,17 @@
 在 Red Hat Enterprise Linux (RHEL) 開發之前持續交付的發行版，定位為 Fedora Linux 和 RHEL 之間的中游。
 ```
 
-## linux 工具 yum(軟體套件管理工具)
+# linux 工具 yum(軟體套件管理工具)
 
 ```
 更新下載工具為 dnf
 ```
 
 ```bash
-# 安裝 指定的安裝包package 
+# 安裝 指定的安裝包package
 yum install package
 
-# 全部更新 
+# 全部更新
 yum update
 
 # 更新指定程式包package
@@ -68,80 +68,141 @@ yum clean oldheaders
 yum clean, yum clean all
 ```
 
----
-## 大流量網站使用 linux CentOS7 BBR
+# 大流量網站使用 linux CentOS7 BBR
 
 [Bottleneck Bandwidth and RTT](https://www.vultr.com/docs/how-to-deploy-google-bbr-on-centos-7)
 
-
-## 指令 升級內核
-
+```
 為了使用 BBR，需要將 CentOS 7 機器的內核升級到 4.9.0。
 (linode 可在Linodes - Configurations - Edit 下更改內核版本)
+```
 
 ```bash
-# 升級前可以先看看當前內核
+### 安裝內核 ###
+# 查看內核(kernel) 列出類似 3.10.0-514.2.2.el7.x86_64
 uname -r
 
-	# 此命令應輸出類似於以下內容的字符串：
-	# 3.10.0-514.2.2.el7.x86_64
-
-# 使用 ELRepo 存儲庫安裝 4.9.0 內核：
+# 安裝 ELRepo 存儲庫 , Install the ELRepo repo
 sudo rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 sudo rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
 
-# 使用 ELRepo 存儲庫安裝 4.9.0 內核：
+# Install the 4.9.0 kernel using the ELRepo repo (使用 ELRepo 存儲庫安裝 4.9.0 內核):
 sudo yum --enablerepo=elrepo-kernel install kernel-ml -y
 
-# 確認結果：
+# Confirm the result:
+# The result should resemble (印出以下結果):
+# kernel-ml-4.9.0-1.el7.elrepo.x86_64
+# kernel-3.10.0-514.el7.x86_64
+# kernel-tools-libs-3.10.0-514.2.2.el7.x86_64
+# kernel-tools-3.10.0-514.2.2.el7.x86_64
+# kernel-3.10.0-514.2.2.el7.x86_64
 rpm -qa | grep kernel
 
-    # 如果安裝成功，您應該kernel-ml-4.9.0-1.el7.elrepo.x86_64在輸出列表中看到：
-
-    # kernel-ml-4.9.0-1.el7.elrepo.x86_64
-    # kernel-3.10.0-514.el7.x86_64
-    # kernel-tools-libs-3.10.0-514.2.2.el7.x86_64
-    # kernel-tools-3.10.0-514.2.2.el7.x86_64
-    # kernel-3.10.0-514.2.2.el7.x86_64
-
-# 顯示 grub2 菜單中的所有條目：
+# Show all entries in the grub2 menu (顯示 grub2 菜單中的所有條目):
+# The result should resemble (印出以下結果):
+# CentOS Linux 7 Rescue a0cbf86a6ef1416a8812657bb4f2b860 (4.9.0-1.el7.elrepo.x86_64)
+# CentOS Linux (4.9.0-1.el7.elrepo.x86_64) 7 (Core)
+# CentOS Linux (3.10.0-514.2.2.el7.x86_64) 7 (Core)
+# CentOS Linux (3.10.0-514.el7.x86_64) 7 (Core)
+# CentOS Linux (0-rescue-bf94f46c6bd04792a6a42c91bae645f7) 7 (Core)
 sudo egrep ^menuentry /etc/grub2.cfg | cut -f 2 -d \'
 
-    # 結果應該類似於：
-    #     CentOS Linux 7 Rescue a0cbf86a6ef1416a8812657bb4f2b860 (4.9.0-1.el7.elrepo.x86_64)
-    #     CentOS Linux (4.9.0-1.el7.elrepo.x86_64) 7 (Core)
-    #     CentOS Linux (3.10.0-514.2.2.el7.x86_64) 7 (Core)
-    #     CentOS Linux (3.10.0-514.el7.x86_64) 7 (Core)
-    #     CentOS Linux (0-rescue-bf94f46c6bd04792a6a42c91bae645f7) 7 (Core)
-
-# 索引從 開始0。這意味著 4.9.0 內核位於1：
+# 根據上面列出的列表 輸入數字選擇要的內核 第一個是0
 sudo grub2-set-default 1
 
-# 重新啟動系統：
+# 重啟伺服器
 sudo shutdown -r now
 
-
-# 啟用 BBR
-# 為了啟用 BBR 算法，需要修改sysctl配置如下：
+### Enable BBR 啟用BBR ###
+# In order to enable the BBR algorithm, you need to modify the sysctl configuration as follows:
+# 為了啟用 BBR 算法，需要修改 sysctl 配置
 echo 'net.core.default_qdisc=fq' | sudo tee -a /etc/sysctl.conf
 echo 'net.ipv4.tcp_congestion_control=bbr' | sudo tee -a /etc/sysctl.conf
 sudo sysctl -p
 
-# 使用以下命令確認 BBR 已啟用
+# confirm that BBR is enabled:
+# 確認 BBR 已啟用
+# The output should resemble (印出以下結果):
+# net.ipv4.tcp_available_congestion_control = bbr cubic reno
 sudo sysctl net.ipv4.tcp_available_congestion_control
 
-    # 輸出應類似於：
-    # net.ipv4.tcp_available_congestion_control = bbr cubic reno
-
 # 驗證
+# 輸出：
+# bbr
 sudo sysctl -n net.ipv4.tcp_congestion_control
 
-    # 輸出：
-    # bbr
+
 
 # 檢查內核模塊是否已加載
+# 輸出將類似於：
+# tcp_bbr                16384  0
 lsmod | grep bbr
-
-    # 輸出將類似於：
-    # tcp_bbr                16384  0
 ```
+
+# SELinux工具程式
+
+[CentOS 官方](https://wiki.centos.org/HowTos/SELinux)
+
+```bash
+### semanage(SELinux工具程式 CentOS 防火牆 功能(預設開啟)) ###
+
+# -m為修改，添加tcp port 5000到http_port_t
+semanage port -m -t http_port_t -p tcp 3128
+
+# -a 添加 啟動的端口加入到端口列表中
+semanage port -a -t http_port_t -p tcp 3128
+
+# 查看http允許訪問的端口：
+semanage port -l | grep http_port_t
+
+# SELinux 設置為寬容模式，方便調試：
+sudo setenforce 0
+
+vim /etc/selinux/config
+
+### === 關閉 SELinux === ###
+vim /etc/selinux/config
+
+# 關閉 SELinux：
+#     SELINUX=enforce
+#     改成:
+#     SELINUX=disabled
+
+#	enforcing：強制模式，SELinux 執行中，依 SELinux 設定限制存取
+#	permissive：寬容模式：SELinux 執行中，但僅顯示警告，而不限制存取
+#	disabled：關閉，SELinux 未執行
+
+# 將 SELINUXTYPE=targeted 註釋
+
+# 儲存後離開編輯器, 需要重新開機設定才會生效。
+
+# 檢查SELinux的狀態
+sestatus
+```
+
+# CentOS 7 網路指令
+
+```bash
+###  ###
+# 重新啟動網路
+systemctl restart network
+
+# 查看網卡資訊
+ifconfig
+
+# 啟動網卡介面
+ifup [ifcsg]
+
+# 關閉網卡介面
+ifdown [ifcsg]
+
+### CentOS 8 ###
+# 重新啟動 NetworkManager, 這時便會一同重新啟動網路
+systemctl restart NetworkManager.
+
+# nmcli是NetworkManager的指令工具
+# 停止及開啟網路的指令:
+nmcli networking off
+nmcli networking on
+```
+
