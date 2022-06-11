@@ -28,8 +28,8 @@ yum install wget -y
 
 # 安裝MySQL Yum repository
 # 已過期 2022
-# wget https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm
-# yum localinstall mysql57-community-release-el7-11.noarch.rpm -y
+wget https://repo.mysql.com//mysql57-community-release-el7-11.noarch.rpm
+yum localinstall mysql57-community-release-el7-11.noarch.rpm -y
 rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
 
 # 確認yum repository已經安裝
@@ -107,38 +107,6 @@ brew install mysql-client
 # For compilers to find mysql-client you may need to set:
 #   export LDFLAGS="-L/usr/local/opt/mysql-client/lib"
 #   export CPPFLAGS="-I/usr/local/opt/mysql-client/include"
-```
-
-
-## 安裝步驟 CentOS7 phpMyAdmin安裝
-
-[How to Install phpMyAdmin on CentOS 7](https://phoenixnap.com/kb/how-to-install-secure-phpmyadmin-on-centos-7)
-
-```bash
-# Step 1: Install EPEL Repository
-yum install -y epel-release
-yum –y update
-
-# Step 2: Install Apache Web Server
-yum install httpd -y
-systemctl status httpd
-
-# Step 3: Installing phpMyAdmin on CentOS 7
-yum -y install phpmyadmin
-
-# Step 4: Configuring and Securing phpMyAdmin
-vim /etc/phpMyAdmin/config.inc.php
-```
-
-```conf
-# Restrict IP Addresses(限制IP地址) 更改“Require IP” or “Allow IP.”
-
-# Change Alias(別名) 默認要有
-Alias /phpMyAdmin /usr/share/phpMyAdmin
-Alias /phpmyadmin /usr/share/phpMyAdmin
-
-# 默認容易成為目標 可考慮換名 可自行添加
-Alias /MySecretLogin /usr/share/phpMyAdmin
 ```
 
 # mysql 指令

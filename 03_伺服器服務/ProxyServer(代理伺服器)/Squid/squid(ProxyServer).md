@@ -1,5 +1,11 @@
 # squid(ProxyServer)
 
+```
+Proxy 提供快取網頁的功能，能提高網頁瀏覽速度。
+VPN 屬於作業系統層級，連上VPN 之後，整台設備都會受影響，包含瀏覽器及其他所有連接到網際網路的應用程式，所有流量都會重新路由。
+而Proxy 的作用是局部的，只適用於指定的應用程式。
+```
+
 ## 參考資料
 
 [設定文檔 參數說明](http://www.squid-cache.org/Doc/config/)
@@ -13,9 +19,7 @@ access.log # 連線紀錄
 cache.log
 ```
 
-# 安裝步驟
-
-`CentOS`
+# 安裝步驟 `CentOS 7`
 
 [CentOS 7 安裝 squid proxy server 及基本設定](https://blog.pmail.idv.tw/?p=13663)
 
@@ -74,7 +78,7 @@ acl Safe_ports port 591         # filemaker
 acl Safe_ports port 777         # multiling http
 ```
 
-`MacOS`
+# 安裝步驟 `MacOS`
 
 ```bash
 # 安裝
@@ -136,7 +140,7 @@ curl -x host_ip:port google.com
 curl -x 'http://{USERNAME}:{PASSWORD}@{IP}:{PORT}' -v "http://www.google.com/"
 ```
 
-## 建立使用者 對 Squid 使用基本身份驗證
+# 建立使用者 對 Squid 使用基本身份驗證 `CentOS`
 
 ```bash
 # 安裝httpd-tools使用htpasswd來創建加密的密碼文件。
