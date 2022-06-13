@@ -48,6 +48,12 @@ pip install package==version
 # 更新指定版本
 pip install --upgrade package==version
 
+# 移除安裝過的套件
+pip uninstall package
+
+# 更新套件
+pip install -U package
+
 # 只下載不安裝
 pip download
 

@@ -175,3 +175,27 @@ http_access allow auth_users
 # 重啟
 systemctl restart squid
 ```
+
+# 在 Squid 3.0 中刪除 X-Forwarded-For 標頭
+
+```
+X-Forwarded-For是用來辨識通過HTTP代理或負載均衡方式連接到Web伺服器的客戶端最原始的IP位址的HTTP頭欄位。
+```
+
+[Remove X-Forwarded-For header in Squid 3.0](https://serverfault.com/questions/102668/remove-x-forwarded-for-header-in-squid-3-0)
+
+設定檔案位置 `/etc/squid/squid.conf`
+
+```conf
+# Hide client ip #
+forwarded_for delete
+
+# Turn off via header #
+via off
+
+# Deny request for original source of a request
+follow_x_forwarded_for deny all
+
+# See below
+request_header_access X-Forwarded-For deny all
+```

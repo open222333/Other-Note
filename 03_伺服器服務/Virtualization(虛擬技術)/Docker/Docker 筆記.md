@@ -202,6 +202,9 @@ docker-compose down
 # 印出log
 docker-compose logs
 
+# 建構 或重新建構
+docker-compose build
+
 # 進入容器
 docker-compose exec <service> bash  -f  docker exec -it <id or container-name> bash
 
