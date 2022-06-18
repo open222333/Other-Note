@@ -98,6 +98,43 @@ eval "$(ssh-agent -s)"	# 先使用下列指令開啟SSH代理伺服器
 ssh-add ~/.ssh/id_rsa	# 接著將我們剛剛產生的金鑰加入到SSH Agent
 ```
 
+# git-credential 個人令牌 token
+
+[git-credential-store - Helper to store credentials on disk](https://git-scm.com/docs/git-credential-store)
+
+.git-credentials 檔案內格式
+
+```
+STORAGE FORMAT
+The .git-credentials file is stored in plaintext. 
+Each credential is stored on its own line as a URL like:
+
+https://user:pass@example.com
+
+沒有用 明確設置--file，有兩個文件 git-credential-store 將按優先順序搜索憑據：
+
+~/.git-credentials
+用戶特定的憑據文件。
+
+$XDG_CONFIG_HOME/git/credentials
+第二個用戶特定的憑據文件。
+如果$XDG_CONFIG_HOME未設置或為空，$HOME/.config/git/credentials將被使用。
+~/.git-credentials如果也有匹配的憑據，則不會使用存儲在此文件中的任何憑據。
+如果您有時使用不支持的舊版本 Git，最好不要創建此文件。
+
+對於憑證查找，文件按上面給出的順序讀取，找到的第一個匹配憑證優先於列表下方文件中找到的憑證。
+
+默認情況下，憑證存儲將寫入列表中的第一個現有文件。
+如果這些文件都不存在，~/.git-credentials將被創建並寫入。
+```
+
+git 相關指令
+
+```bash
+# 將token存在 path/to/.sample-credentials
+git config --global credential.helper 'store --file path/to/.sample-credentials'
+```
+
 # Git 指令
 
 ```bash
