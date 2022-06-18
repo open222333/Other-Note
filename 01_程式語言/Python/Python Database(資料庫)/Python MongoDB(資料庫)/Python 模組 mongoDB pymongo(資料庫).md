@@ -2,6 +2,8 @@
 
 ## 參考資料
 
+[MongoDB CRUD Operations(各種程式使用的範例)](https://docs.mongodb.com/manual/crud/)
+
 [MongoDB 基礎入門教學：MongoDB Shell 篇](https://blog.gtwang.org/programming/getting-started-with-mongodb-shell-1/)
 
 [cursor– 迭代 MongoDB 查詢結果的工具](https://pymongo.readthedocs.io/en/stable/api/pymongo/cursor.html)
@@ -158,31 +160,31 @@ db.集合名稱.drop()
 
     Object ID
     ⽂檔ID
-    
+
     String
     字串， 最常⽤， 必須是有效的UTF-8
-    
+
     Boolean
     儲存⼀個布林值， true或false
-    
+
     Integer
     整數可以是32位或64位， 這取決於伺服器
-    
+
     Double
     儲存浮點值
-    
+
     Arrays
     陣列或列表， 多個值儲存到⼀個鍵
-    
+
     Object
     ⽤於嵌⼊式的⽂檔， 即⼀個值為⼀個⽂檔
-    
+
     Null
     儲存Null值
-    
+
     Timestamp
     時間戳， 表示從1970-1-1到現在的總秒數
-    
+
     Date
     儲存當前⽇期或時間的UNIX時間格式
 
@@ -309,7 +311,7 @@ db.集合名稱.find().skip(NUMBER)
 db.test.find().skip(2)
 
 // 同時使用
-db.test.find().limit(4).skip(5) 
+db.test.find().limit(4).skip(5)
 db.test.find().skip(5).limit(4)
 // 注意：先使用skip在使用limit的效率要高於前者
 
@@ -326,7 +328,7 @@ db.test.find({
 // 在查詢到的返回結果中， 只選擇必要的欄位，命令為：
 db.集合名稱.find({},{欄位名稱:1,...})
 
-// 引數為欄位與值， 值為1表示顯示， 值為0不顯 
+// 引數為欄位與值， 值為1表示顯示， 值為0不顯
 // 特別注意： 對於_id列預設是顯示的， 如果不顯示需要明確設定為0，例：
 db.test.find({},{_id:0,name:1,gender:1})
 
@@ -457,11 +459,11 @@ db.test.aggregate(
 ## 示例
 對於如下資料，需要統計出每個country/province下的userid的數量（同一個userid只統計一次）
 ```js
-{ "country" : "china", "province" : "sh", "userid" : "a" }  
-{  "country" : "china", "province" : "sh", "userid" : "b" }  
-{  "country" : "china", "province" : "sh", "userid" : "a" }  
-{  "country" : "china", "province" : "hf", "userid" : "c" }  
-{  "country" : "china", "province" : "hf", "userid" : "da" }  
+{ "country" : "china", "province" : "sh", "userid" : "a" }
+{  "country" : "china", "province" : "sh", "userid" : "b" }
+{  "country" : "china", "province" : "sh", "userid" : "a" }
+{  "country" : "china", "province" : "hf", "userid" : "c" }
+{  "country" : "china", "province" : "hf", "userid" : "da" }
 {  "country" : "china", "province" : "hf", "userid" : "fa" }
 
 // 參考答案
@@ -518,11 +520,11 @@ db.stu.aggregate(
 對於如下資料：統計出每個country/province下的userid的數量（同一個userid只統計一次），結果中的欄位為{country:""，province:""，counter:"*"}
 
 ```js
-{ "country" : "china", "province" : "sh", "userid" : "a" }  
-{  "country" : "china", "province" : "sh", "userid" : "b" }  
-{  "country" : "china", "province" : "sh", "userid" : "a" }  
-{  "country" : "china", "province" : "hf", "userid" : "c" }  
-{  "country" : "china", "province" : "hf", "userid" : "da" }  
+{ "country" : "china", "province" : "sh", "userid" : "a" }
+{  "country" : "china", "province" : "sh", "userid" : "b" }
+{  "country" : "china", "province" : "sh", "userid" : "a" }
+{  "country" : "china", "province" : "hf", "userid" : "c" }
+{  "country" : "china", "province" : "hf", "userid" : "da" }
 {  "country" : "china", "province" : "hf", "userid" : "fa" }
 // 參考答案
 
