@@ -46,10 +46,14 @@ tmux ls
 tmux a -t 1
 
 # Creating detached sessions
-$ tmux new -s ostechnix(名字) -d
+tmux new -s (名字) -d
 
 # Kill Tmux sessions
-$ tmux kill-session -t ostechnix(名字)
+tmux kill-session -t (名字)
+
+# 重啟tmux服務，重新讀取配置文件
+tmux start
+start-server
 ```
 
 Panes（分割視窗）
