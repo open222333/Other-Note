@@ -2,7 +2,11 @@
 
 ## 參考資料
 
+[官方網站](https://redis.io/)
+
 [官方文檔](https://redis.io/documentation)
+
+[官方文檔 redis 配置 設定檔](https://redis.io/topics/config)
 
 [Redis Master-Slave](https://stevenitlife.blogspot.com/2018/09/redis-master-slave.html)
 
@@ -12,9 +16,7 @@
 
 [Redis GUI工具 (Mac)](https://github.com/qishibo/AnotherRedisDesktopManager/releases)
 
-[redis 配置 設定檔](https://redis.io/topics/config)
-
-## 安裝步驟 CentOS7 Redis
+# 安裝步驟 CentOS7
 
 [Centos安裝與配置Redis](https://iter01.com/569100.html)
 
@@ -39,7 +41,8 @@ systemctl restart redis
 # 停止
 systemctl stop redis
 ```
-### 設定檔
+
+`設定檔`
 
 ```bash
 vim /etc/redis.conf
@@ -53,6 +56,41 @@ port 6379
 
 # 修改密碼
 equirepass pwd
+```
+
+# 安裝步驟 Mac
+
+[Install Redis on macOS](https://redis.io/docs/getting-started/installation/install-redis-on-mac-os/)
+
+```bash
+# 安裝
+brew install redis
+
+# 測試 Redis 安裝
+# 如果成功，將看到 Redis 的啟動日誌，並且 Redis 將在前台運行。
+# 要停止 Redis，請輸入 Ctrl-C。
+redis-server
+
+# 後台啟動進程 啟動 Redis 並在登錄時重新啟動它。
+brew services start redis
+
+# 檢查已啟動的託管 Redis 的狀態
+# 如果服務正在運行:
+# redis (homebrew.mxcl.redis)
+# Running: ✔
+# Loaded: ✔
+# User: miranda
+# PID: 67975
+brew services info redis
+
+# 停止服務
+brew services stop redis
+
+# 重啟
+brew services restart redis
+
+# 進入 redis
+redis-cli
 ```
 
 # master-slave 配置

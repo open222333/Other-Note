@@ -99,14 +99,22 @@ brew install wget
 brew install mysql@5.7
 
 # brew安裝
-brew install mysql-client
-
 # If you need to have mysql-client first in your PATH, run:
 #   echo 'export PATH="/usr/local/opt/mysql-client/bin:$PATH"' >> ~/.profile
 
 # For compilers to find mysql-client you may need to set:
 #   export LDFLAGS="-L/usr/local/opt/mysql-client/lib"
 #   export CPPFLAGS="-I/usr/local/opt/mysql-client/include"
+brew install mysql-client
+
+# 啟動
+brew services start mysql@5.7
+
+# 停止
+brew services stop mysql@5.7
+
+# 移除
+brew uninstall mysql@5.7
 ```
 
 # mysql 指令
