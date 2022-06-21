@@ -26,6 +26,13 @@
 1. netstat 指令
 
 ```bash
+# 查看目前使用的port
+netstat -tulpn
+	-t 代表找走 TCP 協定的
+	-u 代表找走 UDP 協定的
+	-l 代表找 LISTEN 的 socket
+	-n 代表顯示硬體名稱，-p 代表顯示 PID。
+
 netstat -tln # 可以看到有哪些 IP:Port 開啟
 netstat -tulpn | grep LISTEN  # 查詢 port 80 的語法:
 netstat -tulpn | grep :80

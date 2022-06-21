@@ -12,15 +12,14 @@
 
 [docker Hub 官網](https://hub.docker.com/search?type=image&image_filter=store%2Cofficial)
 
----
-## 安裝步驟 Docker 安裝 Docker-compose 安裝
+# 安裝步驟 Docker 安裝 Docker-compose 安裝
 
 [安裝官方文檔 右邊列表有其他系統的安裝步驟](https://docs.docker.com/engine/install/)
 
 [CentOS 安裝 Docker 官方文檔](https://docs.docker.com/engine/install/centos/)
 
-
 ## 設置存儲庫
+
 ```bash
 sudo yum install -y yum-utils
 sudo yum-config-manager \
@@ -62,14 +61,14 @@ sudo docker run hello-world
 
 # 安裝Docker-Compose
 
-	#下載 Docker Compose 的當前穩定版本
-	sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+#下載 Docker Compose 的當前穩定版本
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-	# 對二進製文件應用可執行權限
-	sudo chmod +x /usr/local/bin/docker-compose
+# 對二進製文件應用可執行權限
+sudo chmod +x /usr/local/bin/docker-compose
 
-	# 安裝 Docker Compose
-	sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+# 安裝 Docker Compose
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 ```
 
 ## 指令 docker
@@ -165,7 +164,7 @@ docker network rm
 ```
 
 ---
-## 指令 docker-compose
+# 指令 docker-compose
 
 [官方文檔](https://docs.docker.com/compose/samples-for-compose/)
 
@@ -214,8 +213,7 @@ docker logs $container_id
 	# -f
 ```
 
----
-## 指令 docker hub
+# 指令 docker hub
 
 [docker Hub 官網](https://hub.docker.com/search?type=image&image_filter=store%2Cofficial)
 
@@ -236,7 +234,6 @@ docker restart [OPTIONS] CONTAINER [CONTAINER...]
 docker push myusername/docker-whale
 ```
 
----
 # 範例 Dockerfile
 
 [Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
@@ -303,7 +300,6 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT      ["/entrypoint.sh"]
 ```
 
----
 # 範例 docker-compose
 
 [Github 範例](https://github.com/docker/awesome-compose)

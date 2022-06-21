@@ -106,7 +106,7 @@ ssh-add ~/.ssh/id_rsa	# 接著將我們剛剛產生的金鑰加入到SSH Agent
 
 ```
 STORAGE FORMAT
-The .git-credentials file is stored in plaintext. 
+The .git-credentials file is stored in plaintext.
 Each credential is stored on its own line as a URL like:
 
 https://user:pass@example.com
@@ -133,6 +133,8 @@ git 相關指令
 ```bash
 # 將token存在 path/to/.sample-credentials
 git config --global credential.helper 'store --file path/to/.sample-credentials'
+
+git config --global credential.helper 'store --file ~/.git-credentials'
 ```
 
 # Git 指令
