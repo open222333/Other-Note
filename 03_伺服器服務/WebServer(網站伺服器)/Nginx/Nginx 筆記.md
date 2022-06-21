@@ -8,8 +8,7 @@
 
 [DevOps：如何將 Nginx + uWSGI + Django 的服務部署在一台主機的根目錄](https://orcahmlee.github.io/devops/nginx-uwsgi-django-root/)
 
-
-# 基本指令
+# 安裝步驟 MacOS
 
 ```bash
 ### macOS ###
@@ -18,8 +17,12 @@ brew install nginx
 
 # 重啟
 brew services restart nginx
+```
 
-### CentOS 7 ###
+# 安裝步驟 CentOS7
+
+```bash
+### CentOS7 ###
 # 安裝擴展庫
 yum install epel-release -y
 
@@ -56,6 +59,18 @@ nginx -t
 # 重啟
 nginx -s reload
 
+# 對外開放 6379 port
+# --permanent 指定為永久設定，否則在 firewalld重啟或是重新讀取設定，就會失效
+firewall-cmd --zone=public --add-port=6379/tcp --permanent
+
+# 重新讀取 firewall 設定
+firewall-cmd --reload
+
+```
+
+## 安裝 nginx-plus
+
+```bash
 ### 安裝 nginx-plus ###
 # 設定 nginx-plus 安裝所需的憑證
 mkdir /etc/ssl/nginx
@@ -74,6 +89,11 @@ yum install nginx-plus -y
 yum install nginx-plus-module-geoip -y
 yum install nginx-plus-module-image-filter -y
 yum install nginx-plus-module-subs-filter -y
+```
+
+# 基本指令
+
+```bash
 ```
 
 # nginx conf 設定檔說明
@@ -218,7 +238,7 @@ http {
 }
 ```
 
-## upstream
+# upstream
 
 ```
 upstream 定義將 request proxy 過去的應用
@@ -226,7 +246,7 @@ upstream 定義將 request proxy 過去的應用
 可以達到 load balancer 負載平衡的功能
 ```
 
-## server
+# server
 
 ```
 定義了 proxy server 的相關設定
@@ -234,11 +254,47 @@ upstream 定義將 request proxy 過去的應用
 規定哪些 domain 或 ip 的 request 會被 nginx server 處理（server_name）
 ```
 
-## location
+# location
 
 ```
 像是 routing 的概念
 設定不同的 path 要對應到怎麼樣的設定
 上圖的範例 location 後面接的是 /
 代表任何路徑都會被接收處理
+```
+
+# try_files
+
+```nginx
+# try_files 只能運行於 server, location 之中，有兩種不同的用法：
+file 遵循該 context 中所提供的 root / alias 為根目錄，往後尋找相對路徑的結果
+
+# try_files file ... uri;
+# try_files file ... =code;
+
+### 第一種用法
+# 當一個來自 yoursite.org 的請求，nginx 會去尋找 /var/www/youtsite_path/$uri 這個檔案是否存在，如果找不到時回傳 /var/www/youtsite_path/index.html 這個檔案出去。
+server {
+  listen 80;
+  server_name yoursite.org;
+  root /var/www/yoursite_path;
+
+  location / {
+    try_files $uri /$uri /index.html;
+  }
+}
+
+
+### 第二種用法
+# 當找不到圖片時，自動跳轉到另一台上傳的服務站
+location /images {
+  root /var/www/yoursite_path/images;
+  try_files $uri /$uri =404;
+}
+```
+
+
+```nginx
+# 將所有的 HTTP 路由，在目標路徑找不到時，重導向去回應 index.html 的檔案，進而使 SPA 在抓取其路徑進行渲染，並使用 History API 來控制各種頁面的跳轉與資料的傳遞。
+try_files $uri /$uri /index.html;
 ```

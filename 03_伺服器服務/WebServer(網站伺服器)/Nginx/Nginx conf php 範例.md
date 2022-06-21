@@ -240,7 +240,7 @@ server {
 }
 ```
 
-## php 多版本服務
+# php 多版本服務
 
 `enable-php74-pathinfo.conf`
 

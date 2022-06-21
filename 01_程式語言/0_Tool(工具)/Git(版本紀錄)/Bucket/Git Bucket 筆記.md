@@ -2,13 +2,21 @@
 
 ## 參考資料
 
----
+[Bitbucket Cloud resources](https://support.atlassian.com/bitbucket-cloud/resources/)
 
-## code review流程
+[atlassian REST APIs](https://developer.atlassian.com/cloud/bitbucket/rest/intro/)
+
+# bitbucket webhook 創建與接收處理
+
+[Create and trigger a webhook tutorial](https://support.atlassian.com/bitbucket-cloud/docs/create-and-trigger-a-webhook-tutorial/)
+
+[Webhooks REST APIs](https://developer.atlassian.com/cloud/bitbucket/rest/api-group-webhooks/)
+
+# code review流程
 
 [透過 bitbucket 用 pull request 做 code review](https://www.atlassian.com/git/tutorials/learn-about-code-review-in-bitbucket-cloud)
 
-## app passwords
+# app passwords
 
 若clone時一直遇到權限不足,可使用
 
