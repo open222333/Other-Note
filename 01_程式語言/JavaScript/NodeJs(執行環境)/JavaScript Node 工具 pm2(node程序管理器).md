@@ -1,4 +1,4 @@
-# JavaScript Node 模組 pm2(node程序管理器)
+# JavaScript Node 工具 pm2(node程序管理器)
 
 ```
 pm2 是一個 node 的程序管理器
@@ -66,6 +66,7 @@ pm2 completion install
 ```bash
 # 查看列表
 pm2 list
+pm2 ls
 
 # 顯示$app_name的詳細資訊
 pm2 show $app_name
