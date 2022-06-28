@@ -12,7 +12,9 @@
 
 [requests proxy](https://www.scrapingbee.com/blog/python-requests-proxy/)
 
-## requests模組
+[HTTP2 supported for python requests library](https://github.com/khanhicetea/today-i-learned/blob/master/python/HTTP2-supported-for-python-requests-library.md)
+
+# requests模組
 
 ```bash
 # requests模組(需安裝)
@@ -132,4 +134,17 @@ response = requests.get(
     'http://en.wikipedia.org/',
     headers=headers
 )
+```
+
+# HTTP2 supported for python requests library
+
+```Python
+import requests
+from hyper.contrib import HTTP20Adapter
+
+s = requests.Session()
+s.mount('https://', HTTP20Adapter())
+r = s.get('https://cloudflare.com/')
+print(r.status_code)
+print(r.url)
 ```
