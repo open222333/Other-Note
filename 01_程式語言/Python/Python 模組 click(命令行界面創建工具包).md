@@ -1,9 +1,5 @@
 # Python 模組 click(命令行界面創建工具包)
 
-## 參考資料
-
-[官方文檔](https://click.palletsprojects.com/en/8.0.x/)
-
 ```
 Click 是一個 Python 包，用於以可組合的方式使用盡可能少的代碼創建漂亮的命令行界面。
 它是“命令行界面創建工具包”。
@@ -15,4 +11,22 @@ Click 是一個 Python 包，用於以可組合的方式使用盡可能少的代
 	命令的任意嵌套
 	自動幫助頁面生成
 	支持在運行時延遲加載子命令
+```
+
+## 參考資料
+
+[click pypi](https://pypi.org/project/click/)
+
+[官方文檔](https://click.palletsprojects.com/en/8.0.x/)
+
+# 指令
+
+```bash
+# 安裝
+pip install click
+```
+
+# 用法
+
+```Python
 ```
