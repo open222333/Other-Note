@@ -111,7 +111,7 @@ netstat -natp | grep 27017
 
 `bin/mongod.cfg`文件中會有 dbPath 和logPath的配置
 
-位置:`/etc/mongod.conf`(需重啟)
+位置:`/etc/mongod.conf`(設定完需重啟)
 
 ```conf
 ; 繫結ip預設127.0.0.1只允許本地連線，所以修改為bindIp:0.0.0.0
