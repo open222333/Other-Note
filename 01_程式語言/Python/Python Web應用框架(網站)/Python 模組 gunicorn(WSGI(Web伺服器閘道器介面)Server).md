@@ -6,7 +6,7 @@
 
 [配置文件](https://docs.gunicorn.org/en/stable/settings.html)
 
-# 操作
+# 指令
 
 ```bash
 # 安裝

@@ -1,6 +1,11 @@
 # Python 模組 mongoDB MongoEngine(資料庫)
 
+```
+```
+
 ## 參考資料
+
+[mongoengine pypi](https://pypi.org/project/mongoengine/)
 
 [MongoEngine 文檔](https://docs.mongoengine.org/guide/querying.html)
 
@@ -10,5 +15,10 @@
 
 ```bash
 # 安裝
-python -m pip install -U mongoengine
+pip install mongoengine
+```
+
+# 用法
+
+```Python
 ```

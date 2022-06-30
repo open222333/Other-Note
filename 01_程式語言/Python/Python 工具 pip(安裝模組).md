@@ -14,7 +14,7 @@
 
 [所有指令](https://pip.pypa.io/en/stable/cli/)
 
-## 指令  requirements應用
+# 指令
 
 ```bash
 # 查看pip版本 以及目前pip安裝的site-packages路徑

@@ -1,6 +1,11 @@
 # Python 模組 requests(http工具)
 
+```
+```
+
 ## 參考資料
+
+[requests pypi](https://pypi.org/project/requests/)
 
 [官方文檔](https://docs.python-requests.org/en/master/)
 
@@ -14,37 +19,25 @@
 
 [HTTP2 supported for python requests library](https://github.com/khanhicetea/today-i-learned/blob/master/python/HTTP2-supported-for-python-requests-library.md)
 
-# requests模組
-
-```bash
-# requests模組(需安裝)
-pip install requests
-```
-
 [Python Request增加代理伺服器(proxy)](https://stackoverflow.com/questions/8287628/proxies-with-python-requests-module/8287752#8287752)
 
-```Python
-proxy1 = {
-    # 前面指使用什麼協定 後面用什麼proxy
-    "http": "http://IP:PORT",
-    "https": "http://IP:PORT",
-    "ftp": "",
-}
-```
+# 指令
 
-# cURL 實作範本 瀏覽器取得 cURL
-
-```
-Curl from Google Chrome
-
-Open the Network tab in the DevTools
-Right click (or Ctrl-click) a request
-Click "Copy" → "Copy as cURL"
+```bash
+# 安裝
+pip install requests
 ```
 
 # 用法
 
 ```Python
+# cURL 實作範本 瀏覽器取得 cURL
+# Curl from Google Chrome
+
+# Open the Network tab in the DevTools
+# Right click (or Ctrl-click) a request
+# Click "Copy" → "Copy as cURL"
+
 # Basic Auth
 
 # cURL Command
@@ -134,6 +127,16 @@ response = requests.get(
     'http://en.wikipedia.org/',
     headers=headers
 )
+```
+
+```Python
+# Proxy
+proxy1 = {
+    # 前面指使用什麼協定 後面用什麼proxy
+    "http": "http://IP:PORT",
+    "https": "http://IP:PORT",
+    "ftp": "",
+}
 ```
 
 # HTTP2 supported for python requests library

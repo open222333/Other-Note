@@ -7,9 +7,11 @@ NumPy是Python語言的一個擴充程式庫。
 
 ## 參考資料
 
+[numpy pypi](https://pypi.org/project/numpy/)
+
 [官方文檔](https://numpy.org/doc/)
 
-## 指令
+# 指令
 
 ```bash
 # conda安裝
@@ -23,4 +25,9 @@ conda install numpy
 
 # 安裝
 pip install numpy
+```
+
+# 用法
+
+```Python
 ```

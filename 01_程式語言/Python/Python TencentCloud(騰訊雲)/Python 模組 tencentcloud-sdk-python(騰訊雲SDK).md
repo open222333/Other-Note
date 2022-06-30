@@ -1,5 +1,8 @@
 # Python 模組 tencentcloud-sdk-python(騰訊雲SDK)
 
+```
+```
+
 ## 參考資料
 
 [腾讯云开发者工具套件（SDK）3.0 Python](https://intl.cloud.tencent.com/zh/document/product/583/19698)

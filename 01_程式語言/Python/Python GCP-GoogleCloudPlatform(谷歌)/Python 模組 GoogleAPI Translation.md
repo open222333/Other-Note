@@ -19,15 +19,15 @@ Python google翻譯API 官方(需要付費)
 
 ```bash
 # 免費套件 (不穩定)
-pip3 install googletrans 
+pip3 install googletrans
 
 # 安裝套件
 pip install google-cloud-storage
 ```
 
-# 範例
+# 用法
 
-```python
+```Python
 import googletrans
 from pprint import pprint
 

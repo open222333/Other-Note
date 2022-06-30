@@ -12,7 +12,19 @@
 
 [MySQL 5.7版本 文檔](https://dev.mysql.com/doc/refman/5.7/en/)
 
-# 安裝步驟 CentOS7 MySQL安裝
+## 使用者權限 參考資料
+
+[MySQL / MariaDB 移除使用者帳號及權限](https://ithelp.ithome.com.tw/articles/10235980)
+
+[權限說明](https://rosalie1211.blogspot.com/2019/03/mysql.html)
+
+[淺談MySQL中授權(grant)和撤銷授權(revoke)用法詳解](https://www.itread01.com/articles/1476680778.html)
+
+[只談MySQL (第四天) 帳號與權限](https://ithelp.ithome.com.tw/articles/10029835)
+
+[6.2.2 Privileges Provided by MySQL](https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html#priv_all)
+
+# 安裝步驟 CentOS7
 
 [CENTOS 7 安裝mysql](https://kirby86a.pixnet.net/blog/post/118006518-centos-7-%E5%AE%89%E8%A3%9Dmysql)
 
@@ -40,6 +52,20 @@ yum repolist all | grep mysql
 
 # 安裝MySQL
 yum install mysql-community-server -y
+
+# 查看預設密碼
+cat /var/log/mysqld.log | grep 'temporary password'
+```
+
+```sql
+-- 輸入登入密碼(修改預設密碼)
+ALTER USER root@'localhost' IDENTIFIED BY 'KHL^pjz*TSY$e9r';
+
+-- 修改root用戶可任意IP登入
+UPDATE mysql.user SET host = '%' WHERE user = 'root';
+
+-- 刷新MySQL的系統權限相關表
+FLUSH PRIVILEGES;
 ```
 
 ## 配置設定
@@ -68,28 +94,9 @@ firewall-cmd --zone=public --add-port=3306/tcp --permanent
 
 # 重啟防火牆
 firewall-cmd --reload
-
-# 修改root用戶可任意IP登入
-mysql> update mysql.user set host = '%' where user = 'root';
-
-# 最後生效修改命令
-mysql> flush privileges;
-
-# 查看預設密碼
-cat /var/log/mysqld.log | grep 'temporary password'
-
-	# 狀況：
-	# 	ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.
-	# 	需更改預設密碼
-
-# 輸入登入密碼(修改預設密碼)
-ALTER USER root@'localhost' IDENTIFIED BY '3jy8SyaG!3&N7T';
-
-# 刷新MySQL的系統權限相關表
-FLUSH PRIVILEGES;
 ```
 
-# 安裝步驟 MacOS MySQL 安裝
+# 安裝步驟 MacOS
 
 ```bash
 # 安裝 wget
@@ -117,7 +124,7 @@ brew services stop mysql@5.7
 brew uninstall mysql@5.7
 ```
 
-# mysql 指令
+# 指令
 
 ```bash
 # 啟動服務
@@ -143,71 +150,7 @@ systemctl disable mysqld
 service mysqld reload
 ```
 
-
-# mysql 資料庫 指令
-
-```bash
-# 登入MySQL
-mysql -u root -p (password)
-```
-
-```sql
-# 顯示資料庫
-show databases;
-
-# 創建
-create database [數據庫名];
-
-# 連線
-mysql -h主機地址 -P端口 -u使用者名稱 －p使用者密碼 （注:u與root可以不用加空格，其它也一樣）
-# 斷開
-exit （回車）
-
-# 建立授權
-grant select on 資料庫.* to 使用者名稱@登入主機 identified by \”密碼\”
-# 修改密碼
-mysqladmin -u使用者名稱 -p舊密碼 password 新密碼
-# 刪除授權
-revoke select,insert,update,delete om *.* fromtest2@localhost;
-
-# 顯示資料庫
-show databases;
-# 顯示資料表
-show tables;
-# 顯示錶結構
-describe 表名;
-
-# 建立庫
-create database 庫名;
-# 刪除庫
-drop database 庫名;
-# 使用庫
-use 庫名;
-
-# 建立表
-create table 表名 (欄位設定列表);
-# 刪除表
-drop table 表名;
-# 修改表
-alter table t1 rename t2
-# 查詢表
-select * from 表名;
-# 清空表
-delete from 表名;
-# 備份表:
-mysqlbinmysqldump -h(ip) -uroot -p(password) databasenametablename > tablename.sql
-# 恢復表:
-mysqlbinmysql -h(ip) -uroot -p(password) databasenametablename < tablename.sql（操作前先把原來表刪除）
-
-# 增加列
-ALTER TABLE t2 ADD c INT UNSIGNED NOT NULL AUTO_INCREMENT,ADDINDEX (c);
-# 修改列
-ALTER TABLE t2 MODIFY a TINYINT NOT NULL, CHANGE b cCHAR(20);
-# 刪除列
-ALTER TABLE t2 DROP COLUMN c;
-```
-
-# MySQL 匯出匯入
+# 指令 匯出匯入
 
 1、匯出資料和表結構：
 
@@ -439,21 +382,86 @@ thread_cache_size=120
 query_cache_size=32M
 ```
 
-# MySQL 使用者權限
 
-[MySQL / MariaDB 移除使用者帳號及權限](https://ithelp.ithome.com.tw/articles/10235980)
+# 資料庫指令
 
-[權限說明](https://rosalie1211.blogspot.com/2019/03/mysql.html)
-
-[淺談MySQL中授權(grant)和撤銷授權(revoke)用法詳解](https://www.itread01.com/articles/1476680778.html)
-
-[只談MySQL (第四天) 帳號與權限](https://ithelp.ithome.com.tw/articles/10029835)
-
-[6.2.2 Privileges Provided by MySQL](https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html#priv_all)
-
-# SQL指令 進入MySQL
+```bash
+# 登入MySQL
+mysql -u root -p (password)
+```
 
 ```sql
+-- 顯示資料庫
+show databases;
+
+-- 創建
+create database [數據庫名];
+
+-- 連線
+mysql -h主機地址 -P端口 -u使用者名稱 －p使用者密碼 （注:u與root可以不用加空格，其它也一樣）
+-- 斷開
+exit （回車）
+
+-- 建立授權
+grant select on 資料庫.* to 使用者名稱@登入主機 identified by \”密碼\”
+-- 修改密碼
+mysqladmin -u使用者名稱 -p舊密碼 password 新密碼
+-- 刪除授權
+revoke select,insert,update,delete om *.* fromtest2@localhost;
+
+-- 顯示資料庫
+show databases;
+-- 顯示資料表
+show tables;
+-- 顯示錶結構
+describe 表名;
+
+-- 建立庫
+create database 庫名;
+-- 刪除庫
+drop database 庫名;
+-- 使用庫
+use 庫名;
+
+-- 建立表
+create table 表名 (欄位設定列表);
+-- 刪除表
+drop table 表名;
+-- 修改表
+alter table t1 rename t2
+-- 查詢表
+select * from 表名;
+-- 清空表
+delete from 表名;
+-- 備份表:
+mysqlbinmysqldump -h(ip) -uroot -p(password) databasenametablename > tablename.sql
+-- 恢復表:
+mysqlbinmysql -h(ip) -uroot -p(password) databasenametablename < tablename.sql（操作前先把原來表刪除）
+
+-- 增加列
+ALTER TABLE t2 ADD c INT UNSIGNED NOT NULL AUTO_INCREMENT,ADDINDEX (c);
+-- 修改列
+ALTER TABLE t2 MODIFY a TINYINT NOT NULL, CHANGE b cCHAR(20);
+-- 刪除列
+ALTER TABLE t2 DROP COLUMN c;
+```
+
+# 資料庫指令 - 使用者
+
+```sql
+-- 查看預設密碼
+cat /var/log/mysqld.log | grep 'temporary password'
+
+	-- 狀況：
+	-- ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.
+	-- 需更改預設密碼
+
+-- 輸入登入密碼(修改預設密碼)
+ALTER USER root@'localhost' IDENTIFIED BY 'password';
+
+-- 刷新MySQL的系統權限相關表
+FLUSH PRIVILEGES;
+
 -- 列出所有使用者帳號
 SELECT User,Host FROM mysql.user;
 
@@ -470,6 +478,9 @@ SELECT * FROM user WHERE user='username'\G
 
 -- 創建新使用者
 CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'newpassword';
+
+-- 修改用戶可任意IP登入
+UPDATE mysql.user SET host = '%' WHERE user = 'user';
 
 -- 修改使用者密碼
 SET PASSWORD FOR '目標使用者'@'主機' = PASSWORD('密碼');
@@ -505,7 +516,6 @@ DROP USER 'user'@'host';
 UPDATE mysql.user SET host='%' WHERE user='root';
 ```
 
-
 ## 密碼設定強度修改
 
 ```sql
@@ -530,15 +540,15 @@ SET GLOBAL validate_password_special_char_count =0;
 
 # 許可權 列表
 
-```
-對資料庫:
+```sql
+-- 對資料庫:
 ALL PRIVILEGES、ALTER、CREATE、DELETE、DROP、FILE、INDEX、INSERT、
 PROCESS、REFERENCES、RELOAD、SELECT、SHUTDOWN、UPDATE、USAGE
 共15個, 比前面多了一個"ALL PRIVILEGE"(就是包含全部權限在內)
-對資料表:
+-- 對資料表:
 SELECT、INSERT、UPDATE、DELETE、CREATE、DROP、INDEX、ALTER,create temporary tables, execute, create view, show view,
 共八個
-對資料欄:
+-- 對資料欄:
 SELECT、INSERT、UPDATE
 只有三個
 
@@ -665,7 +675,6 @@ apt-get update
 apt-get install percona-xtrabackup-24 -y
 ```
 
-
 ## 1.mysql-master設定
 
 ```bash
@@ -782,7 +791,6 @@ innodb引擎出了問題
 
 # MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
 
-
 [MySQL warning "IP address could not be resolved"](https://serverfault.com/questions/393862/mysql-warning-ip-address-could-not-be-resolved)
 
 [Is DNS the Achilles heel in your MySQL installation?](https://www.percona.com/blog/2008/05/31/dns-achilles-heel-mysql-installation/)
@@ -803,27 +811,16 @@ innodb引擎出了問題
     echo "192.241.xx.xx venus.example.com venus" >> /etc/hosts
 ```
 
+# Docker Percona XtraBackup
+
 ```
-##################################
-    Docker Percona XtraBackup
-##################################
-https://www.percona.com/doc/percona-xtrabackup/2.4/installation/docker.html
-
-https://hub.docker.com/r/bitnami/percona-xtrabackup/
-
-
-Xtrabackup介紹
-https://www.itread01.com/content/1547450246.html
-
-1、Xtrabackup是什麼
-
 Xtrabackup是一個對InnoDB做資料備份的工具，支援線上熱備份(備份時不影響資料讀寫)，是商業備份工具InnoDB Hotbackup的一個很好的替代品。
 Xtrabackup有兩個主要的工具：xtrabackup、innobackupex
 
     xtrabackup只能備份InnoDB和XtraDB兩種資料表，而不能備份MyISAM資料表
     innobackupex是參考了InnoDB Hotbackup的innoback指令碼修改而來的.innobackupex是一個perl指令碼封裝，封裝了xtrabackup。主要是為了方便的 同時備份InnoDB和MyISAM引擎的表，但在處理myisam時需要加一個讀鎖。並且加入了一些使用的選項。如slave-info可以記錄備份恢 復後，作為slave需要的一些資訊，根據這些資訊，可以很方便的利用備份來重做slave。
 
-2、Xtrabackup可以做什麼 :
+Xtrabackup可以做
 
     線上(熱)備份整個庫的InnoDB、 XtraDB表
 
@@ -839,3 +836,9 @@ Xtrabackup工具支援對InnoDB儲存引擎的增量備份，工作原理如下�
 
 因為logfile裡面記錄全部的資料修改情況，所以，即時在備份過程中資料檔案被修改過了，恢復時仍然能夠通過解析xtrabackup_logfile保持資料的一致。
 ```
+
+[Running Percona XtraBackup in a Docker container](https://www.percona.com/doc/percona-xtrabackup/2.4/installation/docker.html)
+
+[bitnami/percona-xtrabackup](https://hub.docker.com/r/bitnami/percona-xtrabackup/)
+
+[Xtrabackup介紹](https://www.itread01.com/content/1547450246.html)

@@ -4,24 +4,23 @@
 
 [Anaconda 文檔](https://docs.anaconda.com/)
 
-## 安裝指令
+## 安裝步驟
 
-安裝Anaconda
+```bash
+# 下載到本地
+wget https://repo.anaconda.com/archive/Anaconda3-2020.02-Linux-x86_64.sh
 
-    # 下載到本地
-    wget https://repo.anaconda.com/archive/Anaconda3-2020.02-Linux-x86_64.sh 
+# 進行Anaconda的安裝
+bash Anaconda3-5.3.1-Linux-x86_64.sh
 
-    # 進行Anaconda的安裝
-    bash Anaconda3-5.3.1-Linux-x86_64.sh
-    
-    source ~/.bashrc
+source ~/.bashrc
+```
 
-##################################
-            指令
-##################################
+# 指令
+
+```bash
+# 
 source /usr/local/anaconda3/bin/activate
-conda activate (env name)
-
 
 #檢查目前版本
 conda –V
@@ -29,7 +28,7 @@ conda –V
 #進行更新
 conda update conda
 
-#查詢目前已啟動的虛擬環境 
+#查詢目前已啟動的虛擬環境
 conda info -envis
 conda info -e
 
@@ -37,10 +36,14 @@ conda info -e
 conda env list
 
 #建立虛擬環境，例如：虛擬環境myenv，python 3.5
-conda create --name myenv python=3.5 
+conda create --name myenv python=3.5
 
 #建立備份檔案.yaml
 conda env export
+
+# 匯入/匯出環境
+conda env export > environment.yaml
+conda env create -f environment.yaml
 
 #Windows，啟動虛擬環境
 activate myenv
@@ -62,18 +65,4 @@ source deactivate
 
 #刪除虛擬環境中某個package，例如：虛擬環境myenv中的numpy
 conda remove --name myenv numpy
-
-
-創建環境
-conda create -n environment_name python=3 (版本)
-啟動環境
-conda activate environment_name
-退出環境
-deactivate
-列舉環境
-conda env list
-匯入/匯出環境
-conda env export > environment.yaml
-conda env create -f environment.yaml
-刪除環境
-conda env remove -n environment_name
+```

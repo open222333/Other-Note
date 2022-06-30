@@ -1,4 +1,4 @@
-# Python 模組 FinMind_API(股票)
+# Python 範例 FinMind_API(股票)
 
 ## 參考資料
 
