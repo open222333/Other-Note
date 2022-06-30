@@ -20,18 +20,21 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 
 [mongodb 正則表達式](https://www.mongodb.com/docs/manual/reference/operator/query/regex/)
 
+[{ 欄位: { 運算子: 條件 } }](https://www.uj5u.com/shujuku/12759.html)
 
-# 安全的 關閉 MongoDB 需要連入資料庫
+[MongoDB 查詢資料邏輯運算子語法範例](https://matthung0807.blogspot.com/2019/08/mongodb_50.html)
 
-```js
-use admin
-db.shutdownServer()
-```
-
-
-# 安裝步驟 CentOS7 MongoDB
+[mongodb - 聚合管道抛出错误 "A pipeline stage specification object must contain exactly one field."](https://www.coder.work/article/39368)
 
 [Install MongoDB 5.0 on CentOS 8/7 & RHEL 8/7](https://computingforgeeks.com/how-to-install-mongodb-on-centos-rhel-linux/)
+
+[mongod 資料庫指令 manpage](https://docs.mongodb.com/manual/reference/program/mongod/)
+
+[mongodump reference page(文檔)](https://docs.mongodb.com/database-tools/mongodump/#mongodb-binary-bin.mongodump)
+
+[mongorestore reference page(文檔)](https://docs.mongodb.com/database-tools/mongorestore/#mongodb-binary-bin.mongorestore)
+
+# 安裝步驟 CentOS7
 
 ```bash
 # 建立.repo檔案，生成mongodb的源
@@ -107,7 +110,7 @@ sudo rm -r /var/lib/mongo
 netstat -natp | grep 27017
 ```
 
-# 配置檔案設定
+## 配置檔案設定
 
 `bin/mongod.cfg`文件中會有 dbPath 和logPath的配置
 
@@ -125,7 +128,7 @@ security:
   authorization: "enabled"   # disable or enabled
 ```
 
-# 防火牆設定
+## 防火牆設定
 
 ```bash
 ### 開放對外埠 方法一
@@ -144,13 +147,34 @@ firewall-cmd --zone=public --query-port=27017/tcp
 iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 27017 -j ACCEPT
 ```
 
-# mongodb 基本指令
+# 安裝步驟 MacOS
 
-[{ 欄位: { 運算子: 條件 } }](https://www.uj5u.com/shujuku/12759.html)
+```bash
+# 安裝
+brew install mongodb
 
-[MongoDB 查詢資料邏輯運算子語法範例](https://matthung0807.blogspot.com/2019/08/mongodb_50.html)
+# 檢視幫助
+mongod –help
+# 啟動
+brew services start mongodb
+# 停止
+brew services stop mongodb
+# 重啟
+brew services restart mongodb
+# 檢視是否啟動成功
+ps -ef|grep mongod
 
-[mongodb - 聚合管道抛出错误 "A pipeline stage specification object must contain exactly one field."](https://www.coder.work/article/39368)
+## 配置檔案的位置
+/etc/mongod.conf
+
+	# 預設端⼝
+	27017
+	# 日誌的位置
+	/var/log/mongodb/mongod.log
+```
+
+
+# 指令
 
 ```bash
 # 執行檔mongodb 用來連入DB, 預設port 27017
@@ -179,11 +203,36 @@ mongod --logpath
 mongod --logappend
 ```
 
-# mongodb 操作指令
+# 指令 匯入匯出
 
-[mongod 指令 manpage](https://docs.mongodb.com/manual/reference/program/mongod/)
+```bash
+# 匯出
+mongodump
+    # -h: 要備份的 MongoDB 連線位置 服務器地址，例如：127.0.0.1:27017
+    # -d: 要備份的 Database 名稱
+    # -u: 資料庫使用者名稱
+    # -p: 資料庫密碼
+    # -o：備份的數據存放位置，例如：c:\data\dump，目錄需要提前建立
+
+# 匯入
+mongorestore $path
+    # -h --host: 要還原的 MongoDB 連線位置 服務器地址，例如：127.0.0.1:27017
+    # -d --db: 要還原的 Database 名稱
+    # -c --collection:
+    # -u: 資料庫使用者名稱
+    # -p: 資料庫密碼
+    # --dir --directoryperdb: 指定要還原的資料庫檔案來源目錄名稱 不能同時指定<path> 和--dir 選項，--dir也可以設置備份目錄。
+    # --drop: 如果資料庫存在就刪除重新建立 (小心使用)
+    # <path>:設置備份數據所在位置，例如：c:\data\dump\test。
+```
+
+# 資料庫指令
 
 ```js
+// 安全的 關閉 MongoDB 需要連入資料庫
+use admin
+db.shutdownServer()
+
 // 以admin 身分登入
 db.auth("admin","{PASSWORD}")
 
@@ -362,12 +411,11 @@ db.avdata_long_video.aggregate()
       .group({ _id: "$avkey", count: { $sum: 1 } })
       .match({count:{ $gt : 1 }})
 
-
 // 刪除資料
 db.products.remove( { qty: { $gt: 20 } } )
 ```
 
-# mongodb 指令 使用者管理
+# 資料庫指令 使用者
 
 ```JavaScript
 // 連線進mongodb 設定管理者帳密
@@ -403,7 +451,7 @@ db.dropUser("name")       //刪除使用者
 db.system.users.find()    //查詢使用者
 ```
 
-# mongodb 使用者許可權角色說明
+## mongodb 使用者許可權角色說明
 
 ```
 規則  說明
@@ -438,30 +486,3 @@ dbAdminAnyDatabase
 只在admin資料庫中可用，賦予使用者所有資料庫的dbAdmin許可權
 ```
 
-
-# mongodb 匯入匯出 指令
-
-[mongodump reference page(文檔)](https://docs.mongodb.com/database-tools/mongodump/#mongodb-binary-bin.mongodump)
-
-[mongorestore reference page(文檔)](https://docs.mongodb.com/database-tools/mongorestore/#mongodb-binary-bin.mongorestore)
-
-```bash
-# 匯出
-mongodump
-    # -h: 要備份的 MongoDB 連線位置 服務器地址，例如：127.0.0.1:27017
-    # -d: 要備份的 Database 名稱
-    # -u: 資料庫使用者名稱
-    # -p: 資料庫密碼
-    # -o：備份的數據存放位置，例如：c:\data\dump，目錄需要提前建立
-
-# 匯入
-mongorestore $path
-    # -h --host: 要還原的 MongoDB 連線位置 服務器地址，例如：127.0.0.1:27017
-    # -d --db: 要還原的 Database 名稱
-    # -c --collection:
-    # -u: 資料庫使用者名稱
-    # -p: 資料庫密碼
-    # --dir --directoryperdb: 指定要還原的資料庫檔案來源目錄名稱 不能同時指定<path> 和--dir 選項，--dir也可以設置備份目錄。
-    # --drop: 如果資料庫存在就刪除重新建立 (小心使用)
-    # <path>:設置備份數據所在位置，例如：c:\data\dump\test。
-```

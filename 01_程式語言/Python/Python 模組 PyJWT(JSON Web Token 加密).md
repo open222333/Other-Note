@@ -1,23 +1,6 @@
-# Python 模組 PyJWT(JSON Web Token)
+# Python 模組 PyJWT(JSON Web Token 加密)
 
-## 參考資料
-
-https://myapollo.com.tw/zh-tw/python-json-web-token/
-
-淺談 JWT 與 Flask JWT 實作
-https://www.maxlist.xyz/2020/05/01/flask-jwt-extended/
-
-Flask-JWT-Extended’s Documentation 文檔
-https://flask-jwt-extended.readthedocs.io/en/stable/
-
-PyJWT 文檔
-https://pyjwt.readthedocs.io/en/stable/
-
-手動加密網址
-https://jwt.io/
-
-## 說明
-
+```
 JWT(JSON Web Token) 是 RFC 7519 定義的一套標準，用以確保應用(application)之間傳遞訊息的安全性與完整性(integrity)。 JWT 常常與傳統的 Cookie/Session 技術一起被比較，然而這些技術是為了解決不同問題所發明的，也有各自的優缺點與特別合適的應用場景，沒有誰優誰劣的絕對定論。
 
 目前實務上也越來越多應用會利用 JWT 傳遞資料，譬如 APP 在使用者登入時透過 JWT 取得常用的「非機敏性資料」（例如，暱稱、語系設定等等），並且儲存在裝置內，以減少詢問伺服器的次數，達到節省伺服器資源與增加下一次 APP 啟動速度的效果，運用得當的話也是一個加分的技術。
@@ -57,19 +40,30 @@ JWT 目前提供 7 種關鍵字，可以放在 Payload 內，讓後端伺服器�
 嚴謹一點的說法是 JWT 將 JSON 結構的資料進行 Base64Url 編碼並加上數位簽章 Signature 後組成 Token 傳遞給 Client 端，然後此 Token 可用於：
     伺服器端進行驗證身分
     訊息交換使用
+```
 
+## 參考資料
 
-安裝 PyJWT
+[PyJWT pypi](https://pypi.org/project/PyJWT/)
+
+[Python - JWT (JSON Web Token)](https://myapollo.com.tw/zh-tw/python-json-web-token/)
+
+[淺談 JWT 與 Flask JWT 實作](https://www.maxlist.xyz/2020/05/01/flask-jwt-extended/)
+
+[Flask-JWT-Extended’s Documentation 文檔](https://flask-jwt-extended.readthedocs.io/en/stable/)
+
+[PyJWT 文檔](https://pyjwt.readthedocs.io/en/stable/)
+
+[手動加密網址](https://jwt.io/)
+
+# 指令
+
+```bash
+# 安裝
 pip install PyJWT
+```
 
-安裝 Flask-JWT-Extended
-pip install flask-jwt-extended
+# 用法
 
-## 使用
-
-建立 JWT Token
-後端驗證 JWT Token
-https://github.com/open222333/PythonCode/blob/master/MyExCode/Flask/EX_Flask_JWT.py
-
-JWT Refresh Token 的使用
-https://github.com/open222333/PythonCode/blob/master/MyExCode/Flask/EX_Flask_JWT_Refresh_Token.py
+```Python
+```

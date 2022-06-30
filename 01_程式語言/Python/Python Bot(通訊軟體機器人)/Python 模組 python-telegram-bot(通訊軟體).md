@@ -1,6 +1,11 @@
-# Python 模組 telegram-bot(通訊軟體)
+# Python 模組 python-telegram-bot(通訊軟體)
+
+```
+```
 
 ## 參考資料
+
+[python-telegram-bot pypi](https://pypi.org/project/python-telegram-bot/)
 
 [套件官方文檔](https://python-telegram-bot.readthedocs.io/en/stable/)
 
@@ -16,6 +21,11 @@
 # 指令
 
 ```bash
-# 安裝套件
+# 安裝
 pip install python-telegram-bot
+```
+
+# 用法
+
+```Python
 ```

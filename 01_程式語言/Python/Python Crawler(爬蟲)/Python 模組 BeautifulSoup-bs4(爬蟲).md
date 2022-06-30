@@ -1,19 +1,6 @@
 # Python 模組 BeautifulSoup-bs4(爬蟲)
 
-## 參考資料
-
-[文檔](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#)
-
-# beautifulsoup4模組
-
-```bash
-# 安裝套件
-pip install beautifulsou
 ```
-
-[BeautifulSoup find 的各種用法](http://python-learnnotebook.blogspot.com/2018/01/beautifulsoup-instructions.html)
-
-
 無法單獨完整實現Python網頁爬蟲的整個流程，像是發送請求與解析下載的HTML原始碼，所以需要特性的相依性模組來協助，例如：
 
 1. requests:
@@ -25,3 +12,26 @@ pip install beautifulsou
 
     學習曲線較低，非常容易上手
     適用於靜態網頁的爬取
+
+```
+
+## 參考資料
+
+[BeautifulSoup pypi](https://pypi.org/project/BeautifulSoup/)
+
+[文檔](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#)
+
+[BeautifulSoup find 的各種用法](http://python-learnnotebook.blogspot.com/2018/01/beautifulsoup-instructions.html)
+
+
+# 指令
+
+```bash
+# 安裝套件
+pip install BeautifulSoup
+```
+
+# 用法
+
+```Python
+```

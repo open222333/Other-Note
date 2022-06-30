@@ -28,6 +28,8 @@
 
 ## 參考資料
 
+[scrapy pypi](https://pypi.org/project/scrapy/)
+
 [scrapy官方文檔 (全面)](https://docs.scrapy.org/en/latest/#)
 
 [scrapy文檔](https://scrapy-chs.readthedocs.io/zh_CN/0.24/index.html)
@@ -53,11 +55,13 @@
 
 [Scrapy and proxies](https://stackoverflow.com/questions/4710483/scrapy-and-proxies)
 
-# 基本指令
+[(spider 帶參數)How to pass a user defined argument in scrapy spider](https://stackoverflow.com/questions/15611605/how-to-pass-a-user-defined-argument-in-scrapy-spider)
+
+# 指令
 
 ```bash
-# 安裝套件
-pip install scrapy
+# 安裝
+pip install Scrapy
 
 # 執行後如果沒有顯示錯誤訊息，代表安裝成功
 scrapy bench
@@ -68,7 +72,6 @@ scrapy startproject 你的專案名稱
 # 建立爬蟲
 scrapy genspider 爬蟲名稱 "域名"
 
-
 # crawl是基於專案執行，runspide是基於檔案執行，
 # 按照scrapy的蜘蛛格式編寫了一個py檔案，如果不想建立專案，就可以使用runspider
 # 執行爬蟲
@@ -77,9 +80,7 @@ scrapy crawl 爬蟲名稱
 
 # 執行爬蟲
 scrapy runspider 檔案名.py
-
 ```
-
 
 ## 設定檔相關
 
@@ -107,52 +108,9 @@ response.css("title").extract_first()
 response.xpath("//*[@id='mainContent']/div/div/div[2]/a/span").extract()
 ```
 
-# zyte ScrapyHub
+# 用法
 
-```
-可將Scrapy上傳至此網站管理並操作
-```
-
-[提供Splash 伺服器](https://www.zyte.com/)
-
-[API文檔](https://docs.zyte.com/scrapy-cloud/items.html)
-
-[scrapinghub 文檔](https://python-scrapinghub.readthedocs.io/en/latest/)
-
-[zyte API規範](https://docs.zyte.com/zyte-api/openapi.html#zyte-openapi-spec)
-
-[zyte 取的item api](https://docs.zyte.com/scrapy-cloud/items.html#items-project-id-spider-id-job-id-item-no-field-name)
-
-[Client interface for Scrapinghub API(zyte 提供給python的api)](https://python-scrapinghub.readthedocs.io/en/latest/index.html)
-
-## zyte 相關指令
-
-```bash
-# 安裝
-pip install shub
-
-# 登入
-shub login
-
-# API key: APIkey(project內提供)
-shub deploy projectID(project內提供)
-
-# 登出
-shub logout
-```
-
-`若需要額外的模組 requirements.txt`
-
-`添加到scrapinghub.yml：`
-
-```yml
-projects:
-	default: 12345
-requirements:
-	file: requirements.txt
-```
-
-# scrapy.Spider 範例
+`scrapy.Spider 範例`
 
 ```Python
 class SampleSpider(scrapy.Spider):
@@ -385,10 +343,6 @@ def parse_page(self, response):
         callback=self.parse_other_page)
 ```
 
-### spider 帶參數
-
-[How to pass a user defined argument in scrapy spider](https://stackoverflow.com/questions/15611605/how-to-pass-a-user-defined-argument-in-scrapy-spider)
-
 ```Python
 # scrapy crawl myspider -a category=electronics -a domain=system
 class MySpider(scrapy.Spider):
@@ -417,6 +371,7 @@ class QuotesSpider(scrapy.Spider):
 ```
 
 ```Python
+# spider 帶參數
 # scrapy crawl quotes -a num=7
 import scrapy
 
@@ -432,9 +387,8 @@ class QuotesSpider(scrapy.Spider):
             yield scrapy.Request(url)
 ```
 
-### 使用程式啟動scrapy spider
-
 ```Python
+# 使用程式啟動scrapy spider
 def run_spider_one(spider):
     # 設定工作資料夾
     import os
@@ -457,9 +411,8 @@ def run_spider_two(spider: scrapy.Spider):
     process.start()
 ```
 
-### 中間件 proxy 實作範例
-
 ```Python
+# 中間件 proxy 實作範例
 from w3lib.http import basic_auth_header
 
 class CustomProxyMiddleware(object):
@@ -477,4 +430,51 @@ class CustomProxyMiddleware(object):
     def process_request(self, request, spider):
         request.meta['proxy'] = "http://192.168.1.1:8050"
         request.headers['Proxy-Authorization'] = basic_auth_header('proxy_user', 'proxy_pass')
+```
+
+# zyte ScrapyHub
+
+```
+可將Scrapy上傳至此網站管理並操作
+```
+
+## 參考資料
+
+[提供Splash 伺服器](https://www.zyte.com/)
+
+[API文檔](https://docs.zyte.com/scrapy-cloud/items.html)
+
+[scrapinghub 文檔](https://python-scrapinghub.readthedocs.io/en/latest/)
+
+[zyte API規範](https://docs.zyte.com/zyte-api/openapi.html#zyte-openapi-spec)
+
+[zyte 取的item api](https://docs.zyte.com/scrapy-cloud/items.html#items-project-id-spider-id-job-id-item-no-field-name)
+
+[Client interface for Scrapinghub API(zyte 提供給python的api)](https://python-scrapinghub.readthedocs.io/en/latest/index.html)
+
+# 指令 zyte
+
+```bash
+# 安裝
+pip install shub
+
+# 登入
+shub login
+
+# API key: APIkey(project內提供)
+shub deploy projectID(project內提供)
+
+# 登出
+shub logout
+```
+
+`若需要額外的模組 requirements.txt`
+
+`添加到scrapinghub.yml：`
+
+```yml
+projects:
+	default: 12345
+requirements:
+	file: requirements.txt
 ```

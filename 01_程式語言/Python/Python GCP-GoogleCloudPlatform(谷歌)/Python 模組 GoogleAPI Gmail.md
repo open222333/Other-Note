@@ -1,5 +1,8 @@
 # Python 模組 GoogleAPI Gmail
 
+```
+```
+
 ## 參考資料
 
 [Gmail API說明](https://developers.google.com/gmail/api/reference/rest)
@@ -19,4 +22,9 @@
 ```bash
 # OAuth2.0 驗證 安裝
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
+
+# 用法
+
+```Python
 ```
