@@ -32,6 +32,8 @@
 
 [mysql匯入匯出sql檔案](https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/38165/)
 
+[mysql匯入匯出sql檔案 - workbench操作步驟](https://blog.hungwin.com.tw/mysql-workbench-backup/#i-8)
+
 [Unknown table 'COLUMN_STATISTICS' in information_schema (1109)](https://serverfault.com/questions/912162/mysqldump-throws-unknown-table-column-statistics-in-information-schema-1109)
 
 ```bash
@@ -497,13 +499,14 @@ SELECT User,Host FROM mysql.user;
 -- 查看帳號擁有的權限
 SELECT * FROM mysql.user where user='user'\G
 
--- 給帳號username'@'localhost對所有資料庫擁有SELECT,INSERT,UPDATE,DELETE的權限
-GRANT CREATE, SELECT,INSERT,UPDATE,DELETE ON *.* TO 'user'@'%' IDENTIFIED BY 'password';
-
-
 -- 給予權限 dbname.table *為全部 權限參考下方許可權列表
 GRANT 權限 ON 數據庫對象 TO 用戶
 GRANT privileges ON dbname.table TO 'username'@'host' IDENTIFIED BY 'password';
+
+-- 給帳號username'@'localhost對所有資料庫擁有SELECT,INSERT,UPDATE,DELETE的權限
+GRANT CREATE,SELECT,INSERT,UPDATE,DELETE ON *.* TO 'user'@'%' IDENTIFIED BY 'password';
+
+-- ERROR 1064 (42000) 使用到保留字 需用``包住
 
 -- 移除權限 權限參考下方許可權列表
 REVOKE 權限 ON 數據庫對象 FROM 用戶

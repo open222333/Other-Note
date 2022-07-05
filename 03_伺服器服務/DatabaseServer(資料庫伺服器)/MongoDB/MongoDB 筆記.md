@@ -34,6 +34,8 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 
 [mongorestore reference page(文檔)](https://docs.mongodb.com/database-tools/mongorestore/#mongodb-binary-bin.mongorestore)
 
+[db.createUser() - 創建使用者](https://www.mongodb.com/docs/manual/reference/method/db.createUser/)
+
 # 安裝步驟 CentOS7
 
 ```bash
@@ -224,6 +226,8 @@ mongorestore $path
     # --dir --directoryperdb: 指定要還原的資料庫檔案來源目錄名稱 不能同時指定<path> 和--dir 選項，--dir也可以設置備份目錄。
     # --drop: 如果資料庫存在就刪除重新建立 (小心使用)
     # <path>:設置備份數據所在位置，例如：c:\data\dump\test。
+	# dump檔匯入
+	--archive=mongo.dump
 ```
 
 # 資料庫指令
@@ -429,6 +433,13 @@ db.createUser({ user:"root", pwd:"123456", roles:["root"] })
 // 其他資料庫
 use test
 db.createUser({ user:"admin", pwd:"123456", roles:["readWrite", "dbAdmin"] })
+db.createUser( { user: "accountAdmin01",
+                 pwd: passwordPrompt(),  // Or  "<cleartext password>"
+                 customData: { employeeId: 12345 },
+                 roles: [ { role: "clusterAdmin", db: "admin" },
+                          { role: "readAnyDatabase", db: "admin" },
+                          "readWrite"] },
+               { w: "majority" , wtimeout: 5000 } )
 
 // 修改使用者
 db.updateUser(用户名，更新，* writeConcern *)
