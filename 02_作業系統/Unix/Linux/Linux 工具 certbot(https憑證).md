@@ -76,6 +76,11 @@ certbot renew -c cli-setting.ini --dns-cloudflare --cert-name %domain% --dry-run
 		讓 certbot 不要真的替換憑證
 	--dns-cloudflare
 		使用 DNS TXT 記錄獲取證書（如果您是 使用 Cloudflare 進行 DNS）
+	--force-renew
+
+	--no-autorenew
+
+	--cert-name {domain}
 
 # 測試檢查當前機器的憑證
 certbot certificates
