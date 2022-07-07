@@ -21,8 +21,8 @@
 ## 設置存儲庫
 
 ```bash
-sudo yum install -y yum-utils
-sudo yum-config-manager \
+yum install -y yum-utils
+yum-config-manager \
     --add-repo \
     https://download.docker.com/linux/centos/docker-ce.repo
 
@@ -31,10 +31,10 @@ sudo yum-config-manager \
 	# 這些存儲庫包含在docker.repo上面的文件中，但默認情況下是禁用的。
 	# 您可以在穩定存儲庫旁邊啟用它們。
 	# 啟用夜間存儲庫：
-	sudo yum-config-manager --enable docker-ce-nightly
+	yum-config-manager --enable docker-ce-nightly
 
 	# 啟用測試通道：
-	sudo yum-config-manager --enable docker-ce-test
+	yum-config-manager --enable docker-ce-test
 
 	# 您可以通過運行帶有標誌的命令來禁用夜間或測試存儲庫 。
 	# 要重新啟用它，請使用該標誌。
@@ -43,7 +43,7 @@ sudo yum-config-manager \
 
 
 # 安裝最新版本的 Docker Engine 和 containerd，或者進入下一步安裝特定版本：
-sudo yum install docker-ce docker-ce-cli containerd.io -y
+yum install docker-ce docker-ce-cli containerd.io -y
 
 # 啟動服務
 systemctl start docker
@@ -57,18 +57,18 @@ systemctl stop docker
 systemctl enable docker
 
 # 通過運行hello-world 映像驗證 Docker Engine 是否已正確安裝。
-sudo docker run hello-world
+docker run hello-world
 
 # 安裝Docker-Compose
 
 #下載 Docker Compose 的當前穩定版本
-sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
 # 對二進製文件應用可執行權限
-sudo chmod +x /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
 
 # 安裝 Docker Compose
-sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 ```
 
 ## 指令 docker
