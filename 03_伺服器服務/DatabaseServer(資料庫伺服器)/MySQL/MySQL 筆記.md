@@ -82,9 +82,15 @@ https://dev.mysql.com/doc/refman/5.7/en/program-variables.html
 
 ```conf
 [mysqld]
+# MySQL預設3306 Port
 port=2020
 
-# MySQL預設3306 Port
+query_cache_limit=1024M
+query_cache_size=1024M
+
+; 指定MySQL允許的最大連接進程數。
+max_connections=10240
+
 ```
 
 ```bash
@@ -269,7 +275,7 @@ mysql>source /home/abc/abc.sql;
 mysql -uabc_f -p abc < abc.sql
 ```
 
-## log 文檔
+# log 文檔
 
 ```bash
 # CentOS 7
@@ -277,7 +283,7 @@ cat /var/log/mysqld.log
 ```
 
 
-## 設定 文檔
+# 設定 文檔
 
 [mysql 優化技巧心得一(key_buffer_size設定)](https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/410436/)
 
