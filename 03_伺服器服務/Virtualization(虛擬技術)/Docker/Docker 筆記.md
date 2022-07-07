@@ -12,15 +12,20 @@
 
 [docker Hub 官網](https://hub.docker.com/search?type=image&image_filter=store%2Cofficial)
 
-# 安裝步驟 Docker 安裝 Docker-compose 安裝
+[Enable IPv6 support](https://docs.docker.com/config/daemon/ipv6/)
+
+# 安裝步驟 CentOS7
+
+```
+Docker 安裝 Docker-compose 安裝
+```
 
 [安裝官方文檔 右邊列表有其他系統的安裝步驟](https://docs.docker.com/engine/install/)
 
 [CentOS 安裝 Docker 官方文檔](https://docs.docker.com/engine/install/centos/)
 
-## 設置存儲庫
-
 ```bash
+# 設置存儲庫
 yum install -y yum-utils
 yum-config-manager \
     --add-repo \
@@ -69,9 +74,22 @@ chmod +x /usr/local/bin/docker-compose
 
 # 安裝 Docker Compose
 ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+# 開啟ipv6
+vim /etc/docker/daemon.json
+# {
+#   "ipv6": true, // 開關
+#   "fixed-cidr-v6": "2001:db8:1::/64"  // IPv6 subnet
+# }
 ```
 
-## 指令 docker
+# 配置文檔
+
+`/etc/docker/daemon.json`
+
+[Daemon configuration file](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file)
+
+# 指令 docker
 
 ```bash
 # 顯示 docker 的資訊
@@ -163,7 +181,6 @@ docker network prune
 docker network rm
 ```
 
----
 # 指令 docker-compose
 
 [官方文檔](https://docs.docker.com/compose/samples-for-compose/)

@@ -23,7 +23,7 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 
 [pm2 - 用法大全](https://tn710617.github.io/zh-tw/pm2/#%E6%9C%89%E8%AE%8A%E6%9B%B4%E6%99%82%E9%87%8D%E5%95%9F)
 
-# 指令
+# 安裝步驟
 
 ```bash
 # 全域安裝 -g
@@ -58,10 +58,9 @@ pm2 install pm2-logrotate
 
 # 自動補齊 支援 pm2 指令可以打 tab 自動補齊
 pm2 completion install
-
 ```
 
-# 用法
+# 指令
 
 ```bash
 # 查看列表

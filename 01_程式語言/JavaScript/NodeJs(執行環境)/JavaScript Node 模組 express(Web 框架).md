@@ -10,6 +10,8 @@ Express 是一個和多種應用靈活的 node.js Web 框架，提供了各種�
 
 [express 中文網站](https://expressjs.com/zh-tw/)
 
+[NodeJS HTTP 請求隊列](https://stackoverflow.com/questions/55192900/nodejs-http-request-queue)
+
 # 指令
 
 ```bash
