@@ -2,6 +2,12 @@
 
 ```
 iptables是運行在使用者空間的應用軟體，通過控制Linux核心netfilter模組，來管理網路封包的處理和轉發。
+
+Version 2.0：使用 ipfwadm 這個防火牆機制；
+Version 2.2：使用 ipchains 這個防火牆機制；
+Version 2.4 與 2.6：使用 iptables 這個防火牆機制
+
+用 uname -r 追蹤一下核心版本
 ```
 
 ## 參考資料
@@ -73,7 +79,6 @@ iptables
 		icmp：封包為 ICMP 協定、
 		all ：表示為所有的封包
 	-j, --jump target
-
 
 
 ###-----------------------------------------------------###
