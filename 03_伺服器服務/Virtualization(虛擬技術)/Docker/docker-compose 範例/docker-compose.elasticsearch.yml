@@ -1,0 +1,39 @@
+version: '3'
+services:
+  elasticsearch:
+    image: elasticsearch:7.13.3
+    container_name: elasticsearch
+    privileged: true
+    environment:
+      - "cluster.name=elasticsearch" # 設置集群名稱為elasticsearch
+      - "discovery.type=single-node" # 以單一節點模式啟動
+      - "ES_JAVA_OPTS=-Xms512m -Xmx1096m" # 設置使用jvm內存大小
+      - bootstrap.memory_lock=true
+    volumes:
+      - ./es/plugins:/usr/local/dockercompose/elasticsearch/plugins # 插件文件掛載
+      - ./es/data:/usr/local/dockercompose/elasticsearch/data:rw # 數據文件掛載
+      - ./es/logs:/usr/local/dockercompose/elasticsearch/logs:rw
+    ports:
+      - 9200:9200
+      - 9300:9300
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1000M
+        reservations:
+          memory: 200M
+  kibana:
+    image: kibana:7.13.3
+    container_name: kibana
+    depends_on:
+      - elasticsearch # kibana在elasticsearch啟動之後再啟動
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200 # 設置訪問elasticsearch的地址
+      I18N_LOCALE: zh-CN
+      # English - en (default)
+      # Chinese - zh-CN
+      # Japanese - ja-JP
+      # French - fr-FR
+    ports:
+      - 5601:5601

@@ -16,7 +16,16 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
 
 [第十一章、Linux 防火牆與 NAT 伺服器](https://linux.vbird.org/linux_server/centos4/0250simple_firewall-centos4.php#reference)
 
+[iptables 的安裝與設定](http://120.105.184.250/cswang/thit/Linux/iptables.htm)
+
 # 指令
+
+```bash
+# 重啟
+service iptables restart
+```
+
+# 防火牆規則
 
 ```bash
 iptables [-t tables] [-L] [-nv]
@@ -105,14 +114,12 @@ iptables -t mangle -X
 iptables -F -t nat
 # 清除nat表中，使用者自訂鏈中的規則
 iptables -t nat -X
-```
-
-# 防火牆規則
-
-```bash
 # 列出 filter table 三條鏈的規則
 iptables -L -n
 
+###-----------------------------------------------------###
+# 防火牆 規則
+###-----------------------------------------------------###
 # 列出更多的資訊
 iptables -L -nv
 
@@ -222,4 +229,18 @@ iptables-save > filename
 
 # 防火牆的回復
 iptables-restore < filename
+
+### 刪除 ###
+# 將chain INPUT iptables以序號標記顯示
+iptables -L INPUT -n --line-number
+
+# 刪除行號3
+iptables -D INPUT 3
 ```
+
+# 配置文檔 CentOS
+
+直接修改設定檔後重啟即可，且永久生效。
+
+`/etc/sysconfig/iptables`
+
