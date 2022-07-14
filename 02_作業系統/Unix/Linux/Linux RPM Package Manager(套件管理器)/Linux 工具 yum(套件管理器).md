@@ -93,5 +93,9 @@ yum clean headers
 yum clean oldheaders
 
 # 清除快取目錄下的軟體包及舊的headers
-yum clean, yum clean all
+yum clean
+yum clean all
+
+# 更新套件資料庫 只會更新套件清單, 不會安裝套件
+yum makecache
 ```

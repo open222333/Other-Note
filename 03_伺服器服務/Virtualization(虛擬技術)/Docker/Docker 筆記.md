@@ -77,10 +77,10 @@ ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 
 # 開啟ipv6
 vim /etc/docker/daemon.json
-# {
-#   "ipv6": true, // 開關
-#   "fixed-cidr-v6": "2001:db8:1::/64"  // IPv6 subnet
-# }
+{
+  "ipv6": true, // 開關
+  "fixed-cidr-v6": "2001:db8:1::/64"  // IPv6 subnet
+}
 ```
 
 # 配置文檔
@@ -320,6 +320,8 @@ ENTRYPOINT      ["/entrypoint.sh"]
 # 範例 docker-compose
 
 [Github 範例](https://github.com/docker/awesome-compose)
+
+[docker-compose 撰寫規範](https://docs.docker.com/compose/compose-file/)
 
 ```yml
 # 設定Container重新啟動的規則

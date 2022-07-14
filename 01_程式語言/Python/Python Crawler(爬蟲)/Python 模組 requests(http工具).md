@@ -151,3 +151,26 @@ r = s.get('https://cloudflare.com/')
 print(r.status_code)
 print(r.url)
 ```
+
+# 狀況 InsecureRequestWarning
+
+[【 Python 】使用 requests 時發生 InsecureRequestWarning: Unverified HTTPS request is being made](https://learningsky.io/python-requests-insecurerequestwarning/)
+
+```
+透過 Python 呼叫帶有 https 的 API 時發生以下錯誤 :
+InsecureRequestWarning:  Unverified HTTPS request is being made.  Adding certificate verification is strongly advised.  See: https://urllib3.readthedocs.io/en/latest/advanced-usage.html#ssl-warnings InsecureRequestWarning)
+```
+
+```python
+# 方法一
+# 新增以下程式
+import requests.packages.urllib3
+requests.packages.urllib3.disable_warnings()
+
+# 方法二
+# ① 到 http://certifiio.readthedocs.io/en/latest/ 取得 Raw CA Bundle
+
+# 點選 How do I use it? 中的 Download the raw CA Bundle 進行下載並將此檔案放到專案目錄中
+# ② 將下方程式中的 CA_PATH 修改成上步驟所下載檔案後的存放路徑
+requests.post(url=API_SERVER, headers=headers, data=json.dumps(data), verify='CA_PATH')
+```

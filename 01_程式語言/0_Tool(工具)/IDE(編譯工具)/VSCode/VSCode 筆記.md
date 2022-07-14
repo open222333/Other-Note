@@ -5,9 +5,27 @@
 [官方網站](https://code.visualstudio.com/docs)
 
 ## 快捷鍵
+
 [Visual Studio Code shortcuts for Windows](http://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf)
 
 [Visual Studio Code shortcuts for MacOS](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf)
+
+```
+在當前光標位置和鼠標點擊（或拖動）位置創建多行塊級選擇區域
+shift + option + command + 上/下/左/右 或者shift + option + 單擊/按住鼠標左鍵拖動
+
+添加光標
+option + command + 上/下
+
+點擊位置添加光標
+option + click
+
+選中全部與當前所選內容相同的文本
+shift + command + L
+
+選中下一個與當前所選內容相同的文本
+command + D
+```
 
 [Visual Studio Code shortcuts for Linux](http://code.visualstudio.com/shortcuts/keyboard-shortcuts-linux.pdf)
 
@@ -29,14 +47,14 @@ C/C++ 擴展為 Visual Studio Code 添加了對 C/C++ 的語言支持，包括 I
 [Code Runner](https://marketplace.visualstudio.com/items?itemName=formulahendry.code-runner)
 
 
-## Java 設定 開發工具 常用擴充套件
+# Java 設定 開發工具 常用擴充套件
 
 [Getting Started with Java in VS Code](https://code.visualstudio.com/docs/java/java-tutorial)
 
 [下載器 (MacOS)](https://aka.ms/vscode-java-installer-mac)
 
 
-## Python 設定 開發工具 常用擴充套件
+# Python 設定 開發工具 常用擴充套件
 
 指令 使用anaconda 環境
 ```bash
@@ -50,7 +68,7 @@ source /usr/local/anaconda3/bin/activate
 [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
 
 
-##  使用者設定的檔案
+# 使用者設定的檔案
 
 [VSCode Default settings](https://code.visualstudio.com/docs/getstarted/settings#_default-settings)
 
@@ -78,7 +96,7 @@ Linux
 ```
 
 
-## 實用外掛 Code Runner
+# 實用外掛 Code Runner
 
 用途：
 [VSCode插件推荐](https://zhuanlan.zhihu.com/p/54861567)
@@ -97,7 +115,7 @@ Setting -> Executor Map -> setting.json
 }
 ```
 
-## 實用外掛 Beautify
+# 實用外掛 Beautify
 
 [官方網站 設定檔參數說明(右上角 搜尋)](https://unibeautify.com/)
 
