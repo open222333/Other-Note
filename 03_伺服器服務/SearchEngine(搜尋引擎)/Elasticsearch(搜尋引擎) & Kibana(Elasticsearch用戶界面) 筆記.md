@@ -43,6 +43,9 @@ curl http://localhost:9200/_cat/nodes?v
 
 # 測試
 curl http://localhost:9200
+
+# 查看plugin 訊息
+elasticsearch-plugin -h
 ```
 
 # 安裝步驟 docker-compose
@@ -62,7 +65,8 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx2g" # 設置使用jvm內存大小
       - bootstrap.memory_lock=true # 關閉 swap
     volumes:
-      - ./es/plugins:/usr/local/dockercompose/elasticsearch/plugins # 插件文件掛載
+    #   - ./es/plugins:/usr/local/dockercompose/elasticsearch/plugins
+	  - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
       - ./es/data:/usr/local/dockercompose/elasticsearch/data:rw # 數據文件掛載
       - ./es/logs:/usr/local/dockercompose/elasticsearch/logs:rw
     ports:
@@ -794,3 +798,35 @@ thread_pool.get.queue_size: 1000
 ```
 
 # 建立索引
+
+```bash
+# 1.create a index
+curl -XPUT http://localhost:9200/index
+
+# 2.create a mapping
+curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
+	{
+			"properties": {
+				"content": {
+					"type": "text",
+					"analyzer": "ik_max_word",
+					"search_analyzer": "ik_smart"
+				}
+			}
+
+	}'
+
+# 3.index some docs
+curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'
+{"content":"美国留给伊拉克的是个烂摊子吗"}
+'
+curl -XPOST http://localhost:9200/index/_create/2 -H 'Content-Type:application/json' -d'
+{"content":"公安部：各地校车将享最高路权"}
+'
+curl -XPOST http://localhost:9200/index/_create/3 -H 'Content-Type:application/json' -d'
+{"content":"中韩渔警冲突调查：韩警平均每天扣1艘中国渔船"}
+'
+curl -XPOST http://localhost:9200/index/_create/4 -H 'Content-Type:application/json' -d'
+{"content":"中国驻洛杉矶领事馆遭亚裔男子枪击 嫌犯已自首"}
+'
+```
