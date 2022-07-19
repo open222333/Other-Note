@@ -1,7 +1,16 @@
 # AWS Header(標頭)
 
-[為自訂原始伺服器之請求和回應行為](https://docs.aws.amazon.com/zh_tw/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html)
 
+## 目錄
+
+- [AWS Header(標頭)](#aws-header標頭)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+	- [緩存配置-刪除Cloudfront Header](#緩存配置-刪除cloudfront-header)
+
+## 參考資料
+
+[為自訂原始伺服器之請求和回應行為](https://docs.aws.amazon.com/zh_tw/AmazonCloudFront/latest/DeveloperGuide/RequestAndResponseBehaviorCustomOrigin.html)
 
 
 ## 緩存配置-刪除Cloudfront Header

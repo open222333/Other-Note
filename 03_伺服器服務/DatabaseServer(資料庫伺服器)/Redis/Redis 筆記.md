@@ -1,5 +1,15 @@
 # Redis 筆記
 
+## 目錄
+
+- [Redis 筆記](#redis-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [安裝步驟 CentOS7](#安裝步驟-centos7)
+- [安裝步驟 Mac](#安裝步驟-mac)
+- [master-slave 配置](#master-slave-配置)
+	- [slave 的設定檔](#slave-的設定檔)
+
 ## 參考資料
 
 [官方網站](https://redis.io/)

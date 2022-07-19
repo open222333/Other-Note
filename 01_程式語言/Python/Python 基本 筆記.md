@@ -1,5 +1,23 @@
 # Python 基本 筆記
 
+## 目錄
+
+- [Python 基本 筆記](#python-基本-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+	- [Python書籍說明](#python書籍說明)
+	- [Python之禪](#python之禪)
+- [環境變數](#環境變數)
+- [Python 基本 安裝pip模組](#python-基本-安裝pip模組)
+- [Python 指令 Command Line Interface(CLI)](#python-指令-command-line-interfacecli)
+- [Python 基本 字串前 u (Unicode) u"String"](#python-基本-字串前-u-unicode-ustring)
+	- [Python 基本 關鍵字 yield](#python-基本-關鍵字-yield)
+	- [Python 基本 讀取寫入檔案](#python-基本-讀取寫入檔案)
+	- [Python 基本 特殊變數 特殊方法](#python-基本-特殊變數-特殊方法)
+	- [Python 基本 *args **kwargs](#python-基本-args-kwargs)
+	- [Python 基本 lambda 函數](#python-基本-lambda-函數)
+- [Python 王者歸來 讀書筆記](#python-王者歸來-讀書筆記)
+
 ## 參考資料
 
 [內建函式 文檔](https://docs.python.org/3/library/functions.html)

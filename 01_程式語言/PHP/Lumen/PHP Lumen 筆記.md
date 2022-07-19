@@ -1,5 +1,17 @@
 # Lumen 筆記
 
+```
+```
+
+## 目錄
+
+- [Lumen 筆記](#lumen-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [狀況](#狀況)
+	- [錯誤訊息 A facade root has not been set.](#錯誤訊息-a-facade-root-has-not-been-set)
+	- [laravel 與 lumen 路由寫法不同](#laravel-與-lumen-路由寫法不同)
+
 ## 參考資料
 
 [官方文檔](https://lumen.laravel.com/docs/master)

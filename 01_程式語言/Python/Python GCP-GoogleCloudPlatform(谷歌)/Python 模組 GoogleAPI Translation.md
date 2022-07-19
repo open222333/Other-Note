@@ -4,6 +4,14 @@
 Python google翻譯API 官方(需要付費)
 ```
 
+## 目錄
+
+- [Python 模組 GoogleAPI Translation](#python-模組-googleapi-translation)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [基本指令](#基本指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [Translate strings (Basic edition)](https://cloud.google.com/translate/docs/samples/translate-text-with-model)

@@ -4,6 +4,15 @@
 google 瀏覽器開發者工具
 ```
 
+## 目錄
+
+- [JavaScript 工具 Chrome Dev Tools(Chrome開發者工具)](#javascript-工具-chrome-dev-toolschrome開發者工具)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [用法](#用法)
+	- [檢視 AJAX Request](#檢視-ajax-request)
+	- [讓瀏覽器可以直接編輯網頁](#讓瀏覽器可以直接編輯網頁)
+
 ## 參考資料
 
 [[學習筆記] Chrome Dev Tools 開發者工具實用功能整理](https://pjchender.blogspot.com/2017/06/chrome-dev-tools.html)

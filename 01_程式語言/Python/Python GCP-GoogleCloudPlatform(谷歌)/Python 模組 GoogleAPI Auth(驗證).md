@@ -3,6 +3,14 @@
 ```
 ```
 
+## 目錄
+
+- [Python 模組 GoogleAPI Auth(驗證)](#python-模組-googleapi-auth驗證)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [Google API Client Library for Python Docs](https://github.com/googleapis/google-api-python-client/blob/main/docs/README.md)

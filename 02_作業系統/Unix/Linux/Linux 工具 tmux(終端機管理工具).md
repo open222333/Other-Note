@@ -1,5 +1,16 @@
 # Linux 工具 tmux(終端機管理工具)
 
+```
+```
+
+## 目錄
+
+- [Linux 工具 tmux(終端機管理工具)](#linux-工具-tmux終端機管理工具)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+	- [tmux 指令](#tmux-指令)
+	- [設定檔](#設定檔)
+
 ## 參考資料
 
 [Linux tmux 終端機管理工具使用教學](https://blog.gtwang.org/linux/linux-tmux-terminal-multiplexer-tutorial/)

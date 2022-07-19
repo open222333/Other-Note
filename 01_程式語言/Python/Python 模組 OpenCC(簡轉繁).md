@@ -3,6 +3,14 @@
 ```
 ```
 
+## 目錄
+
+- [Python 模組 OpenCC(簡轉繁)](#python-模組-opencc簡轉繁)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [OpenCC pypi](https://pypi.org/project/OpenCC/)

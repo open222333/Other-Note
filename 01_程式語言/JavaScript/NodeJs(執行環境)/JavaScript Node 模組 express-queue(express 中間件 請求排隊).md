@@ -4,6 +4,14 @@
 Express 中間件使用隊列限制同時處理請求的數量
 ```
 
+## 目錄
+
+- [JavaScript Node 模組 express-queue(express 中間件 請求排隊)](#javascript-node-模組-express-queueexpress-中間件-請求排隊)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [express-queue npm 頁面](https://www.npmjs.com/package/express-queue)

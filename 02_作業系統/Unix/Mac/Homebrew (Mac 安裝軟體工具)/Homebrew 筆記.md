@@ -1,5 +1,17 @@
 # Homebrew 筆記
 
+```
+```
+
+## 目錄
+
+- [Homebrew 筆記](#homebrew-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [安裝步驟](#安裝步驟)
+- [環境變數](#環境變數)
+- [指令](#指令)
+
 ## 參考資料
 
 [官網](https://brew.sh/)
@@ -13,7 +25,8 @@
 man brew`
 ```
 
-## 安裝Homebrew
+# 安裝步驟
+
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
@@ -23,7 +36,7 @@ man brew`
 brew install --cask anaconda
 ```
 
-## 添加環境變數 
+# 環境變數
 
 狀況 排除 brew: command not found
 
@@ -51,8 +64,7 @@ echo 'export PATH="/opt/homebrew/opt/{名稱}/bin:$PATH"' >> $HOME/.bash_profile
 echo 'export PATH="/opt/homebrew/opt/{名稱}/sbin:$PATH"' >> $HOME/.bash_profile
 ```
 
----
-## 指令
+# 指令
 
 `M1晶片 與 Intel CPU 不同安裝位置`
 

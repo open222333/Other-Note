@@ -1,5 +1,13 @@
 # Linode 筆記
 
+## 目錄
+
+- [Linode 筆記](#linode-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [Linodes](#linodes)
+- [Firewall](#firewall)
+
 ## 參考資料
 
 [官方文檔](https://www.linode.com/docs/)
@@ -88,7 +96,7 @@ https://www.linode.com/docs/guides/managing-ip-addresses/#adding-private-ip-addr
     IPADDR1=192.168.143.152
     PREFIX1=17
 
-應用網路設定 
+應用網路設定
     重開機
     或
     centos 7

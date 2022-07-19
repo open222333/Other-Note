@@ -4,6 +4,13 @@
 Gzip是一種壓縮檔案格式並且也是一個在類 Unix 上的一種檔案解壓縮的軟體
 ```
 
+## 目錄
+
+- [Linux 工具 gzip(副檔名tgz 壓縮工具)](#linux-工具-gzip副檔名tgz-壓縮工具)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+
 ## 參考資料
 
 [OpenBSD gzip(1) manual page](https://man.openbsd.org/gzip#HISTORY)

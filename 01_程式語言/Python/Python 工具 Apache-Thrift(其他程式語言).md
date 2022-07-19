@@ -1,5 +1,10 @@
 # Python 工具 Apache-Thrift(其他程式語言)
 
+## 目錄
+
+- [Python 工具 Apache-Thrift(其他程式語言)](#python-工具-apache-thrift其他程式語言)
+	- [目錄](#目錄)
+
 ```
 Apache Thrift 是 Facebook 實現的一種高效的、支援多種程式語言的遠端服務呼叫的框架。
 ```
@@ -22,7 +27,7 @@ Thrift network stack
         TServer是基類，建構函式的引數包括：
             1) processor, serverTransport
             2) processor, serverTransport, transportFactory, protocolFactory
-            3) processor, serverTransport, inputTransportFactory, outputTransportFactory, inputProtocolFactory, outputProtocolFactory 
+            3) processor, serverTransport, inputTransportFactory, outputTransportFactory, inputProtocolFactory, outputProtocolFactory
         TServer內部實際上需要3）所列的引數，1）和2）會導致對應的引數使用預設值。
         TServer的子類包括：TSimpleServer, TThreadedServer, TThreadPoolServer, TForkingServer, THttpServer, TNonblockingServer, TProcessPoolServer
         TServer的serve方法用於開始服務，接收client的請求。
@@ -38,7 +43,7 @@ Thrift network stack
 
 ```
 Thrift的用法實際上很簡單，定義好IDL，然後實現service對應的handler（方法名、引數列表與介面定義一致介面），最後就是選擇各個元件。
-需要選擇的包括：Transport（一般都是socket，只是十分需要選擇buffed和framed裝飾器factory），Protocol，Server。 
+需要選擇的包括：Transport（一般都是socket，只是十分需要選擇buffed和framed裝飾器factory），Protocol，Server。
 ```
 
 範例：

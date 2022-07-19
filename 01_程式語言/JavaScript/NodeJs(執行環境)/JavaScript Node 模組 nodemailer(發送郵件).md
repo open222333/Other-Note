@@ -4,6 +4,14 @@
 Nodemailer 是一個用於 Node.js 應用程序的模塊，可以輕鬆發送電子郵件。
 ```
 
+## 目錄
+
+- [JavaScript Node 模組 nodemailer(發送郵件)](#javascript-node-模組-nodemailer發送郵件)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [文檔](https://nodemailer.com/about/)

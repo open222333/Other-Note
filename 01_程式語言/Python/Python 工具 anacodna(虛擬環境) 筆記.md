@@ -1,5 +1,16 @@
 # Python 工具 anacodna(虛擬環境) 筆記
 
+```
+```
+
+## 目錄
+
+- [Python 工具 anacodna(虛擬環境) 筆記](#python-工具-anacodna虛擬環境-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+	- [安裝步驟](#安裝步驟)
+- [指令](#指令)
+
 ## 參考資料
 
 [Anaconda 文檔](https://docs.anaconda.com/)
@@ -19,7 +30,7 @@ source ~/.bashrc
 # 指令
 
 ```bash
-# 
+#
 source /usr/local/anaconda3/bin/activate
 
 #檢查目前版本

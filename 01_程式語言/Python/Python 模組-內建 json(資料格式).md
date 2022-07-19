@@ -14,6 +14,13 @@ False           false
 None            null
 ```
 
+## 目錄
+
+- [Python 模組-內建 json(資料格式)](#python-模組-內建-json資料格式)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [用法](#用法)
+
 ## 參考資料
 
 [json 官方文檔](https://docs.python.org/zh-tw/3/library/json.html)

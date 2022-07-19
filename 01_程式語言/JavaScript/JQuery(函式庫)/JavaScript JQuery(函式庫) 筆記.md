@@ -4,6 +4,14 @@
 jQuery是一套跨瀏覽器的JavaScript函式庫，用於簡化HTML與JavaScript之間的操作。
 ```
 
+## 目錄
+
+- [JavaScript JQuery(函式庫) 筆記](#javascript-jquery函式庫-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+	- [$.ajax()](#ajax)
+- [jQuery Selectors](#jquery-selectors)
+
 ## 參考資料
 
 [官網](https://jquery.com/)
@@ -51,9 +59,7 @@ success: 當成功接收到資料時，success 會執行並顯示結果。
 error : 當接收資料失敗時，error 會執行並顯示結果。
 ```
 
-# JQuery
-
-# $() jQuery Selectors
+# jQuery Selectors
 
 ```
 jQuery 選擇器允許您選擇和操作 HTML 元素。

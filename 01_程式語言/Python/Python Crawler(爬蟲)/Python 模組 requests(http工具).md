@@ -3,6 +3,16 @@
 ```
 ```
 
+## 目錄
+
+- [Python 模組 requests(http工具)](#python-模組-requestshttp工具)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+- [HTTP2 supported for python requests library](#http2-supported-for-python-requests-library)
+- [狀況 InsecureRequestWarning](#狀況-insecurerequestwarning)
+
 ## 參考資料
 
 [requests pypi](https://pypi.org/project/requests/)

@@ -42,6 +42,14 @@ JWT 目前提供 7 種關鍵字，可以放在 Payload 內，讓後端伺服器�
     訊息交換使用
 ```
 
+## 目錄
+
+- [Python 模組 PyJWT(JSON Web Token 加密)](#python-模組-pyjwtjson-web-token-加密)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [PyJWT pypi](https://pypi.org/project/PyJWT/)

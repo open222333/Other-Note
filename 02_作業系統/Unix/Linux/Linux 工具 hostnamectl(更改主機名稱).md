@@ -1,5 +1,15 @@
 # Linux 工具 hostnamectl(更改主機名稱)
 
+```
+```
+
+## 目錄
+
+- [Linux 工具 hostnamectl(更改主機名稱)](#linux-工具-hostnamectl更改主機名稱)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [基本指令](#基本指令)
+
 ## 參考資料
 
 [Red Hat / CentOS Linux 7 查詢、更改主機名稱設定教學](https://blog.gtwang.org/linux/redhat-centos-7-change-hostname-tutorial/)
