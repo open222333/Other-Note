@@ -8,6 +8,14 @@ libcurl 目前支持的協議有http、https、ftp、gopher、telnet、dict、fi
 libcurl 同時支持HTTPS 證書、HTTP POST、HTTP PUT、 FTP 上傳(也能通過PHP 的FTP 擴展完成)、HTTP 基於表單的上傳、代理、cookies、用戶名+密碼的認證。
 ```
 
+## 目錄
+
+- [PHP 函式庫 cURL(Client URL Library)](#php-函式庫-curlclient-url-library)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [Client URL](https://www.php.net/manual/zh/book.curl.php)

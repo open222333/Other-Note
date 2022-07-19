@@ -1,5 +1,39 @@
 # MySQL 筆記
 
+```
+```
+
+## 目錄
+
+- [MySQL 筆記](#mysql-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+	- [使用者權限 參考資料](#使用者權限-參考資料)
+- [安裝步驟 CentOS7](#安裝步驟-centos7)
+	- [配置設定](#配置設定)
+- [安裝步驟 MacOS](#安裝步驟-macos)
+- [指令](#指令)
+- [指令 匯出匯入](#指令-匯出匯入)
+	- [匯入資料庫](#匯入資料庫)
+- [log 文檔](#log-文檔)
+- [設定 文檔](#設定-文檔)
+- [資料庫指令](#資料庫指令)
+- [資料庫指令 - 使用者](#資料庫指令---使用者)
+	- [密碼設定強度修改](#密碼設定強度修改)
+- [許可權 列表](#許可權-列表)
+- [MySQL docker-compose搭建mysql主從環境](#mysql-docker-compose搭建mysql主從環境)
+	- [自行架設成功的步驟](#自行架設成功的步驟)
+	- [公司文檔 步驟](#公司文檔-步驟)
+	- [1.mysql-master設定](#1mysql-master設定)
+	- [mysql-master server_id和log_bin變數正確跳至第一步-建立master-slave使用者](#mysql-master-server_id和log_bin變數正確跳至第一步-建立master-slave使用者)
+	- [2.mysql-slave設定](#2mysql-slave設定)
+	- [mysql-slave server_id和read_only變數正確跳至第三步](#mysql-slave-server_id和read_only變數正確跳至第三步)
+	- [mysql-master 加入下列到 my.cnf](#mysql-master-加入下列到-mycnf)
+	- [3.備份mysql-master](#3備份mysql-master)
+- [MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
+- [MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
+- [Docker Percona XtraBackup](#docker-percona-xtrabackup)
+
 ## 參考資料
 
 [SQL筆記](../../../../../01_程式語言/SQL/SQL%20筆記.md)

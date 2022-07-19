@@ -1,5 +1,16 @@
 # Linux 基本 狀況筆記
 
+## 目錄
+
+- [Linux 基本 狀況筆記](#linux-基本-狀況筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [網站連線數問題](#網站連線數問題)
+- [root 密碼忘記](#root-密碼忘記)
+- [查看port佔用](#查看port佔用)
+- [linux shell nologin 不可登入的系統帳號](#linux-shell-nologin-不可登入的系統帳號)
+- [linux PID查看以及刪除](#linux-pid查看以及刪除)
+
 ## 參考資料
 
 [linux 命令搜尋](https://wangchujiang.com/linux-command/)

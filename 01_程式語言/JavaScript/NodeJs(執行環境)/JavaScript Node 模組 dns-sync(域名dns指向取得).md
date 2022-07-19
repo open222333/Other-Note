@@ -4,6 +4,14 @@
 取得域名指向紀錄
 ```
 
+## 目錄
+
+- [JavaScript Node 模組 dns-sync(域名dns指向取得)](#javascript-node-模組-dns-sync域名dns指向取得)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [dns-sync npm 頁面](https://www.npmjs.com/package/dns-sync)

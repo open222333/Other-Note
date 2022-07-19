@@ -3,6 +3,13 @@
 ```
 ```
 
+## 目錄
+
+- [Python 模組 tencentcloud-sdk-python(騰訊雲SDK)](#python-模組-tencentcloud-sdk-python騰訊雲sdk)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+
 ## 參考資料
 
 [腾讯云开发者工具套件（SDK）3.0 Python](https://intl.cloud.tencent.com/zh/document/product/583/19698)

@@ -9,6 +9,14 @@
 建議使用其他 repo debugger-256進行實際日誌記錄或作為構建自己的起點。
 ```
 
+## 目錄
+
+- [JavaScript Node 模組 prettyjson-256(json美化工具)](#javascript-node-模組-prettyjson-256json美化工具)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [prettyjson-256 npm 頁面](https://www.npmjs.com/package/prettyjson-256)

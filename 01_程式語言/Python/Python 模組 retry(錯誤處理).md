@@ -4,6 +4,14 @@
 retry是一個用於錯誤處理的模塊，功能類似try-except，但更加快捷方便
 ```
 
+## 目錄
+
+- [Python 模組 retry(錯誤處理)](#python-模組-retry錯誤處理)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [retry pypi](https://pypi.org/project/retry/)

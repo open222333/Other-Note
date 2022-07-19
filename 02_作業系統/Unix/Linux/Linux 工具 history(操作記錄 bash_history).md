@@ -1,5 +1,16 @@
 # Linux 工具 history(操作記錄 bash_history)
 
+```
+```
+
+## 目錄
+
+- [Linux 工具 history(操作記錄 bash_history)](#linux-工具-history操作記錄-bash_history)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [history操作紀錄相關的幾個環境變數](#history操作紀錄相關的幾個環境變數)
+
 ## 參考資料
 
 [Linux Bash 刪除 history 指令操作歷史紀錄](https://xyz.cinc.biz/2017/08/linux-bash-history-clear.html)

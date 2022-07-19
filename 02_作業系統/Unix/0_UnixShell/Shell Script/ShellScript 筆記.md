@@ -9,6 +9,12 @@
 chmod +x demo.sh
 ```
 
+## 目錄
+
+- [ShellScript 筆記](#shellscript-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+
 ## 參考資料
 
 [Linux Shell Script 入門教學](https://blog.techbridge.cc/2019/11/15/linux-shell-script-tutorial/)
@@ -40,15 +46,15 @@ $*
 # 位置參數的數量。
 $#
 # shell 設置的當前選項。
-$- 
+$-
 # 當前shell（不是子shell）的pid。
-$$ 
+$$
 # 最近的參數（或啟動後立即啟動當前 shell 的命令的 abs 路徑）。
-$_ 
+$_
 # (輸入）字段分隔符。
 $IFS
 # 最近的前台管道退出狀態。
-$? 
+$?
 # 最近的後台命令的PID。
 $!
 # shell 或 shell 腳本的名稱

@@ -4,6 +4,13 @@
 Semanage是用於配置SELinux策略某些元素而無需修改或重新編譯策略源的工具。
 ```
 
+## 目錄
+
+- [Linux 工具 semanage(SELinux工具程式)](#linux-工具-semanageselinux工具程式)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+
 ## 參考資料
 
 [semanage(8) - Linux man page](https://linux.die.net/man/8/semanage)

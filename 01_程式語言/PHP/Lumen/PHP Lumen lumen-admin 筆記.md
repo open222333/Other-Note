@@ -1,10 +1,21 @@
 # PHP Lumen lumen-admin 筆記
 
+```
+```
+
+## 目錄
+
+- [PHP Lumen lumen-admin 筆記](#php-lumen-lumen-admin-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [安裝步驟](#安裝步驟)
+- [LumenCMS](#lumencms)
+
 ## 參考資料
 
 [lumen-admin](https://github.com/gzydong/lumen-admin)
 
-## 安裝步驟
+# 安裝步驟
 
 ```bash
 # git clone lumen專案
@@ -29,7 +40,7 @@ php artisan migrate
 php artisan db:seed
 ```
 
-## LumenCMS
+# LumenCMS
 
 ```
 LumenCMS是一個輕量級的CMS系統，也可以作為一個通用的後台管理框架使用。

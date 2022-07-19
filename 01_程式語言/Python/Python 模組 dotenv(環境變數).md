@@ -5,6 +5,14 @@
 但隨著需要設定的環境變數增多，可能導致每次進行開發都有一堆環境變數要先塞好，如果你有遇到這種情況，不妨試試 python-dotenv 吧！
 ```
 
+## 目錄
+
+- [Python 模組 dotenv(環境變數)](#python-模組-dotenv環境變數)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [python-dotenv pypi](https://pypi.org/project/python-dotenv/)

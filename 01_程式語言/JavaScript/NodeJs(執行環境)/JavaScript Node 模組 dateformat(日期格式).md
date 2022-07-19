@@ -4,6 +4,14 @@
 根據Steven Levithan's excellent dateFormat() function 做出的node.js套件包
 ```
 
+## 目錄
+
+- [JavaScript Node 模組 dateformat(日期)](#javascript-node-模組-dateformat日期)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [dateformat npm 頁面](https://www.npmjs.com/package/dateformat)

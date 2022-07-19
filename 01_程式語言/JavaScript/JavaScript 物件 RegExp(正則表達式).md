@@ -5,6 +5,14 @@
 在 JavaScript 中，正規表達式也是物件，這些模式在 RegExp 的 exec 和 test 方法中，以及 String 的 match、replace、search、split 等方法中被運用。
 ```
 
+## 目錄
+
+- [JavaScript 物件 RegExp(正則表達式)](#javascript-物件-regexp正則表達式)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [用法](#用法)
+- [pattern](#pattern)
+
 ## 參考資料
 
 [正規表達式](https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Regular_Expressions)

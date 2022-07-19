@@ -6,6 +6,17 @@ VPN 屬於作業系統層級，連上VPN 之後，整台設備都會受影響，
 而Proxy 的作用是局部的，只適用於指定的應用程式。
 ```
 
+## 目錄
+
+- [squid(ProxyServer)](#squidproxyserver)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [安裝步驟 `CentOS 7`](#安裝步驟-centos-7)
+- [安裝步驟 `MacOS`](#安裝步驟-macos)
+- [阻止訪問單個或一系列網站](#阻止訪問單個或一系列網站)
+- [建立使用者 對 Squid 使用基本身份驗證 `CentOS`](#建立使用者-對-squid-使用基本身份驗證-centos)
+- [在 Squid 3.0 中刪除 X-Forwarded-For 標頭](#在-squid-30-中刪除-x-forwarded-for-標頭)
+
 ## 參考資料
 
 [設定文檔 參數說明](http://www.squid-cache.org/Doc/config/)

@@ -1,5 +1,18 @@
 # C++ 筆記
 
+## 目錄
+
+- [C++ 筆記](#c-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+	- [編譯與連結C程式](#編譯與連結c程式)
+- [基本語法 關鍵字](#基本語法-關鍵字)
+- [基本語法 運算子](#基本語法-運算子)
+- [基本語法 if else , switch case](#基本語法-if-else--switch-case)
+- [基本語法 for, while](#基本語法-for-while)
+- [常用函式 字串函式](#常用函式-字串函式)
+- [常用函式 型別轉換函式](#常用函式-型別轉換函式)
+
 ## 參考資料
 
 [GCC 編譯器基本使用教學與範例](https://blog.gtwang.org/programming/gcc-comipler-basic-tutorial-examples/)

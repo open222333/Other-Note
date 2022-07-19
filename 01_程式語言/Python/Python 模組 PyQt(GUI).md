@@ -8,6 +8,14 @@ PyQt 是一套針對 Qt 的綜合 Python 綁定。它被實現為超過 35 個�
 PyQt 也可以嵌入基於 C++ 的應用程序中，以允許這些應用程序的用戶配置或增強這些應用程序的功能。
 ```
 
+## 目錄
+
+- [Python 模組 PyQt(GUI)](#python-模組-pyqtgui)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+- [用法](#用法)
+
 ## 參考資料
 
 [PyQt5 pypi](https://pypi.org/project/PyQt5/)

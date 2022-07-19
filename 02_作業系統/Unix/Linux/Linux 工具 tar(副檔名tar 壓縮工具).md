@@ -15,6 +15,13 @@ tar代表未壓縮的tar檔案。
 .txz等價於.tar.xz
 ```
 
+## 目錄
+
+- [Linux 工具 tar(副檔名tar 壓縮工具)](#linux-工具-tar副檔名tar-壓縮工具)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [指令](#指令)
+
 ## 參考資料
 
 [tar(1) - Linux man page](https://linux.die.net/man/1/tar)

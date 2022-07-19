@@ -1,5 +1,22 @@
 # Algorithm 筆記
 
+## 目錄
+
+- [Algorithm 筆記](#algorithm-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+- [時間複雜度](#時間複雜度)
+- [空間複雜度](#空間複雜度)
+- [陣列(Array)](#陣列array)
+- [鏈結串列(Linked list)](#鏈結串列linked-list)
+- [佇列(Queue)](#佇列queue)
+- [堆疊(Stack)](#堆疊stack)
+- [二元樹(Binary Tree)](#二元樹binary-tree)
+- [堆積樹(Heap Tree)](#堆積樹heap-tree)
+- [雜湊表(Hash Table)](#雜湊表hash-table)
+- [排序(Sort)](#排序sort)
+- [搜尋(Search)](#搜尋search)
+
 ## 參考資料
 
 # 時間複雜度
@@ -182,7 +199,7 @@ def insertion_sort(nLst):
         print("第%d次迴圈排序" % n, nLst)
         return nLst
     print("第1次迴圈排序", nLst)
-    
+
     # 重點迴圈
     for i in range(1, n):
         for j in range(i, 0, -1):
