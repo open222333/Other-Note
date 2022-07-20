@@ -14,10 +14,11 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 ## 目錄
 
 - [Elasticsearch(搜尋引擎) & Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [觀念](#觀念)
-	- [index](#index)
+  - [ELK](#elk)
+  - [index](#index)
 - [指令](#指令)
 - [安裝步驟 docker-compose](#安裝步驟-docker-compose)
 - [安裝步驟 docker-compose 集群](#安裝步驟-docker-compose-集群)
@@ -28,7 +29,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 - [配置文檔 override.conf](#配置文檔-overrideconf)
 - [生產環境 建議設定](#生產環境-建議設定)
 - [REST APIs](#rest-apis)
-	- [index API](#index-api)
+  - [index API](#index-api)
 
 ## 參考資料
 
@@ -60,8 +61,21 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 # 觀念
 
-## index
+## ELK
 
+```
+ELK包含三個東西 Elasticsearch、Logstash、Kibana
+
+LogStash 是 Indexer & Shipper
+Elasticsearch 是 Search & Storage
+Kibana 是 Web Interface
+
+Logstash蒐集Log，透過Broker(透過Redis，也可以透過Kafka或是message queue工具，主要負責多手去蒐集以及暫存log)接著傳遞給予Logstash運作進行Index的動作
+最後儲存在Elasticsearch中，可以供查詢以及其他應用
+Kibana在進行web介面上的串接，前端視覺化
+```
+
+## index
 
 * index 在 ES 中是個邏輯空間的概念，用來儲存 document 的容器，而這些 document 內容都是相似的 (跟其他領域的 index 用法不太一樣)
 

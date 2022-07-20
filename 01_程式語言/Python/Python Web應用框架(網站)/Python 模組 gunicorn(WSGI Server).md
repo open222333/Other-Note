@@ -1,11 +1,12 @@
-# Python 模組 gunicorn(WSGI(Web伺服器閘道器介面)Server)
+# Python 模組 gunicorn(WSGI Server)
 
 ```
+Web伺服器閘道器介面
 ```
 
 ## 目錄
 
-- [Python 模組 gunicorn(WSGI(Web伺服器閘道器介面)Server)](#python-模組-gunicornwsgiweb伺服器閘道器介面server)
+- [Python 模組 gunicorn(WSGI Server)](#python-模組-gunicornwsgi-server)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [指令](#指令)
