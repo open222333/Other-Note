@@ -16,6 +16,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 - [Elasticsearch(搜尋引擎) & Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+- [觀念](#觀念)
+	- [index](#index)
 - [指令](#指令)
 - [安裝步驟 docker-compose](#安裝步驟-docker-compose)
 - [安裝步驟 docker-compose 集群](#安裝步驟-docker-compose-集群)
@@ -25,17 +27,22 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 - [配置文檔 elasticsearch.yml](#配置文檔-elasticsearchyml)
 - [配置文檔 override.conf](#配置文檔-overrideconf)
 - [生產環境 建議設定](#生產環境-建議設定)
-- [建立索引](#建立索引)
+- [REST APIs](#rest-apis)
+	- [index API](#index-api)
 
 ## 參考資料
 
+[REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
+
+[Elasticsearch Guide - 官方教學文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
+
 [Elasticsearch WIKI](https://zh.wikipedia.org/zh-tw/Elasticsearch)
+
+[[Elasticsearch] 基本概念 & 搜尋入門](https://godleon.github.io/blog/Elasticsearch/Elasticsearch-getting-started/)
 
 [Kibana 介紹](https://www.elastic.co/cn/kibana/)
 
 [docker-compose安裝elasticsearch及kibana](https://www.cnblogs.com/chenyuanbo/p/16183304.html)
-
-[Elasticsearch Guide - 官方教學文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
 
 [How To Install ElasticSearch 7.x on CentOS 7](https://computingforgeeks.com/how-to-install-elasticsearch-on-centos/)
 
@@ -50,6 +57,25 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 [elasticsearch-analysis-ik - ik分詞器 github專案](https://github.com/medcl/elasticsearch-analysis-ik)
 
 [elasticsearch-analysis-ik - ik分詞器 所有版本 手動下載](https://github.com/medcl/elasticsearch-analysis-ik/releases)
+
+# 觀念
+
+## index
+
+
+* index 在 ES 中是個邏輯空間的概念，用來儲存 document 的容器，而這些 document 內容都是相似的 (跟其他領域的 index 用法不太一樣)
+
+* shard 在 ES 中則是個物理空間的的概念，index 中的資料會分散放在不同的 shard 中
+
+* index 由以下幾個部份組成：
+
+	- data：由 document + metadata 所組成
+
+	- mapping：用來定義每個欄位名稱 & 類型
+
+	- setting：定義資料是如何存放(例如：replication 數量, 使用的 shard 數量)
+
+* 在 ES 7.0 的版本後，index 在 type 部份只能設定為 _doc (在以前的版本是可以設定不同的 type)
 
 # 指令
 
@@ -73,8 +99,6 @@ services:
     image: elasticsearch:7.13.3
     container_name: elasticsearch
     privileged: true
-	# 安裝 ik分詞器 需根據elasticsearch版本替換版本號
-	command: bash -c "cd /usr/local/dockercompose/elasticsearch/plugins && elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip"
     environment:
       - "cluster.name=elasticsearch" # 設置集群名稱為elasticsearch
       - "discovery.type=single-node" # 以單一節點模式啟動
@@ -813,7 +837,15 @@ thread_pool.search.queue_size: 1000
 thread_pool.get.queue_size: 1000
 ```
 
-# 建立索引
+# REST APIs
+
+## index API
+
+[Index APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices.html)
+
+```
+Index APIs are used to manage individual indices, index settings, aliases, mappings, and index templates.
+```
 
 ```bash
 # 1.create a index
@@ -821,28 +853,19 @@ curl -XPUT http://localhost:9200/index
 
 # 2.create a mapping
 curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
-	{
-			"properties": {
-				"content": {
-					"type": "text",
-					"analyzer": "ik_max_word",
-					"search_analyzer": "ik_smart"
-				}
-			}
-
-	}'
+{
+	"properties": {
+		"content": {
+			"type": "text",
+			"analyzer": "ik_max_word",
+			"search_analyzer": "ik_smart"
+		}
+	}
+}'
 
 # 3.index some docs
-curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'
-{"content":"美国留给伊拉克的是个烂摊子吗"}
-'
-curl -XPOST http://localhost:9200/index/_create/2 -H 'Content-Type:application/json' -d'
-{"content":"公安部：各地校车将享最高路权"}
-'
-curl -XPOST http://localhost:9200/index/_create/3 -H 'Content-Type:application/json' -d'
-{"content":"中韩渔警冲突调查：韩警平均每天扣1艘中国渔船"}
-'
-curl -XPOST http://localhost:9200/index/_create/4 -H 'Content-Type:application/json' -d'
-{"content":"中国驻洛杉矶领事馆遭亚裔男子枪击 嫌犯已自首"}
-'
+curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'{"content":"美国留给伊拉克的是个烂摊子吗"}'
+curl -XPOST http://localhost:9200/index/_create/2 -H 'Content-Type:application/json' -d'{"content":"公安部：各地校车将享最高路权"}'
+curl -XPOST http://localhost:9200/index/_create/3 -H 'Content-Type:application/json' -d'{"content":"中韩渔警冲突调查：韩警平均每天扣1艘中国渔船"}'
+curl -XPOST http://localhost:9200/index/_create/4 -H 'Content-Type:application/json' -d'{"content":"中国驻洛杉矶领事馆遭亚裔男子枪击 嫌犯已自首"}'
 ```
