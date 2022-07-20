@@ -12,8 +12,18 @@
 - [指令 docker hub](#指令-docker-hub)
 - [範例 Dockerfile](#範例-dockerfile)
 - [範例 docker-compose](#範例-docker-compose)
-- [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
-- [連線 主機別名](#連線-主機別名)
+	- [docker-compose.centos.yml](#docker-composecentosyml)
+	- [docker-compose.elasticsearch.yml](#docker-composeelasticsearchyml)
+	- [docker-compose.gitea.yml](#docker-composegiteayml)
+	- [docker-compose.mongodb_clusters_replica_set.yml](#docker-composemongodb_clusters_replica_setyml)
+	- [docker-compose.mysql_phpmyadmin.yml](#docker-composemysql_phpmyadminyml)
+	- [docker-compose.php.yml](#docker-composephpyml)
+	- [docker-compose.scrapy_splash.yml](#docker-composescrapy_splashyml)
+	- [docker-compose.celery_python.yml](#docker-composecelery_pythonyml)
+	- [docker-compose.mysql_master_slave.yml](#docker-composemysql_master_slaveyml)
+	- [docker-compose.nginx_plus(centos)-php_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
+	- [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
+	- [連線 主機別名](#連線-主機別名)
 
 ## 參考資料
 
@@ -338,6 +348,8 @@ ENTRYPOINT      ["/entrypoint.sh"]
 
 [docker-compose 撰寫規範](https://docs.docker.com/compose/compose-file/)
 
+[`The Compose Specification`](https://github.com/compose-spec/compose-spec/blob/master/spec.md)
+
 ```yml
 # 設定Container重新啟動的規則
 # 目前支援no、always、on-failure、unless-stopped等四個選項
@@ -441,10 +453,412 @@ networks:
 # 換言之，networks是可以省略的
 ```
 
-# 多個服務使用同資料 示例用例
+## docker-compose.centos.yml
+
+```yml
+version: '3'
+services:
+  centos:
+    container_name: centos
+    image: centos:centos7
+    ports:
+      - "8080:80"
+      - "1022:22"
+    command: ping 127.0.0.1
+    volumes:
+      - ./etc/ssl/nginx:/etc/ssl/nginx
+```
+
+## docker-compose.elasticsearch.yml
+
+```yml
+version: '3'
+services:
+  elasticsearch:
+    image: elasticsearch:7.13.3
+    container_name: elasticsearch
+    privileged: true
+	# 安裝 ik分詞器 需根據elasticsearch版本替換版本號
+	command: bash -c "cd /usr/local/dockercompose/elasticsearch/plugins && elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip"
+    environment:
+      - "cluster.name=elasticsearch" # 設置集群名稱為elasticsearch
+      - "discovery.type=single-node" # 以單一節點模式啟動
+      - "ES_JAVA_OPTS=-Xms512m -Xmx2g" # 設置使用jvm內存大小
+      - bootstrap.memory_lock=true # 關閉 swap
+    volumes:
+    #   - ./es/plugins:/usr/local/dockercompose/elasticsearch/plugins
+	  - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
+      - ./es/data:/usr/local/dockercompose/elasticsearch/data:rw # 數據文件掛載
+      - ./es/logs:/usr/local/dockercompose/elasticsearch/logs:rw
+    ports:
+      - 9200:9200
+      - 9300:9300
+	# 限制物理資源
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1000M
+        reservations:
+          memory: 200M
+  kibana:
+    image: kibana:7.13.3
+    container_name: kibana
+    depends_on:
+      - elasticsearch # kibana在elasticsearch啟動之後再啟動
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200 # 設置訪問elasticsearch的地址
+      I18N_LOCALE: zh-CN
+      # English - en (default)
+      # Chinese - zh-CN
+      # Japanese - ja-JP
+      # French - fr-FR
+    ports:
+      - 5601:5601
+```
+
+## docker-compose.gitea.yml
+
+```yml
+version: "3"
+services:
+  gitea:
+    image: gitea/gitea:1.13.1
+    container_name: gitea
+    # environment:
+    #   - USER_UID=1000
+    #   - USER_GID=1000
+    restart: always
+    volumes:
+      - ./gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "80:80"
+      - "22:22"
+```
+
+## docker-compose.mongodb_clusters_replica_set.yml
+
+```yml
+version: "3"
+services:
+  mongo1:
+    image: mongo
+    container_name: mongo1
+    ports:
+      - 31141:27017
+    # expose: # 開給內網
+    #     - 5000
+    command: mongod --replSet RS --bind_ip_all --dbpath /data/db
+    volumes:
+      - ./data/mongo1:/data/db
+  mongo2:
+    image: mongo
+    container_name: mongo2
+    ports:
+      - 31142:27017
+    command: mongod --replSet RS --bind_ip_all --dbpath /data/db
+    volumes:
+      - ./data/mongo2:/data/db
+  mongo3:
+    image: mongo
+    container_name: mongo3
+    ports:
+      - 31143:27017
+    command: mongod --replSet RS --bind_ip_all --dbpath /data/db
+    volumes:
+      - ./data/mongo3:/data/db
+```
+
+## docker-compose.mysql_phpmyadmin.yml
+
+```yml
+version: '3'
+services:
+  mysql:
+    container_name: mysql
+    hostname: mysql-container
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./log/mysql:/var/log/mysql
+      - ./conf/mysql:/etc/mysql/conf.d
+  phpmyadmin:
+    container_name: phpmyadmin
+    hostname: phpmyadmin-container
+    image: phpmyadmin/phpmyadmin
+    volumes:
+      - ./conf/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+      - ./data/phpmyadmin/:/srv/phpmyadmin/
+    ports:
+      - 80:80
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      # UPLOAD_LIMIT: '100M'
+    depends_on:
+      - mysql
+```
+
+## docker-compose.php.yml
+
+```yml
+version: '3'
+services:
+  nginx:
+    container_name: nginx
+    image: nginx
+    volumes:
+      - ./code:/code
+      - ./config/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - 80:80
+      - 443:443
+  php-fpm:
+    container_name: php-fpm
+    image: php:7.4.3-fpm
+    volumes:
+      - ./code:/code
+  mongo:
+    container_name: mongo
+    image: mongo
+    expose:
+      - 27017
+```
+
+## docker-compose.scrapy_splash.yml
+
+```yml
+version: '3'
+# 爬蟲 splash伺服器
+services:
+  scrapy:
+    container_name: scrapy
+    image: scrapinghub/splash
+    ports:
+      - 8050:8050
+    volumes:
+      - ../spiders:/usr/src/app
+    command: ping 127.0.0.1 # 為了不讓他中止
+```
+
+## docker-compose.celery_python.yml
+
+```yml
+version: '3'
+services:
+  redis_celery:
+    image: redis
+  worker:
+    build: .
+    env_file:
+      - ./env/celery.env
+    volumes:
+      - .:/usr/src/app
+    command: celery worker -A celery -l info -E -P gevent --purge -n worker%i@%h
+  beat:
+    build: .
+    env_file:
+      - ./env/celery.env
+    volumes:
+      - .:/usr/src/app
+    command: celery beat -A celery -l info --pidfile=
+```
+
+```.env
+# python celery
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/1
+```
+
+## docker-compose.mysql_master_slave.yml
+
+```yml
+version: '3'
+services:
+  mysql1:
+    container_name: mysql1
+    hostname: mysql1-container
+    image: mysql:5.7
+    ports:
+      - 31216:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      # - MYSQL_REPLICATION_MODE=master
+      # - MYSQL_REPLICATION_USER=replication
+      # - MYSQL_REPLICATION_PASSWORD=testpassword
+    volumes:
+      - ./data/mysql1:/var/lib/mysql
+      - ./config/mysql1/master.cnf:/etc/mysql/my.cnf
+  mysql2:
+    container_name: mysql2
+    hostname: mysql2-container
+    image: mysql:5.7
+    ports:
+      - 31217:3306
+    depends_on:
+      - mysql1
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      # - MYSQL_REPLICATION_MODE=slave
+      # - MYSQL_REPLICATION_USER=replication
+      # - MYSQL_REPLICATION_PASSWORD=testpassword
+      # - MYSQL_MASTER_HOST=mysql1
+      # - MYSQL_MASTER_PORT_NUMBER=31216
+      # - MYSQL_MASTER_ROOT_PASSWORD=root
+    volumes:
+      - ./data/mysql2:/var/lib/mysql
+      - ./config/mysql2/slave.cnf:/etc/mysql/my.cnf
+```
+
+```conf
+; master.cnf
+[mysqld]
+server-id = 1
+log-bin = mysql-bin
+# 第一個參數是新增時從第幾個編號開始，第二個參數是每次新增資料要加幾號
+# auto-increment-increment = 1
+# auto-increment-offset = 1
+```
+
+```conf
+; slave.cnf
+[mysqld]
+server-id = 2
+# log-bin=MySQL-bin
+# super user 依然可寫入
+read-only = ON
+# 第一個參數是新增時從第幾個編號開始，第二個參數是每次新增資料要加幾號
+# auto-increment-increment = 1
+# auto-increment-offset = 1
+```
+
+```sql
+clone 資料庫的資料夾 已建立
+docker-compose up -d 拉起容器
+
+建立 MySQL master-slave 架構
+
+ ======== master server 部分 ========
+
+-- 確認mysql-master server_id和log_bin變數
+SHOW VARIABLES LIKE 'server_id%';
+SHOW VARIABLES LIKE 'log_bin%';
+
+-- 顯示master狀態：該File列顯示日誌文件的名稱並Position顯示文件中的位置。記錄這些值。稍後在設置副本時需要它們。它們表示副本應開始處理來自源的新更新的複制坐標。
+SHOW MASTER STATUS;
+
+-- 建立master-slave使用者：要創建新帳戶，請使用CREATE USER。要授予此帳戶複製所需的權限，請使用該GRANT 語句。如果您僅為複制目的創建帳戶，則該帳戶只需要 REPLICATION SLAVE權限。例如，要設置一個repl可以從example.com域內的任何主機連接以進行複制 的新用戶
+CREATE USER 'user'@'host' IDENTIFIED BY 'password';
+GRANT REPLICATION SLAVE ON *.* TO 'user'@'host';
+
+-- 列出所有使用者帳號
+SELECT User,Host FROM mysql.user;
+
+ ======== slave server 部分 ========
+
+-- 檢查mysql-slave server_id和read_only變數
+SHOW VARIABLES LIKE 'server_id%';
+SHOW VARIABLES LIKE 'read_only%';
+
+-- 新增mysql-slave設定master資料 綁定到master
+CHANGE MASTER TO MASTER_HOST = 'master ip',
+MASTER_PORT = 3306,
+MASTER_USER = 'user',
+MASTER_PASSWORD = 'password',
+-- 在master server時，輸入 SHOW MASTER STATUS 找出的資訊;
+MASTER_LOG_FILE = 'master bin_log filename',
+MASTER_LOG_POS = 'log position';
+
+-- 確認slave狀態：SHOW SLAVE STATUS，注意：Slave_IO_Running: Yes、Slave_SQL_Running: Yes
+SHOW SLAVE STATUS\G
+
+-- 執行slave
+START SLAVE;
+```
+
+## docker-compose.nginx_plus(centos)-php_fpm.yml
+
+```yml
+version: '3'
+services:
+  centos:
+    container_name: centos
+    build: .
+    ports:
+      - 8080:80
+      - 8443:443
+    command: ping 127.0.0.1
+    volumes:
+      - ./html:/var/www/html
+    links:
+      - php_fpm
+    networks:
+      - app-network
+  php_fpm:
+    container_name: php_fpm
+    build: ./php
+    ports:
+      - 9000:9000
+    volumes:
+      - ./html:/var/www/html
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge
+```
+
+```Dockerfile
+# php
+FROM php:7.4-fpm
+
+RUN apt-get update
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+```
+
+```Dockerfile
+# centos
+FROM centos/systemd
+COPY . .
+
+RUN yum install wget -y
+RUN yum install vim -y
+RUN yum install GeoIP  GeoIP-data -y
+
+COPY ./setup_info/nginx-repo.crt /etc/ssl/nginx/nginx-repo.crt
+COPY ./setup_info/nginx-repo.key /etc/ssl/nginx/nginx-repo.key
+
+RUN touch /etc/ssl/nginx/nginx-repo.crt
+RUN touch /etc/ssl/nginx/nginx-repo.key
+
+RUN wget -P /etc/yum.repos.d git@cs.nginx.com/static/files/nginx-plus-7.4.repo
+
+RUN yum install nginx-plus -y
+RUN yum install nginx-plus-module-geoip -y
+RUN yum install nginx-plus-module-image-filter -y
+RUN yum install nginx-plus-module-subs-filter -y
+
+RUN cp -r /etc/nginx /etc/nginx_bak
+RUN rm -rf /etc/nginx/*
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+## 多個服務使用同資料 示例用例
+
+```
 當您有多個具有通用配置的服務時，擴展單個服務非常有用。
 下面的示例是具有兩個服務的 Compose 應用程序：一個 Web 應用程序和一個隊列工作器。
 這兩種服務使用相同的代碼庫並共享許多配置選項。
+```
 
 在common.yml 中，我們定義了通用配置：
 
@@ -484,7 +898,7 @@ services:
       - queue
 ```
 
-# 連線 主機別名
+## 連線 主機別名
 
 `IMAGE`://`DOCKER_IP`:`PORT`
 
