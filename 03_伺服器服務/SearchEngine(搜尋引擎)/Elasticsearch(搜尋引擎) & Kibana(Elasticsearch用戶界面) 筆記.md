@@ -14,11 +14,11 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 ## 目錄
 
 - [Elasticsearch(搜尋引擎) & Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
 - [觀念](#觀念)
-  - [ELK](#elk)
-  - [index](#index)
+	- [ELK](#elk)
+	- [index](#index)
 - [指令](#指令)
 - [安裝步驟 docker-compose](#安裝步驟-docker-compose)
 - [安裝步驟 docker-compose 集群](#安裝步驟-docker-compose-集群)
@@ -29,7 +29,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 - [配置文檔 override.conf](#配置文檔-overrideconf)
 - [生產環境 建議設定](#生產環境-建議設定)
 - [REST APIs](#rest-apis)
-  - [index API](#index-api)
+	- [index API](#index-api)
+- [Mongodb 同步資料](#mongodb-同步資料)
 
 ## 參考資料
 
@@ -58,6 +59,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 [elasticsearch-analysis-ik - ik分詞器 github專案](https://github.com/medcl/elasticsearch-analysis-ik)
 
 [elasticsearch-analysis-ik - ik分詞器 所有版本 手動下載](https://github.com/medcl/elasticsearch-analysis-ik/releases)
+
+[Using Elasticsearch to Offload Real-Time Analytics from MongoDB](https://rockset.com/blog/using-elasticsearch-to-offload-real-time-analytics-from-mongodb/)
 
 # 觀念
 
@@ -119,10 +122,11 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx2g" # 設置使用jvm內存大小
       - bootstrap.memory_lock=true # 關閉 swap
     volumes:
-    #   - ./es/plugins:/usr/local/dockercompose/elasticsearch/plugins
 	  - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
-      - ./es/data:/usr/local/dockercompose/elasticsearch/data:rw # 數據文件掛載
-      - ./es/logs:/usr/local/dockercompose/elasticsearch/logs:rw
+	  # chmod -R 777 ./es/data  若出現權限問題
+      - ./es/data:/usr/share/elasticsearch/data:rw # 數據文件掛載
+      - ./es/logs:/usr/share/elasticsearch/logs:rw
+	  - ./es/config:/usr/share/elasticsearch/config_default # 複製設定文檔到這資料夾
     ports:
       - 9200:9200
       - 9300:9300
@@ -879,7 +883,12 @@ curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/js
 
 # 3.index some docs
 curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'{"content":"美国留给伊拉克的是个烂摊子吗"}'
-curl -XPOST http://localhost:9200/index/_create/2 -H 'Content-Type:application/json' -d'{"content":"公安部：各地校车将享最高路权"}'
-curl -XPOST http://localhost:9200/index/_create/3 -H 'Content-Type:application/json' -d'{"content":"中韩渔警冲突调查：韩警平均每天扣1艘中国渔船"}'
-curl -XPOST http://localhost:9200/index/_create/4 -H 'Content-Type:application/json' -d'{"content":"中国驻洛杉矶领事馆遭亚裔男子枪击 嫌犯已自首"}'
 ```
+
+# Mongodb 同步資料
+
+[monstache - Golang](https://github.com/rwynn/monstache)
+
+[mongo-connector - Python](https://github.com/yougov/mongo-connector)
+
+[Mongoosastic - NodeJS](https://github.com/mongoosastic/mongoosastic)

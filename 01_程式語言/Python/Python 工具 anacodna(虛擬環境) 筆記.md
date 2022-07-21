@@ -8,21 +8,36 @@
 - [Python 工具 anacodna(虛擬環境) 筆記](#python-工具-anacodna虛擬環境-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [安裝步驟](#安裝步驟)
+- [安裝步驟 Anaconda](#安裝步驟-anaconda)
+- [安裝步驟 CentOS7 Miniconda](#安裝步驟-centos7-miniconda)
 - [指令](#指令)
 
 ## 參考資料
 
 [Anaconda 文檔](https://docs.anaconda.com/)
 
-## 安裝步驟
+[Miniconda 文檔](https://docs.conda.io/en/latest/miniconda.html)
+
+# 安裝步驟 Anaconda
 
 ```bash
-# 下載到本地
-wget https://repo.anaconda.com/archive/Anaconda3-2020.02-Linux-x86_64.sh
+# 下載到本地 https://www.anaconda.com/products/distribution 取得下載網址
+wget 下載網址
 
 # 進行Anaconda的安裝
 bash Anaconda3-5.3.1-Linux-x86_64.sh
+
+source ~/.bashrc
+```
+
+# 安裝步驟 CentOS7 Miniconda
+
+```bash
+# https://docs.conda.io/en/latest/miniconda.html 取得下載網址
+wget 下載網址
+
+# 進行安裝
+bash Miniconda3-latest-Linux-x86_64.sh
 
 source ~/.bashrc
 ```
