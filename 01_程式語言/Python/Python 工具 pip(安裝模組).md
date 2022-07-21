@@ -5,6 +5,7 @@
 - [Python 工具 pip(安裝模組)](#python-工具-pip安裝模組)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+- [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [指令](#指令)
 - [無法連線pypi](#無法連線pypi)
 
@@ -21,6 +22,13 @@
 [pip freeze](https://pip.pypa.io/en/stable/cli/pip_freeze/)
 
 [所有指令](https://pip.pypa.io/en/stable/cli/)
+
+# 安裝步驟 CentOS7
+
+```bash
+# 安裝
+yum install python3-pip -y
+```
 
 # 指令
 

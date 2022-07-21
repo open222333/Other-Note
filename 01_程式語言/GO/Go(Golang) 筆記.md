@@ -5,126 +5,30 @@
 - [Go(Golang) 筆記](#gogolang-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [cURL 範本](#curl-範本)
-	- [GET](#get)
-	- [POST](#post)
-	- [Basic Auth](#basic-auth)
+- [Go modules 套件管理工具](#go-modules-套件管理工具)
 
 ## 參考資料
 
 [官方網站](https://go.dev/)
 
-## cURL 範本
+[安裝](https://go.dev/doc/install)
 
-[Convert curl commands to JavaScript](https://curlconverter.com/#go)
+[模組文檔](https://pkg.go.dev/)
 
-## GET
+# Go modules 套件管理工具
 
-```go
-package main
-
-import (
-	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
-)
-
-func main() {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "http://en.wikipedia.org/", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Set("Accept-Encoding", "gzip, deflate, sdch")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.8")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36")
-	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-	req.Header.Set("Referer", "http://www.wikipedia.org/")
-	req.Header.Set("Connection", "keep-alive")
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	bodyText, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%s\n", bodyText)
-}
+```
+套件管理工具，就像 Nodejs 的 npm 或是 python 的 pip
 ```
 
-## POST
+```bash
+# 初始化 類似npm init
+go mod init go-phishing
+# go: creating new go.mod: module go-phishing
 
-```go
-package main
+# go.mod（就像 Nodejs 中的 package.json）
+cat go.mod
 
-import (
-	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"strings"
-)
-
-func main() {
-	client := &http.Client{}
-	var data = strings.NewReader(`msg1=wow&msg2=such&msg3=data`)
-	req, err := http.NewRequest("POST", "http://fiddle.jshell.net/echo/html/", data)
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Set("Origin", "http://fiddle.jshell.net")
-	req.Header.Set("Accept-Encoding", "gzip, deflate")
-	req.Header.Set("Accept-Language", "en-US,en;q=0.8")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36")
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("Referer", "http://fiddle.jshell.net/_display/")
-	req.Header.Set("X-Requested-With", "XMLHttpRequest")
-	req.Header.Set("Connection", "keep-alive")
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	bodyText, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%s\n", bodyText)
-}
-```
-
-## Basic Auth
-
-```go
-package main
-
-import (
-	"fmt"
-	"io/ioutil"
-	"log"
-	"net/http"
-)
-
-func main() {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", "https://api.test.com/", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.SetBasicAuth("some_username", "some_password")
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	bodyText, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%s\n", bodyText)
-}
+# 記錄的是所有用到的 package 版本，類似 Nodejs 的 package-lock.json
+cat go.sum
 ```
