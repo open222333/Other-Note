@@ -16,6 +16,7 @@ Node.js 是能夠在伺服器端運行 JavaScript 的開放原始碼、跨平台
 - [Node.JS 模組規範 - CJS(CommonJS) 與 ESM(ES Modules)](#nodejs-模組規範---cjscommonjs-與-esmes-modules)
 	- [在 Node 中使用 ESM 語法：](#在-node-中使用-esm-語法)
 	- [CJS 引用 ESM 模組](#cjs-引用-esm-模組)
+- [MacOS M1 nvm特殊狀況](#macos-m1-nvm特殊狀況)
 
 ## 參考資料
 
@@ -93,7 +94,6 @@ nvm which 8.11.1
 # MacOS
 # 透過 Homebrew 移除Node.js
 brew uninstall node
-
 ```
 
 # npm 指令
@@ -218,3 +218,11 @@ import('./esm/b.js').then(({ foo }) => {
 })();
 ```
 
+# MacOS M1 nvm特殊狀況
+
+```bash
+# 安裝14以下的版本，先進入Rosetta shell環境
+# https://dev.to/httpjunkie/setup-node-version-manager-nvm-on-mac-m1-7kl
+arch -x86_64 zsh
+
+```
