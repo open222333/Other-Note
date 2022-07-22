@@ -31,6 +31,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 - [REST APIs](#rest-apis)
 	- [index API](#index-api)
 - [Mongodb 同步資料](#mongodb-同步資料)
+	- [Python - mongo-connector](#python---mongo-connector)
+			- [config.json](#configjson)
 
 ## 參考資料
 
@@ -41,6 +43,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 [Elasticsearch WIKI](https://zh.wikipedia.org/zh-tw/Elasticsearch)
 
 [[Elasticsearch] 基本概念 & 搜尋入門](https://godleon.github.io/blog/Elasticsearch/Elasticsearch-getting-started/)
+
+[全文搜索引擎 Elasticsearch 入门教程](http://www.ruanyifeng.com/blog/2017/08/elasticsearch.html)
 
 [Kibana 介紹](https://www.elastic.co/cn/kibana/)
 
@@ -99,6 +103,9 @@ Kibana在進行web介面上的串接，前端視覺化
 ```bash
 # 查看節點訊息
 curl http://localhost:9200/_cat/nodes?v
+
+# 查看當前節點的所有索引。
+curl -X GET 'http://localhost:9200/_cat/indexes?v'
 
 # 測試
 curl http://localhost:9200
@@ -887,8 +894,149 @@ curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/j
 
 # Mongodb 同步資料
 
-[monstache - Golang](https://github.com/rwynn/monstache)
+`可使用工具`
 
-[mongo-connector - Python](https://github.com/yougov/mongo-connector)
+  * [monstache - Golang](https://github.com/rwynn/monstache)
 
-[Mongoosastic - NodeJS](https://github.com/mongoosastic/mongoosastic)
+  * [mongo-connector - Python](https://github.com/yougov/mongo-connector)
+
+  * [Mongoosastic - NodeJS](https://github.com/mongoosastic/mongoosastic)
+
+## Python - mongo-connector
+
+[mongo-connector实现MongoDB与elasticsearch实时同步](https://blog.csdn.net/jerrism/article/details/110318159)
+
+[Python 模組 mongo-connector(MongoDB and Elasticsearch)](../../01_程式語言/Python/Python%20Elasticsearch(搜尋引擎)/Python%20模組%20mongo-connector(MongoDB%20and%20Elasticsearch).md)
+
+`配置文檔 config.json`
+
+```json
+{
+    "__comment__": "Configuration options starting with '__' are disabled",
+    "__comment__": "To enable them, remove the preceding '__'",
+
+    "mainAddress": "mongodb://username:password@host:port",
+    "oplogFile": "/var/log/mongo-connector/oplog.timestamp",
+    "noDump": false,
+    "batchSize": -1,
+    "verbosity": 0,
+    "continueOnError": false,
+
+    "logging": {
+        "type": "file",
+        "filename": "/var/log/mongo-connector/mongo-connector.log",
+        "__format": "%(asctime)s [%(levelname)s] %(name)s:%(lineno)d - %(message)s",
+        "__rotationWhen": "D",
+        "__rotationInterval": 1,
+        "__rotationBackups": 10,
+
+        "__type": "syslog",
+        "__host": "localhost:514"
+    },
+
+    "authentication": {
+        "__adminUsername": "username",
+        "__password": "password",
+        "__passwordFile": "mongo-connector.pwd"
+    },
+
+    "__comment__": "For more information about SSL with MongoDB, please see http://docs.mongodb.org/manual/tutorial/configure-ssl-clients/",
+    "__ssl": {
+        "__sslCertfile": "Path to certificate to identify the local connection against MongoDB",
+        "__sslKeyfile": "Path to the private key for sslCertfile. Not necessary if already included in sslCertfile.",
+        "__sslCACerts": "Path to concatenated set of certificate authority certificates to validate the other side of the connection",
+        "__sslCertificatePolicy": "Policy for validating SSL certificates provided from the other end of the connection. Possible values are 'required' (require and validate certificates), 'optional' (validate but don't require a certificate), and 'ignored' (ignore certificates)."
+    },
+
+	// 指定 db.collection
+    "__namespaces": {
+        "excluded.collection": false,
+        "excluded_wildcard.*": false,
+        "*.exclude_collection_from_every_database": false,
+        "included.collection1": true,
+        "included.collection2": {},
+        "included.collection4": {
+            "includeFields": ["included_field", "included.nested.field"]
+        },
+        "included.collection5": {
+            "rename": "included.new_collection5_name",
+            "includeFields": ["included_field", "included.nested.field"]
+        },
+        "included.collection6": {
+            "excludeFields": ["excluded_field", "excluded.nested.field"]
+        },
+        "included.collection7": {
+            "rename": "included.new_collection7_name",
+            "excludeFields": ["excluded_field", "excluded.nested.field"]
+        },
+        "included_wildcard1.*": true,
+        "included_wildcard2.*": true,
+        "renamed.collection1": "something.else1",
+        "renamed.collection2": {
+            "rename": "something.else2"
+        },
+        "renamed_wildcard.*": {
+            "rename": "new_name.*"
+        },
+        "gridfs.collection": {
+            "gridfs": true
+        },
+        "gridfs_wildcard.*": {
+            "gridfs": true
+        }
+    },
+
+    "docManagers": [
+        {
+            "docManager": "elastic_doc_manager",
+            "targetURL": "localhost:9200",
+            "__bulkSize": 1000,
+            "__uniqueKey": "_id",
+            "__autoCommitInterval": null
+        }
+    ]
+}
+```
+
+#### config.json
+
+```json
+{
+    "__comment__": "Configuration options starting with '__' are disabled",
+    "__comment__": "To enable them, remove the preceding '__'",
+
+    "mainAddress": "mongodb://username:password@host:port",
+    "oplogFile": "oplog.timestamp",
+    "noDump": false,
+    "batchSize": -1,
+    "verbosity": 0,
+    "continueOnError": false,
+
+    "logging": {
+        "type": "file",
+        "filename": "mongo-connector.log",
+        "__format": "%(asctime)s [%(levelname)s] %(name)s:%(lineno)d - %(message)s",
+        "__rotationWhen": "D",
+        "__rotationInterval": 1,
+        "__rotationBackups": 10,
+
+        "__type": "syslog",
+        "__host": "localhost:514"
+    },
+
+
+    "__namespaces": {
+        "db.*": true
+    },
+
+    "docManagers": [
+        {
+            "docManager": "elastic2_doc_manager",
+            "targetURL": "localhost:9200",
+            "__bulkSize": 1000,
+            "__uniqueKey": "_id",
+            "__autoCommitInterval": null
+        }
+    ]
+}
+```
