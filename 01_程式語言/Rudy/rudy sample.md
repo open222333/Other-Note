@@ -1,11 +1,11 @@
-# JavaScript 工具 GitBook()
+# Rudy 套件 sample()
 
 ```
 ```
 
 ## 目錄
 
-- [JavaScript 工具 GitBook()](#javascript-工具-gitbook)
+- [Rudy 套件 sample()](#rudy-套件-sample)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [用法](#用法)
@@ -16,5 +16,5 @@
 
 # 用法
 
-```JavaScript
+```Rudy
 ```

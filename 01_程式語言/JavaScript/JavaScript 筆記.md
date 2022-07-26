@@ -3,15 +3,14 @@
 ## 目錄
 
 - [JavaScript 筆記](#javascript-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [應用範例 參考資料](#應用範例-參考資料)
 - [Javascrapt 基本 語彙結構](#javascrapt-基本-語彙結構)
 - [Javascrapt 基本 運算子](#javascrapt-基本-運算子)
 - [Javascrapt 基本 述句(statements)](#javascrapt-基本-述句statements)
 - [Javascrapt 基本 型別 值 變數](#javascrapt-基本-型別-值-變數)
 - [Javascrapt 基本 i++ ++i 差別](#javascrapt-基本-i-i-差別)
-- [SPA (Single Page Application) 設計原則](#spa-single-page-application-設計原則)
 - [框架](#框架)
 - [使用 format 格式化字符串](#使用-format-格式化字符串)
 
@@ -410,20 +409,6 @@ JavaScript 中，可以分為兩大類資料型態：
 如果++ 在前，就會先把值加上去之後才賦予值到左邊，所以 y 會是 4。
 
 這就是這兩者的差別。
-```
-
-# SPA (Single Page Application) 設計原則
-
-[Build a Single Page Application with JavaScript (No Frameworks)](https://www.youtube.com/watch?v=6BozpmSjk-Y)
-
-Ajax (Asynchronous JavaScript and XML) 技術
-
-```
-透過 Ajax (Asynchronous JavaScript and XML) 技術來達成的。
-這種「不跳頁」的設計原則稱為 Single Page Application，簡稱 SPA。
-
-不刷新畫面的情況下，在右下角展開一個新視窗撰寫新郵件，完全沒有換頁。
-全部的動作都是在「同一個頁面」上面發生的，載入的檔案從頭到尾就只有一個 index.html，完全沒有換過。
 ```
 
 # 框架
