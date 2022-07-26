@@ -3,8 +3,8 @@
 ## 目錄
 
 - [JavaScript 基本 陣列 Array](#javascript-基本-陣列-array)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [陣列的迭代方法](#陣列的迭代方法)
 
 ## 參考資料
@@ -64,4 +64,7 @@ console.log(a3.reduce((x, y) => (x > y) ? x : y)); // 最大值
 // reduceRight(function(函式), initial value(初始值)) 高索引到低索引
 let a4 = [2, 3, 4];
 console.log(a4.reduceRight((acc, val) => Math.pow(val, acc))); // 2^(3^4)
+
+// flat() 和 flatMap()
+
 ```
