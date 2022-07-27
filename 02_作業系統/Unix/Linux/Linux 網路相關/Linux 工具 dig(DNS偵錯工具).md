@@ -27,4 +27,7 @@ dig [@server]
 
 # 檢測 DNS TXT 配置結果是否正確
 dig @223.5.5.5 subdomain.domain.com txt +short
+
+# 檢測 DNS CNAME 配置結果
+dig [domain] -t CNAME +short
 ```

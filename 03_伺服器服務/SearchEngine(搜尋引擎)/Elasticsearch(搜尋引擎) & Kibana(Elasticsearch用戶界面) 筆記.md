@@ -32,7 +32,9 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 	- [index API](#index-api)
 - [Mongodb 同步資料](#mongodb-同步資料)
 	- [Python - mongo-connector](#python---mongo-connector)
-			- [config.json](#configjson)
+		- [config.json](#configjson)
+	- [Golang - monstache](#golang---monstache)
+		- [安裝步驟 CentOS7](#安裝步驟-centos7-1)
 
 ## 參考資料
 
@@ -864,6 +866,8 @@ thread_pool.get.queue_size: 1000
 
 # REST APIs
 
+[REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
+
 ## index API
 
 [Index APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices.html)
@@ -907,6 +911,16 @@ curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/j
 [mongo-connector实现MongoDB与elasticsearch实时同步](https://blog.csdn.net/jerrism/article/details/110318159)
 
 [Python 模組 mongo-connector(MongoDB and Elasticsearch)](../../01_程式語言/Python/Python%20Elasticsearch(搜尋引擎)/Python%20模組%20mongo-connector(MongoDB%20and%20Elasticsearch).md)
+
+[mongo-connector实现MongoDB与elasticsearch实时同步深入详解](https://blog.csdn.net/laoyang360/article/details/51842822)
+
+[29.mongo-connector實現MongoDB與elasticsearch實時同步(ES與非關係型資料庫同步)](https://www.796t.com/content/1549085781.html)
+
+[https://www.796t.com/content/1549137781.html](mongo-connector實現MongoDB與elasticsearch實時同步深入詳解)
+
+[利用mongo-connector將mongodb數據同步到elasticsearch的流程以及會遇到的坑](https://www.twblogs.net/a/5b8c06592b717718832fe1d2)
+
+[Configuration Options](https://github.com/yougov/mongo-connector/wiki/Configuration-Options#configure-authentication)
 
 `配置文檔 config.json`
 
@@ -998,7 +1012,7 @@ curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/j
 }
 ```
 
-#### config.json
+### config.json
 
 ```json
 {
@@ -1039,4 +1053,157 @@ curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/j
         }
     ]
 }
+```
+
+## Golang - monstache
+
+[monstache-showcase/docker-compose.sc.yml](https://github.com/rwynn/monstache-showcase/blob/a25cddeedc9e8f1481aa7de19cd634158792b28c/docker-compose.sc.yml#L53)
+
+[monstache Configuration](https://rwynn.github.io/monstache-site/config/)
+
+[Monstache](https://rwynn.github.io/monstache-site/start/)
+
+### 安裝步驟 CentOS7
+
+```bash
+# 安裝gcc
+yum install gcc -y
+
+# somewhere outside your $GOPATH(golang 第三方套件安裝路徑)
+cd ~/build
+
+# clone 專案
+git clone https://github.com/rwynn/monstache.git
+cd monstache
+
+# 選擇版本
+git checkout <branch-or-tag-to-build>
+
+# 安裝
+go install
+
+# 執行同步(需先編輯config.toml)
+monstache -f /path/to/config.toml
+```
+
+```conf
+# toml檔
+# connection settings
+
+# connect to MongoDB using the following URL
+# MongoDB實例的主節點訪問地址
+mongo-url = "mongodb://someuser:password@localhost:40001"
+
+# connect to the Elasticsearch REST API at the following node URLs
+# Elasticsearch的訪問地址。
+elasticsearch-urls = ["https://es1:9200", "https://es2:9200"]
+
+# frequently required settings
+
+# if you need to seed an index from a collection and not just listen and sync changes events
+# you can copy entire collections or views from MongoDB to Elasticsearch
+direct-read-namespaces = ["mydb.mycollection", "db.collection", "test.test", "db2.myview"]
+
+# if you want to use MongoDB change streams instead of legacy oplog tailing use change-stream-namespaces
+# change streams require at least MongoDB API 3.6+
+# if you have MongoDB 4+ you can listen for changes to an entire database or entire deployment
+# in this case you usually don't need regexes in your config to filter collections unless you target the deployment.
+# to listen to an entire db use only the database name.  For a deployment use an empty string.
+# 追蹤更新自動同步 mongodb 需使用 replica sets
+# 如果要使用MongoDB變更流功能，需要指定此參數。啟用此參數後，oplog追踪會被設置為無效
+# MongoDB 版本4以上 可更改 db.collection 使用 db 追蹤整個db
+change-stream-namespaces = ["mydb.mycollection", "db.collection", "test.test"]
+
+# 追蹤全部的
+change-stream-namespaces = [""]
+
+# additional settings
+
+# if you don't want to listen for changes to all collections in MongoDB but only a few
+# e.g. only listen for inserts, updates, deletes, and drops from mydb.mycollection
+# this setting does not initiate a copy, it is only a filter on the change event listener
+# 通過正則表達式指定需要監聽的集合。
+namespace-regex = '^mydb\.mycollection$'
+
+# compress requests to Elasticsearch
+gzip = true
+
+# generate indexing statistics
+stats = true
+
+# index statistics into Elasticsearch
+index-stats = true
+
+# use the following user name for Elasticsearch basic auth
+# 訪問Elasticsearch的用戶名。
+elasticsearch-user = "someuser"
+
+# use the following password for Elasticsearch basic auth
+# 訪問Elasticsearch的用戶密碼。
+elasticsearch-password = "somepassword"
+
+# use 4 go routines concurrently pushing documents to Elasticsearch
+# 定義連接ES的線程數。默認為4，即使用4個Go線程同時將數據同步到ES。
+elasticsearch-max-conns = 4
+
+# use the following PEM file to connections to Elasticsearch
+elasticsearch-pem-file = "/path/to/elasticCert.pem"
+
+# validate connections to Elasticsearch
+elastic-validate-pem-file = true
+
+# propogate dropped collections in MongoDB as index deletes in Elasticsearch
+# 表示當刪除MongoDB集合時，會同時刪除ES中對應的索引。
+dropped-collections = true
+
+# propogate dropped databases in MongoDB as index deletes in Elasticsearch
+# 表示當刪除MongoDB數據庫時，會同時刪除ES中對應的索引。
+dropped-databases = true
+
+# do not start processing at the beginning of the MongoDB oplog
+# if you set the replay to true you may see version conflict messages
+# in the log if you had synced previously. This just means that you are replaying old docs which are already
+# in Elasticsearch with a newer version. Elasticsearch is preventing the old docs from overwriting new ones.
+replay = false
+
+# resume processing from a timestamp saved in a previous run
+# Monstache會將已成功同步到ES的MongoDB操作的時間戳寫入monstache.monstache集合中。當Monstache因為意外停止時，可通過該時間戳恢復同步任務，避免數據丟失。如果指定了cluster-name，該參數將自動開啟
+resume = true
+
+# do not validate that progress timestamps have been saved
+resume-write-unsafe = false
+
+# override the name under which resume state is saved
+resume-name = "default"
+
+# use a custom resume strategy (tokens) instead of the default strategy (timestamps)
+# tokens work with MongoDB API 3.6+ while timestamps work only with MongoDB API 4.0+
+# 指定恢復策略。
+# Strategy 0 -default- Timestamp based resume of change streams. Compatible with MongoDB API 4.0+.
+# Stategy 1 Token based resume of change streams. Compatible with MongoDB API 3.6+.
+resume-strategy = 1
+
+# exclude documents whose namespace matches the following pattern
+namespace-exclude-regex = '^mydb\.ignorecollection$'
+
+# turn on indexing of GridFS file content
+# https://github.com/rwynn/monstache/issues/33
+# 另外，為了清楚起見，monstache 僅在配置中啟用文件內容索引時才需要 ingest-attachment 插件。 如果您將以下內容更改為 false monstache 將不會嘗試需要攝取附件的請求。
+index-files = false
+
+# turn on search result highlighting of GridFS content
+file-highlighting = true
+
+# index GridFS files inserted into the following collections
+file-namespaces = ["users.fs.files"]
+
+# print detailed information including request traces
+verbose = true
+
+# enable clustering mode
+# 指定集群名稱。
+cluster-name = 'apollo'
+
+# do not exit after full-sync, rather continue tailing the oplog
+exit-after-direct-reads = false
 ```

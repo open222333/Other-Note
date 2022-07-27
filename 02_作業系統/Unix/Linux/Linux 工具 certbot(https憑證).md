@@ -8,7 +8,7 @@
 - [linux 工具 certbot(https憑證)](#linux-工具-certbothttps憑證)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [建立憑證 使用 certbot 作業系統 CentOS](#建立憑證-使用-certbot-作業系統-centos)
+- [安裝步驟 CentOS](#安裝步驟-centos)
 - [指令](#指令)
 - [配置文件](#配置文件)
 
@@ -22,7 +22,9 @@
 
 [解析 Certbot（Let's encrypt） 使用方式](https://andyyou.github.io/2019/04/13/how-to-use-certbot/)
 
-# 建立憑證 使用 certbot 作業系統 CentOS
+[設定 Let's Encrypt HTTPS nginx certbot SSL 憑證自動更新 教學](https://blog.hellojcc.tw/setup-https-with-letsencrypt-on-nginx/)
+
+# 安裝步驟 CentOS
 
 [安裝snapd](https://snapcraft.io/docs/installing-snap-on-centos)
 
