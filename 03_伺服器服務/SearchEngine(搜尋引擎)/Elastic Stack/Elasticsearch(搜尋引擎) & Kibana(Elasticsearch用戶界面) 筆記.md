@@ -17,7 +17,6 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [觀念](#觀念)
-	- [ELK](#elk)
 	- [index](#index)
 - [指令](#指令)
 - [安裝步驟 docker-compose](#安裝步驟-docker-compose)
@@ -68,10 +67,12 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [Using Elasticsearch to Offload Real-Time Analytics from MongoDB](https://rockset.com/blog/using-elasticsearch-to-offload-real-time-analytics-from-mongodb/)
 
+[Elasticsearch 高手之路](https://xiaoxiami.gitbook.io/elasticsearch/)
+
+[Youtube - 最新ElasticSearch教程](https://www.youtube.com/playlist?list=PLd1mymN837zK59aWFWS_gT9KdnsZZTI4u)
+
 # 觀念
-
-## ELK
-
+ 
 ```
 ELK包含三個東西 Elasticsearch、Logstash、Kibana
 

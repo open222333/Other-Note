@@ -1,53 +1,81 @@
-# 程式原則 RESTful-API(API設計準則)
+# 程式原則 RESTful API(API設計準則)
+
+```
+RESTful API是一種設計風格，這種風格使API設計具有整體一致性，易於維護、擴展，並且充份利用HTTP協定的特點。
+```
 
 ## 目錄
 
-- [程式原則 RESTful-API(API設計準則)](#程式原則-restful-apiapi設計準則)
+- [程式原則 RESTful API(API設計準則)](#程式原則-restful-apiapi設計準則)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+- [RESTful API 設計準則](#restful-api-設計準則)
+	- [HTTP動詞](#http動詞)
+	- [URI名詞](#uri名詞)
+	- [HTTP回傳狀態碼](#http回傳狀態碼)
+	- [HTTP Header](#http-header)
+	- [HTTP Body: JSON或XML格式](#http-body-json或xml格式)
+	- [其它原則](#其它原則)
+- [測試工具](#測試工具)
 
 ## 參考資料
 
 [Representational State Transfer](https://zh.wikipedia.org/wiki/%E8%A1%A8%E7%8E%B0%E5%B1%82%E7%8A%B6%E6%80%81%E8%BD%AC%E6%8D%A2)
 
+[Wikipedia : 超文本傳輸協議 - Hypertext Transfer Protocol](https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods)
+
+[Wikipedia : HTTP 狀態碼列表 - List of HTTP status codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
+
+# RESTful API 設計準則
+
+## HTTP動詞
+
+ - GET: 讀取資源 (safe & idempotent)
+ - PUT: 替換資源 (idempotent)
+ - DELETE: 刪除資源 (idempotent)
+ - POST: 新增資源也作為萬用動詞，處理其它要求
+ - PATCH: 更新資源部份內容
+ - HEAD: 類似GET，但只回傳HTTP header (safe & idempotent)
+
 ```
-RESTful API 設計準則
-
-HTTP動詞
-RESTful API設計的第一步，是充份了解常用的HTTP動詞。
-一些API設計的選擇容或見人見智，用錯HTTP動詞就不好了。
-
-	GET: 讀取資源 (safe & idempotent)
-	PUT: 替換資源 (idempotent)
-	DELETE: 刪除資源 (idempotent)
-	POST: 新增資源也作為萬用動詞，處理其它要求
-	PATCH: 更新資源部份內容
-	HEAD: 類似GET，但只回傳HTTP header (safe & idempotent)
-
-其它還有一些較少用到的，可參考Wikipedia: Hypertext Transfer Protocol
-https://en.wikipedia.org/wiki/Hypertext_Transfer_Protocol#Request_methods
-以上「safe」是指該操作不會改變伺服器端的資源狀態（而且結果可以被cache）「idempotent」是指該操作不管做1遍或做n遍，都會得到同樣的資源狀態結果（但不一定得到同樣的回傳值，例如第2次DELETE請求可能回傳404），因此client端可以放心retry。
-
 PUT、POST和PATCH容易混淆，補充說明如下：
 
 	PUT通常是用來替換單一資源或資源集合 (resource collection) 的內容。
+
 	POST除了用來新增資源，也作為catch-all用途，例如用在utility API。（Utility API是不同於一般資源讀寫操作的要求類型，例如檢查某個促銷活動碼是否有效。）
+
 	PATCH用來更新資源部份內容。前幾年有人會用POST代替PATCH，現在應該沒這必要了建議除非infrastructure有限制，否則直接用PATCH即可。
+```
 
+## URI名詞
 
-（二）URI名詞
-相對於HTTP動詞，URI就是名詞了。URI由prefix + API endpoint組成。Prefix的部份可有可無，例如/api或/api/v1。API endpoint的設計，幾個重要原則如下：
+```
+相對於HTTP動詞，URI就是名詞了。URI由prefix + API endpoint組成。
+
+Prefix的部份可有可無，例如/api或/api/v1。API endpoint的設計，幾個重要原則如下：
 
 一般資源用複數名詞，例如/books或/books/123。
-有些人認為用單數比較好，因為/book/123看似比/books/123合理但想想檔案系統的目錄命名（例如/Users或/Documents），其實用複數也沒問題。複數可以保持API endpoint的一致性，所以一般資源建議用複數。
-唯一資源（亦即對client而言只有一份的資源）用單數名詞。例如GitHub watching API中的GET /user/subscriptions，其中user是指目前驗證的使用者，所以用單數。
-資源的層級架構，可以適當反應在API endpoint設計上，例如/books/123/chapters/2。
-Utility API與resource API性質不同，它的endpoint設計只要合理即可，例如/search?q={keywords}。
-建議URI components都用小寫，兩個字之間用減號-或底線_隔開皆可，但應保持一致。（我個人偏好用-）
 
-（三）HTTP回傳狀態碼
-API回傳的結果，應使用適當的HTTP狀態碼，所以API設計者必須了解它們。以下是一些常用的狀態碼，完整列表請參考Wikipedia。
-https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+有些人認為用單數比較好，因為/book/123看似比/books/123合理但想想檔案系統的目錄命名（例如/Users或/Documents），其實用複數也沒問題。
+
+複數可以保持API endpoint的一致性，所以一般資源建議用複數。
+
+唯一資源（亦即對client而言只有一份的資源）用單數名詞。
+例如GitHub watching API中的GET /user/subscriptions，其中user是指目前驗證的使用者，所以用單數。
+
+資源的層級架構，可以適當反應在API endpoint設計上，例如/books/123/chapters/2。
+
+Utility API與resource API性質不同，它的endpoint設計只要合理即可，例如/search?q={keywords}。
+
+建議URI components都用小寫，兩個字之間用減號-或底線_隔開皆可，但應保持一致。
+```
+
+## HTTP回傳狀態碼
+
+```
+API回傳的結果，應使用適當的HTTP狀態碼，所以API設計者必須了解它們。
+
+以下是一些常用的狀態碼
 
 2xx: 成功
 200 OK: 通用狀態碼
@@ -77,26 +105,42 @@ https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 401、403: 401是指用戶端尚未驗證，也就是unauthenticated（HTTP spec裡用unauthorized有些誤導）403是指用戶端目前的身份不被允許此項請求（通常是用戶端已驗證過了），或是所有使用者都不被允許此項請求。
 406、415: 406是指用戶端要求「回傳」的Content-Type（也就是用戶端在Accept表頭裡所要求的），伺服器不支援415是指用戶端送出的「請求」，其Content-Type（也就是用戶端HTTP request body的內容類型），伺服器不支援。
 另外要注意，這些回傳的狀態碼，是代表API這一層的執行狀態，而不是商業邏輯這一層的狀態。例如當/search?q=xyz搜尋結果是空的，API結果仍應回傳200，而非404因為從API角度來看，/search這個「資源」存在，而且API執行成功。
+```
 
-（四）HTTP Header
+## HTTP Header
+
+```
 用戶端送出API請求時，可能會帶一些HTTP header，例如：
 
 Accept: 能夠接受的回應內容類型 (Content-Type)，屬於內容協商的一環
+
 Authorization: 認證資訊
+
 至於API回傳結果的HTTP header，沒甚麼特別之處，按照一般原則處理即可（例如Content-Type、Content-Length、ETag、Cache-Control…）。
-
-（五）HTTP Body: JSON或XML格式
-現在JSON已被普遍支援，加上JSON處理上較簡潔，所以越來越多人採用JSON作為API的HTTP body格式。但要採用JSON或XML（或同時支援兩種格式），仍應視專案的實際需求而定。
-
-
-（六）其它原則
-與HTTP一樣，API應該是stateless，也就是一項工作單元不應由二個或二個以上API組成。（這也引申出一個有趣的問題：REST API如何支援transaction？這個問題超出本篇文章的範圍，以後有機會再談。）
-REST API所呈現的資源，是從應用面及client角度來思考，並不需要和後端的資源儲存形式（例如資料庫schema）維持一對一的關係。
-HATEOAS (Hypermedia as the engine of application state) 雖然是REST原始定義裡的一環，但我認為不一定需要。
-Query parameter的部份，只要風格保持一致即可，REST對此並無特殊規範。
-
-
-
-結語
-RESTful API是一種設計風格，這種風格使API設計具有整體一致性，易於維護、擴展，並且充份利用HTTP協定的特點。這篇文章列出一些我認為較重要的部份，希望能幫助不熟REST API的人，在最短時間對它有個初步了解。
 ```
+
+## HTTP Body: JSON或XML格式
+
+```
+現在JSON已被普遍支援，加上JSON處理上較簡潔，所以越來越多人採用JSON作為API的HTTP body格式。
+
+但要採用JSON或XML（或同時支援兩種格式），仍應視專案的實際需求而定。
+```
+
+## 其它原則
+
+```
+與HTTP一樣，API應該是stateless，也就是一項工作單元不應由二個或二個以上API組成。
+
+REST API所呈現的資源，是從應用面及client角度來思考，並不需要和後端的資源儲存形式（例如資料庫schema）維持一對一的關係。
+
+HATEOAS (Hypermedia as the engine of application state) 雖然是REST原始定義裡的一環，但我認為不一定需要。
+
+Query parameter的部份，只要風格保持一致即可，REST對此並無特殊規範。
+```
+
+# 測試工具
+
+[chrome 工具 - Advanced REST client](https://chrome.google.com/webstore/detail/advanced-rest-client/hgmloofddffdnphfgcellkdfbfbjeloo/related?catego...&hl=zh-TW)
+
+[chrome 工具 - Postman](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop/related?catego...&hl=zh-TW)

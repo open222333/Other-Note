@@ -20,6 +20,10 @@ Elasticsearch DSL 是一個高級庫，其目的是幫助編寫和運行針對 E
 
 [elasticsearch-dsl 文檔](https://elasticsearch-dsl.readthedocs.io/en/latest/)
 
+[Elasticsearch 高手之路](https://xiaoxiami.gitbook.io/elasticsearch/)
+
+[精確值查找](https://www.elastic.co/guide/cn/elasticsearch/guide/current/_finding_exact_values.html)
+
 # 指令
 
 ```bash
@@ -29,16 +33,30 @@ pip install elasticsearch-dsl
 
 # 用法
 
+```
+Search 主要包括
+
+查詢(queries)
+過濾器(filters)
+聚合(aggreations)
+排序(sort)
+分頁(pagination)
+額外的參數(additional parameters)
+相關性(associated)
+```
+
 ```Python
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
 
-client = Elasticsearch()
+client = Elasticsearch('http://localhost:9200')
 
 s = Search(using=client, index="my-index") \
     .filter("term", category="search") \
     .query("match", title="python")   \
     .exclude("match", description="beta")
+
+print(s.to_dict())
 
 s.aggs.bucket('per_tag', 'terms', field='tags') \
     .metric('max_lines', 'max', field='lines')
