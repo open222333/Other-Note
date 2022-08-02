@@ -252,11 +252,18 @@ mongorestore $path
 use admin
 db.shutdownServer()
 
-// 以admin 身分登入
-db.auth("admin","{PASSWORD}")
+// 以 admin 身分登入 dbname
+use dbname
+db.auth("admin", "{PASSWORD}")
 
-// 顯示DB
+// 顯示資料庫列表
 show dbs
+
+// 顯示當前資料庫中的集合（類似關聯式資料庫中的表）
+show collections
+
+// 顯示使用者
+show users
 
 // 切換dbname, 注意大小寫, 用法跟MySql類似
 use dbname
@@ -511,4 +518,3 @@ userAdminAnyDatabase
 dbAdminAnyDatabase
 只在admin資料庫中可用，賦予使用者所有資料庫的dbAdmin許可權
 ```
-

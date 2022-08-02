@@ -24,6 +24,10 @@ Elasticsearch DSL 是一個高級庫，其目的是幫助編寫和運行針對 E
 
 [精確值查找](https://www.elastic.co/guide/cn/elasticsearch/guide/current/_finding_exact_values.html)
 
+[ElasticSearch DSL python](https://blog.csdn.net/u012089823/article/details/82424679)
+
+[Python Elasticsearch DSL 使用笔记(二)](http://fingerchou.com/2017/08/13/elasticsearch-dsl-with-python-usage-2/)
+
 # 指令
 
 ```bash
