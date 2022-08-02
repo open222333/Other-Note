@@ -16,6 +16,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 - [Elasticsearch(搜尋引擎) & Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [搜尋相關](#搜尋相關)
 - [觀念](#觀念)
 	- [index](#index)
 - [指令](#指令)
@@ -71,8 +72,24 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [Youtube - 最新ElasticSearch教程](https://www.youtube.com/playlist?list=PLd1mymN837zK59aWFWS_gT9KdnsZZTI4u)
 
+[ELASTICSEARCH MAPPING 原理及範例說明](https://hoohoo.top/blog/elasticsearch-mapping-tutorial/)
+
+[Elastic Kibana 快速入門](https://linyencheng.github.io/2020/09/10/elastic-kibana-quick-start/)
+
+[Elastic Kibana Quick Start: 第一次使用 Kibana 就上手 (11)](https://ithelp.ithome.com.tw/articles/10236315)
+
+### 搜尋相關
+
+[elasticsearch query DSL 整理總結（一）—— Query DSL 概要，MatchAllQuery，全文查詢簡述](https://www.itread01.com/qqifi.html)
+
+[Elasticsearch Query DSL概述与查询、过滤上下文](https://bbs.huaweicloud.com/blogs/259264)
+
+[ElasticSearch DSL python](https://blog.csdn.net/u012089823/article/details/82424679)
+
+[Search API - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)
+
 # 觀念
- 
+
 ```
 ELK包含三個東西 Elasticsearch、Logstash、Kibana
 
@@ -730,7 +747,7 @@ gateway.recover_after_time: 5m
 gateway.expected_nodes: 2
 
 ### Various ###
-# 刪除索引時需要顯式名稱。
+# 刪除索引時需要顯式名稱。 避免刪除全部索引操作
 action.destructive_requires_name: true
 ```
 
@@ -878,10 +895,10 @@ Index APIs are used to manage individual indices, index settings, aliases, mappi
 ```
 
 ```bash
-# 1.create a index
+# 創建索引
 curl -XPUT http://localhost:9200/index
 
-# 2.create a mapping
+# 建立 mapping
 curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
 {
 	"properties": {
@@ -893,8 +910,19 @@ curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/js
 	}
 }'
 
-# 3.index some docs
+# 新增doc
 curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'{"content":"美国留给伊拉克的是个烂摊子吗"}'
+
+# 刪除多個索引
+curl -XDELETE 'http://localhost:9200/index_one,index_two'
+
+curl -XDELETE 'http://localhost:9200/index_*'
+
+# 刪除 全部索引
+# action.destructive_requires_name: true 避免刪除全部索引 刪除需提供名稱
+curl -XDELETE 'http://localhost:9200/_all'
+
+curl -XDELETE 'http://localhost:9200/*
 ```
 
 # Mongodb 同步資料
@@ -1093,6 +1121,8 @@ monstache -f /path/to/config.toml
 
 # connect to MongoDB using the following URL
 # MongoDB實例的主節點訪問地址
+# /?connect=direct 直連
+# https://www.mongodb.com/docs/mongodb-shell/connect/
 mongo-url = "mongodb://someuser:password@localhost:40001"
 
 # connect to the Elasticsearch REST API at the following node URLs

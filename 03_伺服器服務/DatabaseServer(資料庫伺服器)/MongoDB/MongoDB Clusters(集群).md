@@ -1,17 +1,28 @@
-# MongoDB Clusters-Replica Set(集群)
+# MongoDB Clusters(集群)
 
 ```
+與單服務器 MongoDB 數據庫相比，MongoDB 集群允許 MongoDB 數據庫通過分片跨多個服務器水平擴展，或者通過 MongoDB 副本集複製數據以確保高可用性，從而提高 MongoDB 集群的整體性能和可靠性.
+
+Replica-Set(副本集)
+副本集是一組保存相同數據副本的 MongoDB 服務器的複制；
+這是生產部署的基本屬性，因為它確保了高可用性和冗餘，這是在故障轉移和計劃維護期間具備的關鍵特性。
+
+Sharded-Cluster(分片集群)
+分片集群通常也稱為水平擴展，其中數據分佈在許多服務器上。
+
+MongoDB Atlas Cluster
+MongoDB Atlas Cluster 是公共雲中的 NoSQL 數據庫即服務產品（在 Microsoft Azure、谷歌云平台、亞馬遜網絡服務中可用）
 ```
 
 ## 目錄
 
-- [MongoDB Clusters-Replica Set(集群)](#mongodb-clusters-replica-set集群)
+- [MongoDB Clusters(集群)](#mongodb-clusters集群)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [實作步驟 - 實體機](#實作步驟---實體機)
-	- [進入mongodb 輸入以下指令](#進入mongodb-輸入以下指令)
-- [Docker Compose 建立 MongoDB Replica Set](#docker-compose-建立-mongodb-replica-set)
-- [設置 主-讀寫 從-只讀不寫(主掛了不會升為主)](#設置-主-讀寫-從-只讀不寫主掛了不會升為主)
+- [指令 - Replica-Set(副本集)](#指令---replica-set副本集)
+- [Replica-Set 實作步驟 CentOS7](#replica-set-實作步驟-centos7)
+- [Replica-Set 實作步驟 Docker-Compose](#replica-set-實作步驟-docker-compose)
+	- [設置 主-讀寫 從-只讀不寫(主掛了不會升為主)](#設置-主-讀寫-從-只讀不寫主掛了不會升為主)
 
 ## 參考資料
 
@@ -35,8 +46,23 @@
 
 [eugenechen0514/demo_mongo_cluster](https://github.com/eugenechen0514/demo_mongo_cluster)
 
+# 指令 - Replica-Set(副本集)
 
-# 實作步驟 - 實體機
+```JavaScript
+// to enable replica mode 啟用
+rs.initiate()
+
+// check the replica mode if really enabled 檢查副本模式是否真的啟用
+rs.status()
+
+// add secondary to replica set 將次要添加到副本集
+rs.add({host: "SECONDARY-IP:27018", priority: 0.5})
+
+// add arbiter to replica set 將仲裁器添加到副本集
+rs.addArb("ARBITER-IP:27018")
+```
+
+# Replica-Set 實作步驟 CentOS7
 
 ```bash
 # 修改 mongod.conf
@@ -57,7 +83,7 @@ vim /etc/hosts
 	# IPAddress hostname
 ```
 
-## 進入mongodb 輸入以下指令
+進入mongodb 輸入指令
 
 ```bash
 # 進入mongo
@@ -87,7 +113,7 @@ cfg = {
     ]
 };
 
-// 建立 Replica_Set
+// 建立 Replica_Set 啟用副本模式
 rs.initiate(cfg);
 
 // 透過 rs.status() 查看 Replica Set 設定狀態
@@ -127,7 +153,6 @@ rs.initiate(cfg);
 
 // 返回包含當前副本集 配置的文檔。
 rs.conf()
-// 返回包含當前副本集 配置的文檔。
 // https://docs.mongodb.com/manual/reference/method/rs.conf/#mongodb-method-rs.conf
 // {
 //     _id: <string>,
@@ -166,7 +191,7 @@ rs.conf()
 rs.add("xxx.xxx.xxx.xxx:xxxx")
 rs.add("mongodb-a3:27019")
 
-需進入 PRIMARY 操作
+// 需進入 PRIMARY 操作
 // 通過指令刪除 Replica Set 節點
 rs.remove("mongod3.example.net:27017")
 
@@ -174,14 +199,12 @@ rs.remove("mongod3.example.net:27017")
 rs.status()
 ```
 
-# Docker Compose 建立 MongoDB Replica Set
+# Replica-Set 實作步驟 Docker-Compose
 
 [Docker Compose 建立 MongoDB Replica Set](https://blog.yowko.com/docker-compose-mongodb-replica-set/)
 
-
-docker-compose.yml
-
 ```yml
+# docker-compose.yml
 version: "3.7"
 services:
 	mongo1:
@@ -190,8 +213,8 @@ services:
 		ports:
 		  - 27017:27017
 		restart: always
+		# command: --replSet rs0 # 啟用replSet
 		entrypoint: [ "mongod","--port","27017", "--bind_ip_all",   "--replSet", "rs0" ]
-
 	mongo2:
 		container_name: mongo2
 		image: mongo
@@ -199,7 +222,6 @@ services:
 		  - 27027:27027
 		restart: always
 		entrypoint: [ "mongod","--port","27027", "--bind_ip_all",   "--replSet", "rs0" ]
-
 	mongo3:
 		container_name: mongo3
 		image: mongo
@@ -224,12 +246,14 @@ echo "127.0.0.1 mongo1\n127.0.0.1 mongo2\n127.0.0.1 mongo3" >> /etc/hosts
 docker-compose up -d
 ```
 
-# 設置 主-讀寫 從-只讀不寫(主掛了不會升為主)
+## 設置 主-讀寫 從-只讀不寫(主掛了不會升為主)
 
 [MongoDB副本集(一主兩從)讀寫分離、故障轉移功能環境部署記錄](https://iter01.com/68390.html)
 
+```
 Secondary-Only:實作方式
 members[n].priority 為0 vote也要為0
+```
 
 [Configure Non-Voting Replica Set Member](https://docs.mongodb.com/manual/tutorial/configure-a-non-voting-replica-set-member/)
 
