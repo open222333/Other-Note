@@ -1,4 +1,4 @@
-# JavaScript JQuery(函式庫) 筆記
+# JavaScript JQuery 筆記
 
 ```
 jQuery是一套跨瀏覽器的JavaScript函式庫，用於簡化HTML與JavaScript之間的操作。
@@ -6,10 +6,9 @@ jQuery是一套跨瀏覽器的JavaScript函式庫，用於簡化HTML與JavaScrip
 
 ## 目錄
 
-- [JavaScript JQuery(函式庫) 筆記](#javascript-jquery函式庫-筆記)
+- [JavaScript JQuery 筆記](#javascript-jquery-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [$.ajax()](#ajax)
 - [jQuery Selectors](#jquery-selectors)
 
 ## 參考資料
@@ -31,33 +30,6 @@ jQuery是一套跨瀏覽器的JavaScript函式庫，用於簡化HTML與JavaScrip
 [JQuery UI 下載](https://jqueryui.com/download/all/)
 
 [jQuery是什麼，它跟JavaScript有什麼關係？它又有什麼能耐呢？](https://progressbar.tw/posts/6)
-
-## $.ajax()
-
-```js
-$.ajax({
-  url: ,
-  method: ,
-  dataType: ,
-  data:
-    success: function (res) {
-      console.log(res)
-    },
-  error: function (err) {
-    console.log(err)
-  },
-});
-```
-
-```
-url: 要請求資料的網址
-method: 請求資料的方式(Ex:POST / GET / PUT...等)
-dataType: 請求資料的類型(Ex:xml, json, script, or html...等)
-data: 如果需要傳送資料時，則將資料設定在這裡。
-
-success: 當成功接收到資料時，success 會執行並顯示結果。
-error : 當接收資料失敗時，error 會執行並顯示結果。
-```
 
 # jQuery Selectors
 
