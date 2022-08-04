@@ -1,17 +1,17 @@
-# JavaScript JQuery JqGrid(顯示資料表)
+# JavaScript JQuery 套件 JqGrid(顯示資料表)
 
 ```
 ```
 
 ## 目錄
 
-- [JavaScript JQuery JqGrid(顯示資料表)](#javascript-jquery-jqgrid顯示資料表)
+- [JavaScript JQuery 套件 JqGrid(顯示資料表)](#javascript-jquery-套件-jqgrid顯示資料表)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 	- [使用步驟](#使用步驟)
-	- [複選框 multiselect](#複選框-multiselect)
-	- [子網格 subgrid](#子網格-subgrid)
-	- [樹狀網格 treegrid](#樹狀網格-treegrid)
+- [複選框 multiselect](#複選框-multiselect)
+- [子網格 subGrid](#子網格-subgrid)
+- [樹狀網格 treegrid](#樹狀網格-treegrid)
 
 ## 參考資料
 
@@ -56,7 +56,7 @@
 	jquery.jqGrid.min.js
 ```
 
-## 複選框 multiselect
+# 複選框 multiselect
 
 [selecting all the rows of all the pages of a jqgrid programmatically?](https://stackoverflow.com/questions/24935133/selecting-all-the-rows-of-all-the-pages-of-a-jqgrid-programmatically/24941828#24941828)
 
@@ -109,12 +109,12 @@ records	Grid裡的記錄筆數
 [第4個jqGrid範例: 資料列處理(取得選取的資料 以及 新增按鈕)](http://jdev.tw/blog2/1640/jqgrid-data-manipulation)
 
 
-## 子網格 subgrid
+# 子網格 subGrid
 
 [JqGrid - search using subgrid columns and rebuild main grid(jqGrid：使用子網格列搜索並重建主網格)](https://stackoverflow.com/questions/33530408/jqgrid-search-using-subgrid-columns-and-rebuild-main-grid)
 
 [SubGrid](https://www.guriddo.net/documentation/guriddo/javascript/user-guide/subgrid/)
 
-## 樹狀網格 treegrid
+# 樹狀網格 treegrid
 
 [Demo](http://trirand.com/blog/jqgrid/jqgrid.html)
