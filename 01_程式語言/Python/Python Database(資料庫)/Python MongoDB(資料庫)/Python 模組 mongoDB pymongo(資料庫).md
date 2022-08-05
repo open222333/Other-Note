@@ -27,6 +27,11 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 	- [參考資料](#參考資料)
 - [指令](#指令)
 - [用法](#用法)
+	- [Insert](#insert)
+	- [Query](#query)
+	- [Update](#update)
+	- [聚合aggregate](#聚合aggregate)
+	- [使用ObjectID搜尋資料](#使用objectid搜尋資料)
 
 ## 參考資料
 
@@ -61,6 +66,73 @@ pip install sample
 
 # 用法
 
+## Insert
+
+```Python
+db.inventory.insert_one(
+    {
+        "item": "canvas",
+        "qty": 100,
+        "tags": ["cotton"],
+        "size": {"h": 28, "w": 35.5, "uom": "cm"},
+    }
+)
+
+db.inventory.insert_many(
+    [
+        {
+            "item": "canvas",
+            "qty": 100,
+            "size": {"h": 28, "w": 35.5, "uom": "cm"},
+            "status": "A",
+        },
+        {
+            "item": "journal",
+            "qty": 25,
+            "size": {"h": 14, "w": 21, "uom": "cm"},
+            "status": "A",
+        },
+    ]
+)
+```
+
+## Query
+
+```Python
+# 取得全部資料
+cursor = db.inventory.find({})
+
+cursor = db.inventory.find({"status": "D"})
+
+cursor = db.inventory.find({"status": {"$in": ["A", "D"]}})
+
+cursor = db.inventory.find({"status": "A", "qty": {"$lt": 30}})
+```
+
+## Update
+
+```Python
+db.inventory.update_one(
+    {"item": "paper"},
+    {"$set": {"size.uom": "cm", "status": "P"}, "$currentDate": {"lastModified": True}},
+)
+
+db.inventory.update_many(
+    {"qty": {"$lt": 50}},
+    {"$set": {"size.uom": "in", "status": "P"}, "$currentDate": {"lastModified": True}},
+)
+
+db.inventory.replace_one(
+    {"item": "paper"},
+    {
+        "item": "paper",
+        "instock": [{"warehouse": "A", "qty": 60}, {"warehouse": "B", "qty": 40}],
+    },
+)
+```
+
+## 聚合aggregate
+
 ```Python
 # 聚合aggregate
 from pymongo import MongoClient
@@ -84,4 +156,16 @@ pipeline = [
         "$match": {"$or":[{"created_updated_days_divide": {"$lte": 30}}, {"now_updated_days_divide": {"$lte": 30}}]}
     }
 ]
+```
+
+## 使用ObjectID搜尋資料
+
+```Python
+from pymongo import MongoClient
+from bson import ObjectId
+
+client = MongoClient('127.0.0.1:27017')
+collection = client['db']['collection']
+
+data = collection.find_one({'col.col2': ObjectId('id')})
 ```
