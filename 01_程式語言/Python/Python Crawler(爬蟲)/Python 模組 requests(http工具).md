@@ -25,6 +25,8 @@
 
 [cURL轉成個別語言範本](https://curlconverter.com/#python)
 
+[Online REST & SOAP API Testing Tool - cURL轉換成程式碼](https://reqbin.com/)
+
 [requests proxy](https://www.scrapingbee.com/blog/python-requests-proxy/)
 
 [HTTP2 supported for python requests library](https://github.com/khanhicetea/today-i-learned/blob/master/python/HTTP2-supported-for-python-requests-library.md)
