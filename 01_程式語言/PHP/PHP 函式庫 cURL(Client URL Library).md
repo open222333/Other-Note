@@ -22,6 +22,8 @@ libcurl 同時支持HTTPS 證書、HTTP POST、HTTP PUT、 FTP 上傳(也能通�
 
 [cURL轉成個別語言範本](https://curlconverter.com/#php)
 
+[Online REST & SOAP API Testing Tool - cURL轉換成程式碼](https://reqbin.com/)
+
 # 指令
 
 ```bash
@@ -93,6 +95,12 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Connection' => 'keep-alive',
 ]);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'msg1=wow&msg2=such&msg3=data');
+
+// 嘗試連接時等待的秒數。使用 0 無限期等待。
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0);
+
+// 允許 cURL 函數執行的最大秒數。
+curl_setopt($ch, CURLOPT_TIMEOUT, 400); //timeout in seconds
 
 $response = curl_exec($ch);
 

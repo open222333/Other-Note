@@ -26,6 +26,8 @@ RESTful API是一種設計風格，這種風格使API設計具有整體一致性
 
 [Wikipedia : HTTP 狀態碼列表 - List of HTTP status codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)
 
+[Online REST & SOAP API Testing Tool - 轉換成程式碼](https://reqbin.com/)
+
 # RESTful API 設計準則
 
 ## HTTP動詞

@@ -16,29 +16,40 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 - [Elasticsearch(搜尋引擎) & Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [REST APIs 相關](#rest-apis-相關)
 		- [搜尋相關](#搜尋相關)
+		- [集群相關](#集群相關)
 - [觀念](#觀念)
 	- [index](#index)
+	- [集群 Cluster](#集群-cluster)
+		- [節點 Node](#節點-node)
+		- [節點類型 Node Type](#節點類型-node-type)
+			- [Master Eligible Node](#master-eligible-node)
+			- [Data Node](#data-node)
+			- [Ingest Node](#ingest-node)
+			- [Machine Learning Node](#machine-learning-node)
+			- [Transform Node](#transform-node)
+		- [Shard & Cluster 的故障轉移](#shard--cluster-的故障轉移)
+			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
+			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
 - [指令](#指令)
+- [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
 - [安裝步驟 docker-compose](#安裝步驟-docker-compose)
-- [安裝步驟 docker-compose 集群](#安裝步驟-docker-compose-集群)
 - [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
+- [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
 - [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
 - [配置文檔 elasticsearch.yml](#配置文檔-elasticsearchyml)
 - [配置文檔 override.conf](#配置文檔-overrideconf)
 - [生產環境 建議設定](#生產環境-建議設定)
-- [REST APIs](#rest-apis)
-	- [index API](#index-api)
-- [Mongodb 同步資料](#mongodb-同步資料)
+- [配置步驟 集群](#配置步驟-集群)
+- [同步資料 Mongodb](#同步資料-mongodb)
 	- [Python - mongo-connector](#python---mongo-connector)
 		- [config.json](#configjson)
 	- [Golang - monstache](#golang---monstache)
 		- [安裝步驟 CentOS7](#安裝步驟-centos7-1)
 
 ## 參考資料
-
-[REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
 
 [Elasticsearch Guide - 官方教學文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
 
@@ -78,6 +89,10 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [Elastic Kibana Quick Start: 第一次使用 Kibana 就上手 (11)](https://ithelp.ithome.com.tw/articles/10236315)
 
+### REST APIs 相關
+
+[REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
+
 ### 搜尋相關
 
 [elasticsearch query DSL 整理總結（一）—— Query DSL 概要，MatchAllQuery，全文查詢簡述](https://www.itread01.com/qqifi.html)
@@ -87,6 +102,10 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 [ElasticSearch DSL python](https://blog.csdn.net/u012089823/article/details/82424679)
 
 [Search API - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)
+
+### 集群相關
+
+[[Elasticsearch] 分散式特性 & 分散式搜尋的機制](https://godleon.github.io/blog/Elasticsearch/Elasticsearch-distributed-mechanism/)
 
 # 觀念
 
@@ -118,7 +137,98 @@ Kibana在進行web介面上的串接，前端視覺化
 
 * 在 ES 7.0 的版本後，index 在 type 部份只能設定為 _doc (在以前的版本是可以設定不同的 type)
 
+## 集群 Cluster
+
+```
+可以水平擴展儲存空間，支援 PB 等級的資料儲存
+
+	可以根據 request & data 增加的需求進行 scale out；資料分散儲存，因此在 storage 的部份同樣也是可以 scale out 的
+
+提供系統高可用性(HA)，當某些節點停止服務時，整個 cluster 的服務不會受影響
+
+	Service HA：若有 node 停止服務，整個 cluster 還是可以提供服務
+	Data HA：若有 node 掛掉，資料不會遺失
+
+cluster name 可以透過設定檔修改，也可以在啟動指令中指定 -E cluster.name=[CLUSTER_NAME] 進行設定
+```
+
+### 節點 Node
+
+```
+Node 就是一個 Elasticsearch 的 Java process；基本上一台機器上可以同時運行多個 Elasticsearch process，但 production 使用建議還是只要一個就好
+每個 node 都有名稱，可透過設定檔配置，也可以在啟動時透過 -E node.name=[NODE_NAME] 進行設定
+每個 node 啟動之後都會分配一個 UID，並儲存在 /usr/share/elasticsearch/data 目錄下
+若是要查詢 cluster 中的 node 狀態，可以使用 GET /_cat/nodes API
+```
+
+### 節點類型 Node Type
+
+#### Master Eligible Node
+
+```
+node.roles: [ master ]
+node.roles: [ data, master, voting_only ] 僅投票
+具有主節點角色的節點，這使得它有資格被選為主節點，控制集群。
+```
+
+#### Data Node
+
+```
+具有數據角色的節點。
+數據節點保存數據並執行數據相關操作，例如 CRUD、搜索和聚合。
+具有數據角色的節點可以填充任何專門的數據節點角色。
+```
+
+#### Ingest Node
+
+```
+具有攝取角色的節點。
+攝取節點能夠將攝取管道應用到文檔，以便在索引之前轉換和豐富文檔。
+在攝取負載很重的情況下，使用專用攝取節點並且不包括來自具有主角色或數據角色的節點的攝取角色是有意義的。
+```
+
+#### Machine Learning Node
+
+[Machine learning settings in Elasticsearchedit](https://www.elastic.co/guide/en/elasticsearch/reference/current/ml-settings.html)
+
+```
+node.roles: [ ml, remote_cluster_client]
+專門用來跑 machine learning 的相關工作，可用來搭配異常自動偵測之用
+```
+
+#### Transform Node
+
+[Transforms settings in Elasticsearchedit](https://www.elastic.co/guide/en/elasticsearch/reference/current/transform-settings.html)
+
+```
+node.roles: [ transform, remote_cluster_client ]
+轉換節點運行轉換並處理轉換 API 請求。
+```
+
+### Shard & Cluster 的故障轉移
+
+#### Primary Shard (提昇系統儲存容量)
+
+```
+shard 是 Elasticsearch 分散式儲存的基礎，包含 primary shard & replica shard
+每一個 shard 就是一個 Lucene instance
+primary shard 功能是將一份被索引後的資料，分散到多個 data node 上存放，實現儲存方面的水平擴展
+primary shard 的數量在建立 index 時就會指定，後續是無法修改的，若要修改就必須要進行 reindex
+```
+
+#### Replica Shard (提高資料可用性)
+
+```
+replica shard 用來提供資料高可用性，當 primary shard 遺失時，replica shard 就可以被 promote 成 primary shard 來保持資料完整性
+replica shard 數量可以動態調整，讓每個 data node 上都有完整的資料
+replica shard 可以一定程度的提高讀取(查詢)的效能
+若不設定 replica shard，一旦有 data node 故障導致 primary shard 遺失，資料可能就無法恢復了
+ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
+```
+
 # 指令
+
+[REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
 
 ```bash
 # 查看節點訊息
@@ -130,69 +240,46 @@ curl -X GET 'http://localhost:9200/_cat/indexes?v'
 # 測試
 curl http://localhost:9200
 
+# 創建索引
+curl -XPUT http://localhost:9200/index
+
+# 建立 mapping
+curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
+{
+	"properties": {
+		"content": {
+			"type": "text",
+			"analyzer": "ik_max_word",
+			"search_analyzer": "ik_smart"
+		}
+	}
+}'
+
+# 新增doc
+curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'{"content":"美国留给伊拉克的是个烂摊子吗"}'
+
+# 刪除多個索引
+curl -XDELETE 'http://localhost:9200/index_one,index_two'
+curl -XDELETE 'http://localhost:9200/index_*'
+
+# 刪除 全部索引
+# action.destructive_requires_name: true 避免刪除全部索引 刪除需提供名稱
+curl -XDELETE 'http://localhost:9200/_all'
+curl -XDELETE 'http://localhost:9200/*'
+
 # 查看plugin 訊息
 elasticsearch-plugin -h
+
+# 返回集群的健康狀態
+curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty"
+
 ```
 
-# 安裝步驟 docker-compose
-
-```yml
-version: '3'
-services:
-  elasticsearch:
-    image: elasticsearch:7.13.3
-    container_name: elasticsearch
-    privileged: true
-    environment:
-      - "cluster.name=elasticsearch" # 設置集群名稱為elasticsearch
-      - "discovery.type=single-node" # 以單一節點模式啟動
-      - "ES_JAVA_OPTS=-Xms512m -Xmx2g" # 設置使用jvm內存大小
-      - bootstrap.memory_lock=true # 關閉 swap
-    volumes:
-	  - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
-	  # chmod -R 777 ./es/data  若出現權限問題
-      - ./es/data:/usr/share/elasticsearch/data:rw # 數據文件掛載
-      - ./es/logs:/usr/share/elasticsearch/logs:rw
-	  - ./es/config:/usr/share/elasticsearch/config_default # 複製設定文檔到這資料夾
-    ports:
-      - 9200:9200
-      - 9300:9300
-	# 限制物理資源
-    deploy:
-      resources:
-        limits:
-          cpus: "2"
-          memory: 1000M
-        reservations:
-          memory: 200M
-  kibana:
-    image: kibana:7.13.3
-    container_name: kibana
-    depends_on:
-      - elasticsearch # kibana在elasticsearch啟動之後再啟動
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200 # 設置訪問elasticsearch的地址
-      I18N_LOCALE: zh-CN
-      # English - en (default)
-      # Chinese - zh-CN
-      # Japanese - ja-JP
-      # French - fr-FR
-    ports:
-      - 5601:5601
-```
-
-```bash
-# 開啟防火牆
-iptables -A INPUT -p tcp --dport 5601 -j ACCEPT
-iptables -A INPUT -p tcp --dport 9200 -j ACCEPT
-```
-
-# 安裝步驟 docker-compose 集群
+# 安裝步驟 docker-compose cluster
 
 ```yml
 # 官方
 version: "3"
-
 services:
   setup:
     image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
@@ -457,6 +544,59 @@ MEM_LIMIT=1073741824
 #COMPOSE_PROJECT_NAME=myproject
 ```
 
+# 安裝步驟 docker-compose
+
+```yml
+version: '3'
+services:
+  elasticsearch:
+    image: elasticsearch:7.13.3
+    container_name: elasticsearch
+    privileged: true
+    environment:
+      - "cluster.name=elasticsearch" # 設置集群名稱為elasticsearch
+      - "discovery.type=single-node" # 以單一節點模式啟動
+      - "ES_JAVA_OPTS=-Xms512m -Xmx2g" # 設置使用jvm內存大小
+      - bootstrap.memory_lock=true # 關閉 swap
+    volumes:
+	  - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
+	  # chmod -R 777 ./es/data  若出現權限問題
+      - ./es/data:/usr/share/elasticsearch/data:rw # 數據文件掛載
+      - ./es/logs:/usr/share/elasticsearch/logs:rw
+	  - ./es/config:/usr/share/elasticsearch/config_default # 複製設定文檔到這資料夾
+    ports:
+      - 9200:9200
+      - 9300:9300
+	# 限制物理資源
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1000M
+        reservations:
+          memory: 200M
+  kibana:
+    image: kibana:7.13.3
+    container_name: kibana
+    depends_on:
+      - elasticsearch # kibana在elasticsearch啟動之後再啟動
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200 # 設置訪問elasticsearch的地址
+      I18N_LOCALE: zh-CN
+      # English - en (default)
+      # Chinese - zh-CN
+      # Japanese - ja-JP
+      # French - fr-FR
+    ports:
+      - 5601:5601
+```
+
+```bash
+# 開啟防火牆
+iptables -A INPUT -p tcp --dport 5601 -j ACCEPT
+iptables -A INPUT -p tcp --dport 9200 -j ACCEPT
+```
+
 # 安裝步驟 Elasticsearch Docker
 
 ```bash
@@ -599,6 +739,18 @@ firewall-cmd --add-port=5601/tcp --permanent
 firewall-cmd --reload
 ```
 
+# 安裝步驟 ik分詞器
+
+[IK分词器下载、使用和测试](https://www.freesion.com/article/5737557424/)
+
+```bash
+# 安裝ik分詞器 elasticsearch的版本和ik分詞器的版本需要保持一致
+# Elasticsearch中預設的標準分詞器(analyze)對中文分詞不是很友好 因此需下載ik分詞器
+# https://github.com/medcl/elasticsearch-analysis-ik/releases
+cd /usr/share/elasticsearch/plugins/
+elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+```
+
 # 配置文檔 Java jvm.options
 
 ```
@@ -631,6 +783,18 @@ Docker：
 # 配置集群名稱，由多個es實例組成的集群，有一個共同的名稱。
 cluster.name: my-application
 
+
+discovery.seed_hosts:
+	- 192.168.1.10:9300
+	- 192.168.1.11
+	- seeds.mydomain.com
+
+# 初始化設置 使用node.name或限定域名
+cluster.initial_master_nodes:
+	- master-node-a
+	- master-node-b
+	- master-node-c
+
 # 集群端口設置
 transport.tcp.port: 9300
 
@@ -655,6 +819,16 @@ node.master: true
 
 # 設置節點是否存儲數據。
 node.data: true
+
+# 設置節點角色 默認
+# 集群都需要以下節點角色: master, data_content data_hot OR data
+# 跨集群搜索和跨集群複製需要 remote_cluster_client
+# Stack Monitoring and ingest pipelines 堆棧監控和攝取管道需要 ingest
+# Fleet、Elastic Security 應用程序和轉換需要 transform，還需要 remote_cluster_client 角色來使用具有這些功能的跨集群搜索。
+# Machine learning features, such as anomaly detection機器學習功能（例如異常檢測）需要 ml
+node.roles: [ master ]
+
+node.roles: [ data, master, voting_only ]
 
 # 設置默認主分片的個數，默認為5片，需要說明的是，主分片一經分配則無法更改。
 index.number_of_shards: 5
@@ -703,6 +877,9 @@ network.publish_host: 192.168.0.1  # 設置其它節點和該節點交互的ip�
 http.port: 9200
 
 ### Discovery ###
+# 以單一節點模式啟動
+discovery.type: single-node
+
 # 設置是否打開多播發現節點，默認是true。
 discovery.zen.ping.multicast.enabled: true
 
@@ -882,50 +1059,17 @@ thread_pool.search.queue_size: 1000
 thread_pool.get.queue_size: 1000
 ```
 
-# REST APIs
+# 配置步驟 集群
 
-[REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
+[Discovery and cluster formation settings](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/modules-discovery-settings.html)
 
-## index API
+- 設置一個新的 Elasticsearch 實例。
 
-[Index APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices.html)
+- 使用 elasticsearch.yml 中的 cluster.name 設置指定集群的名稱。
 
-```
-Index APIs are used to manage individual indices, index settings, aliases, mappings, and index templates.
-```
+- 啟動彈性搜索。節點自動發現並加入指定的集群。要將節點添加到在多台機器上運行的集群中，還必須設置 discovery.seed_hosts 以便新節點可以發現其集群的其餘部分
 
-```bash
-# 創建索引
-curl -XPUT http://localhost:9200/index
-
-# 建立 mapping
-curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
-{
-	"properties": {
-		"content": {
-			"type": "text",
-			"analyzer": "ik_max_word",
-			"search_analyzer": "ik_smart"
-		}
-	}
-}'
-
-# 新增doc
-curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'{"content":"美国留给伊拉克的是个烂摊子吗"}'
-
-# 刪除多個索引
-curl -XDELETE 'http://localhost:9200/index_one,index_two'
-
-curl -XDELETE 'http://localhost:9200/index_*'
-
-# 刪除 全部索引
-# action.destructive_requires_name: true 避免刪除全部索引 刪除需提供名稱
-curl -XDELETE 'http://localhost:9200/_all'
-
-curl -XDELETE 'http://localhost:9200/*
-```
-
-# Mongodb 同步資料
+# 同步資料 Mongodb
 
 `可使用工具`
 

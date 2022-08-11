@@ -40,6 +40,7 @@ nvm 是 Node.js 的版本管理器 (version manager)，可在同一台主機上�
 
 ```bash
 # 安裝nvm
+# 將內容加入環境變數文檔
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
 
 # 重新開啟 Terminal 後，檢測是否安裝成功
@@ -54,6 +55,9 @@ brew install nvm
 
 # 安裝某個版本的 node
 nvm install $version
+nvm install 16
+#
+# https://nodejs.org/en/about/releases/
 
 # 解除安裝指定版本
 nvm uninstall $version
