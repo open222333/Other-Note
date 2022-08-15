@@ -15,6 +15,7 @@
 - [狀況](#狀況)
 	- [使用golang連接mongo server selection error: server selection timeout, current topology](#使用golang連接mongo-server-selection-error-server-selection-timeout-current-topology)
 - [Mapping(映射)](#mapping映射)
+- [pm2 執行守護程式](#pm2-執行守護程式)
 
 ## 參考資料
 
@@ -25,6 +26,8 @@
 [官方文檔 - Configuration](https://rwynn.github.io/monstache-site/config/)
 
 [官方文檔 - index-mapping](https://rwynn.github.io/monstache-site/advanced/#index-mapping)
+
+[解决Monstache在启动的时候无法将Mongodb分表的同步到Elasticsearch - JS腳本](http://www.ireage.com/monstache/2021/03/19/monstache_split_table_conf.html)
 
 # 安裝步驟
 
@@ -232,4 +235,22 @@ type = "type2"
 
 ; 確保在 elasticsearch.yml 中未禁用自動索引創建，或者在使用 Monstache 之前創建目標索引。
 ; 如果必須控制自動索引創建，請將 monstache 將創建的 elasticsearch.yml 中的所有索引列入白名單。
+```
+
+# pm2 執行守護程式
+
+```json
+{
+  "apps" : [{
+    "name"        : "monstache",
+    "script"      : "/home/go/bin/monstache",
+    "watch"       : true,
+    "cwd"         : "/home",
+    "args"        : "-f /path/config.toml"
+  }]
+}
+```
+
+```
+pm2 start filename.json
 ```

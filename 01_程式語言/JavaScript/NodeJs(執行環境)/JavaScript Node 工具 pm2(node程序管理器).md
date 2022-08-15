@@ -22,7 +22,8 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 	- [參考資料](#參考資料)
 - [安裝步驟](#安裝步驟)
 - [指令](#指令)
-- [pm2 ecosystem](#pm2-ecosystem)
+- [pm2 ecosystem(執行程式)](#pm2-ecosystem執行程式)
+	- [範例1](#範例1)
 
 ## 參考資料
 
@@ -155,7 +156,9 @@ pm2 unstartup && pm2 startup && pm2 save
 
 ```
 
-# pm2 ecosystem
+# pm2 ecosystem(執行程式)
+
+[How to start pm2 with arguments?](https://stackoverflow.com/questions/46478448/how-to-start-pm2-with-arguments/46479329#46479329)
 
 ```
 CLI 工具固然不錯，但只要是人難免手滑打錯或漏打參數。
@@ -169,7 +172,6 @@ pm2 ecosystem
 pm2 start ecosystem.config.js
 # 從 ecosystem 中只啟動特定 app
 pm2 start ecosystem.config.js --only yourApp
-
 ```
 
 ```js
@@ -330,4 +332,19 @@ module.exports = {
         },
     },
 };
+```
+
+## 範例1
+
+```json
+// pm2 start ecosystem.json
+{
+  "apps" : [{
+    "name"        : "parse-dashboard-wrapper",
+    "script"      : "/usr/bin/parse-dashboard",
+    "watch"       : true,
+    "cwd"         : "/home/parse/parse-dashboard",
+    "args"        : "--config /home/ubuntu/dash/config.json"
+  }]
+}
 ```
