@@ -33,8 +33,12 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
 			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
 - [指令](#指令)
+	- [Search API](#search-api)
 - [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
 - [安裝步驟 docker-compose](#安裝步驟-docker-compose)
+	- [原始範本](#原始範本)
+	- [20220815](#20220815)
+	- [防火牆](#防火牆)
 - [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
@@ -272,8 +276,11 @@ elasticsearch-plugin -h
 
 # 返回集群的健康狀態
 curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty"
-
 ```
+
+## Search API
+
+[Script query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-query.html)
 
 # 安裝步驟 docker-compose cluster
 
@@ -546,6 +553,8 @@ MEM_LIMIT=1073741824
 
 # 安裝步驟 docker-compose
 
+## 原始範本
+
 ```yml
 version: '3'
 services:
@@ -590,6 +599,48 @@ services:
     ports:
       - 5601:5601
 ```
+
+## 20220815
+
+```yml
+version: '3'
+services:
+  elasticsearch:
+    image: elasticsearch:7.13.3
+    container_name: elasticsearch
+    privileged: true
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx1096m" # 設置使用jvm內存大小
+    volumes:
+      - ./es/plugins:/usr/share/elasticsearch/plugins
+      - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./es/data:/usr/share/elasticsearch/data:rw # 數據文件掛載
+      - ./es/logs:/usr/share/elasticsearch/logs:rw
+    ports:
+      - 9200:9200
+      - 9300:9300
+  kibana:
+    image: kibana:7.13.3
+    container_name: kibana
+    depends_on:
+      - elasticsearch # kibana在elasticsearch啟動之後再啟動
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200 # 設置訪問elasticsearch的地址
+      I18N_LOCALE: zh-CN
+    ports:
+      - 5601:5601
+```
+
+```toml
+# 設置集群名稱為elasticsearch
+cluster.name: "es_test_cluster"
+# 以單一節點模式啟動
+discovery.type: "single-node"
+bootstrap.memory_lock: true
+network.host: 0.0.0.0
+```
+
+## 防火牆
 
 ```bash
 # 開啟防火牆
