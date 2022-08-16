@@ -37,6 +37,8 @@ ApacheBench僅能測試一個網頁所能承受的負載能力，並無法模擬
 yum install httpd-tools -y
 
 # 安裝 2.3以上
+# 參考
+# https://www.linuxhelp.com/how-to-install-apache-from-source-code-on-centos-6
 # Download httpd
 # https://httpd.apache.org/download.cgi#apache24
 wget https://dlcdn.apache.org/httpd/httpd-2.4.54.tar.gz
@@ -60,8 +62,10 @@ yum install pcre-devel -y
 # https://centos.pkgs.org/7/centos-x86_64/expat-devel-2.1.0-12.el7.x86_64.rpm.html
 yum install expat-devel -y
 
+# GNU Libtool是一種屬於GNU建構系統的GNU程式設計工具，用來產生可攜式的函式庫。
 yum install libtool -y
 
+# 安裝開發文件
 yum install openssl-devel -y
 
 mkdir httpd-2.4.54/srclib/apr
