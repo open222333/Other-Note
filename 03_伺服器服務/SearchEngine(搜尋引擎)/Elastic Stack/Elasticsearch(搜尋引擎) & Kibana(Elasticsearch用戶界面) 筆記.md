@@ -800,6 +800,20 @@ firewall-cmd --reload
 # https://github.com/medcl/elasticsearch-analysis-ik/releases
 cd /usr/share/elasticsearch/plugins/
 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+
+
+# 創建mapping
+curl -XPOST http://localhost:9200/index/_mapping?pretty -H 'Content-Type:application/json' -d'
+{
+        "properties": {
+            "content": {
+                "type": "text",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_smart"
+            }
+        }
+
+}'
 ```
 
 # 配置文檔 Java jvm.options
@@ -949,8 +963,8 @@ discovery.zen.ping.timeout: 3s
 # 啟動時鎖定內存，默認為true，因為當jvm開始swapping時es的效率會降低，所以要保證它不swap，可以把ES_MIN_MEM和ES_MAX_MEM兩個環境變量設置成同一個值，並且保證機器有足夠的內存分配給es。同時也要允許elasticsearch的進程可以鎖住內存，linux下可以通過ulimit -l unlimited命令
 bootstrap.memory_lock: true
 
-# 禁止swapping交換。
-bootstrap.mlockall: true
+# 禁止swapping交換。 舊版
+# bootstrap.mlockall: true
 
 ### Gateway ###
 # 設置是否壓縮tcp傳輸時的數據。默認是false不壓縮。
@@ -1024,6 +1038,9 @@ vim /etc/security/limits.conf
 
 	# 部署使用者是elasticsearch
 	elasticsearch  -  nofile  65536
+
+	elasticsearch - nofile 65535
+	elasticsearch - memlock unlimited
 	# 不限制任何使用者
 	*  -  nofile  65536
 	# hard資源限制意味著是物理限制；
