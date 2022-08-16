@@ -10,7 +10,9 @@ ApacheBench僅能測試一個網頁所能承受的負載能力，並無法模擬
 - [Linux 工具 ab(網站伺服器壓力測試工具)](#linux-工具-ab網站伺服器壓力測試工具)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [指令](#指令)
+- [安裝步驟 CentOS7](#安裝步驟-centos7)
+- [安裝步驟 Ubuntu](#安裝步驟-ubuntu)
+- [指令](#指令)
 
 ## 參考資料
 
@@ -18,7 +20,147 @@ ApacheBench僅能測試一個網頁所能承受的負載能力，並無法模擬
 
 [【軟體測試】使用 ApacheBench 進行網站伺服器壓力測試](https://blog.markgdi.com/article/stress-test-using-apache-bench/)
 
-## 指令
+[ab - Apache HTTP 服務器基準測試工具](https://httpd.apache.org/docs/2.4/programs/ab.html)
+
+[驗證 APACHE SOFTWARE FOUNDATION 版本](https://www.apache.org/info/verification.html)
+
+[CentOS 下安装 ab 测试工具（Apache Benchmarking Tool）](https://www.jianshu.com/p/8bc6c26d5a88)
+
+[编译安装apache](https://blog.51cto.com/lavender7n/2052260)
+
+[To install Apache from Source Code on CentOS 6](https://www.linuxhelp.com/how-to-install-apache-from-source-code-on-centos-6)
+
+# 安裝步驟 CentOS7
+
+```bash
+# 安裝
+yum install httpd-tools -y
+
+# 安裝 2.3以上
+# Download httpd
+# https://httpd.apache.org/download.cgi#apache24
+wget https://dlcdn.apache.org/httpd/httpd-2.4.54.tar.gz
+tar -zxvf httpd-2.4.54.tar.gz
+
+# Download apr
+# https://apr.apache.org/download.cgi
+wget https://dlcdn.apache.org//apr/apr-1.7.0.tar.gz
+tar -zxvf apr-1.7.0.tar.gz
+
+# Download apr-util
+# https://apr.apache.org/download.cgi
+wget https://dlcdn.apache.org//apr/apr-util-1.6.1.tar.gz
+tar -zxvf apr-util-1.6.1.tar.gz
+
+# 安裝pcre-devel pcre 的開發文件
+# https://centos.pkgs.org/7/centos-x86_64/pcre-devel-8.32-17.el7.x86_64.rpm.html
+yum install pcre-devel -y
+
+# 安裝 expat 使用 expat 開發應用程序的庫和頭文件
+# https://centos.pkgs.org/7/centos-x86_64/expat-devel-2.1.0-12.el7.x86_64.rpm.html
+yum install expat-devel -y
+
+yum install libtool -y
+
+yum install openssl-devel -y
+
+mkdir httpd-2.4.54/srclib/apr
+mkdir httpd-2.4.54/srclib/apr-util
+
+cp -r apr-1.7.0/* httpd-2.4.54/srclib/apr
+cp -r apr-util-1.6.1/* httpd-2.4.54/srclib/apr-util
+
+# cd ~/httpd-2.4.54/srclib/apr
+# ./configure --prefix=/usr/local/apr
+# make && make install
+
+# cd ~/httpd-2.4.54/srclib/apr-util
+# ./configure --prefix=/usr/local/apr-util --with-apr=/usr/local/apr 
+# make && make install
+
+cd ~/httpd-2.4.54
+
+# 編譯 Compile
+# configure 裡面的腳本
+./configure --prefix=/usr/local/apache2 --with-included-apr
+# build
+make
+# install
+make install
+
+# 錯誤 Nothing to be done for `local-shared-build'.
+# make clean all將刪除hello並需要重建
+make clean
+
+# 手動創建 httpd 指令
+vim /etc/profile.d/httpd.sh
+
+pathmunge /usr/local/apache2/bin
+
+# 創建初始化文檔
+vim /etc/init.d/httpd
+
+#!/bin/sh
+#
+# Startup script for the Apache Web Server
+#
+# chkconfig: 345 85 15
+# description: Apache is a World Wide Web server.  It is used to serve
+#          HTML files and CGI.
+# processname: httpd
+# pidfile: /var/run/httpd.pid
+# config: /etc/httpd/conf/httpd.conf
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# See how we were called.
+case " $1"  in
+start)
+echo -n " Starting httpd: "
+daemon /usr/local/apache2/bin/httpd -DSSL
+echo
+touch /var/lock/subsys/httpd
+
+stop)
+echo -n " Shutting down httpd: "
+killproc httpd
+echo
+rm -f /var/lock/subsys/httpd
+rm -f /var/run/httpd.pid
+
+status)
+status httpd
+
+restart)
+$0 stop
+$0 start
+
+reload)
+echo -n " Reloading httpd: "
+killproc httpd -HUP
+echo
+
+*)
+echo " Usage: $0 {start|stop|restart|reload|status}"
+exit 1
+esac
+
+exit 0
+
+# 新增權限
+chmod +x /etc/init.d/httpd
+
+```
+
+# 安裝步驟 Ubuntu
+
+```bash
+# 安裝
+apt-get install apache2-utils
+```
+
+# 指令
 
 ```bash
 ab http://127.0.0.1/
@@ -33,6 +175,9 @@ ab -c {同時進行的request數量} -n {次數} {url}
 
 # 範例
 ab -c 20 -t 30 http://127.0.0.1:8081/pull_all
+
+# json格式文檔 POST
+ab -c 100 -t 50 -T application/json -p query.json http://elastic:9200/index/_search
 
 #這裡是版權宣告
 This is ApacheBench, Version 2.0.40-dev <$Revision: 1.146 $> apache-2.0
