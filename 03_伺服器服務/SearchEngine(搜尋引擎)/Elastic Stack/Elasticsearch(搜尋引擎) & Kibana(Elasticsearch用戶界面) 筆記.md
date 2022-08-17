@@ -792,7 +792,13 @@ firewall-cmd --reload
 
 # 安裝步驟 ik分詞器
 
+[ElasticSearch-IK分詞器和整合使用](https://iter01.com/583193.html)
+
 [IK分词器下载、使用和测试](https://www.freesion.com/article/5737557424/)
+
+[ELK入门（十七）——Kibana之IK分词器安装、自定义和详细使用测试](https://blog.csdn.net/Netceor/article/details/114020196)
+
+[ik中文分词器安装以及简单新增词典操作](https://blog.csdn.net/qq_42572322/article/details/107979724)
 
 ```bash
 # 安裝ik分詞器 elasticsearch的版本和ik分詞器的版本需要保持一致

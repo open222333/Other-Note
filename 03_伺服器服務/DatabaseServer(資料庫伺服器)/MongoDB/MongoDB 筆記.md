@@ -20,6 +20,7 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 - [資料庫指令](#資料庫指令)
 - [資料庫指令 使用者](#資料庫指令-使用者)
 	- [mongodb 使用者許可權角色說明](#mongodb-使用者許可權角色說明)
+	- [連接字符串URI格式](#連接字符串uri格式)
 
 ## 參考資料
 
@@ -517,4 +518,12 @@ userAdminAnyDatabase
 
 dbAdminAnyDatabase
 只在admin資料庫中可用，賦予使用者所有資料庫的dbAdmin許可權
+```
+
+## 連接字符串URI格式
+
+[Connection String URI Format](https://www.mongodb.com/docs/manual/reference/connection-string/)
+
+```
+mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
 ```

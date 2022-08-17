@@ -96,7 +96,7 @@ make install
 # make clean all將刪除hello並需要重建
 make clean
 
-# 手動創建 httpd 指令
+# 手動創建 httpd 指令(重新建立session)
 vim /etc/profile.d/httpd.sh
 
 pathmunge /usr/local/apache2/bin
@@ -154,7 +154,6 @@ exit 0
 
 # 新增權限
 chmod +x /etc/init.d/httpd
-
 ```
 
 # 安裝步驟 Ubuntu
