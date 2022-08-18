@@ -32,6 +32,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [Shard & Cluster 的故障轉移](#shard--cluster-的故障轉移)
 			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
 			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
+- [_score 評分](#_score-評分)
 - [指令](#指令)
 	- [Search API](#search-api)
 - [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
@@ -229,6 +230,14 @@ replica shard 可以一定程度的提高讀取(查詢)的效能
 若不設定 replica shard，一旦有 data node 故障導致 primary shard 遺失，資料可能就無法恢復了
 ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 ```
+
+# _score 評分
+
+[相关度评分背后的理论](https://www.elastic.co/guide/cn/elasticsearch/guide/2.x/scoring-theory.html)
+
+[ElasticSearch 的分数 (_score) 是怎么计算得出 (2.X & 5.X)](https://ruby-china.org/topics/31934)
+
+[实战 | Elasticsearch自定义评分的N种方法](https://cloud.tencent.com/developer/article/1600163)
 
 # 指令
 
