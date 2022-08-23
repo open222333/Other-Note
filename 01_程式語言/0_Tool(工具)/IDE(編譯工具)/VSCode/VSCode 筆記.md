@@ -18,6 +18,7 @@
 	- [20220314](#20220314)
 	- [20220325](#20220325)
 	- [20220408](#20220408)
+	- [20220823](#20220823)
 
 ## 參考資料
 
@@ -285,6 +286,12 @@ Setting -> Executor Map -> setting.json
 [vsintellicode.modify.editor.suggestSelection](https://github.com/MicrosoftDocs/intellicode/issues/78)
 
 "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+
+`開啟Command Palette`
+
+```
+MacOS: cmd + shift + p
+```
 
 ## 20220210
 ```json
@@ -1279,3 +1286,219 @@ Setting -> Executor Map -> setting.json
 	},
 }
 ```
+
+## 20220823
+
+```json
+{
+	// 編輯區 設定
+	// "editor.tabSize": 4,
+	"editor.fontSize": 16,
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"editor.suggestSelection": "first",
+	"editor.wordWrap": "on",
+	"editor.foldingImportsByDefault": true,
+	"editor.showFoldingControls": "always",
+	// 去除行尾空白
+	"files.trimTrailingWhitespace": true,
+	// 安全性
+	"security.workspace.trust.untrustedFiles": "open",
+	"diffEditor.wordWrap": "on",
+	"notebook.showFoldingControls": "always",
+	"notebook.cellToolbarLocation": {
+		"default": "right",
+		"jupyter-notebook": "left"
+	},
+	"workbench.editorAssociations": {
+		"*.ipynb": "jupyter-notebook"
+	},
+	// 工作區
+	"terminal.integrated.enableMultiLinePasteWarning": false,
+	"terminal.integrated.inheritEnv": false,
+	"terminal.integrated.fontSize": 16,
+	"terminal.integrated.defaultProfile.osx": "bash",
+	// 除錯設定
+	"debug.console.fontSize": 16,
+	// 檔案異動確認
+	"explorer.confirmDragAndDrop": false,
+	"explorer.confirmDelete": false,
+	// 自動儲存
+	"files.autoSave": "afterDelay",
+	// Python
+	"python.condaPath": "anaconda3",
+	"python.diagnostics.sourceMapsEnabled": true,
+	"python.terminal.activateEnvironment": true,
+	"python.defaultInterpreterPath": "/usr/local/anaconda3/bin/",
+	"python.formatting.autopep8Args": [
+		"--max-line-length=180"
+	],
+	// Code Runner 設定
+	"code-runner.runInTerminal": true,
+	// 不顯示檔案
+	"files.exclude": {
+		".tmp.drivedownload": true,
+		".tmp.driveupload": true,
+		".vscode": true,
+		"**/.classpath": true,
+		"**/.project": true,
+		"**/.settings": true,
+		"**/.factorypath": true
+	},
+	// https://github.com/MicrosoftDocs/intellicode/issues/78
+	"vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+	"jupyter.askForKernelRestart": false,
+	// HookyQR.beautify 設定
+	"beautify.config": {
+		"html": {
+			"allowed_file_extensions": [
+				"htm",
+				"html",
+				"xhtml",
+				"shtml",
+				"xml",
+				"svg",
+				"dust"
+			],
+			"brace_style": "collapse,preserve-inline",
+			"end_with_newline": true,
+			"indent_char": " ",
+			"indent_handlebars": true,
+			"indent_inner_html": false,
+			"indent_scripts": "normal",
+			"indent_size": 2,
+			"max_preserve_newlines": 10,
+			"preserve_newlines": true,
+			"unformatted": [
+				"a",
+				"span",
+				"img",
+				"code",
+				"pre",
+				"sub",
+				"sup",
+				"em",
+				"strong",
+				"b",
+				"i",
+				"u",
+				"strike",
+				"big",
+				"small",
+				"pre",
+				"h1",
+				"h2",
+				"h3",
+				"h4",
+				"h5",
+				"h6"
+			],
+			"wrap_line_length": 0
+		},
+		"css": {
+			"allowed_file_extensions": [
+				"css",
+				"scss",
+				"sass",
+				"less"
+			],
+			"end_with_newline": true,
+			"indent_char": " ",
+			"indent_size": 2,
+			"newline_between_rules": true,
+			"selector_separator": " ",
+			"selector_separator_newline": true,
+			"preserve_newlines": true,
+			"max_preserve_newlines": 10
+		},
+		"js": {
+			"allowed_file_extensions": [
+				"js",
+				"json",
+				"jshintrc",
+				"jsbeautifyrc"
+			],
+			"brace_style": "end-expand",
+			"break_chained_methods": false,
+			"e4x": false,
+			"end_with_newline": false,
+			"indent_level": 0,
+			"indent_size": 2,
+			"jslint_happy": false,
+			"keep_array_indentation": false,
+			"keep_function_indentation": false,
+			"max_preserve_newlines": 0,
+			"preserve_newlines": true,
+			"space_after_anon_function": true,
+			"space_before_conditional": true,
+			"space_in_empty_paren": false,
+			"space_in_paren": false,
+			"unescape_strings": false,
+			"wrap_line_length": 0
+		},
+	},
+	"beautify.language": {
+		"js": {
+			"type": [
+				"javascript",
+				"json"
+			],
+			"filename": [
+				".jshintrc",
+				".jsbeautifyrc"
+			]
+		},
+		"css": [
+			"css",
+			"scss"
+		],
+		"html": [
+			"htm",
+			"html",
+			"django-html"
+		]
+	},
+	"files.associations": {
+		"**/*.html": "html",
+		"**/templates/*/*.html": "django-html",
+		"**/templates/*": "django-txt",
+		"**/templates/*.html": "django-html",
+		"**/requirements{/**,*}.{txt,in}": "pip-requirements",
+		"*.yml": "dockercompose"
+	},
+	"emmet.includeLanguages": {
+		"django-html": "html"
+	},
+	// 各個檔案設定
+	"[html]": {
+		"editor.defaultFormatter": "HookyQR.beautify"
+	},
+	"[django-html]": {
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true,
+	},
+	"[javascript]": {
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true,
+		"editor.defaultFormatter": "HookyQR.beautify",
+		// "js/ts.implicitProjectConfig.checkJs": true,
+	},
+	"[python]": {
+		"editor.insertSpaces": true,
+	},
+	"[json]": {
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true,
+		"editor.defaultFormatter": "HookyQR.beautify"
+	},
+	"[markdown]": {
+		"editor.tabSize": 4,
+	},
+	"[nginx]": {
+		"editor.tabSize": 4,
+		"editor.insertSpaces": true,
+		"editor.detectIndentation": true,
+	},
+}
+```
+
