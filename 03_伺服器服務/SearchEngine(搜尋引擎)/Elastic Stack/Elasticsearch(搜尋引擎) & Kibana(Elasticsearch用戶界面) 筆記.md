@@ -19,6 +19,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [REST APIs 相關](#rest-apis-相關)
 		- [搜尋相關](#搜尋相關)
 		- [集群相關](#集群相關)
+		- [分詞器相關](#分詞器相關)
+		- [_score評分相關](#_score評分相關)
 - [觀念](#觀念)
 	- [index](#index)
 	- [集群 Cluster](#集群-cluster)
@@ -32,22 +34,21 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [Shard & Cluster 的故障轉移](#shard--cluster-的故障轉移)
 			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
 			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
-- [_score 評分](#_score-評分)
-- [指令](#指令)
+- [指令 API](#指令-api)
 	- [Search API](#search-api)
-- [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
-- [安裝步驟 docker-compose](#安裝步驟-docker-compose)
-	- [原始範本](#原始範本)
-	- [20220815](#20220815)
-	- [防火牆](#防火牆)
-- [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
-- [安裝步驟 CentOS7](#安裝步驟-centos7)
-- [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
-- [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
-- [配置文檔 elasticsearch.yml](#配置文檔-elasticsearchyml)
-- [配置文檔 override.conf](#配置文檔-overrideconf)
-- [生產環境 建議設定](#生產環境-建議設定)
-- [配置步驟 集群](#配置步驟-集群)
+	- [IK分詞器](#ik分詞器)
+- [安裝方式](#安裝方式)
+	- [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
+	- [安裝步驟 docker-compose](#安裝步驟-docker-compose)
+	- [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
+	- [安裝步驟 CentOS7](#安裝步驟-centos7)
+	- [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
+- [設定檔](#設定檔)
+	- [配置文檔 elasticsearch.yml (主要)](#配置文檔-elasticsearchyml-主要)
+	- [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
+	- [配置文檔 override.conf](#配置文檔-overrideconf)
+	- [生產環境 建議設定](#生產環境-建議設定)
+- [集群 Cluster](#集群-cluster-1)
 - [同步資料 Mongodb](#同步資料-mongodb)
 	- [Python - mongo-connector](#python---mongo-connector)
 		- [config.json](#configjson)
@@ -108,9 +109,33 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [Search API - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)
 
+[elasticsearch return total hits only - 只回傳hits數](https://stackoverflow.com/questions/43758813/elasticsearch-return-total-hits-only)
+
+[總點擊數限制為 10000](https://www.drupal.org/project/elasticsearch_connector/issues/3250145)
+
 ### 集群相關
 
 [[Elasticsearch] 分散式特性 & 分散式搜尋的機制](https://godleon.github.io/blog/Elasticsearch/Elasticsearch-distributed-mechanism/)
+
+### 分詞器相關
+
+[自定义分析器 - 2.x 官方中文文檔](https://www.elastic.co/guide/cn/elasticsearch/guide/current/custom-analyzers.html)
+
+[分析与分析器 - 2.x 官方中文文檔](https://www.elastic.co/guide/cn/elasticsearch/guide/current/analysis-intro.html)
+
+[掌握 analyze API，一举搞定 Elasticsearch 分词难题](https://elasticsearch.cn/article/771)
+
+[ElasticSearch 分词器，了解一下](https://cloud.tencent.com/developer/article/1595785)
+
+[ElasticSearch - 自定義 analysis](https://kucw.github.io/blog/2018/6/elasticsearch-analysis/)
+
+### _score評分相關
+
+[相关度评分背后的理论](https://www.elastic.co/guide/cn/elasticsearch/guide/2.x/scoring-theory.html)
+
+[ElasticSearch 的分数 (_score) 是怎么计算得出 (2.X & 5.X)](https://ruby-china.org/topics/31934)
+
+[实战 | Elasticsearch自定义评分的N种方法](https://cloud.tencent.com/developer/article/1600163)
 
 # 觀念
 
@@ -231,15 +256,7 @@ replica shard 可以一定程度的提高讀取(查詢)的效能
 ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 ```
 
-# _score 評分
-
-[相关度评分背后的理论](https://www.elastic.co/guide/cn/elasticsearch/guide/2.x/scoring-theory.html)
-
-[ElasticSearch 的分数 (_score) 是怎么计算得出 (2.X & 5.X)](https://ruby-china.org/topics/31934)
-
-[实战 | Elasticsearch自定义评分的N种方法](https://cloud.tencent.com/developer/article/1600163)
-
-# 指令
+# 指令 API
 
 [REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
 
@@ -256,6 +273,33 @@ curl http://localhost:9200
 # 創建索引
 curl -XPUT http://localhost:9200/index
 
+# 創建索引 accounts 使用分詞器
+# analyzer是字段文本的分詞器，search_analyzer是搜索詞的分詞器。 ik_max_word分詞器是插件ik提供的，可以對文本進行最大數量的分詞。
+curl -X PUT 'localhost:9200/accounts' -d '
+{
+  "mappings": {
+    "person": {
+      "properties": {
+        "user": {
+          "type": "text",
+          "analyzer": "ik_max_word",
+          "search_analyzer": "ik_max_word"
+        },
+        "title": {
+          "type": "text",
+          "analyzer": "ik_max_word",
+          "search_analyzer": "ik_max_word"
+        },
+        "desc": {
+          "type": "text",
+          "analyzer": "ik_max_word",
+          "search_analyzer": "ik_max_word"
+        }
+      }
+    }
+  }
+}'
+
 # 建立 mapping
 curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
 {
@@ -267,6 +311,9 @@ curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/js
 		}
 	}
 }'
+
+# 查看mapping
+curl 'localhost:9200/_mapping?pretty=true'
 
 # 新增doc
 curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'{"content":"美国留给伊拉克的是个烂摊子吗"}'
@@ -291,7 +338,41 @@ curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&p
 
 [Script query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-query.html)
 
-# 安裝步驟 docker-compose cluster
+```bash
+```
+
+## IK分詞器
+
+```bash
+# 添加分詞器
+curl -H "Content-Type: application/json" -XPUT "http://127.0.0.1:9200/{index}/_mapping/_doc/" -d
+'{
+  "properties": {
+    "body": {
+      "type": "text",
+      "fields": {
+        "cnw": {
+          "type": "text",
+          "analyzer": "ik_max_word",
+          "search_analyzer": "ik_max_word"
+        }
+      }
+    }
+  }
+}'
+
+curl -H "Content-Type: application/json" -X PUT "http://127.0.0.1:9200/ruminate.story.new/_alias/ruminate.story"
+```
+
+# 安裝方式
+
+```bash
+# 開啟防火牆
+iptables -A INPUT -p tcp --dport 5601 -j ACCEPT
+iptables -A INPUT -p tcp --dport 9200 -j ACCEPT
+```
+
+## 安裝步驟 docker-compose cluster
 
 ```yml
 # 官方
@@ -560,11 +641,10 @@ MEM_LIMIT=1073741824
 #COMPOSE_PROJECT_NAME=myproject
 ```
 
-# 安裝步驟 docker-compose
-
-## 原始範本
+## 安裝步驟 docker-compose
 
 ```yml
+# 原始範本
 version: '3'
 services:
   elasticsearch:
@@ -609,9 +689,8 @@ services:
       - 5601:5601
 ```
 
-## 20220815
-
 ```yml
+# 20220815
 version: '3'
 services:
   elasticsearch:
@@ -649,15 +728,7 @@ bootstrap.memory_lock: true
 network.host: 0.0.0.0
 ```
 
-## 防火牆
-
-```bash
-# 開啟防火牆
-iptables -A INPUT -p tcp --dport 5601 -j ACCEPT
-iptables -A INPUT -p tcp --dport 9200 -j ACCEPT
-```
-
-# 安裝步驟 Elasticsearch Docker
+## 安裝步驟 Elasticsearch Docker
 
 ```bash
 # docker安裝es
@@ -711,7 +782,7 @@ exit
 docker restart elasticsearch
 ```
 
-# 安裝步驟 CentOS7
+## 安裝步驟 CentOS7
 
 ```bash
 # 安裝 java
@@ -799,7 +870,7 @@ firewall-cmd --add-port=5601/tcp --permanent
 firewall-cmd --reload
 ```
 
-# 安裝步驟 ik分詞器
+## 安裝步驟 ik分詞器
 
 [ElasticSearch-IK分詞器和整合使用](https://iter01.com/583193.html)
 
@@ -831,32 +902,9 @@ curl -XPOST http://localhost:9200/index/_mapping?pretty -H 'Content-Type:applica
 }'
 ```
 
-# 配置文檔 Java jvm.options
+# 設定檔
 
-```
-不要修改根 jvm.options 文件。
-請改用 jvm.options.d/ 中的文件。
-/etc/elasticsearch/jvm.options
-```
-
-自定義 JVM 選項文件(光芳建議在資料夾底下 建立options文檔 覆寫):
-
-tar.gz 或 .zip：
-`config/jvm.options.d/.`
-
-Debian 或 RPM：
-`/etc/elasticsearch/jvm.options.d/.`
-
-Docker：
-`/usr/share/elasticsearch/config/jvm.options.d/.`
-
-```
-設置jvm堆的大小，最大值和最小值，應該是一致的，並且應該根據你的物理內存決定。
--Xms1g     # 设置最小堆为1g
--Xmx1g      # 设置最大堆为1g
-```
-
-# 配置文檔 elasticsearch.yml
+## 配置文檔 elasticsearch.yml (主要)
 
 ```yml
 ### 集群(Cluster) ###
@@ -1008,7 +1056,32 @@ gateway.expected_nodes: 2
 action.destructive_requires_name: true
 ```
 
-# 配置文檔 override.conf
+## 配置文檔 Java jvm.options
+
+```
+不要修改根 jvm.options 文件。
+請改用 jvm.options.d/ 中的文件。
+/etc/elasticsearch/jvm.options
+```
+
+自定義 JVM 選項文件(光芳建議在資料夾底下 建立options文檔 覆寫):
+
+tar.gz 或 .zip：
+`config/jvm.options.d/.`
+
+Debian 或 RPM：
+`/etc/elasticsearch/jvm.options.d/.`
+
+Docker：
+`/usr/share/elasticsearch/config/jvm.options.d/.`
+
+```
+設置jvm堆的大小，最大值和最小值，應該是一致的，並且應該根據你的物理內存決定。
+-Xms1g     # 设置最小堆为1g
+-Xmx1g      # 设置最大堆为1g
+```
+
+## 配置文檔 override.conf
 
 RPM: `/etc/sysconfig/elasticsearch`
 
@@ -1029,7 +1102,7 @@ LimitMEMLOCK=infinity
 systemctl daemon-reload
 ```
 
-# 生產環境 建議設定
+## 生產環境 建議設定
 
 ```bash
 ### MMapFs 配置 ###
@@ -1142,7 +1215,7 @@ thread_pool.search.queue_size: 1000
 thread_pool.get.queue_size: 1000
 ```
 
-# 配置步驟 集群
+# 集群 Cluster
 
 [Discovery and cluster formation settings](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/modules-discovery-settings.html)
 
@@ -1318,6 +1391,8 @@ thread_pool.get.queue_size: 1000
 [monstache Configuration](https://rwynn.github.io/monstache-site/config/)
 
 [Monstache](https://rwynn.github.io/monstache-site/start/)
+
+[從mongodb到elasticsearch的實時同步 - 包含分詞器](https://www.cxyzjd.com/article/zhangyonguu/80914496)
 
 ### 安裝步驟 CentOS7
 

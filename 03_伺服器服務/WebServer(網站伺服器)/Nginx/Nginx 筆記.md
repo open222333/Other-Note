@@ -8,7 +8,9 @@
 
 [DevOps：如何將 Nginx + uWSGI + Django 的服務部署在一台主機的根目錄](https://orcahmlee.github.io/devops/nginx-uwsgi-django-root/)
 
-# 安裝步驟 MacOS
+# 安裝
+
+## 安裝步驟 MacOS
 
 ```bash
 ### macOS ###
@@ -19,7 +21,7 @@ brew install nginx
 brew services restart nginx
 ```
 
-# 安裝步驟 CentOS7
+## 安裝步驟 CentOS7
 
 ```bash
 ### CentOS7 ###
@@ -91,14 +93,43 @@ yum install nginx-plus-module-image-filter -y
 yum install nginx-plus-module-subs-filter -y
 ```
 
-# 基本指令
+# 指令
 
 ```bash
+# 查看幫助
+nginx -h
+
+# 查看nginx的版本
+nginx -v
+
+# 查看版本和nginx的配置選項
+nginx -V
+
+# 測試配置文件的正確性
+nginx -t
+
+# 測試配置文件，並顯示配置文件（這個命令可以快速查看配置文件）
+Nginx -T
+
+# 測試配置文件，但是只顯示錯誤信息
+nginx -q
+
+# 發送信號，下面詳細介紹
+nginx -s
+
+# 設置前綴
+nginx -p
+
+# 設置配置文件
+nginx -c
+
+# 附加配置文件路徑
+nginx -g
 ```
 
-# nginx conf 設定檔說明
+# 設定檔 conf
 
-[nginx documentation](http://nginx.org/en/docs/)
+[nginx documentation - 參數說明](http://nginx.org/en/docs/)
 
 預設設定檔位置
 
@@ -238,7 +269,7 @@ http {
 }
 ```
 
-# upstream
+## upstream
 
 ```
 upstream 定義將 request proxy 過去的應用
@@ -246,7 +277,7 @@ upstream 定義將 request proxy 過去的應用
 可以達到 load balancer 負載平衡的功能
 ```
 
-# server
+## server
 
 ```
 定義了 proxy server 的相關設定
@@ -254,7 +285,7 @@ upstream 定義將 request proxy 過去的應用
 規定哪些 domain 或 ip 的 request 會被 nginx server 處理（server_name）
 ```
 
-# location
+## location
 
 ```
 像是 routing 的概念
@@ -263,7 +294,7 @@ upstream 定義將 request proxy 過去的應用
 代表任何路徑都會被接收處理
 ```
 
-# try_files
+## try_files
 
 ```nginx
 # try_files 只能運行於 server, location 之中，有兩種不同的用法：
@@ -297,4 +328,14 @@ location /images {
 ```nginx
 # 將所有的 HTTP 路由，在目標路徑找不到時，重導向去回應 index.html 的檔案，進而使 SPA 在抓取其路徑進行渲染，並使用 History API 來控制各種頁面的跳轉與資料的傳遞。
 try_files $uri /$uri /index.html;
+```
+
+# 紀錄檔 log
+
+```
+放在nginx.conf裡面 設定的格式如下
+
+access_log path [format [buffer=size | off]]
+
+預設的combined,並且日誌記錄是存放在/var/log/nginx/nginx.log.
 ```

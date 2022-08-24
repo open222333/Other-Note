@@ -10,8 +10,13 @@
 	- [參考資料](#參考資料)
 - [指令](#指令)
 - [用法](#用法)
-- [HTTP2 supported for python requests library](#http2-supported-for-python-requests-library)
-- [狀況 InsecureRequestWarning](#狀況-insecurerequestwarning)
+	- [POST](#post)
+	- [GET](#get)
+	- [Proxy](#proxy)
+	- [Send raw data in a POST - 送出 raw data](#send-raw-data-in-a-post---送出-raw-data)
+	- [使用HTTP2](#使用http2)
+- [狀況](#狀況)
+	- [InsecureRequestWarning](#insecurerequestwarning)
 
 ## 參考資料
 
@@ -30,6 +35,8 @@
 [requests proxy](https://www.scrapingbee.com/blog/python-requests-proxy/)
 
 [HTTP2 supported for python requests library](https://github.com/khanhicetea/today-i-learned/blob/master/python/HTTP2-supported-for-python-requests-library.md)
+
+[How to send raw data in a POST request Python](https://python.tutorialink.com/how-to-send-raw-data-in-a-post-request-python/)
 
 [Python Request增加代理伺服器(proxy)](https://stackoverflow.com/questions/8287628/proxies-with-python-requests-module/8287752#8287752)
 
@@ -64,6 +71,8 @@ response = requests.get(
     auth=('some_username', 'some_password')
 )
 ```
+
+## POST
 
 ```Python
 # POST
@@ -110,6 +119,8 @@ response = requests.post(
 )
 ```
 
+## GET
+
 ```Python
 # GET
 
@@ -141,6 +152,8 @@ response = requests.get(
 )
 ```
 
+## Proxy
+
 ```Python
 # Proxy
 proxy1 = {
@@ -151,7 +164,33 @@ proxy1 = {
 }
 ```
 
-# HTTP2 supported for python requests library
+## Send raw data in a POST - 送出 raw data
+
+```Python
+url = "https://api.ordergroove.com/customer/update_customer"
+
+headers = {
+    'content-type': 'application/json'
+}
+
+body = """
+    update_request={{
+         "id": "f07de0a44c2911ea8fb2bc764e10b970",
+         "user": {
+             "timestamp": "1640049459",
+             "signature": "YQvl1dWkN6MrHQ8xGwEQndVo2QdPSzc6EqLJslzNjy4%3D",
+             "code": "test"
+         }
+     }}
+"""
+
+#Send and print response
+response = requests.post(url, data=body, headers=headers)
+```
+
+## 使用HTTP2
+
+`HTTP2 supported for python requests library`
 
 ```Python
 import requests
@@ -164,7 +203,9 @@ print(r.status_code)
 print(r.url)
 ```
 
-# 狀況 InsecureRequestWarning
+# 狀況
+
+## InsecureRequestWarning
 
 [【 Python 】使用 requests 時發生 InsecureRequestWarning: Unverified HTTPS request is being made](https://learningsky.io/python-requests-insecurerequestwarning/)
 
