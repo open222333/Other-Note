@@ -16,7 +16,9 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 - [Elasticsearch(搜尋引擎) & Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [設定檔相關](#設定檔相關)
 		- [REST APIs 相關](#rest-apis-相關)
+		- [執行緒相關](#執行緒相關)
 		- [搜尋相關](#搜尋相關)
 		- [集群相關](#集群相關)
 		- [分詞器相關](#分詞器相關)
@@ -95,9 +97,17 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [Elastic Kibana Quick Start: 第一次使用 Kibana 就上手 (11)](https://ithelp.ithome.com.tw/articles/10236315)
 
+### 設定檔相關
+
+[Important Elasticsearch configuration](https://www.elastic.co/guide/en/elasticsearch/reference/current/important-settings.html)
+
 ### REST APIs 相關
 
 [REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
+
+### 執行緒相關
+
+[Elasticsearch 執行緒池和佇列問題，請先看這一篇](https://www.gushiciku.cn/pl/gc1J/zh-tw)
 
 ### 搜尋相關
 
@@ -264,6 +274,12 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 # 查看節點訊息
 curl http://localhost:9200/_cat/nodes?v
 
+# 查看節點
+curl http://localhost:9200/_nodes/stats?pretty
+
+# 查看伺服器參數
+curl http://localhost:9200/_cat/thread_pool/?v&h=id,name,active,rejected,completed,size,type&pretty&s=type
+
 # 查看當前節點的所有索引。
 curl -X GET 'http://localhost:9200/_cat/indexes?v'
 
@@ -272,6 +288,22 @@ curl http://localhost:9200
 
 # 創建索引
 curl -XPUT http://localhost:9200/index
+
+# 將某個索引的 refresh_interval 設置為 1 分鐘
+# ms: 毫秒
+# s: 秒
+# m: 分钟
+curl -XPUT http://localhost:9200/{index}/_settings -d '
+{
+    "index" : {
+        "refresh_interval" : "1m"
+    }
+}'
+
+# 獲取集群設置 JSON
+curl http://172.105.232.70:9200/_cluster/settings?pretty&include_defaults
+
+http://172.105.232.70:9200/_nodes/stats?metric=adaptive_selection,breaker,discovery,fs,http,indices,jvm,os,process,thread_pool,transport&filter_path=nodes.*.adaptive_selection*,nodes.*.breaker*,nodes.*.fs*,nodes.*.os*,nodes.*.jvm*,nodes.*.process*,nodes.*.thread_pool*,nodes.*.discovery.cluster_state_queue,nodes.*.discovery.published_cluster_states,nodes.process.*.*,nodes.*.indices*,nodes.*.http.current_open,nodes.*.http.total_opened,_nodes,cluster_name,nodes.*.attributes,nodes.*.timestamp,nodes.*.transport*,nodes.*.transport_address,nodes.*.transport_address,nodes.*.host,nodes.*.ip,,nodes.*.roles,nodes.*.name&pretty
 
 # 創建索引 accounts 使用分詞器
 # analyzer是字段文本的分詞器，search_analyzer是搜索詞的分詞器。 ik_max_word分詞器是插件ik提供的，可以對文本進行最大數量的分詞。
