@@ -37,7 +37,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
 			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
 - [指令 API](#指令-api)
-	- [Search API](#search-api)
+	- [索引模板](#索引模板)
+	- [搜尋API(Search API)](#搜尋apisearch-api)
 	- [IK分詞器](#ik分詞器)
 - [安裝方式](#安裝方式)
 	- [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
@@ -118,6 +119,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 [ElasticSearch DSL python](https://blog.csdn.net/u012089823/article/details/82424679)
 
 [Search API - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-search.html)
+
+[Script query - 腳本查詢](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-query.html)
 
 [elasticsearch return total hits only - 只回傳hits數](https://stackoverflow.com/questions/43758813/elasticsearch-return-total-hits-only)
 
@@ -284,7 +287,7 @@ curl http://localhost:9200/_cat/thread_pool/?v&h=id,name,active,rejected,complet
 curl -X GET 'http://localhost:9200/_cat/indexes?v'
 
 # 測試
-curl http://localhost:9200
+curl -X GET http://localhost:9200
 
 # 創建索引
 curl -XPUT http://localhost:9200/index
@@ -301,9 +304,9 @@ curl -XPUT http://localhost:9200/{index}/_settings -d '
 }'
 
 # 獲取集群設置 JSON
-curl http://172.105.232.70:9200/_cluster/settings?pretty&include_defaults
+curl -X GET http://localhost:9200/_cluster/settings?pretty&include_defaults
 
-http://172.105.232.70:9200/_nodes/stats?metric=adaptive_selection,breaker,discovery,fs,http,indices,jvm,os,process,thread_pool,transport&filter_path=nodes.*.adaptive_selection*,nodes.*.breaker*,nodes.*.fs*,nodes.*.os*,nodes.*.jvm*,nodes.*.process*,nodes.*.thread_pool*,nodes.*.discovery.cluster_state_queue,nodes.*.discovery.published_cluster_states,nodes.process.*.*,nodes.*.indices*,nodes.*.http.current_open,nodes.*.http.total_opened,_nodes,cluster_name,nodes.*.attributes,nodes.*.timestamp,nodes.*.transport*,nodes.*.transport_address,nodes.*.transport_address,nodes.*.host,nodes.*.ip,,nodes.*.roles,nodes.*.name&pretty
+curl -X GET http://localhost:9200/_nodes/stats?metric=adaptive_selection,breaker,discovery,fs,http,indices,jvm,os,process,thread_pool,transport&filter_path=nodes.*.adaptive_selection*,nodes.*.breaker*,nodes.*.fs*,nodes.*.os*,nodes.*.jvm*,nodes.*.process*,nodes.*.thread_pool*,nodes.*.discovery.cluster_state_queue,nodes.*.discovery.published_cluster_states,nodes.process.*.*,nodes.*.indices*,nodes.*.http.current_open,nodes.*.http.total_opened,_nodes,cluster_name,nodes.*.attributes,nodes.*.timestamp,nodes.*.transport*,nodes.*.transport_address,nodes.*.transport_address,nodes.*.host,nodes.*.ip,,nodes.*.roles,nodes.*.name&pretty
 
 # 創建索引 accounts 使用分詞器
 # analyzer是字段文本的分詞器，search_analyzer是搜索詞的分詞器。 ik_max_word分詞器是插件ik提供的，可以對文本進行最大數量的分詞。
@@ -366,11 +369,120 @@ elasticsearch-plugin -h
 curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty"
 ```
 
-## Search API
-
-[Script query](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-script-query.html)
+## 索引模板
 
 ```bash
+# 創建範例
+curl -X PUT "localhost:9200/_index_template/template_1?pretty" -H 'Content-Type: application/json' -d'
+{
+  "index_patterns": ["te*", "bar*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1
+    },
+    "mappings": {
+      "_source": {
+        "enabled": true
+      },
+      "properties": {
+        "host_name": {
+          "type": "keyword"
+        },
+        "created_at": {
+          "type": "date",
+          "format": "EEE MMM dd HH:mm:ss Z yyyy"
+        }
+      }
+    },
+    "aliases": {
+      "mydata": { }
+    }
+  },
+  "priority": 500,
+  "composed_of": ["component_template1", "runtime_component_template"],
+  "version": 3,
+  "_meta": {
+    "description": "my custom"
+  }
+}
+'
+
+
+curl -X PUT "localhost:9200/_component_template/component_template1?pretty" -H 'Content-Type: application/json' -d'
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        }
+      }
+    }
+  }
+}
+'
+
+curl -X PUT "localhost:9200/_component_template/runtime_component_template?pretty" -H 'Content-Type: application/json' -d'
+{
+  "template": {
+    "mappings": {
+      "runtime": {
+        "day_of_week": {
+          "type": "keyword",
+          "script": {
+            "source": "emit(doc[\u0027@timestamp\u0027].value.dayOfWeekEnum.getDisplayName(TextStyle.FULL, Locale.ROOT))"
+          }
+        }
+      }
+    }
+  }
+}
+'
+
+```
+
+## 搜尋API(Search API)
+
+```bash
+# 返回與請求中定義的查詢匹配的搜索命中
+curl -X GET "localhost:9200/my-index-000001/_search?pretty"
+
+# 腳本查詢通常用於過濾上下文。
+curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "script": {
+          "script": "double amount = doc[\u0027amount\u0027].value;\nif (doc[\u0027type\u0027].value == \u0027expense\u0027) {\n  amount *= -1;\n}\nreturn amount < 10;"
+        }
+      }
+    }
+  }
+}
+'
+
+# 使用 _search API 上的 fields 參數來獲取值作為同一查詢的一部分
+curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+  "runtime_mappings": {
+    "amount.signed": {
+      "type": "double",
+      "script": "double amount = doc[\u0027amount\u0027].value;\nif (doc[\u0027type\u0027].value == \u0027expense\u0027) {\n  amount *= -1;\n}\nemit(amount);"
+    }
+  },
+  "query": {
+    "bool": {
+      "filter": {
+        "range": {
+          "amount.signed": { "lt": 10 }
+        }
+      }
+    }
+  },
+  "fields": [{"field": "amount.signed"}]
+}
+'
 ```
 
 ## IK分詞器

@@ -8,7 +8,9 @@
 - [Linux 工具 OpenSSL OpenSSH(連線、密鑰)](#linux-工具-openssl-openssh連線密鑰)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+	- [指令相關](#指令相關)
 - [指令](#指令)
+	- [ssh指令](#ssh指令)
 
 ## 參考資料
 
@@ -19,6 +21,10 @@
 [OpenSSH Manual Pages](https://www.openssh.com/manual.html)
 
 [openssl-rand, rand - generate pseudo-random bytes](https://www.openssl.org/docs/man1.0.2/man1/openssl-rand.html)
+
+## 指令相關
+
+[ssh(1) - Linux man page](https://linux.die.net/man/1/ssh)
 
 # 指令
 
@@ -80,6 +86,7 @@ chmod -R go= ~/.ssh
 eval ssh-agent -s
 
 # 將私鑰給ssh-agent來保管 使用ssh-add來指定金鑰。再輸入產生金鑰時所設定的Passphrase。
+eval `ssh-agent -s`
 ssh-add
 # Enter passphrase for /root/.ssh/id_rsa:  #輸入Passphrase密碼
 
@@ -180,4 +187,11 @@ firewall-cmd --zone=public --add-port=6379/tcp --permanent
 	# --permanent 指定為永久設定，否則在 firewalld 重啟或是重新讀取設定，就會失效
 # 重新讀取 firewall 設定
 firewall-cmd --reload
+```
+
+## ssh指令
+
+```bash
+# -L 指定將本地（客戶端）主機上的給定端口轉發到遠程端的給定主機和端口
+ssh username@host_ip:port -L [bind_address:]port:host:hostport
 ```

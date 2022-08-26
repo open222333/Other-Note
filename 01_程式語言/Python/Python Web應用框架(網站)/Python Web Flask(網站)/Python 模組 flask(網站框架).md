@@ -8,6 +8,7 @@
 - [Python 模組 flask(網站框架)](#python-模組-flask網站框架)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [通知相關](#通知相關)
 - [指令](#指令)
 - [用法](#用法)
 - [Flask + Nginx + Docker-compose 建議結構](#flask--nginx--docker-compose-建議結構)
@@ -33,6 +34,10 @@
 [flask-sqlalchemy 文檔](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)
 
 [Dockerizing Flask with Postgres, Gunicorn, and Nginx](https://testdriven.io/blog/dockerizing-flask-with-postgres-gunicorn-and-nginx/)
+
+### 通知相關
+
+[Web Push Notification Using Python - 使用 Python 的 Web 推送通知](https://raturi.in/blog/webpush-notification-using-python-and-flask/)
 
 # 指令
 
