@@ -31,6 +31,8 @@ netstat -tulpn
 	-l 代表找 LISTEN 的 socket
 	-n 代表顯示硬體名稱，-p 代表顯示 PID。
 
+netstat -tulpn | grep LISTEN
+
 # 基本查看 All + Numeric
 netstat -antp
 
