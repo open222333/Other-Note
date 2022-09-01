@@ -15,6 +15,8 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
 - [Linux 工具 iptables(管理網路封包的處理和轉發)](#linux-工具-iptables管理網路封包的處理和轉發)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+- [安裝部分](#安裝部分)
+	- [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [指令](#指令)
 - [防火牆規則](#防火牆規則)
 - [配置文檔 CentOS](#配置文檔-centos)
@@ -27,11 +29,38 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
 
 [iptables 的安裝與設定](http://120.105.184.250/cswang/thit/Linux/iptables.htm)
 
+# 安裝部分
+
+## 安裝步驟 CentOS7
+
+```bash
+# 在CentOS 7或RHEL 7或Fedora中防火牆由firewalld來管理
+# 安裝iptables-services
+yum install iptables-services -y
+
+# 停用 firewalld
+systemctl stop firewalld
+systemctl mask firewalld
+```
+
 # 指令
 
 ```bash
+# [停止 啟動 重啟]
+service iptables [stop|start|restart]
+
+# 啟動服務
+systemctl start iptables
+# 開機自動啟動
+systemctl enable iptables
+# 開機不會啟動
+systemctl disable iptables
+# 查詢啟動狀態
+systemctl status iptables
 # 重啟
-service iptables restart
+systemctl restart iptables
+# 停止
+systemctl stop iptables
 ```
 
 # 防火牆規則
@@ -252,4 +281,9 @@ iptables -D INPUT 3
 直接修改設定檔後重啟即可，且永久生效。
 
 `/etc/sysconfig/iptables`
+
+```bash
+# 重啟後生效
+service iptables restart
+```
 
