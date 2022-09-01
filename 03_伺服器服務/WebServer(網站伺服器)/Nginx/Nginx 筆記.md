@@ -8,6 +8,12 @@
 
 [DevOps：如何將 Nginx + uWSGI + Django 的服務部署在一台主機的根目錄](https://orcahmlee.github.io/devops/nginx-uwsgi-django-root/)
 
+### 監控相關
+
+[啟用 Nginx Status 的設定](https://blog.longwin.com.tw/2011/05/nginx-status-set-2011/)
+
+[即時監控 Nginx 網頁伺服器狀態，啟用 stub_status 模組](https://blog.gtwang.org/linux/nginx-enable-stub_status-module-to-collect-metrics/)
+
 # 安裝
 
 ## 安裝步驟 MacOS
@@ -61,13 +67,36 @@ nginx -t
 # 重啟
 nginx -s reload
 
-# 對外開放 6379 port
+# 對外開放 80 port
 # --permanent 指定為永久設定，否則在 firewalld重啟或是重新讀取設定，就會失效
-firewall-cmd --zone=public --add-port=6379/tcp --permanent
+firewall-cmd --zone=public --add-port=80/tcp --permanent
+
+vim /etc/sysconfig/iptables
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 
 # 重新讀取 firewall 設定
 firewall-cmd --reload
+```
 
+## 安裝步驟 Ubuntu
+
+```bash
+# 更新apt庫
+apt update
+
+# 安裝
+apt install nginx -y
+
+# 啟動服務
+systemctl start nginx
+# 開機啟動
+systemctl enable nginx
+# 查詢啟動狀態
+systemctl status nginx
+# 重啟
+systemctl restart nginx
+# 停止
+systemctl stop nginx
 ```
 
 ## 安裝 nginx-plus
@@ -338,4 +367,65 @@ try_files $uri /$uri /index.html;
 access_log path [format [buffer=size | off]]
 
 預設的combined,並且日誌記錄是存放在/var/log/nginx/nginx.log.
+```
+
+# 即時監控 - 啟用 stub_status 模組
+
+```bash
+# 雖然 stub_status 是 Nginx 內建的模組，但是 Nginx 在編譯時並不會自動把它納入
+# 檢查 Nginx 編譯版本是否有納入這個功能
+# 輸出有看到 with-http_stub_status_module 就表示沒問題
+nginx -V 2>&1 | grep -o with-http_stub_status_module
+```
+
+```conf
+server {
+
+  # ...
+
+  location /nginx_status {
+    # 啟用 stub_status 模組
+    stub_status on;
+
+    # 關閉紀錄功能
+    access_log off;
+
+    # 限制可存取的 IP 位址
+    allow 127.0.0.1;
+    deny all;
+  }
+}
+
+
+; 除了使用 IP 位址的方式來限制存取之外，也可以使用帳號與密碼的方式：
+server {
+
+  # ...
+
+  location /nginx_status {
+    # 啟用 stub_status 模組
+    stub_status on;
+
+    # 關閉紀錄功能
+    access_log off;
+
+    # 設定帳號與密碼
+    auth_basic "closed site";
+    auth_basic_user_file /path/to/htpasswd;
+  }
+}
+```
+
+```
+nginx status詳解
+
+active connections – 活躍的連接數量
+
+server accepts handled requests — 處理連接數量 , 成功創建握手次數, 處理請求次數
+
+reading — 讀取客戶端的連接數
+
+writing — 響應數據到客戶端的數量
+
+waiting — 開啟 keep-alive 的情況下,這個值等於 active – (reading+writing), 意思就是 Nginx 已經處理完正在等候下一次請求指令的駐留連接.
 ```

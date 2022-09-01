@@ -22,6 +22,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [搜尋相關](#搜尋相關)
 		- [集群相關](#集群相關)
 		- [分詞器相關](#分詞器相關)
+		- [映射(mappings)相關](#映射mappings相關)
 		- [_score評分相關](#_score評分相關)
 - [觀念](#觀念)
 	- [index](#index)
@@ -37,7 +38,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
 			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
 - [指令 API](#指令-api)
-	- [索引模板](#索引模板)
+	- [索引模板(index temple)](#索引模板index-temple)
 	- [搜尋API(Search API)](#搜尋apisearch-api)
 	- [IK分詞器](#ik分詞器)
 - [安裝方式](#安裝方式)
@@ -46,6 +47,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 	- [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
 	- [安裝步驟 CentOS7](#安裝步驟-centos7)
 	- [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
+		- [docker 安裝 ik分詞器](#docker-安裝-ik分詞器)
+		- [自定義 ik 的啟用詞和停用詞](#自定義-ik-的啟用詞和停用詞)
 - [設定檔](#設定檔)
 	- [配置文檔 elasticsearch.yml (主要)](#配置文檔-elasticsearchyml-主要)
 	- [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
@@ -136,11 +139,29 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [分析与分析器 - 2.x 官方中文文檔](https://www.elastic.co/guide/cn/elasticsearch/guide/current/analysis-intro.html)
 
+[IK 分詞器配置文件和自定義詞庫](https://zq99299.github.io/note-book/elasticsearch-senior/ik/31-config.html#%E4%B8%BB%E8%A6%81%E9%85%8D%E7%BD%AE%E8%A7%A3%E8%AF%B4)
+
 [掌握 analyze API，一举搞定 Elasticsearch 分词难题](https://elasticsearch.cn/article/771)
 
 [ElasticSearch 分词器，了解一下](https://cloud.tencent.com/developer/article/1595785)
 
 [ElasticSearch - 自定義 analysis](https://kucw.github.io/blog/2018/6/elasticsearch-analysis/)
+
+[Elasticsearch —— docker部署+ik分词器](https://www.jianshu.com/p/d8b0c736070f)
+
+[ElasticSearch-IK分詞器和整合使用](https://iter01.com/583193.html)
+
+[IK分词器下载、使用和测试](https://www.freesion.com/article/5737557424/)
+
+[ELK入门（十七）——Kibana之IK分词器安装、自定义和详细使用测试](https://blog.csdn.net/Netceor/article/details/114020196)
+
+[ik中文分词器安装以及简单新增词典操作](https://blog.csdn.net/qq_42572322/article/details/107979724)
+
+[為Elasticsarch添增ik分析器優化中文搜索 - 熱更新](https://tomme.me/elasticsearch-ik-analyzer-optimize/)
+
+### 映射(mappings)相關
+
+[Dynamic templates - 索引模板 動態映射](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/dynamic-templates.html#dynamic-templates)
 
 ### _score評分相關
 
@@ -369,7 +390,7 @@ elasticsearch-plugin -h
 curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty"
 ```
 
-## 索引模板
+## 索引模板(index temple)
 
 ```bash
 # 創建範例
@@ -378,7 +399,8 @@ curl -X PUT "localhost:9200/_index_template/template_1?pretty" -H 'Content-Type:
   "index_patterns": ["te*", "bar*"],
   "template": {
     "settings": {
-      "number_of_shards": 1
+      "number_of_shards": 1,
+
     },
     "mappings": {
       "_source": {
@@ -439,6 +461,36 @@ curl -X PUT "localhost:9200/_component_template/runtime_component_template?prett
 }
 '
 
+# 分詞器 analyzer search_analyzer
+curl -X PUT  "localhost:9200/_template/search_analyzer" -H 'Content-Type: application/json' -d'
+{
+    "template": "*",
+    "mappings": {
+      "_default_": {
+        "_all": {
+          "enabled": true
+        },
+        "dynamic_templates": [
+          {
+            "strings": {
+              "match_mapping_type": "string",
+              "mapping": {
+                "type": "text",
+                "analyzer": "ik_max_word",
+                "search_analyzer":"ik_max_word",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}'
 ```
 
 ## 搜尋API(Search API)
@@ -1007,22 +1059,16 @@ vi /etc/kibana/kibana.yml
 systemctl enable --now kibana
 
 # 開啟防火牆
+vim /etc/sysconfig/iptables
 iptables -A INPUT -p tcp --dport 5601 -j ACCEPT
 iptables -A INPUT -p tcp --dport 9200 -j ACCEPT
 
 firewall-cmd --add-port=5601/tcp --permanent
+firewall-cmd --add-port=9200/tcp --permanent
 firewall-cmd --reload
 ```
 
 ## 安裝步驟 ik分詞器
-
-[ElasticSearch-IK分詞器和整合使用](https://iter01.com/583193.html)
-
-[IK分词器下载、使用和测试](https://www.freesion.com/article/5737557424/)
-
-[ELK入门（十七）——Kibana之IK分词器安装、自定义和详细使用测试](https://blog.csdn.net/Netceor/article/details/114020196)
-
-[ik中文分词器安装以及简单新增词典操作](https://blog.csdn.net/qq_42572322/article/details/107979724)
 
 ```bash
 # 安裝ik分詞器 elasticsearch的版本和ik分詞器的版本需要保持一致
@@ -1044,6 +1090,124 @@ curl -XPOST http://localhost:9200/index/_mapping?pretty -H 'Content-Type:applica
         }
 
 }'
+```
+
+### docker 安裝 ik分詞器
+
+```env
+# Version of Elastic products 版本號
+STACK_VERSION=
+
+# Set the cluster name 集群名
+CLUSTER_NAME=test-cluster
+
+# Increase or decrease based on the available host memory (in bytes)
+MEM_LIMIT=1073741824
+```
+
+```yml
+version: '3'
+services:
+  es01:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: es01
+    environment:
+      - node.name=es01
+      - discovery.seed_hosts=es02
+      - cluster.initial_master_nodes=es01,es02
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+  es02:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: es02
+    environment:
+      - node.name=es02
+      - discovery.seed_hosts=es01
+      - cluster.initial_master_nodes=es01,es02
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata02:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+
+volumes:
+  esdata01:
+    driver: local
+  esdata02:
+    driver: local
+
+networks:
+  esnet:
+```
+
+```bash
+# 集群
+docker-compose exec es01 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+docker-compose exec es02 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+# 重啟es容器
+docker-compose restart es01
+docker-compose restart es02
+
+### 測試分詞
+# 增加一个叫test001的索引
+curl -X PUT http://localhost:9200/test001
+// 成功返回 {"acknowledged":true,"shards_acknowledged":true,"index":"test001"}
+
+# ik_smart分词
+curl -X POST \
+'http://127.0.0.1:9200/test001/_analyze?pretty=true' \
+-H 'Content-Type: application/json' \
+-d '{"text":"我们是软件工程师","tokenizer":"ik_smart"}'
+
+# ik_max_word分词
+curl -X POST \
+'http://127.0.0.1:9200/test001/_analyze?pretty=true' \
+-H 'Content-Type: application/json' \
+-d '{"text":"我们是软件工程师","tokenizer":"ik_max_word"}'
+```
+
+### 自定義 ik 的啟用詞和停用詞
+
+`修改 IKAnalyzer.cfg.xml 文件`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <comment>IK Analyzer 扩展配置</comment>
+    <!-- 配置擴展字典 檔案在 analysis-ik/config-->
+    <entry key="ext_dict">custom-ext.dic</entry>
+    <!-- 配置擴展停止詞字典 檔案在 analysis-ik/config-->
+    <entry key="ext_stopwords">custom-stop.dic</entry>
+    <!-- 配置遠程擴展字典 -->
+    <!-- <entry key="remote_ext_dict">words_location</entry> -->
+	<!--
+	1、custom-ext.dic配置到nginx中。
+	2、http請求需要返回兩個頭部(header)，一個是Last-Modified，一個是ETag，這兩者都是字符串類型，只要有一個發生變化，該插件就會去抓取新的分詞進而更新詞庫。
+	3、http請求返回的內容格式是一行一個分詞，換行符用\n即可。
+	4、在nginx的目錄下放置一個custom-ext.dic文件
+	-->
+	<entry key="remote_ext_dict">http://localhost:8686/custom-ext.dic</entry>
+    <!-- 配置遠程擴展停止詞字典 -->
+    <!-- <entry key="remote_ext_stopwords">words_location</entry> -->
+</properties>
 ```
 
 # 設定檔
@@ -1304,6 +1468,12 @@ vim config/jvm.properties # 具體位置須根據安裝方式確認
 	# 通常情況下配置為機器記憶體的一半左右,另外一半留給 ES 的堆外記憶體.master
 	-Xms16g
 	-Xmx16g
+
+# 限制住elasticsearch佔用的內存情況，可選少用swap
+vim /etc/systemd/system.conf
+	DefaultLimitNOFILE=65536
+	DefaultLimitNPROC=32000
+	DefaultLimitMEMLOCK=infinity
 ```
 
 `elasticsearch.yml`設定建議
