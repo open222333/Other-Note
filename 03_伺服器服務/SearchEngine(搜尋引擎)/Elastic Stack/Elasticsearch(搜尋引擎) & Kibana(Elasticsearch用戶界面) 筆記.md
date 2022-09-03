@@ -24,11 +24,12 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [分詞器相關](#分詞器相關)
 		- [映射(mappings)相關](#映射mappings相關)
 		- [_score評分相關](#_score評分相關)
+		- [索引模板(index template)相關](#索引模板index-template相關)
 - [觀念](#觀念)
-	- [index](#index)
-	- [集群 Cluster](#集群-cluster)
-		- [節點 Node](#節點-node)
-		- [節點類型 Node Type](#節點類型-node-type)
+	- [索引(index)](#索引index)
+	- [集群(cluster)](#集群cluster)
+		- [節點(node)](#節點node)
+		- [節點類型(Node Type)](#節點類型node-type)
 			- [Master Eligible Node](#master-eligible-node)
 			- [Data Node](#data-node)
 			- [Ingest Node](#ingest-node)
@@ -54,7 +55,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 	- [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
 	- [配置文檔 override.conf](#配置文檔-overrideconf)
 	- [生產環境 建議設定](#生產環境-建議設定)
-- [集群 Cluster](#集群-cluster-1)
+- [集群 Cluster](#集群-cluster)
 - [同步資料 Mongodb](#同步資料-mongodb)
 	- [Python - mongo-connector](#python---mongo-connector)
 		- [config.json](#configjson)
@@ -171,6 +172,10 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [实战 | Elasticsearch自定义评分的N种方法](https://cloud.tencent.com/developer/article/1600163)
 
+### 索引模板(index template)相關
+
+[Index templates](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html#index-templates)
+
 # 觀念
 
 ```
@@ -185,7 +190,7 @@ Logstash蒐集Log，透過Broker(透過Redis，也可以透過Kafka或是message
 Kibana在進行web介面上的串接，前端視覺化
 ```
 
-## index
+## 索引(index)
 
 * index 在 ES 中是個邏輯空間的概念，用來儲存 document 的容器，而這些 document 內容都是相似的 (跟其他領域的 index 用法不太一樣)
 
@@ -201,7 +206,7 @@ Kibana在進行web介面上的串接，前端視覺化
 
 * 在 ES 7.0 的版本後，index 在 type 部份只能設定為 _doc (在以前的版本是可以設定不同的 type)
 
-## 集群 Cluster
+## 集群(cluster)
 
 ```
 可以水平擴展儲存空間，支援 PB 等級的資料儲存
@@ -216,16 +221,18 @@ Kibana在進行web介面上的串接，前端視覺化
 cluster name 可以透過設定檔修改，也可以在啟動指令中指定 -E cluster.name=[CLUSTER_NAME] 進行設定
 ```
 
-### 節點 Node
+### 節點(node)
 
 ```
-Node 就是一個 Elasticsearch 的 Java process；基本上一台機器上可以同時運行多個 Elasticsearch process，但 production 使用建議還是只要一個就好
+Node 就是一個 Elasticsearch 的 Java process；
+基本上一台機器上可以同時運行多個 Elasticsearch process，但 production 使用建議還是只要一個就好
+
 每個 node 都有名稱，可透過設定檔配置，也可以在啟動時透過 -E node.name=[NODE_NAME] 進行設定
+
 每個 node 啟動之後都會分配一個 UID，並儲存在 /usr/share/elasticsearch/data 目錄下
-若是要查詢 cluster 中的 node 狀態，可以使用 GET /_cat/nodes API
 ```
 
-### 節點類型 Node Type
+### 節點類型(Node Type)
 
 #### Master Eligible Node
 
@@ -292,14 +299,12 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 
 # 指令 API
 
-[REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
-
 ```bash
 # 查看節點訊息
-curl http://localhost:9200/_cat/nodes?v
+curl -X GET http://localhost:9200/_cat/nodes?v
 
 # 查看節點
-curl http://localhost:9200/_nodes/stats?pretty
+curl -X GET http://localhost:9200/_nodes/stats?pretty
 
 # 查看伺服器參數
 curl http://localhost:9200/_cat/thread_pool/?v&h=id,name,active,rejected,completed,size,type&pretty&s=type
@@ -311,13 +316,13 @@ curl -X GET 'http://localhost:9200/_cat/indexes?v'
 curl -X GET http://localhost:9200
 
 # 創建索引
-curl -XPUT http://localhost:9200/index
+curl -X PUT http://localhost:9200/index
 
 # 將某個索引的 refresh_interval 設置為 1 分鐘
 # ms: 毫秒
 # s: 秒
 # m: 分钟
-curl -XPUT http://localhost:9200/{index}/_settings -d '
+curl -X PUT http://localhost:9200/{index}/_settings -d '
 {
     "index" : {
         "refresh_interval" : "1m"
@@ -396,11 +401,12 @@ curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&p
 # 創建範例
 curl -X PUT "localhost:9200/_index_template/template_1?pretty" -H 'Content-Type: application/json' -d'
 {
+  #  index 或 data stream 的名字，可以使用萬用字元 * 來定義這個 pattern。
   "index_patterns": ["te*", "bar*"],
   "template": {
     "settings": {
-      "number_of_shards": 1,
 
+      "number_of_shards": 1,
     },
     "mappings": {
       "_source": {
