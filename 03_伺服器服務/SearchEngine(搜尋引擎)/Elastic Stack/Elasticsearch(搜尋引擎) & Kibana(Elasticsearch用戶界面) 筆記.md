@@ -321,7 +321,7 @@ curl -X GET http://localhost:9200/_cat/nodes?v
 curl -X GET http://localhost:9200/_nodes/stats?pretty
 
 # 查看伺服器參數
-curl http://localhost:9200/_cat/thread_pool/?v&h=id,name,active,rejected,completed,size,type&pretty&s=type
+curl -X GET http://localhost:9200/_cat/thread_pool/?v&h=id,name,active,rejected,completed,size,type&pretty&s=type
 
 # 測試
 curl -X GET http://localhost:9200
