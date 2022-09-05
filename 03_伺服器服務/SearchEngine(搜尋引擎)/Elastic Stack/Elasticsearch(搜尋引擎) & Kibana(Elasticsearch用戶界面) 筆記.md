@@ -25,6 +25,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [映射(mappings)相關](#映射mappings相關)
 		- [_score評分相關](#_score評分相關)
 		- [索引模板(index template)相關](#索引模板index-template相關)
+		- [資料類型(data type)相關](#資料類型data-type相關)
 - [觀念](#觀念)
 	- [索引(index)](#索引index)
 	- [集群(cluster)](#集群cluster)
@@ -39,11 +40,14 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
 			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
 - [指令 API](#指令-api)
-	- [索引模板(index temple)](#索引模板index-temple)
+	- [alias(別名)](#alias別名)
+		- [新增 刪除 別名至索引](#新增-刪除-別名至索引)
+	- [創建索引模板(index temple)](#創建索引模板index-temple)
 	- [搜尋API(Search API)](#搜尋apisearch-api)
-	- [IK分詞器](#ik分詞器)
 - [安裝方式](#安裝方式)
 	- [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
+		- [官方](#官方)
+		- [自行架設](#自行架設)
 	- [安裝步驟 docker-compose](#安裝步驟-docker-compose)
 	- [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
 	- [安裝步驟 CentOS7](#安裝步驟-centos7)
@@ -134,6 +138,10 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [[Elasticsearch] 分散式特性 & 分散式搜尋的機制](https://godleon.github.io/blog/Elasticsearch/Elasticsearch-distributed-mechanism/)
 
+[Bootstrapping a cluster - 引導集群編輯](https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-discovery-bootstrap-cluster.html)
+
+[Discovery and cluster formation setting - 發現和集群形成設置](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery-settings.html)
+
 ### 分詞器相關
 
 [自定义分析器 - 2.x 官方中文文檔](https://www.elastic.co/guide/cn/elasticsearch/guide/current/custom-analyzers.html)
@@ -162,6 +170,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 ### 映射(mappings)相關
 
+[Mapping parameters - 映射參數](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html)
+
 [Dynamic templates - 索引模板 動態映射](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/dynamic-templates.html#dynamic-templates)
 
 ### _score評分相關
@@ -175,6 +185,10 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 ### 索引模板(index template)相關
 
 [Index templates](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html#index-templates)
+
+### 資料類型(data type)相關
+
+[Field data types](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html)
 
 # 觀念
 
@@ -309,9 +323,6 @@ curl -X GET http://localhost:9200/_nodes/stats?pretty
 # 查看伺服器參數
 curl http://localhost:9200/_cat/thread_pool/?v&h=id,name,active,rejected,completed,size,type&pretty&s=type
 
-# 查看當前節點的所有索引。
-curl -X GET 'http://localhost:9200/_cat/indexes?v'
-
 # 測試
 curl -X GET http://localhost:9200
 
@@ -362,7 +373,7 @@ curl -X PUT 'localhost:9200/accounts' -d '
 }'
 
 # 建立 mapping
-curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
+curl -X POST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
 {
 	"properties": {
 		"content": {
@@ -373,20 +384,17 @@ curl -XPOST http://localhost:9200/index/_mapping -H 'Content-Type:application/js
 	}
 }'
 
-# 查看mapping
-curl 'localhost:9200/_mapping?pretty=true'
-
 # 新增doc
-curl -XPOST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d'{"content":"美国留给伊拉克的是个烂摊子吗"}'
+curl -X POST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d '{"content":"內容"}'
 
 # 刪除多個索引
-curl -XDELETE 'http://localhost:9200/index_one,index_two'
-curl -XDELETE 'http://localhost:9200/index_*'
+curl -X DELETE 'http://localhost:9200/index_one,index_two'
+curl -X DELETE 'http://localhost:9200/index_*'
 
 # 刪除 全部索引
 # action.destructive_requires_name: true 避免刪除全部索引 刪除需提供名稱
-curl -XDELETE 'http://localhost:9200/_all'
-curl -XDELETE 'http://localhost:9200/*'
+curl -X DELETE 'http://localhost:9200/_all'
+curl -X DELETE 'http://localhost:9200/*'
 
 # 查看plugin 訊息
 elasticsearch-plugin -h
@@ -395,175 +403,252 @@ elasticsearch-plugin -h
 curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty"
 ```
 
-## 索引模板(index temple)
+## alias(別名)
+
+```bash
+# 取得 index 的別名資訊
+curl -X GET http://{{elastic_host}}/{{index}}/_alias/{{alias}}
+
+# 檢測這個別名指向哪一個索引
+curl -X GET http://{{elastic_host}}/*/_alias/{{alias}}
+
+# 哪些別名指向這個索引
+curl -X GET http://{{elastic_host}}/{{index}}/_alias/*
+```
+
+### 新增 刪除 別名至索引
+
+```
+添加別名到新索引的同時必須從舊的索引中刪除它 在零停機的情況下從舊索引遷移到新索引
+```
+
+```bash
+curl -X POST http://{{elastic_host}}/{{index}}/_aliases -H 'Content-Type: application/json' \
+-d 'body'
+```
+
+```json
+{
+    "actions": [
+        { "remove": { "index": "my_index_v1", "alias": "my_index" }},
+        { "add":    { "index": "my_index_v2", "alias": "my_index" }}
+    ]
+}
+```
+
+## 創建索引模板(index temple)
 
 ```bash
 # 創建範例
-curl -X PUT "localhost:9200/_index_template/template_1?pretty" -H 'Content-Type: application/json' -d'
-{
-  #  index 或 data stream 的名字，可以使用萬用字元 * 來定義這個 pattern。
-  "index_patterns": ["te*", "bar*"],
-  "template": {
-    "settings": {
+curl -X PUT "localhost:9200/_index_template/{模板名稱}?pretty" -H 'Content-Type: application/json' \
+-d 'body 以下json檔範例'
+```
 
-      "number_of_shards": 1,
+```json
+{
+  // index 或 data stream 的名字，可以使用萬用字元 * 來定義這個 pattern。
+  "index_patterns": ["te*", "bar*"],
+  // 索引的模板
+  "template": {
+    // 設定
+    "settings": {
+      "number_of_shards": 1
     },
+    // 映射
     "mappings": {
       "_source": {
         "enabled": true
       },
+      // 屬性(根據欄位)
       "properties": {
-        "host_name": {
+        "欄位名稱": {
           "type": "keyword"
         },
-        "created_at": {
+        "欄位名稱": {
+          // 日期
           "type": "date",
           "format": "EEE MMM dd HH:mm:ss Z yyyy"
+        },
+        "欄位名稱": {
+          "type": "date",
+          //將 index 設定為 false，ES 就不會索引該 field 的資料
+          "index": false,
+		  "analyzer": "standard",
+		  // "analyzer": "english",
+          "search_analyzer": "english",
+          "search_quote_analyzer": "standard"
         }
-      }
+      },
+      // 動態模板
+      "dynamic_templates": [{
+          "strings": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "text",
+              // 建立索引時指定使用分詞器
+              "analyzer": "ik_max_word",
+              // 搜尋時指定使用分詞器
+              "search_analyzer": "ik_max_word",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        {
+          // 此示例將 name 對像中任何字段的值複製到頂級 full_name 字段 middle除外
+          "full_name": {
+            "path_match": "name.*",
+            "path_unmatch": "*.middle",
+            "mapping": {
+              "type": "text",
+              "copy_to": "full_name"
+            }
+          }
+        }
+      ]
     },
     "aliases": {
-      "mydata": { }
+      "mydata": {}
     }
   },
   "priority": 500,
   "composed_of": ["component_template1", "runtime_component_template"],
   "version": 3,
+  // 自定義元數據 可以不使用 以下範例為 更新訊息資料
   "_meta": {
-    "description": "my custom"
-  }
-}
-'
-
-
-curl -X PUT "localhost:9200/_component_template/component_template1?pretty" -H 'Content-Type: application/json' -d'
-{
-  "template": {
-    "mappings": {
-      "properties": {
-        "@timestamp": {
-          "type": "date"
-        }
-      }
+    "class": "MyApp2::User3",
+    "version": {
+      "min": "1.3",
+      "max": "1.5"
     }
   }
 }
-'
-
-curl -X PUT "localhost:9200/_component_template/runtime_component_template?pretty" -H 'Content-Type: application/json' -d'
-{
-  "template": {
-    "mappings": {
-      "runtime": {
-        "day_of_week": {
-          "type": "keyword",
-          "script": {
-            "source": "emit(doc[\u0027@timestamp\u0027].value.dayOfWeekEnum.getDisplayName(TextStyle.FULL, Locale.ROOT))"
-          }
-        }
-      }
-    }
-  }
-}
-'
-
-# 分詞器 analyzer search_analyzer
-curl -X PUT  "localhost:9200/_template/search_analyzer" -H 'Content-Type: application/json' -d'
-{
-    "template": "*",
-    "mappings": {
-      "_default_": {
-        "_all": {
-          "enabled": true
-        },
-        "dynamic_templates": [
-          {
-            "strings": {
-              "match_mapping_type": "string",
-              "mapping": {
-                "type": "text",
-                "analyzer": "ik_max_word",
-                "search_analyzer":"ik_max_word",
-                "fields": {
-                  "keyword": {
-                    "type": "keyword",
-                    "ignore_above": 256
-                }
-              }
-            }
-          }
-        }
-      ]
-    }
-  }
-}'
 ```
 
 ## 搜尋API(Search API)
 
 ```bash
 # 返回與請求中定義的查詢匹配的搜索命中
-curl -X GET "localhost:9200/my-index-000001/_search?pretty"
-
-# 腳本查詢通常用於過濾上下文。
-curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'
-{
-  "query": {
-    "bool": {
-      "filter": {
-        "script": {
-          "script": "double amount = doc[\u0027amount\u0027].value;\nif (doc[\u0027type\u0027].value == \u0027expense\u0027) {\n  amount *= -1;\n}\nreturn amount < 10;"
-        }
-      }
-    }
-  }
-}
-'
-
-# 使用 _search API 上的 fields 參數來獲取值作為同一查詢的一部分
-curl -X GET "localhost:9200/_search?pretty" -H 'Content-Type: application/json' -d'
-{
-  "runtime_mappings": {
-    "amount.signed": {
-      "type": "double",
-      "script": "double amount = doc[\u0027amount\u0027].value;\nif (doc[\u0027type\u0027].value == \u0027expense\u0027) {\n  amount *= -1;\n}\nemit(amount);"
-    }
-  },
-  "query": {
-    "bool": {
-      "filter": {
-        "range": {
-          "amount.signed": { "lt": 10 }
-        }
-      }
-    }
-  },
-  "fields": [{"field": "amount.signed"}]
-}
-'
+curl -X GET "localhost:9200/{索引名稱}/_search?pretty"  -H 'Content-Type: application/json' -d 'json格式body'
 ```
 
-## IK分詞器
+```json
+// bool-query
+// bool 查詢採用 “匹配越多越好” 的方法，因此每個匹配 must 或 should 子句的分數將被加在一起，為每個文檔提供最終的_score
 
-```bash
-# 添加分詞器
-curl -H "Content-Type: application/json" -XPUT "http://127.0.0.1:9200/{index}/_mapping/_doc/" -d
-'{
-  "properties": {
-    "body": {
-      "type": "text",
-      "fields": {
-        "cnw": {
-          "type": "text",
-          "analyzer": "ik_max_word",
-          "search_analyzer": "ik_max_word"
+// must 該子句 (查詢) 必須出現在匹配的文件中，並將影響評分。
+// filter 該子句 (查詢) 必須出現在匹配的文檔中。然而，與 must 不同的是，查詢的分數將被忽略。過濾器子句在過濾器上下文中執行，這意味著評分將被忽略，子句將被考慮用於緩存。
+// should 該子句 (查詢) 應該出現在匹配的文檔中。
+// must_not 子句 (查詢) 不能出現在匹配的文檔中。子句在過濾器上下文中執行，這意味著忽略評分，子句被考慮用於緩存。因為忽略評分，所以返回所有文檔的評分為 0。
+{
+  "query": {
+    "bool" : {
+      "must" : {
+		// term 是直接把 field 拿去查詢倒排索引中確切的 term
+		// match 會先對 field 進行分詞操作，然後再去倒排索引中查詢
+        "term" : { "user.id" : "kimchy" }
+      },
+      "filter": {
+        "term" : { "tags" : "production" }
+      },
+      "must_not" : {
+		// 範圍
+        "range" : {
+          "age" : { "gte" : 10, "lte" : 20 }
         }
-      }
+      },
+      "should" : [
+        { "term" : { "tags" : "env1" } },
+        { "term" : { "tags" : "deployed" } }
+      ],
+	  // 需有幾條語句必須匹配
+      "minimum_should_match" : 1,
+	  // 個別字段可以自動提升 — 計入相關性分數
+      "boost" : 1.0
     }
   }
-}'
+}
 
-curl -H "Content-Type: application/json" -X PUT "http://127.0.0.1:9200/ruminate.story.new/_alias/ruminate.story"
+// boosting-query
+// 使查詢内容的结果減少分數 排序靠後
+{
+  "query": {
+    "boosting": {
+      "positive": {
+        "term": {
+          "text": "apple"
+        }
+      },
+      "negative": {
+        "term": {
+          "text": "pie tart fruit crumble tree"
+        }
+      },
+      "negative_boost": 0.5
+    }
+  }
+}
+
+// constant_score query
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-constant-score-query.html
+// 包裝過濾器查詢並返回每個匹配的文檔，其相關性分數等於 boost 參數值。
+{
+  "query": {
+    "constant_score": {
+      "filter": { // 必須出現在匹配的文檔中。查詢的分數將被忽略。
+        "term": { "user.id": "kimchy" }
+      },
+	  // 浮點數，用作與過濾器查詢匹配的每個文檔的恆定相關性分數。默認為 1.0
+      "boost": 1.2
+    }
+  }
+}
+
+// dis_max query
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-dis-max-query.html
+// 返回匹配一個或多個包裝查詢的文檔，稱為查詢子句或子句。
+{
+  "query": {
+    "dis_max": {
+      "queries": [ // queries 包含一個或多個查詢子句。返回的文檔必須與這些查詢中的一個或多個匹配
+        { "term": { "title": "Quick pets" } },
+        { "term": { "body": "Quick pets" } }
+      ],
+	  // tie_breaker 0 到 1.0 之間的浮點數，用於增加匹配多個查詢子句的文檔的相關性分數。默認為 0.0。
+      "tie_breaker": 0.7
+    }
+  }
+}
+
+// function_score query
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-random
+{
+  "query": {
+    "function_score": {
+      "query": { "match_all": {} },
+      "boost": "5",
+      "functions": [
+        {
+          "filter": { "match": { "test": "bar" } },
+          "random_score": {},
+          "weight": 23
+        },
+        {
+          "filter": { "match": { "test": "cat" } },
+          "weight": 42
+        }
+      ],
+      "max_boost": 42,
+      "score_mode": "max",
+      "boost_mode": "multiply",
+      "min_score": 42
+    }
+  }
+}
 ```
 
 # 安裝方式
@@ -575,6 +660,8 @@ iptables -A INPUT -p tcp --dport 9200 -j ACCEPT
 ```
 
 ## 安裝步驟 docker-compose cluster
+
+### 官方
 
 ```yml
 # 官方
@@ -843,6 +930,131 @@ MEM_LIMIT=1073741824
 #COMPOSE_PROJECT_NAME=myproject
 ```
 
+### 自行架設
+
+```yml
+version: '3'
+services:
+  es01:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: es01
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - ./es/plugins:/usr/share/elasticsearch/plugins
+      - ./es01/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./es01/data:/usr/share/elasticsearch/data # 數據文件掛載
+      - ./es01/logs:/usr/share/elasticsearch/logs
+    ports:
+      - 9200:9200
+  es02:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: es02
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - ./es/plugins:/usr/share/elasticsearch/plugins
+      - ./es02/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./es02/data:/usr/share/elasticsearch/data:rw # 數據文件掛載
+      - ./es02/logs:/usr/share/elasticsearch/logs:rw
+    depends_on:
+      - es01
+  es03:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: es03
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - ./es/plugins:/usr/share/elasticsearch/plugins
+      - ./es03/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./es03/data:/usr/share/elasticsearch/data:rw # 數據文件掛載
+      - ./es03/logs:/usr/share/elasticsearch/logs:rw
+    depends_on:
+      - es01
+  kibana:
+    image: kibana:7.13.3
+    container_name: kibana
+    depends_on:
+      - es01 # kibana在elasticsearch啟動之後再啟動
+      - es02
+      - es03
+    environment:
+      ELASTICSEARCH_HOSTS: http://es01:9200 # 設置訪問elasticsearch的地址
+      I18N_LOCALE: zh-CN
+    ports:
+      - 5601:5601
+```
+
+```yml
+# 節點名稱
+node.name: es01
+
+# 設置集群名稱
+cluster.name: test-cluster
+# 發現種子節點
+discovery.seed_hosts:
+  - es02
+  - es03
+# 集群初始化
+cluster.initial_master_nodes:
+  - es01
+  - es02
+  - es03
+bootstrap.memory_lock: true
+network.host: 0.0.0.0
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+```
+
+```yml
+# 節點名稱
+node.name: es02
+
+# 設置集群名稱
+cluster.name: test-cluster
+# 發現種子節點
+discovery.seed_hosts:
+  - es01
+  - es03
+# 集群初始化
+cluster.initial_master_nodes:
+  - es01
+  - es02
+  - es03
+bootstrap.memory_lock: true
+network.host: 0.0.0.0
+```
+
+```yml
+# 節點名稱
+node.name: es03
+
+# 設置集群名稱
+cluster.name: test-cluster
+# 發現種子節點
+discovery.seed_hosts:
+  - es01
+  - es02
+# 集群初始化
+cluster.initial_master_nodes:
+  - es01
+  - es02
+  - es03
+bootstrap.memory_lock: true
+network.host: 0.0.0.0
+```
+
+```env
+# Version of Elastic products 版本號
+STACK_VERSION=7.13.3
+
+# Set the cluster name 集群名
+CLUSTER_NAME=test-cluster
+
+# Increase or decrease based on the available host memory (in bytes)
+MEM_LIMIT=1073741824
+```
+
 ## 安裝步驟 docker-compose
 
 ```yml
@@ -921,8 +1133,9 @@ services:
       - 5601:5601
 ```
 
-```toml
-# 設置集群名稱為elasticsearch
+```yml
+# elasticsearch.yml
+# 設置集群名稱
 cluster.name: "es_test_cluster"
 # 以單一節點模式啟動
 discovery.type: "single-node"
@@ -1087,14 +1300,13 @@ elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/
 # 創建mapping
 curl -XPOST http://localhost:9200/index/_mapping?pretty -H 'Content-Type:application/json' -d'
 {
-        "properties": {
-            "content": {
-                "type": "text",
-                "analyzer": "ik_max_word",
-                "search_analyzer": "ik_smart"
-            }
-        }
-
+	"properties": {
+		"content": {
+			"type": "text",
+			"analyzer": "ik_max_word",
+			"search_analyzer": "ik_smart"
+		}
+	}
 }'
 ```
 
@@ -1170,23 +1382,6 @@ docker-compose exec es02 elasticsearch-plugin install https://github.com/medcl/e
 # 重啟es容器
 docker-compose restart es01
 docker-compose restart es02
-
-### 測試分詞
-# 增加一个叫test001的索引
-curl -X PUT http://localhost:9200/test001
-// 成功返回 {"acknowledged":true,"shards_acknowledged":true,"index":"test001"}
-
-# ik_smart分词
-curl -X POST \
-'http://127.0.0.1:9200/test001/_analyze?pretty=true' \
--H 'Content-Type: application/json' \
--d '{"text":"我们是软件工程师","tokenizer":"ik_smart"}'
-
-# ik_max_word分词
-curl -X POST \
-'http://127.0.0.1:9200/test001/_analyze?pretty=true' \
--H 'Content-Type: application/json' \
--d '{"text":"我们是软件工程师","tokenizer":"ik_max_word"}'
 ```
 
 ### 自定義 ik 的啟用詞和停用詞
@@ -1206,9 +1401,9 @@ curl -X POST \
     <!-- <entry key="remote_ext_dict">words_location</entry> -->
 	<!--
 	1、custom-ext.dic配置到nginx中。
-	2、http請求需要返回兩個頭部(header)，一個是Last-Modified，一個是ETag，這兩者都是字符串類型，只要有一個發生變化，該插件就會去抓取新的分詞進而更新詞庫。
+	2、(不需)http請求需要返回兩個頭部(header)，一個是Last-Modified，一個是ETag，這兩者都是字符串類型，只要有一個發生變化，該插件就會去抓取新的分詞進而更新詞庫。
 	3、http請求返回的內容格式是一行一個分詞，換行符用\n即可。
-	4、在nginx的目錄下放置一個custom-ext.dic文件
+	4、在nginx的root(預設在/usr/share/nginx/html)目錄下放置一個custom-ext.dic文件
 	-->
 	<entry key="remote_ext_dict">http://localhost:8686/custom-ext.dic</entry>
     <!-- 配置遠程擴展停止詞字典 -->
@@ -1225,13 +1420,13 @@ curl -X POST \
 # 配置集群名稱，由多個es實例組成的集群，有一個共同的名稱。
 cluster.name: my-application
 
-
+# 新節點用於加入集群的主節點列表
 discovery.seed_hosts:
 	- 192.168.1.10:9300
 	- 192.168.1.11
 	- seeds.mydomain.com
 
-# 初始化設置 使用node.name或限定域名
+# 初始化設置 使用node.name或限定域名 引導集群的初始列表
 cluster.initial_master_nodes:
 	- master-node-a
 	- master-node-b
