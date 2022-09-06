@@ -186,6 +186,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [Index templates](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html#index-templates)
 
+[Create or update index template API - 創建或更新索引模板 API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-template.html)
+
 ### 資料類型(data type)相關
 
 [Field data types](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html)
@@ -430,8 +432,26 @@ curl -X POST http://{{elastic_host}}/{{index}}/_aliases -H 'Content-Type: applic
 ```json
 {
     "actions": [
-        { "remove": { "index": "my_index_v1", "alias": "my_index" }},
-        { "add":    { "index": "my_index_v2", "alias": "my_index" }}
+        {
+            "remove": {
+                "index": "{{old_index_alias}}",
+                "alias": "{{alias}}"
+            }
+        },
+        {
+            "add": {
+                "index": "{{new_index_alias}}",
+                "alias": "{{alias}}",
+				// 指定 routing 的值，或是 filter 的條件，來讓這個 alias 有限定的用途。
+				// filter 若使用別名 將從指定的資料範圍搜尋資料
+				"filter": { "term": { "user.id": "kimchy" } },
+				// 指定 routing 可以減少讓 request 跑到其他 shard 運作的時間，能直接強制導到某些 shard 身上。
+				"search_routing": "1,2",
+        		"index_routing": "2",
+				// 若會需要將資料透過 alias 來寫入，必預要明確的標示哪個 index 是 is_write_index
+				"is_write_index": true
+            }
+        }
     ]
 }
 ```
@@ -565,7 +585,7 @@ curl -X GET "localhost:9200/{索引名稱}/_search?pretty"  -H 'Content-Type: ap
         { "term" : { "tags" : "env1" } },
         { "term" : { "tags" : "deployed" } }
       ],
-	  // 需有幾條語句必須匹配
+	  // should需有幾條語句必須匹配
       "minimum_should_match" : 1,
 	  // 個別字段可以自動提升 — 計入相關性分數
       "boost" : 1.0
