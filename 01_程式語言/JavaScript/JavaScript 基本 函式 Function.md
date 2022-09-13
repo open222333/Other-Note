@@ -817,7 +817,7 @@ console.log(increamentAll([1, 2, 3]));
 // 回傳計算f(g(...))的新函式
 function compose(f, g) {
   return function (...args) {
-    return f.call(this, g.apply(this, ages));
+    return f.call(this, g.apply(this, args));
   };
 }
 
