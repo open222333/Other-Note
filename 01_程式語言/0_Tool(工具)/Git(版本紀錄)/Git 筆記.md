@@ -10,6 +10,7 @@
 	- [參考資料](#參考資料)
 		- [管理 commit log](#管理-commit-log)
 		- [圖形化介面軟體](#圖形化介面軟體)
+		- [git 原理](#git-原理)
 - [Git 基本概念](#git-基本概念)
 - [Linux 安裝 Git](#linux-安裝-git)
 - [Mac 安裝 Git](#mac-安裝-git)
@@ -54,6 +55,10 @@
 [Fork](https://git-fork.com/)
 
 [Sourcetree](https://www.sourcetreeapp.com/)
+
+### git 原理
+
+[Git 內部原理 - Packfiles](http://iissnan.com/progit/html/zh-tw/ch9_4.html)
 
 # Git 基本概念
 
