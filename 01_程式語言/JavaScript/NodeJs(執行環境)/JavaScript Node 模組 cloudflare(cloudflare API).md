@@ -32,7 +32,7 @@ npm i cloudflare
 # 用法
 
 ```JavaScript
-var cf = require('cloudflare')({
+var cloudflare = require('cloudflare')({
   email: 'you@example.com',
   key: 'your Cloudflare API key'
 });
