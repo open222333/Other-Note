@@ -12,6 +12,7 @@
 - [安裝步驟](#安裝步驟)
 - [用法](#用法)
 - [配置文檔](#配置文檔)
+	- [中間件](#中間件)
 - [狀況](#狀況)
 	- [使用golang連接mongo server selection error: server selection timeout, current topology](#使用golang連接mongo-server-selection-error-server-selection-timeout-current-topology)
 - [Mapping(映射)](#mapping映射)
@@ -188,6 +189,28 @@ cluster-name = 'apollo'
 
 # do not exit after full-sync, rather continue tailing the oplog
 exit-after-direct-reads = false
+```
+
+## 中間件
+
+```go
+package main
+import (
+    "github.com/rwynn/monstache/monstachemap"
+    "strings"
+)
+// a plugin to convert document values to uppercase
+func Map(input *monstachemap.MapperPluginInput) (output *monstachemap.MapperPluginOutput, err error) {
+    doc := input.Document
+    for k, v := range doc {
+        switch v.(type) {
+        case string:
+            doc[k] = strings.ToUpper(v.(string))
+        }
+    }
+    output = &monstachemap.MapperPluginOutput{Document: doc}
+    return
+}
 ```
 
 # 狀況
