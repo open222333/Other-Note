@@ -8,9 +8,12 @@
 - [Linux 工具 OpenSSL OpenSSH(連線、密鑰)](#linux-工具-openssl-openssh連線密鑰)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [指令相關](#指令相關)
+		- [指令相關](#指令相關)
+		- [憑證相關](#憑證相關)
+		- [設定檔相關](#設定檔相關)
 - [指令](#指令)
 	- [ssh指令](#ssh指令)
+- [ssh_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
 
 ## 參考資料
 
@@ -22,9 +25,19 @@
 
 [openssl-rand, rand - generate pseudo-random bytes](https://www.openssl.org/docs/man1.0.2/man1/openssl-rand.html)
 
-## 指令相關
+### 指令相關
 
 [ssh(1) - Linux man page](https://linux.die.net/man/1/ssh)
+
+### 憑證相關
+
+[Certificate Decoder - 查看憑證資訊(日期)](https://www.sslshopper.com/certificate-decoder.html)
+
+### 設定檔相關
+
+[ssh_config— OpenSSH 客戶端配置文件](https://man.openbsd.org/OpenBSD-current/man5/ssh_config.5)
+
+[增進 SSH 使用效率 - ssh_config](https://chusiang.gitbooks.io/working-on-gnu-linux/content/20.ssh_config.html)
 
 # 指令
 
@@ -187,6 +200,11 @@ firewall-cmd --zone=public --add-port=6379/tcp --permanent
 	# --permanent 指定為永久設定，否則在 firewalld 重啟或是重新讀取設定，就會失效
 # 重新讀取 firewall 設定
 firewall-cmd --reload
+
+
+# If you want to decode certificates on your own computer, run this OpenSSL command:
+# 解碼證書
+openssl x509 -in certificate.crt -text -noout
 ```
 
 ## ssh指令
@@ -194,4 +212,49 @@ firewall-cmd --reload
 ```bash
 # -L 指定將本地（客戶端）主機上的給定端口轉發到遠程端的給定主機和端口
 ssh username@host_ip:port -L [bind_address:]port:host:hostport
+```
+
+# ssh_config(紀錄主機連線資訊)
+
+```bash
+# 編輯設定
+vim ~/.ssh/config
+
+# - master
+Host            master                # 代號
+Hostname        192.168.11.24        # IP or Domain name
+Port            2222                # 指定埠口
+User            jonny                # 使用者名稱
+identityfile    ~/.ssh/id_rsa_24    # 指定金鑰
+
+# - slave
+Host            slave                # 代號
+Hostname        192.168.11.25        # IP or Domain name
+Port            2223                # 指定埠口
+User            jonny                # 使用者名稱
+identityfile    ~/.ssh/id_rsa_25    # 指定金鑰
+
+# 使用代號進行連線
+ssh slave
+sftp
+
+
+# 另一種格式
+Host ssh-jp-manager
+        User            tom_li
+        HostName        192.168.11.25
+		Port			預設為22
+        ServerAliveInterval     60 # 保持連線
+        IdentityFile	 ~/.ssh/id_rsa
+
+# 背景建立 連線通道
+ssh user@host -fN -L 127.0.0.1:port:host_ip:port
+```
+
+```
+Host
+Hostname
+Port
+User
+identityfile
 ```

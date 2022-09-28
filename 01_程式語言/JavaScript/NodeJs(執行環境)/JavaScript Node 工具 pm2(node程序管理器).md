@@ -20,10 +20,14 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 - [JavaScript Node 工具 pm2(node程序管理器)](#javascript-node-工具-pm2node程序管理器)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [設定檔相關](#設定檔相關)
+		- [應用相關](#應用相關)
 - [安裝步驟](#安裝步驟)
 - [指令](#指令)
 - [pm2 ecosystem(執行程式)](#pm2-ecosystem執行程式)
 	- [範例1](#範例1)
+	- [範例2](#範例2)
+	- [範例3 - 自動化部署](#範例3---自動化部署)
 
 ## 參考資料
 
@@ -32,6 +36,16 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 [pm2 官方文檔](https://pm2.keymetrics.io/docs/usage/pm2-doc-single-page/)
 
 [pm2 - 用法大全](https://tn710617.github.io/zh-tw/pm2/#%E6%9C%89%E8%AE%8A%E6%9B%B4%E6%99%82%E9%87%8D%E5%95%9F)
+
+### 設定檔相關
+
+[Configuration File - 設定檔設定app (pm2 ecosystem)](https://pm2.keymetrics.io/docs/usage/application-declaration/)
+
+[How to start pm2 with arguments?](https://stackoverflow.com/questions/46478448/how-to-start-pm2-with-arguments/46479329#46479329)
+
+### 應用相關
+
+[使用pm2管理伺服器](https://ithelp.ithome.com.tw/articles/10223157)
 
 # 安裝步驟
 
@@ -158,12 +172,6 @@ pm2 unstartup && pm2 startup && pm2 save
 
 # pm2 ecosystem(執行程式)
 
-[How to start pm2 with arguments?](https://stackoverflow.com/questions/46478448/how-to-start-pm2-with-arguments/46479329#46479329)
-
-```
-CLI 工具固然不錯，但只要是人難免手滑打錯或漏打參數。
-pm2 ecosystem 解決了這個問題，只要好好的打上一次，以後除非設定有變更，否則啟動服務只需要短短幾個指令，而且 ecosystem 檔案還可以納入 git 控管，跟著專案跑
-```
 
 ```bash
 # 產生範例 ecosystem file
@@ -346,5 +354,64 @@ module.exports = {
     "cwd"         : "/home/parse/parse-dashboard",
     "args"        : "--config /home/ubuntu/dash/config.json"
   }]
+}
+```
+
+## 範例2
+
+```json
+{
+  "apps" : [{
+    "name"        : "echo",
+    "script"      : "examples/args.js",
+    "args"        : "['--toto=heya coco', '-d', '1']",
+    "log_date_format"  : "YYYY-MM-DD HH:mm Z",
+    "ignoreWatch" : ["[\\/\\\\]\\./", "node_modules"],
+    "watch"       : true,
+    "node_args"   : "--harmony",
+    "cwd"         : "/this/is/a/path/to/start/script",
+    "env": {
+        "NODE_ENV": "production",
+        "AWESOME_SERVICE_API_TOKEN": "xxx"
+    }
+  },{
+    "name"       : "api",
+    "script"     : "./examples/child.js",
+    "instances"  : "4",
+    "log_date_format"  : "YYYY-MM-DD",
+    "log_file"   : "./examples/child.log",
+    "error_file" : "./examples/child-err.log",
+    "out_file"   : "./examples/child-out.log",
+    "pid_file"   : "./examples/child.pid",
+    "exec_mode"  : "cluster_mode",
+    "port"       : 9005
+  },{
+    "name"       : "auto-kill",
+    "script"     : "./examples/killfast.js",
+    "min_uptime" : "100",
+    "exec_mode"  : "fork_mode"
+  }]
+}
+```
+
+## 範例3 - 自動化部署
+
+```json
+{
+   "apps" : [{
+      "name" : "HTTP-API",
+      "script" : "http.js"
+   }],
+   "deploy" : {
+     // "production" is the environment name
+     "production" : {
+       "user" : "ubuntu",
+       "host" : ["192.168.0.13"],
+       "ref"  : "origin/master",
+       "repo" : "git@github.com:Username/repository.git",
+       "path" : "/var/www/my-repository",
+       "post-deploy" : "npm install; grunt dist"
+      },
+   }
 }
 ```

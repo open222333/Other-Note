@@ -65,6 +65,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [config.json](#configjson)
 	- [Golang - monstache](#golang---monstache)
 		- [安裝步驟 CentOS7](#安裝步驟-centos7-1)
+- [例外狀況](#例外狀況)
+	- [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit)
 
 ## 參考資料
 
@@ -403,6 +405,9 @@ elasticsearch-plugin -h
 
 # 返回集群的健康狀態
 curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty"
+
+# 修改 分片數量上限
+curl -X PUT localhost:9200/_cluster/settings -H "Content-Type: application/json" -d '{ "persistent": { "cluster.max_shards_per_node": "5000" } }'
 ```
 
 ## alias(別名)
@@ -2074,4 +2079,64 @@ cluster-name = 'apollo'
 
 # do not exit after full-sync, rather continue tailing the oplog
 exit-after-direct-reads = false
+```
+
+# 例外狀況
+
+## Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit
+
+[官方解決方案](https://www.elastic.co/guide/en/elasticsearch/reference/master/disk-usage-exceeded.html)
+
+[集群級分片分配和路由設置(Cluster-level shard allocation and routing settings)](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-cluster.html)
+
+```
+此錯誤表明數據節點的磁盤空間嚴重不足，並且已達到洪水階段磁盤使用水位線。
+為防止磁盤已滿，當節點達到此水印時，Elasticsearch 會阻止寫入該節點上具有分片的任何索引。
+如果塊影響相關係統索引，Kibana 和其他 Elastic Stack 功能可能會變得不可用。
+```
+
+```bash
+# 要立即恢復寫入操作，可以暫時增加磁盤水印。
+curl -X PUT "localhost:9200/_cluster/settings?pretty" -H 'Content-Type: application/json' -d'
+{
+  "persistent": {
+    "cluster.routing.allocation.disk.watermark.low": "90%",
+    "cluster.routing.allocation.disk.watermark.low.max_headroom": "100GB",
+    "cluster.routing.allocation.disk.watermark.high": "95%",
+    "cluster.routing.allocation.disk.watermark.high.max_headroom": "20GB",
+    "cluster.routing.allocation.disk.watermark.flood_stage": "97%",
+    "cluster.routing.allocation.disk.watermark.flood_stage.max_headroom": "5GB",
+    "cluster.routing.allocation.disk.watermark.flood_stage.frozen": "97%",
+    "cluster.routing.allocation.disk.watermark.flood_stage.frozen.max_headroom": "5GB"
+  }
+}
+'
+
+# 移除寫入塊
+curl -X PUT "localhost:9200/*/_settings?expand_wildcards=all&pretty" -H 'Content-Type: application/json' -d'
+{
+  "index.blocks.read_only_allow_delete": null
+}
+'
+
+#############################################
+
+# 刪除不必要索引
+curl -X DELETE "localhost:9200/my-index?pretty"
+
+# 當長期解決方案到位時，重置或重新配置磁盤水印。
+curl -X PUT "localhost:9200/_cluster/settings?pretty" -H 'Content-Type: application/json' -d'
+{
+  "persistent": {
+    "cluster.routing.allocation.disk.watermark.low": null,
+    "cluster.routing.allocation.disk.watermark.low.max_headroom": null,
+    "cluster.routing.allocation.disk.watermark.high": null,
+    "cluster.routing.allocation.disk.watermark.high.max_headroom": null,
+    "cluster.routing.allocation.disk.watermark.flood_stage": null,
+    "cluster.routing.allocation.disk.watermark.flood_stage.max_headroom": null,
+    "cluster.routing.allocation.disk.watermark.flood_stage.frozen": null,
+    "cluster.routing.allocation.disk.watermark.flood_stage.frozen.max_headroom": null
+  }
+}
+'
 ```
