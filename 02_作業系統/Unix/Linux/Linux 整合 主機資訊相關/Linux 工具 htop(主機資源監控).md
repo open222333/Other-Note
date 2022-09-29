@@ -16,6 +16,8 @@
 
 [Linux htop 系統程序監控工具簡介](https://matthung0807.blogspot.com/2019/06/linux-htop.html)
 
+[htop 每個欄位](https://medium.com/starbugs/do-you-understand-htop-ffb72b3d5629)
+
 # 安裝
 
 ```bash

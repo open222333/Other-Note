@@ -10,6 +10,7 @@
 - [JavaScript 物件 RegExp(正則表達式)](#javascript-物件-regexp正則表達式)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [驗證除錯工具相關](#驗證除錯工具相關)
 - [用法](#用法)
 - [pattern](#pattern)
 
@@ -26,6 +27,14 @@
 [正規表示式 Regular Expression](https://atedev.wordpress.com/2007/11/23/%E6%AD%A3%E8%A6%8F%E8%A1%A8%E7%A4%BA%E5%BC%8F-regular-expression/)
 
 [JavaScript RegExp Reference](https://www.w3schools.com/jsref/jsref_obj_regexp.asp)
+
+### 驗證除錯工具相關
+
+[語法測試工具網站 - 推薦](https://regex101.com/)
+
+[語法測試工具網站](https://www.debuggex.com/)
+
+[語法測試工具網站](https://regexr.com/)
 
 # 用法
 
