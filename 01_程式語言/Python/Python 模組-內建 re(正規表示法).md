@@ -1,15 +1,16 @@
-# Python 模組-內建 re(正則表達式)
+# Python 模組-內建 re(正規表示法)
 
 ```
-正則表達式(Regular Expression)
+正規表示法(Regular Expression)
 執行模式的比對與搜尋。
 ```
 
 ## 目錄
 
-- [Python 模組-內建 re(正則表達式)](#python-模組-內建-re正則表達式)
+- [Python 模組-內建 re(正規表示法)](#python-模組-內建-re正規表示法)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [驗證除錯工具相關](#驗證除錯工具相關)
 - [用法](#用法)
 - [正則表達式](#正則表達式)
 
@@ -20,6 +21,14 @@
 [正則表達式再現工具](https://c.runoob.com/front-end/854/)
 
 [正規表示法 Regular Expression (Regex)](https://www.fooish.com/regex-regular-expression/)
+
+### 驗證除錯工具相關
+
+[語法測試工具網站 - 推薦](https://regex101.com/)
+
+[語法測試工具網站](https://www.debuggex.com/)
+
+[語法測試工具網站](https://regexr.com/)
 
 # 用法
 

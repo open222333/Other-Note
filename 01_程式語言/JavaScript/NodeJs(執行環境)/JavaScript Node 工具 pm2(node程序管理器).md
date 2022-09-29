@@ -22,6 +22,7 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 	- [參考資料](#參考資料)
 		- [設定檔相關](#設定檔相關)
 		- [應用相關](#應用相關)
+		- [log相關](#log相關)
 - [安裝步驟](#安裝步驟)
 - [指令](#指令)
 - [pm2 ecosystem(執行程式)](#pm2-ecosystem執行程式)
@@ -46,6 +47,10 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 ### 應用相關
 
 [使用pm2管理伺服器](https://ithelp.ithome.com.tw/articles/10223157)
+
+### log相關
+
+[LOGS](https://pm2.keymetrics.io/docs/usage/log-management/)
 
 # 安裝步驟
 

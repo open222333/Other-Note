@@ -24,7 +24,7 @@
 
 ### 驗證除錯工具相關
 
-[語法測試工具網站](https://regex101.com/)
+[語法測試工具網站 - 推薦](https://regex101.com/)
 
 [語法測試工具網站](https://www.debuggex.com/)
 
