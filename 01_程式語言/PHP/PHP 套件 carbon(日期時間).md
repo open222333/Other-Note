@@ -20,7 +20,7 @@
 # 指令
 
 ```bash
-# 使用 composer
+# 使用 composer 安裝
 composer require nesbot/carbon
 ```
 
