@@ -10,6 +10,7 @@
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [安裝步驟(官方建議建立腳本)](#安裝步驟官方建議建立腳本)
+- [指令](#指令)
 
 ## 參考資料
 
@@ -67,7 +68,7 @@ exit $RESULT
 
 [composer --prefer-dist 和 --prefer-source 的區別](https://www.itread01.com/content/1545115698.html)
 
-基本指令：
+# 指令
 
 ```sh
 # 安裝 composer.lock 中指定的套件及版本。
