@@ -12,6 +12,8 @@
 - [大流量網站使用 linux CentOS7 BBR](#大流量網站使用-linux-centos7-bbr)
 - [SELinux工具程式](#selinux工具程式)
 - [CentOS 7 網路指令](#centos-7-網路指令)
+- [例外狀況](#例外狀況)
+	- [curl: (35) Cannot communicate securely with peer: no common encryption algorithm(s).](#curl-35-cannot-communicate-securely-with-peer-no-common-encryption-algorithms)
 
 ## 參考資料
 
@@ -219,3 +221,10 @@ nmcli networking off
 nmcli networking on
 ```
 
+# 例外狀況
+
+## curl: (35) Cannot communicate securely with peer: no common encryption algorithm(s).
+
+```bash
+yum update curl -y
+```

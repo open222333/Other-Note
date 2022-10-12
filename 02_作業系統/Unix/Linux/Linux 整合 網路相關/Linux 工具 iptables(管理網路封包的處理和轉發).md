@@ -20,6 +20,9 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
 - [指令](#指令)
 - [防火牆規則](#防火牆規則)
 - [配置文檔 CentOS](#配置文檔-centos)
+- [範例](#範例)
+- [例外狀況](#例外狀況)
+	- [Failed to start IPv4 firewall with iptables](#failed-to-start-ipv4-firewall-with-iptables)
 
 ## 參考資料
 
@@ -28,6 +31,8 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
 [第十一章、Linux 防火牆與 NAT 伺服器](https://linux.vbird.org/linux_server/centos4/0250simple_firewall-centos4.php#reference)
 
 [iptables 的安裝與設定](http://120.105.184.250/cswang/thit/Linux/iptables.htm)
+
+[IPTables - 防火牆](https://wiki.centos.org/zh-tw/HowTos/Network/IPTables)
 
 # 安裝部分
 
@@ -244,6 +249,9 @@ iptables -A INPUT -m state --state 狀態
 iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -m state --state INVALID -j DROP
 
+# 保存輸入規則(需重啟)
+service iptables save
+
 # 防火牆的記錄
 iptables-save > filename
 
@@ -285,5 +293,69 @@ iptables -D INPUT 3
 ```bash
 # 重啟後生效
 service iptables restart
+```
+
+# 範例
+
+```bash
+# 假如利用遠端連線，必須臨時將 INPUT 鏈的預設政策改為 ACCEPT，否則當清除現有的規則集時，便會將自己封鎖在伺服器之外。
+iptables -P INPUT ACCEPT
+
+# 利用 -F 選項來清除一切現存的規則，好讓能夠在嶄新的狀態下加入的規則。
+iptables -F
+
+# 利用 -A 選項來附加（新增）規則到某條鏈，而這裡所指的是 INPUT 鏈。
+# 接著利用 -i 選項（interface「介面」之意）來指定那些符合或來自 lo（localhost、127.0.0.1）介面的封包。
+# 最後 -j（jump「跳至」）符合這條規則的目標動作：在這裡是 ACCEPT。所以這條規則會導致所有前往 localhost 介面的對內封包穫得接納。
+# 一般來說這是必須的，因為很多軟件預期能夠與 localhost 配接卡溝通。
+iptables -A INPUT -i lo -j ACCEPT
+
+# 這是擔負起大部份工作的規則，而再一次將它加進（-A）INPUT 鏈內。
+# 這裡利用 -m 選項來載入一個模塊（state）。state 模塊能夠檢視一個封包並判斷它的狀態是 NEW、ESTABLISHED 抑或 RELATED。NEW 指進入的封包屬於不是由主機起始的新增連線。
+# ESTABLISHED 及 RELATED 指進入的封包隸屬於一條現存的連線，或者與現存的連線有關係。
+iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# 現在加入一條規則來容許 SSH 通過 tcp 連接埠 22 來連線。
+# 這樣做是要防止連接到遠端系統的 SSH 連線意外地被封銷。我們稍後會更詳細解釋這條規則。
+iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
+# 這個 -P 選項設定某條規則鏈上的預設政策。
+# 現在可以將 INPUT 鏈的預設政策改為 DROP。
+# 意思就是，不符合任何一條規則的對內封包將會被丟棄。
+# 要是透過 SSH 遠端連線而沒有加入上一條規則，此刻便會被封鎖於系統之外。
+iptables -P INPUT DROP
+
+# 將 FORWARD 鏈的預設政策設為 DROP，因為我們並不是用電腦作為路由器，所以理應沒有任何封包路經它。
+iptables -P FORWARD DROP
+
+# 而將 OUTPUT 鏈的預設政策設為 ACCEPT，因為想容許所有對外的流量（由於我們信任我們的用戶）。
+iptables -P OUTPUT ACCEPT
+
+# 保存上述規則
+service iptables save
+
+# 列出（-L）剛加入的規則，並檢查它們是否被正確地載入。
+iptables -L -v
+```
+
+# 例外狀況
+
+## Failed to start IPv4 firewall with iptables
+
+[CentOS 7.2:Failed to start IPv4 firewall with iptables](https://developer.aliyun.com/article/788144)
+
+```bash
+# 關閉firewalld
+systemctl stop firewalld
+systemctl mask firewalld
+
+# 開 443 端口（HTTPS）
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+
+# 保存上述規則
+service iptables save
+
+# 開啟服務
+systemctl restart iptables.service
 ```
 
