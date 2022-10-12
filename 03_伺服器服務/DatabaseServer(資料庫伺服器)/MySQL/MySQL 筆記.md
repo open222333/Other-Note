@@ -89,13 +89,13 @@ yum repolist all | grep mysql
 # 安裝MySQL
 yum install mysql-community-server -y
 
-# 查看預設密碼
+# 查看預設密碼(須先start)
 cat /var/log/mysqld.log | grep 'temporary password'
 ```
 
 ```sql
 -- 輸入登入密碼(修改預設密碼)
-ALTER USER root@'localhost' IDENTIFIED BY 'KHL^pjz*TSY$e9r';
+ALTER USER root@'localhost' IDENTIFIED BY 'dnhK3wxbcMhn!';
 
 -- 修改root用戶可任意IP登入
 UPDATE mysql.user SET host = '%' WHERE user = 'root';
