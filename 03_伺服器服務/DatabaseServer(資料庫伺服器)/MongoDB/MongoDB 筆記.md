@@ -16,10 +16,10 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 	- [防火牆設定](#防火牆設定)
 - [安裝步驟 MacOS](#安裝步驟-macos)
 - [指令](#指令)
-- [指令 匯入匯出](#指令-匯入匯出)
+	- [匯入匯出](#匯入匯出)
 - [資料庫指令](#資料庫指令)
-- [資料庫指令 使用者](#資料庫指令-使用者)
-	- [mongodb 使用者許可權角色說明](#mongodb-使用者許可權角色說明)
+	- [資料庫指令 使用者](#資料庫指令-使用者)
+		- [mongodb 使用者許可權角色說明](#mongodb-使用者許可權角色說明)
 	- [連接字符串URI格式](#連接字符串uri格式)
 
 ## 參考資料
@@ -222,7 +222,7 @@ mongod --logpath
 mongod --logappend
 ```
 
-# 指令 匯入匯出
+## 匯入匯出
 
 ```bash
 # 匯出
@@ -268,6 +268,7 @@ show collections
 show users
 
 // 切換dbname, 注意大小寫, 用法跟MySql類似
+// 若不存在則創建db
 use dbname
 
 // 顯示集合
@@ -443,7 +444,7 @@ db.avdata_long_video.aggregate()
 db.products.remove( { qty: { $gt: 20 } } )
 ```
 
-# 資料庫指令 使用者
+## 資料庫指令 使用者
 
 ```JavaScript
 // 連線進mongodb 設定管理者帳密
@@ -486,7 +487,7 @@ db.dropUser("name")       //刪除使用者
 db.system.users.find()    //查詢使用者
 ```
 
-## mongodb 使用者許可權角色說明
+### mongodb 使用者許可權角色說明
 
 ```
 規則  說明

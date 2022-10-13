@@ -8,17 +8,21 @@
 - [MySQL 筆記](#mysql-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [使用者權限 參考資料](#使用者權限-參考資料)
-- [安裝步驟 CentOS7](#安裝步驟-centos7)
-	- [配置設定](#配置設定)
-- [安裝步驟 MacOS](#安裝步驟-macos)
+		- [使用者權限相關](#使用者權限相關)
+		- [指令相關](#指令相關)
+		- [安裝相關](#安裝相關)
+- [安裝步驟](#安裝步驟)
+	- [log 文檔](#log-文檔)
+	- [CentOS7](#centos7)
+		- [配置設定](#配置設定)
+	- [MacOS](#macos)
 - [指令](#指令)
-- [指令 匯出匯入](#指令-匯出匯入)
-	- [匯入資料庫](#匯入資料庫)
-- [log 文檔](#log-文檔)
-- [設定 文檔](#設定-文檔)
+	- [服務操作](#服務操作)
+	- [匯出匯入](#匯出匯入)
+		- [匯入資料庫](#匯入資料庫)
+- [配置文檔](#配置文檔)
 - [資料庫指令](#資料庫指令)
-- [資料庫指令 - 使用者](#資料庫指令---使用者)
+	- [資料庫指令 - 使用者](#資料庫指令---使用者)
 	- [密碼設定強度修改](#密碼設定強度修改)
 - [許可權 列表](#許可權-列表)
 - [MySQL docker-compose搭建mysql主從環境](#mysql-docker-compose搭建mysql主從環境)
@@ -30,8 +34,9 @@
 	- [mysql-slave server_id和read_only變數正確跳至第三步](#mysql-slave-server_id和read_only變數正確跳至第三步)
 	- [mysql-master 加入下列到 my.cnf](#mysql-master-加入下列到-mycnf)
 	- [3.備份mysql-master](#3備份mysql-master)
-- [MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
-- [MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
+- [例外狀況](#例外狀況)
+	- [MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
+	- [MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
 - [Docker Percona XtraBackup](#docker-percona-xtrabackup)
 
 ## 參考資料
@@ -46,7 +51,7 @@
 
 [MySQL 5.7版本 文檔](https://dev.mysql.com/doc/refman/5.7/en/)
 
-## 使用者權限 參考資料
+### 使用者權限相關
 
 [MySQL / MariaDB 移除使用者帳號及權限](https://ithelp.ithome.com.tw/articles/10235980)
 
@@ -58,17 +63,33 @@
 
 [6.2.2 Privileges Provided by MySQL](https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html#priv_all)
 
-# 安裝步驟 CentOS7
+### 指令相關
 
-[CENTOS 7 安裝mysql](https://kirby86a.pixnet.net/blog/post/118006518-centos-7-%E5%AE%89%E8%A3%9Dmysql)
-
-[在CentOS7上安裝MySQL5.7](https://dotblogs.com.tw/tinggg01/2018/07/06/153413)
+[mysqlimport](https://dev.mysql.com/doc/refman/8.0/en/mysqlimport.html)
 
 [mysql匯入匯出sql檔案](https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/38165/)
 
 [mysql匯入匯出sql檔案 - workbench操作步驟](https://blog.hungwin.com.tw/mysql-workbench-backup/#i-8)
 
+### 安裝相關
+
+[CENTOS 7 安裝mysql](https://kirby86a.pixnet.net/blog/post/118006518-centos-7-%E5%AE%89%E8%A3%9Dmysql)
+
+[在CentOS7上安裝MySQL5.7](https://dotblogs.com.tw/tinggg01/2018/07/06/153413)
+
 [Unknown table 'COLUMN_STATISTICS' in information_schema (1109)](https://serverfault.com/questions/912162/mysqldump-throws-unknown-table-column-statistics-in-information-schema-1109)
+
+
+# 安裝步驟
+
+## log 文檔
+
+```bash
+# CentOS 7
+cat /var/log/mysqld.log
+```
+
+## CentOS7
 
 ```bash
 # 安裝 wget
@@ -104,7 +125,7 @@ UPDATE mysql.user SET host = '%' WHERE user = 'root';
 FLUSH PRIVILEGES;
 ```
 
-## 配置設定
+### 配置設定
 
 ```bash
 # 修改預設port(需重啟)
@@ -138,7 +159,7 @@ firewall-cmd --zone=public --add-port=3306/tcp --permanent
 firewall-cmd --reload
 ```
 
-# 安裝步驟 MacOS
+## MacOS
 
 ```bash
 # 安裝 wget
@@ -168,6 +189,8 @@ brew uninstall mysql@5.7
 
 # 指令
 
+## 服務操作
+
 ```bash
 # 啟動服務
 systemctl start mysqld
@@ -190,13 +213,15 @@ systemctl disable mysqld
 # (start, stop, restart, try-restart, reload, force-reload, status)
 # 重新載入
 service mysqld reload
+
+# 登入MySQL
+mysql -u root -p (password)
 ```
 
-# 指令 匯出匯入
-
-1、匯出資料和表結構：
+## 匯出匯入
 
 ```bash
+`匯出資料和表結構`
 mysqldump -h source_MySQL_DB_instance_endpoint \
     -u user \
     -ppassword \
@@ -258,40 +283,35 @@ mysqldump -h 127.0.0.1 \
 # 	--port
 # 	連接MySQL服務器的用戶名。
 # 	--user -u
-```
 
-只匯出表結構
-
-```bash
+`只匯出表結構`
 mysqldump -u使用者名稱 -p密碼 -d 資料庫名 > 資料庫名.sql
 # 注：/usr/local/mysql/bin/  —>  mysql的data目錄
-```
 
-```bash
 # 備份資料庫
-mysql\bin\mysqldump -h(ip) -uroot -p(password) databasename> database.sql
+mysqldump -h(ip) -uroot -p(password) databasename> database.sql
 # 恢復資料庫
-mysql\bin\mysql -h(ip) -uroot -p(password) databasename< database.sql
+mysql -h(ip) -uroot -p(password) databasename< database.sql
 # 複製資料庫
-mysql\bin\mysqldump –all-databases >all-databases.sql
+mysqldump –all-databases >all-databases.sql
 # 修復資料庫
 mysqlcheck -A -o -uroot -p54safer
 
 # 文字資料匯入
 load data local infile \”檔名\” into table 表名;
-資料匯入匯出
-mysql\bin\mysqlimport database tables.txt
+
+# 資料匯入
+mysqlimport database tables.txt
 
 # mysql服務的啟動和停止
 net stop mysql
 net start mysql
 ```
 
-## 匯入資料庫
-
-方法一
+### 匯入資料庫
 
 ```bash
+`方法一`
 # 選擇資料庫
 mysql>use abc;
 
@@ -300,24 +320,13 @@ mysql>set names utf8;
 
 # 匯入資料（注意sql檔案的路徑）
 mysql>source /home/abc/abc.sql;
-```
 
-方法二
-
-```bash
+`方法二`
 # mysql -u使用者名稱 -p密碼 資料庫名 < 資料庫名.sql
 mysql -uabc_f -p abc < abc.sql
 ```
 
-# log 文檔
-
-```bash
-# CentOS 7
-cat /var/log/mysqld.log
-```
-
-
-# 設定 文檔
+# 配置文檔
 
 [mysql 優化技巧心得一(key_buffer_size設定)](https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/410436/)
 
@@ -427,11 +436,6 @@ query_cache_size=32M
 
 # 資料庫指令
 
-```bash
-# 登入MySQL
-mysql -u root -p (password)
-```
-
 ```sql
 -- 顯示資料庫
 show databases;
@@ -488,7 +492,7 @@ ALTER TABLE t2 MODIFY a TINYINT NOT NULL, CHANGE b cCHAR(20);
 ALTER TABLE t2 DROP COLUMN c;
 ```
 
-# 資料庫指令 - 使用者
+## 資料庫指令 - 使用者
 
 ```sql
 -- 查看預設密碼
@@ -818,7 +822,9 @@ FLUSH TABLES WITH READ LOCK;
 -- 檢查master是否lock
 ```
 
-# MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery
+# 例外狀況
+
+## MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery
 
 [MySQL崩潰-如何修復損壞的innodb：innodb_force_recovery](https://www.twblogs.net/a/5b8201762b71772165af295d)
 
@@ -832,7 +838,7 @@ InnoDB: Error: could not open single-table tablespace file ./data_dep/report.ibd
 innodb引擎出了問題
 ```
 
-# MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
+## MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
 
 [MySQL warning "IP address could not be resolved"](https://serverfault.com/questions/393862/mysql-warning-ip-address-could-not-be-resolved)
 
