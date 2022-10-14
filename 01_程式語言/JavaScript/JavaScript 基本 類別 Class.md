@@ -18,6 +18,9 @@
 	- [靜態方法(static method)](#靜態方法static-method)
 	- [取值器(getter)、設值器(setter)、和其他方法形式](#取值器getter設值器setter和其他方法形式)
 	- [公開、私有和靜態欄位](#公開私有和靜態欄位)
+	- [範例](#範例)
+- [子類別](#子類別)
+	- [使用extends和super衍生子類別](#使用extends和super衍生子類別)
 
 ## 參考資料
 
@@ -319,6 +322,117 @@ class Buffer {
       throw new TypeError(`Cannot parse Range from "${s}".`)
     }
     return new Range(parseInt(matches[1]), matches[2]);
+  }
+}
+```
+## 範例
+
+```JavaScript
+// 範例 一個複數類別
+/**
+ * 這個Complex類別的實體代表複數
+ * 一個複數就是一個實體(real number)與一個虛數(imaginary number)的和(sum)
+ * 而那個虛數i是-1的平方根(square root)
+ */
+class Complex {
+  constructor (real, imaginary) {
+    this.r = real; // 此欄位存放數字的實部
+    this.i = imaginary; // 此欄位存放數字的虛部
+  }
+
+  // 複數的加法
+  plus (that) {
+    return new Complex(this.r + that.r, this.i + that.i);
+  }
+
+  // 複數的乘法
+  times (that) {
+    return new Complex(this.r * that.r - this.i * that.i, this.r * that.i + this.i * that.r);
+  }
+
+  // 複數算數方法的靜態變體
+  static sum (c, d) { return c.plus(d); }
+  static product (c, d) { return c.times(d); }
+
+  // 定義取值器的實體方法
+  get real () { return this.r; }
+  get imaginary () { return this.i; }
+  get magnitude () { return Math.hypot(this.r, this.i); }
+
+  // 類別應該幾乎會有一個toString()方法
+  toString () { return `${this.r},${this.i}`; }
+
+  // 定義一個方法 測試類別的兩個實體
+  equals (that) {
+    return that instanceof Complex && this.r === that.r && this.i === that.i;
+  }
+
+  // 一旦類別主體內的靜態欄位受到支援
+  // 就能定義常數
+  // static ZERO = new Complex(0, 0);
+}
+
+// 存放預先定義的一些實用常數
+Complex.ZERO = new Complex(0, 0);
+Complex.ONE = new Complex(1, 0);
+Complex.I = new Complex(0, 1);
+
+// 新增方法至現有的類別
+Complex.prototype.conj = function () { return new Complex(this.r, -this.i); };
+
+// 使用類別範例
+let c = new Complex(2, 3);
+let d = new Complex(c.i, c.r);
+
+console.log(c.plus(d).toString());
+c.magnitude // 一個取值器函式
+Complex.product(c, d) // 靜態方法
+console.log(Complex.ZERO.toString())
+```
+
+# 子類別
+
+```
+class A 為 超類別(superclass)
+class B 為 子類別(subclass)
+class B extend(擴充) class A
+class A subclass(衍生) class B
+```
+
+## 使用extends和super衍生子類別
+
+```JavaScript
+// TypedMap.js 會檢查間值與值之型別的一個Map的子類別
+class TypedMap extends Map {
+  constructor (keyType, valueType, entries) {
+    if (entries) {
+      for (let [k, v] of entries) {
+        if (typeof k !== keyType || typeof v !== valueType) {
+          throw new TypeError(`Worng type for entry [${k}, ${v}]`);
+        }
+      }
+    }
+
+    // 以(經過型別檢查的)初始項目初始化超類別
+    super(entries);
+
+    // 藉由儲存型別來初始化這個子類別
+    this.keyType = keyType;
+    this.valueType = valueType;
+  }
+
+  // 重新定義set()
+  set (key, value) {
+    // 若鍵值或值的型別不對，就擲出一個錯誤
+    if (this.keyType && typeof key !== this.keyType) {
+      throw new TypeError(`${key} is not of type ${this.keyType}`);
+    }
+    if (this.valueType && typeof value !== this.valueType) {
+      throw new TypeError(`${value} is not of type ${this.valueType}`);
+    }
+
+    // 若型別正確 就用超類別版本的set()方法，以實際把項目新增到映射
+    return super.set(key, value);
   }
 }
 ```
