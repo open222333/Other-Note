@@ -3,9 +3,10 @@
 ## 目錄
 
 - [JavaScript 筆記](#javascript-筆記)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-- [應用範例 參考資料](#應用範例-參考資料)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [應用範例部分](#應用範例部分)
+		- [標準化工具](#標準化工具)
 - [Javascrapt 基本 語彙結構](#javascrapt-基本-語彙結構)
 - [Javascrapt 基本 運算子](#javascrapt-基本-運算子)
 - [Javascrapt 基本 述句(statements)](#javascrapt-基本-述句statements)
@@ -63,9 +64,7 @@ https://pjchender.dev/javascript/js-map/)
 剛開始學習JavaScript的時候，JSFiddle是很方便的線上工具，可以直接在線上編寫、執行和測試 JavaScript。
 ```
 
-[線上 格式化](https://beautifier.io/)
-
-# 應用範例 參考資料
+### 應用範例部分
 
 [【JAVASCRIPT】使用彈出視窗內的表單編輯DataTables源資料](https://www.796t.com/post/YjJkdnM=.html)
 
@@ -78,6 +77,12 @@ https://pjchender.dev/javascript/js-map/)
 [預設讓 checkbox 為勾選](https://hsuchihting.github.io/jQuery/20200612/3811422616/)
 
 [使用 jQuery的 $.Ajax() 技術和介接api吧](https://ithelp.ithome.com.tw/articles/10226692)
+
+### 標準化工具
+
+[ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+
+[js-beautify - 線上 格式化](https://beautifier.io/)
 
 # Javascrapt 基本 語彙結構
 

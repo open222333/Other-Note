@@ -5,10 +5,13 @@
 - [VSCode 筆記](#vscode-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [擴充套件相關](#擴充套件相關)
 	- [快捷鍵](#快捷鍵)
 - [C/C++ 設定 開發工具 常用擴充套件](#cc-設定-開發工具-常用擴充套件)
 - [Java 設定 開發工具 常用擴充套件](#java-設定-開發工具-常用擴充套件)
 - [Python 設定 開發工具 常用擴充套件](#python-設定-開發工具-常用擴充套件)
+- [JavaScript 設定 開發工具 常用擴充套件](#javascript-設定-開發工具-常用擴充套件)
+	- [【Quokka.js】即時顯示輸出值（JS限定）](#quokkajs即時顯示輸出值js限定)
 - [使用者設定的檔案](#使用者設定的檔案)
 - [實用外掛 Code Runner](#實用外掛-code-runner)
 - [實用外掛 Beautify](#實用外掛-beautify)
@@ -24,6 +27,10 @@
 ## 參考資料
 
 [官方網站](https://code.visualstudio.com/docs)
+
+### 擴充套件相關
+
+[[VS Code] 實用插件＆個人化設定](https://ithelp.ithome.com.tw/articles/10239034)
 
 ## 快捷鍵
 
@@ -87,6 +94,12 @@ source /usr/local/anaconda3/bin/activate
 [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter)
 
 [Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)
+
+# JavaScript 設定 開發工具 常用擴充套件
+
+## 【Quokka.js】即時顯示輸出值（JS限定）
+
+[Quokka.js](https://marketplace.visualstudio.com/items?itemName=WallabyJs.quokka-vscode)
 
 
 # 使用者設定的檔案
