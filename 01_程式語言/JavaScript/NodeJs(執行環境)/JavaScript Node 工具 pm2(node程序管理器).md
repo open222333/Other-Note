@@ -40,6 +40,8 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 
 ### 設定檔相關
 
+[配置文件](https://pm2.keymetrics.io/docs/usage/application-declaration/#yaml-format)
+
 [Configuration File - 設定檔設定app (pm2 ecosystem)](https://pm2.keymetrics.io/docs/usage/application-declaration/)
 
 [How to start pm2 with arguments?](https://stackoverflow.com/questions/46478448/how-to-start-pm2-with-arguments/46479329#46479329)
@@ -176,7 +178,6 @@ pm2 unstartup && pm2 startup && pm2 save
 ```
 
 # pm2 ecosystem(執行程式)
-
 
 ```bash
 # 產生範例 ecosystem file
