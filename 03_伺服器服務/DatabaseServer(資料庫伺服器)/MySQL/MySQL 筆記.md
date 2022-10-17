@@ -11,8 +11,9 @@
 		- [使用者權限相關](#使用者權限相關)
 		- [指令相關](#指令相關)
 		- [安裝相關](#安裝相關)
+		- [Master-Slave(主從環境)相關](#master-slave主從環境相關)
+		- [Percona XtraBackup(備份工具)相關](#percona-xtrabackup備份工具相關)
 - [安裝步驟](#安裝步驟)
-	- [log 文檔](#log-文檔)
 	- [CentOS7](#centos7)
 		- [配置設定](#配置設定)
 	- [MacOS](#macos)
@@ -21,11 +22,12 @@
 	- [匯出匯入](#匯出匯入)
 		- [匯入資料庫](#匯入資料庫)
 - [配置文檔](#配置文檔)
+	- [log文檔預設位置](#log文檔預設位置)
 - [資料庫指令](#資料庫指令)
 	- [資料庫指令 - 使用者](#資料庫指令---使用者)
 	- [密碼設定強度修改](#密碼設定強度修改)
 - [許可權 列表](#許可權-列表)
-- [MySQL docker-compose搭建mysql主從環境](#mysql-docker-compose搭建mysql主從環境)
+- [Master-Slave 主從架構](#master-slave-主從架構)
 	- [自行架設成功的步驟](#自行架設成功的步驟)
 	- [公司文檔 步驟](#公司文檔-步驟)
 	- [1.mysql-master設定](#1mysql-master設定)
@@ -37,7 +39,7 @@
 - [例外狀況](#例外狀況)
 	- [MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
 	- [MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
-- [Docker Percona XtraBackup](#docker-percona-xtrabackup)
+- [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
 
 ## 參考資料
 
@@ -79,15 +81,23 @@
 
 [Unknown table 'COLUMN_STATISTICS' in information_schema (1109)](https://serverfault.com/questions/912162/mysqldump-throws-unknown-table-column-statistics-in-information-schema-1109)
 
+### Master-Slave(主從環境)相關
+
+[MySQL Replication 主從式架構設定教學](https://blog.toright.com/posts/5062/mysql-replication-%E4%B8%BB%E5%BE%9E%E5%BC%8F%E6%9E%B6%E6%A7%8B%E8%A8%AD%E5%AE%9A%E6%95%99%E5%AD%B8.html)
+
+[docker-compose搭建mysql主從環境](https://www.uj5u.com/ruanti/275444.html)
+
+[docker-compose搭建mysql主從環境](https://hub.docker.com/r/bitnami/mysql)
+
+### Percona XtraBackup(備份工具)相關
+
+[Running Percona XtraBackup in a Docker container](https://www.percona.com/doc/percona-xtrabackup/2.4/installation/docker.html)
+
+[bitnami/percona-xtrabackup](https://hub.docker.com/r/bitnami/percona-xtrabackup/)
+
+[Xtrabackup介紹](https://www.itread01.com/content/1547450246.html)
 
 # 安裝步驟
-
-## log 文檔
-
-```bash
-# CentOS 7
-cat /var/log/mysqld.log
-```
 
 ## CentOS7
 
@@ -192,6 +202,9 @@ brew uninstall mysql@5.7
 ## 服務操作
 
 ```bash
+# 查看版本
+mysql -V
+
 # 啟動服務
 systemctl start mysqld
 
@@ -433,6 +446,12 @@ thread_cache_size=120
 query_cache_size=32M
 ```
 
+## log文檔預設位置
+
+```bash
+# CentOS 7
+cat /var/log/mysqld.log
+```
 
 # 資料庫指令
 
@@ -634,13 +653,7 @@ SUPER
 USAGE (無訪問許可權)
 ```
 
-# MySQL docker-compose搭建mysql主從環境
-
-[MySQL Replication 主從式架構設定教學](https://blog.toright.com/posts/5062/mysql-replication-%E4%B8%BB%E5%BE%9E%E5%BC%8F%E6%9E%B6%E6%A7%8B%E8%A8%AD%E5%AE%9A%E6%95%99%E5%AD%B8.html)
-
-[docker-compose搭建mysql主從環境](https://www.uj5u.com/ruanti/275444.html)
-
-[docker-compose搭建mysql主從環境](https://hub.docker.com/r/bitnami/mysql)
+# Master-Slave 主從架構
 
 ```
 MYSQL_REPLICATION_MODE: 複製模式。可能的值master/ slave。沒有默認值。
@@ -860,7 +873,13 @@ innodb引擎出了問題
     echo "192.241.xx.xx venus.example.com venus" >> /etc/hosts
 ```
 
-# Docker Percona XtraBackup
+# Percona XtraBackup(資料備份的工具)
+
+##
+
+```bash
+yum install percona-xtrabackup-24 -y
+```
 
 ```
 Xtrabackup是一個對InnoDB做資料備份的工具，支援線上熱備份(備份時不影響資料讀寫)，是商業備份工具InnoDB Hotbackup的一個很好的替代品。
@@ -886,8 +905,4 @@ Xtrabackup工具支援對InnoDB儲存引擎的增量備份，工作原理如下�
 因為logfile裡面記錄全部的資料修改情況，所以，即時在備份過程中資料檔案被修改過了，恢復時仍然能夠通過解析xtrabackup_logfile保持資料的一致。
 ```
 
-[Running Percona XtraBackup in a Docker container](https://www.percona.com/doc/percona-xtrabackup/2.4/installation/docker.html)
 
-[bitnami/percona-xtrabackup](https://hub.docker.com/r/bitnami/percona-xtrabackup/)
-
-[Xtrabackup介紹](https://www.itread01.com/content/1547450246.html)
