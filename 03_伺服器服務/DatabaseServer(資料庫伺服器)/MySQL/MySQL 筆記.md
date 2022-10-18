@@ -40,6 +40,9 @@
 	- [MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
 	- [MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
+	- [XtraBackup 操作指令](#xtrabackup-操作指令)
+		- [備份步驟](#備份步驟)
+		- [說明](#說明)
 
 ## 參考資料
 
@@ -509,6 +512,11 @@ ALTER TABLE t2 ADD c INT UNSIGNED NOT NULL AUTO_INCREMENT,ADDINDEX (c);
 ALTER TABLE t2 MODIFY a TINYINT NOT NULL, CHANGE b cCHAR(20);
 -- 刪除列
 ALTER TABLE t2 DROP COLUMN c;
+
+-- master全表鎖定只讀
+FLUSH TABLES WITH READ LOCK;
+--
+SHOW MASTER STATUS;
 ```
 
 ## 資料庫指令 - 使用者
@@ -875,11 +883,70 @@ innodb引擎出了問題
 
 # Percona XtraBackup(資料備份的工具)
 
-##
+## XtraBackup 操作指令
 
 ```bash
+# 安裝
 yum install percona-xtrabackup-24 -y
 ```
+
+### 備份步驟
+
+```bash
+###############
+### 來源主機 ###
+###############
+# master全表鎖定只讀 - mysql指令
+FLUSH TABLES WITH READ LOCK;
+
+# 檢查master是否lock - mysql指令
+# bin_log資料(紀錄file和position)
+SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |     2584 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+# {下方設定 $master bin_log filename} = mysql-bin.000001
+# {下方設定 $log position} = 2584
+
+# 備份(可先lock MySQL Table(表))
+xtrabackup --user={$username} --password={$password} --backup --target-dir={$xtrabackup_path}
+
+# 將/data目錄傳到mysql-slave機器
+rsync -Pr {$xtrabackup_path} root@{$slave ip}:{$xtrabackup_path}
+
+# 解開lock - mysql指令
+UNLOCK TABLES;
+
+###############
+### 目標主機 ###
+###############
+# 停止mysql
+service mysql stop
+
+# 備份mysql目錄
+cd /var/lib
+cp -r ./mysql ./mysql.bak
+
+# mysql目錄資料清空
+cd mysql
+rm -rf ./*
+
+# 準備備份
+xtrabackup --prepare --target-dir={$xtrabackup_path}
+
+# 恢復備份
+xtrabackup --copy-back --target-dir={$xtrabackup_path}
+
+# mysql目錄權限修改
+chown -R mysql.mysql /var/lib/mysql
+
+# 啟動mysql
+service mysql start
+```
+
+### 說明
 
 ```
 Xtrabackup是一個對InnoDB做資料備份的工具，支援線上熱備份(備份時不影響資料讀寫)，是商業備份工具InnoDB Hotbackup的一個很好的替代品。
@@ -904,5 +971,3 @@ Xtrabackup工具支援對InnoDB儲存引擎的增量備份，工作原理如下�
 
 因為logfile裡面記錄全部的資料修改情況，所以，即時在備份過程中資料檔案被修改過了，恢復時仍然能夠通過解析xtrabackup_logfile保持資料的一致。
 ```
-
-
