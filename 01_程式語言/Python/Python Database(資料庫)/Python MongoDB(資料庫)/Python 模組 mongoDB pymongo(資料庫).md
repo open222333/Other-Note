@@ -61,7 +61,7 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 
 ```bash
 # 安裝
-pip install sample
+pip install pymongo
 ```
 
 # 用法

@@ -1,4 +1,4 @@
-# Python 模組 BeautifulSoup-bs4(爬蟲)
+# Python 模組 fake_useragent(虛假user-agent)
 
 ```
 爬蟲程式偽裝成瀏覽器方法：加上標頭(headers)
@@ -14,7 +14,7 @@
 
 ## 目錄
 
-- [Python 模組 BeautifulSoup-bs4(爬蟲)](#python-模組-beautifulsoup-bs4爬蟲)
+- [Python 模組 fake_useragent(虛假user-agent)](#python-模組-fake_useragent虛假user-agent)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [指令](#指令)
