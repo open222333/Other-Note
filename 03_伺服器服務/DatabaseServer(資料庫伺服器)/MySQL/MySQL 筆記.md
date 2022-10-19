@@ -30,12 +30,12 @@
 - [Master-Slave 主從架構](#master-slave-主從架構)
 	- [自行架設成功的步驟](#自行架設成功的步驟)
 	- [公司文檔 步驟](#公司文檔-步驟)
-	- [1.mysql-master設定](#1mysql-master設定)
-	- [mysql-master server_id和log_bin變數正確跳至第一步-建立master-slave使用者](#mysql-master-server_id和log_bin變數正確跳至第一步-建立master-slave使用者)
-	- [2.mysql-slave設定](#2mysql-slave設定)
-	- [mysql-slave server_id和read_only變數正確跳至第三步](#mysql-slave-server_id和read_only變數正確跳至第三步)
-	- [mysql-master 加入下列到 my.cnf](#mysql-master-加入下列到-mycnf)
-	- [3.備份mysql-master](#3備份mysql-master)
+		- [1.mysql-master設定](#1mysql-master設定)
+		- [mysql-master server_id和log_bin變數正確跳至第一步-建立master-slave使用者](#mysql-master-server_id和log_bin變數正確跳至第一步-建立master-slave使用者)
+		- [2.mysql-slave設定](#2mysql-slave設定)
+		- [mysql-slave server_id和read_only變數正確跳至第三步](#mysql-slave-server_id和read_only變數正確跳至第三步)
+		- [mysql-master 加入下列到 my.cnf](#mysql-master-加入下列到-mycnf)
+		- [3.備份mysql-master](#3備份mysql-master)
 - [例外狀況](#例外狀況)
 	- [MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
 	- [MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
@@ -743,7 +743,7 @@ apt-get update
 apt-get install percona-xtrabackup-24 -y
 ```
 
-## 1.mysql-master設定
+### 1.mysql-master設定
 
 ```bash
 # 登入mysql
@@ -756,7 +756,7 @@ show variables like 'server_id%';
 show variables like  'log_bin%';
 ```
 
-## mysql-master server_id和log_bin變數正確跳至第一步-建立master-slave使用者
+### mysql-master server_id和log_bin變數正確跳至第一步-建立master-slave使用者
 
 ```bash
 # 停止mysql
@@ -792,7 +792,7 @@ GRANT REPLICATION SLAVE ON *.* TO 'replication'@'192.168%';
 select User, Host From mysql.user;
 ```
 
-## 2.mysql-slave設定
+### 2.mysql-slave設定
 
 ```bash
 # 登入mysql
@@ -805,14 +805,14 @@ show variables like 'server_id%';
 show variables like  'read_only%';
 ```
 
-## mysql-slave server_id和read_only變數正確跳至第三步
+### mysql-slave server_id和read_only變數正確跳至第三步
 
 ```bash
 # 停止mysql
 service mysql stop
 ```
 
-## mysql-master 加入下列到 my.cnf
+### mysql-master 加入下列到 my.cnf
 
 ```conf
 [mysqld]
@@ -834,7 +834,7 @@ show variables like 'server_id%';
 show variables like  'read_only%';
 ```
 
-## 3.備份mysql-master
+### 3.備份mysql-master
 
 ```sql
 -- master全表鎖定只讀
