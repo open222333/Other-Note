@@ -25,6 +25,9 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 - [Python 模組 mongoDB pymongo(資料庫)](#python-模組-mongodb-pymongo資料庫)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [查詢相關](#查詢相關)
+		- [指令相關](#指令相關)
+		- [教學相關](#教學相關)
 - [指令](#指令)
 - [用法](#用法)
 	- [Insert](#insert)
@@ -41,21 +44,27 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 
 [MongoDB CRUD Operations(各種程式使用的範例)](https://docs.mongodb.com/manual/crud/)
 
-[MongoDB 基礎入門教學：MongoDB Shell 篇](https://blog.gtwang.org/programming/getting-started-with-mongodb-shell-1/)
+[PyMongo 4.3.2 Documentation - 官方文檔](https://pymongo.readthedocs.io/en/stable/index.html)
+
+### 查詢相關
+
+[Python MongoDB Query](https://www.w3schools.com/python/python_mongodb_query.asp)
 
 [cursor– 迭代 MongoDB 查詢結果的工具](https://pymongo.readthedocs.io/en/stable/api/pymongo/cursor.html)
-
-[Python MongoDB](https://www.w3schools.com/python/python_mongodb_query.asp)
-
-[文檔](https://pymongo.readthedocs.io/en/stable/index.html)
-
-[Mongodb的使用方法&與python的互動](https://www.itread01.com/content/1541467390.html)
 
 [MongoDB 查詢資料邏輯運算子語法範例](https://matthung0807.blogspot.com/2019/08/mongodb_50.html)
 
 [MongoDB 查詢資料運算子(左邊列表可選類型)](https://docs.mongodb.com/manual/reference/operator/query/)
 
 [聚合aggregate](https://www.yangyanxing.com/article/aggregate_in_pymongo.html)
+
+### 指令相關
+
+[MongoDB 基礎入門教學：MongoDB Shell 篇](https://blog.gtwang.org/programming/getting-started-with-mongodb-shell-1/)
+
+### 教學相關
+
+[Mongodb的使用方法&與python的互動](https://www.itread01.com/content/1541467390.html)
 
 # 指令
 
