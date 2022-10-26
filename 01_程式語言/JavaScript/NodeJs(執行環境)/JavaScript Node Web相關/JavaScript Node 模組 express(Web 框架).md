@@ -9,6 +9,7 @@ Express 是一個和多種應用靈活的 node.js Web 框架，提供了各種�
 - [JavaScript Node 模組 express(Web 框架)](#javascript-node-模組-expressweb-框架)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [線上工具相關](#線上工具相關)
 - [指令](#指令)
 - [用法](#用法)
 
@@ -16,9 +17,19 @@ Express 是一個和多種應用靈活的 node.js Web 框架，提供了各種�
 
 [express npm 頁面](https://www.npmjs.com/package/express)
 
+[express-queue npm 頁面 (express 中間件 請求排隊)](https://www.npmjs.com/package/express-queue)
+
+[body-parser npm 頁面 (body解析中間件)](https://www.npmjs.com/package/body-parser#installation)
+
 [express 中文網站](https://expressjs.com/zh-tw/)
 
 [NodeJS HTTP 請求隊列](https://stackoverflow.com/questions/55192900/nodejs-http-request-queue)
+
+### 線上工具相關
+
+[轉換成程式碼](https://curlconverter.com/python/)
+
+[Online REST & SOAP API Testing Tool - 轉換成程式碼](https://reqbin.com/)
 
 # 指令
 
