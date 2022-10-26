@@ -1,5 +1,11 @@
 # WSGI & ASGI(Python 網站服務協議 規範) 筆記
 
+```
+WSGI(Web Server Gateway Interface) 是一種協議，或是叫做規範。
+
+ASGI
+```
+
 ## 目錄
 
 - [WSGI & ASGI(Python 網站服務協議 規範) 筆記](#wsgi--asgipython-網站服務協議-規範-筆記)
