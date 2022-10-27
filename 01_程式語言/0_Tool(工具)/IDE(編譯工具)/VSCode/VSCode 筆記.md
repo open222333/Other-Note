@@ -23,6 +23,7 @@
 	- [20220408](#20220408)
 	- [20220823](#20220823)
 	- [20221004](#20221004)
+	- [20221028](#20221028)
 
 ## 參考資料
 
@@ -1584,6 +1585,105 @@ MacOS: cmd + shift + p
 		},
 		// 各個檔案設定
 		"[django-html]": {
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true,
+		},
+		"[javascript]": {
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true,
+			// "js/ts.implicitProjectConfig.checkJs": true,
+		},
+		"[python]": {
+			"editor.insertSpaces": true,
+		},
+		"[json]": {
+			"editor.tabSize": 2,
+			"editor.insertSpaces": true,
+		},
+		"[markdown]": {
+			"editor.tabSize": 4,
+		},
+		"[nginx]": {
+			"editor.tabSize": 4,
+			"editor.insertSpaces": true,
+			"editor.detectIndentation": true,
+		},
+	}
+```
+
+## 20221028
+
+```json
+"settings": {
+		// 編輯區 設定
+		// "editor.tabSize": 4,
+		"editor.fontSize": 16,
+		"editor.insertSpaces": false,
+		"editor.detectIndentation": false,
+		"editor.suggestSelection": "first",
+		"editor.wordWrap": "on",
+		"editor.foldingImportsByDefault": true,
+		"editor.showFoldingControls": "always",
+		// 去除行尾空白
+		"files.trimTrailingWhitespace": true,
+		// 安全性
+		"security.workspace.trust.untrustedFiles": "open",
+		"diffEditor.wordWrap": "on",
+		"notebook.showFoldingControls": "always",
+		"notebook.cellToolbarLocation": {
+			"default": "right",
+			"jupyter-notebook": "left"
+		},
+		"workbench.editorAssociations": {
+			"*.ipynb": "jupyter-notebook"
+		},
+		// 終端機字體顏色
+		"workbench.colorCustomizations": {
+			"terminal.foreground": "#33ff00"
+		},
+		// 工作區
+		"terminal.integrated.enableMultiLinePasteWarning": false,
+		"terminal.integrated.fontSize": 16,
+		"terminal.integrated.defaultProfile.osx": "bash",
+		// 除錯設定
+		"debug.console.fontSize": 16,
+		// 檔案異動確認
+		"explorer.confirmDragAndDrop": false,
+		"explorer.confirmDelete": false,
+		// 自動儲存
+		"files.autoSave": "afterDelay",
+		// Python
+		"python.terminal.activateEnvironment": true,
+		"python.defaultInterpreterPath": "/usr/local/anaconda3/bin/",
+		"python.formatting.autopep8Args": [
+			"--max-line-length=180"
+		],
+		// Code Runner 設定
+		"code-runner.runInTerminal": true,
+		// 不顯示檔案
+		"files.exclude": {
+			".tmp.drivedownload": true,
+			".tmp.driveupload": true,
+			".vscode": true,
+			"**/.classpath": true,
+			"**/.project": true,
+			"**/.settings": true,
+			"**/.factorypath": true
+		},
+		"files.associations": {
+			"**/*.html": "html",
+			"**/templates/*/*.html": "django-html",
+			"**/templates/*": "django-txt",
+			"**/templates/*.html": "django-html",
+			"**/requirements{/**,*}.{txt,in}": "pip-requirements",
+			"*.yml": "dockercompose"
+		},
+		"emmet.includeLanguages": {
+			"django-html": "html"
+		},
+		// 各個檔案設定
+		"[django-html]": {
+			"editor.defaultFormatter": "junstyle.vscode-django-support",
 			"editor.tabSize": 2,
 			"editor.insertSpaces": true,
 		},
