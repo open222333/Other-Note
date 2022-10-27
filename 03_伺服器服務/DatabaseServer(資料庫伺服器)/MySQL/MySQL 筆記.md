@@ -257,8 +257,7 @@ mysqldump -h 127.0.0.1 \
     --routines \
     --triggers \
     --databases  avnight \
-    --compress  \
-    --port 3306
+    --compress
 
 # mysqldump -h hostname -u使用者名稱 -p密碼 資料庫名 > 資料庫名.sql
 # 	由於在 mysqldump 8 中默認啟用了一個新標誌。您可以通過添加 --column-statistics=0 來禁用它。
@@ -305,7 +304,7 @@ mysqldump -u使用者名稱 -p密碼 -d 資料庫名 > 資料庫名.sql
 # 注：/usr/local/mysql/bin/  —>  mysql的data目錄
 
 # 備份資料庫
-mysqldump -h(ip) -uroot -p(password) databasename> database.sql
+mysqldump -h(ip) -uroot -p(password) databasename table1 table2 > database.sql
 # 恢復資料庫
 mysql -h(ip) -uroot -p(password) databasename< database.sql
 # 複製資料庫
