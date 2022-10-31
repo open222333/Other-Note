@@ -12,8 +12,10 @@
 		- [憑證相關](#憑證相關)
 		- [設定檔相關](#設定檔相關)
 - [指令](#指令)
+	- [連線設定](#連線設定)
 	- [ssh指令](#ssh指令)
-- [ssh_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
+	- [scp指令 (傳遞檔案)](#scp指令-傳遞檔案)
+	- [ssh_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
 
 ## 參考資料
 
@@ -29,6 +31,8 @@
 
 [ssh(1) - Linux man page](https://linux.die.net/man/1/ssh)
 
+[scp(1) - Linux man page](https://linux.die.net/man/1/scp)
+
 ### 憑證相關
 
 [Certificate Decoder - 查看憑證資訊(日期)](https://www.sslshopper.com/certificate-decoder.html)
@@ -40,6 +44,8 @@
 [增進 SSH 使用效率 - ssh_config](https://chusiang.gitbooks.io/working-on-gnu-linux/content/20.ssh_config.html)
 
 # 指令
+
+## 連線設定
 
 ```bash
 ### 生成密鑰 ###
@@ -126,30 +132,7 @@ else
      start_agent;
 fi
 
-### 指令 scp 傳遞檔案 ###
 
-scp [帳號@來源主機]:來源檔案 [帳號@目的主機]:目的檔案
-
-# 複製目錄 -r 參數
-scp -r /path/folder1 myuser@192.168.0.1:/path/folder2
-
-# 保留檔案時間與權限 -p 參數
-scp -p /path/file1 myuser@192.168.0.1:/path/file2
-
-# 將資料壓縮之後再傳送，減少網路頻寬的使用量 -C 參數
-scp -C /path/file1 myuser@192.168.0.1:/path/file2
-
-# 限制傳輸速度 -l 指定可用的網路頻寬上限值（單位為 Kbit/s）：
-scp -l 400 /path/file1 myuser@192.168.0.1:/path/file2
-
-# 使用 2222 連接埠 -P
-scp -P 2222 /path/file1 myuser@192.168.0.1:/path/file2
-
-# 使用 IPv4 -4
-scp -4 /path/file1 myuser@192.168.0.1:/path/file2
-
-# 使用 IPv6 -6
-scp -6 /path/file1 myuser@192.168.0.1:/path/file2
 
 ### ssh 遠端設定 ###
 vim /etc/sshd/sshd_config
@@ -214,7 +197,35 @@ openssl x509 -in certificate.crt -text -noout
 ssh username@host_ip:port -L [bind_address:]port:host:hostport
 ```
 
-# ssh_config(紀錄主機連線資訊)
+## scp指令 (傳遞檔案)
+
+```bash
+### 指令 scp  ###
+scp [帳號@來源主機]:來源檔案 [帳號@目的主機]:目的檔案
+
+# 複製目錄 -r 參數
+scp -r /path/folder1 myuser@192.168.0.1:/path/folder2
+
+# 保留檔案時間與權限 -p 參數
+scp -p /path/file1 myuser@192.168.0.1:/path/file2
+
+# 將資料壓縮之後再傳送，減少網路頻寬的使用量 -C 參數
+scp -C /path/file1 myuser@192.168.0.1:/path/file2
+
+# 限制傳輸速度 -l 指定可用的網路頻寬上限值（單位為 Kbit/s）：
+scp -l 400 /path/file1 myuser@192.168.0.1:/path/file2
+
+# 使用 2222 連接埠 -P
+scp -P 2222 /path/file1 myuser@192.168.0.1:/path/file2
+
+# 使用 IPv4 -4
+scp -4 /path/file1 myuser@192.168.0.1:/path/file2
+
+# 使用 IPv6 -6
+scp -6 /path/file1 myuser@192.168.0.1:/path/file2
+```
+
+## ssh_config(紀錄主機連線資訊)
 
 ```bash
 # 編輯設定

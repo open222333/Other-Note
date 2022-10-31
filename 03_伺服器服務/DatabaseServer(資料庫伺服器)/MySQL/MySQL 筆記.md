@@ -39,6 +39,7 @@
 - [例外狀況](#例外狀況)
 	- [MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
 	- [MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
+	- [MySQL 除錯 - Table 'db.table' doesn't exist (1146)](#mysql-除錯---table-dbtable-doesnt-exist-1146)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
 	- [XtraBackup 操作指令](#xtrabackup-操作指令)
 		- [備份步驟](#備份步驟)
@@ -878,6 +879,13 @@ innodb引擎出了問題
     0.0.0.0 : 全都通過
 
     echo "192.241.xx.xx venus.example.com venus" >> /etc/hosts
+```
+
+## MySQL 除錯 - Table 'db.table' doesn't exist (1146)
+
+```sql
+-- 檢查原因
+mysql> check table db.table;
 ```
 
 # Percona XtraBackup(資料備份的工具)
