@@ -5,8 +5,12 @@
 - [Docker 筆記](#docker-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [安裝相關](#安裝相關)
+		- [配置相關](#配置相關)
+			- [log配置](#log配置)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [配置文檔](#配置文檔)
+	- [log配置](#log配置-1)
 - [指令 docker](#指令-docker)
 - [指令 docker-compose](#指令-docker-compose)
 - [指令 docker hub](#指令-docker-hub)
@@ -24,6 +28,9 @@
 	- [docker-compose.nginx_plus(centos)-php_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
 	- [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
 	- [連線 主機別名](#連線-主機別名)
+- [例外狀況](#例外狀況)
+	- [log造成硬碟沒有空間](#log造成硬碟沒有空間)
+		- [清理 Log Script](#清理-log-script)
 
 ## 參考資料
 
@@ -39,15 +46,21 @@
 
 [Enable IPv6 support](https://docs.docker.com/config/daemon/ipv6/)
 
-# 安裝步驟 CentOS7
-
-```
-Docker 安裝 Docker-compose 安裝
-```
+### 安裝相關
 
 [安裝官方文檔 右邊列表有其他系統的安裝步驟](https://docs.docker.com/engine/install/)
 
 [CentOS 安裝 Docker 官方文檔](https://docs.docker.com/engine/install/centos/)
+
+### 配置相關
+
+[Daemon configuration file](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file)
+
+#### log配置
+
+[Docker Container Log 文件限制](https://medium.com/%E7%A8%8B%E5%BC%8F%E8%A3%A1%E6%9C%89%E8%9F%B2/docker-container-log-%E6%96%87%E4%BB%B6%E9%99%90%E5%88%B6-1ab8559f1308)
+
+# 安裝步驟 CentOS7
 
 ```bash
 # 設置存儲庫
@@ -112,7 +125,39 @@ vim /etc/docker/daemon.json
 
 `/etc/docker/daemon.json`
 
-[Daemon configuration file](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file)
+## log配置
+
+Container Log 預設路徑如下：
+
+```
+/var/lib/docker/containers/<container-id>/<container-id>-json.log
+```
+
+```bash
+# 清除 log
+cat /dev/null > <container-id>-json.log
+
+# 清空 log
+cat /dev/null > *-json.log
+```
+
+```json
+// etc/docker/daemon.json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "50m",
+    "max-file": "3"
+  }
+}
+```
+
+```bash
+# 重新載入
+systemctl daemon-reload
+
+systemctl restart docker
+```
 
 # 指令 docker
 
@@ -913,4 +958,44 @@ services:
     image: postgres
     ports:
       - "8001:5432"
+```
+
+# 例外狀況
+
+## log造成硬碟沒有空間
+
+```
+Docker container 的 Log 會因為運作的時間愈長，檔案的 size 也會隨之愈大，這樣會導致機器的硬碟空間被 Log 佔據，所以可以限制 Log 文件的 size 大小以避免硬碟空間被塞爆
+```
+
+Container Log 預設路徑如下：
+
+```
+/var/lib/docker/containers/<container-id>/<container-id>-json.log
+```
+
+```bash
+# 清除 log
+cat /dev/null > <container-id>-json.log
+```
+
+### 清理 Log Script
+
+```bash
+path=/var/lib/docker/containers/
+echo ""
+echo "========== Clean Docker Containers Log =========="
+echo "Path: "$path
+cd $path
+for file in $(ls)
+do
+    if [ -d $file ];then
+        echo $file"-json.log"
+        cat /dev/null > $file/$file-json.log
+      else
+        echo 0
+    fi
+done
+echo "========== Clean Docker Containers Log =========="
+echo ""
 ```

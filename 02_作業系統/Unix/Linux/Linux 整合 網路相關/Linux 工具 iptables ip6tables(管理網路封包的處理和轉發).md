@@ -272,6 +272,9 @@ IPv6
 ```bash
 # 重啟後生效
 service iptables restart
+
+# 沒裝 iptables.services 有可能要用另一種指令 reload
+reload iptables
 ```
 
 ## IPv6部分
