@@ -459,12 +459,6 @@ cat /var/log/mysqld.log
 # 資料庫指令
 
 ```sql
--- 顯示資料庫
-show databases;
-
--- 創建
-create database [數據庫名];
-
 -- 連線
 mysql -h主機地址 -P端口 -u使用者名稱 －p使用者密碼 （注:u與root可以不用加空格，其它也一樣）
 -- 斷開
@@ -485,7 +479,7 @@ show tables;
 describe 表名;
 
 -- 建立庫
-create database 庫名;
+create database [數據庫名];
 -- 刪除庫
 drop database 庫名;
 -- 使用庫
