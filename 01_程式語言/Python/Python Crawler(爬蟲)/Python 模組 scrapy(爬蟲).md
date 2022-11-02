@@ -34,6 +34,8 @@
 - [指令](#指令)
 	- [設定檔相關](#設定檔相關)
 - [用法](#用法)
+- [splash 伺服器](#splash-伺服器)
+	- [docker-compose方法](#docker-compose方法)
 - [zyte ScrapyHub](#zyte-scrapyhub)
 	- [參考資料](#參考資料-1)
 - [指令 zyte](#指令-zyte)
@@ -102,8 +104,31 @@ scrapy runspider 檔案名.py
 # 不遵守 robot協議
 ROBOTSTXT_OBEY = False
 
+### SPLASH 伺服器
 # docker 寫法可用
 SPLASH_URL = "http://splash:8050"
+# SPLASH_URL = 'http://127.0.0.1:8050'
+SPLASH_URL = os.environ.get('SPLASH_URL')
+
+# MONGODB_HOST = '127.0.0.1:27017'
+MONGODB_HOST = os.environ.get('DATABASE_URL')
+
+SPIDER_MIDDLEWARES = {
+    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+}
+
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 400,
+    'scrapy_splash.SplashCookiesMiddleware': 723,
+    'scrapy_splash.SplashMiddleware': 725,
+    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+}
+
+ITEM_PIPELINES = {
+    'scrapy_crawler.pipelines.ScrapyCrawlerPipeline': 300,
+    # 'scrapy_crawler.pipelines.xxxoopzPipeline': 300,
+    # 'scrapy_crawler.pipelines.oilypornPipeline': 300,
+}
 ```
 
 ```bash
@@ -442,6 +467,20 @@ class CustomProxyMiddleware(object):
     def process_request(self, request, spider):
         request.meta['proxy'] = "http://192.168.1.1:8050"
         request.headers['Proxy-Authorization'] = basic_auth_header('proxy_user', 'proxy_pass')
+```
+
+# splash 伺服器
+
+## docker-compose方法
+
+```yml
+version: '3'
+services:
+  scrapy:
+    container_name: scrapy
+    image: scrapinghub/splash
+    ports:
+      - 8050:8050
 ```
 
 # zyte ScrapyHub
