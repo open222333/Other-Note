@@ -33,6 +33,9 @@ netstat -tulpn
 
 netstat -tulpn | grep LISTEN
 
+# MacOS
+netstat -anv | grep LISTEN
+
 # 基本查看 All + Numeric
 netstat -antp
 

@@ -273,6 +273,8 @@ IPv6
 # 重啟後生效
 service iptables restart
 
+systemctl restart iptables.service
+
 # 沒裝 iptables.services 有可能要用另一種指令 reload
 reload iptables
 ```
