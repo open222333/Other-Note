@@ -142,7 +142,7 @@ cat /dev/null > *-json.log
 ```
 
 ```json
-// etc/docker/daemon.json
+// /etc/docker/daemon.json
 {
   "log-driver": "json-file",
   "log-opts": {
@@ -975,8 +975,12 @@ Container Log 預設路徑如下：
 ```
 
 ```bash
+# 需進入到/var/lib/docker/containers/<container-id>後執行
 # 清除 log
 cat /dev/null > <container-id>-json.log
+
+# 清空 log
+cat /dev/null > *-json.log
 ```
 
 ### 清理 Log Script

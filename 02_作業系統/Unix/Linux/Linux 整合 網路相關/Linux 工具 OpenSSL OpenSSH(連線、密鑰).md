@@ -194,7 +194,35 @@ openssl x509 -in certificate.crt -text -noout
 
 ```bash
 # -L 指定將本地（客戶端）主機上的給定端口轉發到遠程端的給定主機和端口
-ssh username@host_ip:port -L [bind_address:]port:host:hostport
+ssh username@host_ip:port -fN -L [bind_address:]port:host:hostport
+	-1：強制使用ssh協議版本1
+	-2：強制使用ssh協議版本2
+	-4：強制使用IPv4地址
+	-6：強制使用IPv6地址
+	-A：開啟認證代理連接轉發功能
+	-a：關閉認證代理連接轉發功能
+	-b：使用本機指定地址作為對應連接的源ip地址
+	-C：請求壓縮所有數據
+	-c：選擇所加密的密碼型式（blowfish|3des 預設是3des）
+	-e：設定跳脫字符
+	-F：指定ssh指令的配置文件
+	-f：後台執行ssh指令
+	-g：允許遠程主機連接主機的轉發端口
+	-i：指定身份文件（預設是在使用者的家目錄中的.ssh/identity）
+	-l：指定連接遠程服務器登錄用戶名
+	-N：不執行遠程指令
+	-n：重定向stdin 到/dev/null
+	-o：指定配置選項
+	-p：指定遠程服務器上的端口（默認22）
+	-P：使用非特定的port 去對外聯機（注意這個選項會關掉RhostsAuthentication 和RhostsRSAAuthentication）
+	-q：靜默模式
+	-T：禁止分配偽終端
+	-t：強製配置pseudo-tty
+	-v：打印更詳細信息
+	-X：開啟X11轉發功能
+	-x：關閉X11轉發功能
+	-y：開啟信任X11轉發功能
+	-L listen-port:host:port 指派本地的port 到達端機器地址上的port
 ```
 
 ## scp指令 (傳遞檔案)
