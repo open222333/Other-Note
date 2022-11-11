@@ -159,9 +159,18 @@ pm2 logs $id(指定程序)
 		指定輸出格式 format
 	--json
 		指定輸出格式 json
+# 顯示日誌
+pm2 logs appName|appId --lines=100
+# 顯示錯誤日誌
+pm2 logs appName|appId --err --lines=100
 
-# 清空 log
+# 特定應用程序的空日誌
+pm2 flush appName|appId
+# 清空所有日誌文件
 pm2 flush
+
+# 重新加載所有日誌
+pm2 reloadLogs
 
 # 產生開機 script
 pm2 startup
