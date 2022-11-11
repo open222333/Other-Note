@@ -67,6 +67,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [安裝步驟 CentOS7](#安裝步驟-centos7-1)
 - [例外狀況](#例外狀況)
 	- [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit)
+	- [Validation Failed: 1: this action would add [5] shards, but this cluster currently has [5000]/[5000] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
 
 ## 參考資料
 
@@ -2140,3 +2141,16 @@ curl -X PUT "localhost:9200/_cluster/settings?pretty" -H 'Content-Type: applicat
 }
 '
 ```
+
+## Validation Failed: 1: this action would add [5] shards, but this cluster currently has [5000]/[5000] maximum normal shards open;
+
+```
+提高分片上限
+
+yml設置無效果 需使用api
+```
+
+```bash
+curl -X PUT localhost:9200/_cluster/settings -H "Content-Type: application/json" -d '{ "persistent": { "cluster.max_shards_per_node": "30000" } }'
+```
+

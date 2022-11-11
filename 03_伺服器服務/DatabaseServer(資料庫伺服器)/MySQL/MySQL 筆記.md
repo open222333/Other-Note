@@ -42,7 +42,7 @@
 	- [MySQL 除錯 - Table 'db.table' doesn't exist (1146)](#mysql-除錯---table-dbtable-doesnt-exist-1146)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
 	- [XtraBackup 操作指令](#xtrabackup-操作指令)
-		- [備份步驟](#備份步驟)
+		- [備份(即時備份)步驟](#備份即時備份步驟)
 		- [說明](#說明)
 
 ## 參考資料
@@ -891,7 +891,7 @@ mysql> check table db.table;
 yum install percona-xtrabackup-24 -y
 ```
 
-### 備份步驟
+### 備份(即時備份)步驟
 
 ```bash
 ###############
