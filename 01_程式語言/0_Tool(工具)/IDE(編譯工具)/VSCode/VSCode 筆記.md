@@ -1690,6 +1690,7 @@ MacOS: cmd + shift + p
 		"[javascript]": {
 			"editor.tabSize": 2,
 			"editor.insertSpaces": true,
+			"editor.defaultFormatter": "esbenp.prettier-vscode",
 			// "js/ts.implicitProjectConfig.checkJs": true,
 		},
 		"[python]": {
