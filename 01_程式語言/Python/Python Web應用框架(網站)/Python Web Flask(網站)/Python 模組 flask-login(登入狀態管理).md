@@ -1,11 +1,11 @@
-# Python 模組 flask-login(登入狀態管理)
+# Python 模組 Flask-Login(登入狀態管理)
 
 ```
 ```
 
 ## 目錄
 
-- [Python 模組 flask-login(登入狀態管理)](#python-模組-flask-login登入狀態管理)
+- [Python 模組 Flask-Login(登入狀態管理)](#python-模組-flask-login登入狀態管理)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [指令](#指令)
@@ -19,7 +19,7 @@
 
 ```bash
 # 安裝
-pip install flask-login
+pip install Flask-Login
 ```
 
 # 用法

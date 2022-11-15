@@ -1,11 +1,11 @@
-# Python 模組 flask(網站框架)
+# Python 模組 Flask(網站框架)
 
 ```
 ```
 
 ## 目錄
 
-- [Python 模組 flask(網站框架)](#python-模組-flask網站框架)
+- [Python 模組 Flask(網站框架)](#python-模組-flask網站框架)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 		- [通知相關](#通知相關)
@@ -45,6 +45,7 @@
 		- [避免 CSRF 攻擊](#避免-csrf-攻擊)
 			- [方法一. CSRF token](#方法一-csrf-token)
 			- [方法二. SameSite cookie](#方法二-samesite-cookie)
+	- [變量與請求](#變量與請求)
 
 ## 參考資料
 
@@ -90,7 +91,6 @@
 
 [Nginx+gunicorn+flask+docker演算法部署](https://www.796t.com/article.php?id=102596)
 
-
 ### nginx(WSGI伺服器)相關
 
 [Dockerizing Flask with Postgres, Gunicorn, and Nginx](https://testdriven.io/blog/dockerizing-flask-with-postgres-gunicorn-and-nginx/)
@@ -126,6 +126,8 @@
 [Flask-Session](https://flask-session.readthedocs.io/en/latest/) <- `可查看Session參數 細節`
 
 [【Flask教學系列】實作 Flask Session-base login 登入驗證](https://www.maxlist.xyz/2020/05/24/flask-session-base-login/)
+
+[Python Flask_變量與請求](https://hackmd.io/@shaoeChen/rJnJWaq1z?type=view)
 
 ### CSRF相關
 
@@ -750,4 +752,60 @@ def setcookie():
     resp = make_response('Setting cookie!')
     resp.set_cookie(key='framework', value='flask', expires=time.time()+6*60, secure=False, httponly=False, samesite=None)
     return resp
+```
+
+## 變量與請求
+
+```
+如果有多個before_request的時候，只要中間有執行return的部份，後續就不再被執行。
+
+before_first_request
+註冊一個函數，在處理第一個請求之前執行
+before_request
+註冊一個函數，在每次請求之前執行
+after_request
+註冊一個函數，如果沒有未處理的異常拋出，在每次請求之後執行
+teardown_request
+註冊一個函數，如果有未處理的異常拋出，在每次請求之後執行
+```
+
+```Python
+from flask import Flask, g, request
+
+app = Flask(__name__)
+
+
+@app.before_request
+def before_request():
+    print('before request started')
+    print(request.url)
+
+@app.before_request
+def before_request2():
+    print('before request started 2')
+    print(request.url)
+    g.name = "Test request"
+
+
+@app.after_request
+def after_request(response):
+    print('after request finished')
+    print(request.url)
+    response.headers['key'] = 'value'
+    return response
+
+
+@app.teardown_request
+def teardown_request(exception):
+    print('teardown request')
+    print(request.url)
+
+
+@app.route('/abc')
+def index():
+    return 'Hello, %s!' % g.name
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
 ```

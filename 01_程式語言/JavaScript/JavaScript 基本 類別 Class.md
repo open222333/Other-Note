@@ -22,6 +22,7 @@
 - [子類別](#子類別)
 	- [使用extends和super衍生子類別](#使用extends和super衍生子類別)
 	- [委任(Delegation)而非繼承](#委任delegation而非繼承)
+	- [類別階層架構(Class Hierarchies)與抽象類別(Abstract Classes)](#類別階層架構class-hierarchies與抽象類別abstract-classes)
 
 ## 參考資料
 
@@ -490,4 +491,9 @@ class Histogram {
   values () { return this.map.values(); }
   entries () { return this.addmap.entries(); }
 }
+```
+
+## 類別階層架構(Class Hierarchies)與抽象類別(Abstract Classes)
+
+```JavaScript
 ```
