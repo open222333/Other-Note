@@ -50,6 +50,10 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 
 [Python MongoDB Query](https://www.w3schools.com/python/python_mongodb_query.asp)
 
+[Query Documents](https://www.mongodb.com/docs/manual/tutorial/query-documents/)
+
+[Query for Null or Missing Fields](https://www.mongodb.com/docs/manual/tutorial/query-for-null-fields/#std-label-faq-developers-query-for-nulls)
+
 [cursor– 迭代 MongoDB 查詢結果的工具](https://pymongo.readthedocs.io/en/stable/api/pymongo/cursor.html)
 
 [MongoDB 查詢資料邏輯運算子語法範例](https://matthung0807.blogspot.com/2019/08/mongodb_50.html)
@@ -116,6 +120,9 @@ cursor = db.inventory.find({"status": "D"})
 cursor = db.inventory.find({"status": {"$in": ["A", "D"]}})
 
 cursor = db.inventory.find({"status": "A", "qty": {"$lt": 30}})
+
+# 查詢不包含字段的文檔
+cursor = db.inventory.find({"item": {"$exists": False}})
 ```
 
 ## Update
