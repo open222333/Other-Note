@@ -8,10 +8,12 @@
 		- [安裝相關](#安裝相關)
 		- [配置相關](#配置相關)
 			- [log配置](#log配置)
+		- [網路相關](#網路相關)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [配置文檔](#配置文檔)
 	- [log配置](#log配置-1)
 - [指令 docker](#指令-docker)
+	- [指令 網路相關](#指令-網路相關)
 - [指令 docker-compose](#指令-docker-compose)
 - [指令 docker hub](#指令-docker-hub)
 - [範例 Dockerfile](#範例-dockerfile)
@@ -59,6 +61,10 @@
 #### log配置
 
 [Docker Container Log 文件限制](https://medium.com/%E7%A8%8B%E5%BC%8F%E8%A3%A1%E6%9C%89%E8%9F%B2/docker-container-log-%E6%96%87%E4%BB%B6%E9%99%90%E5%88%B6-1ab8559f1308)
+
+### 網路相關
+
+[Docker 网络模式详解及容器间网络通信](https://cloud.tencent.com/developer/news/687189)
 
 # 安裝步驟 CentOS7
 
@@ -228,7 +234,11 @@ docker exec [OPTIONS] [Container ID] [執行指令]
 docker exec -ti [Container ID] bash
 	-i, --interactive 互動模式
 	-t, --tty         配置一個終端機
+```
 
+## 指令 網路相關
+
+```bash
 # 將容器連接到網絡
 docker network connect
 
@@ -523,23 +533,20 @@ services:
     image: elasticsearch:7.13.3
     container_name: elasticsearch
     privileged: true
-	# 安裝 ik分詞器 需根據elasticsearch版本替換版本號
-	command: bash -c "cd /usr/local/dockercompose/elasticsearch/plugins && elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip"
+	command: bash -c "cd /usr/local/dockercompose/elasticsearch/plugins && elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip" # 安裝 ik分詞器 需根據elasticsearch版本替換版本號
     environment:
       - "cluster.name=elasticsearch" # 設置集群名稱為elasticsearch
       - "discovery.type=single-node" # 以單一節點模式啟動
       - "ES_JAVA_OPTS=-Xms512m -Xmx2g" # 設置使用jvm內存大小
       - bootstrap.memory_lock=true # 關閉 swap
     volumes:
-    #   - ./es/plugins:/usr/local/dockercompose/elasticsearch/plugins
 	  - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
       - ./es/data:/usr/local/dockercompose/elasticsearch/data:rw # 數據文件掛載
       - ./es/logs:/usr/local/dockercompose/elasticsearch/logs:rw
     ports:
       - 9200:9200
       - 9300:9300
-	# 限制物理資源
-    deploy:
+    deploy: # 限制物理資源
       resources:
         limits:
           cpus: "2"
