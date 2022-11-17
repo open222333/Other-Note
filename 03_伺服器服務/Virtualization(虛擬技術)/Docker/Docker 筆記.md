@@ -480,16 +480,16 @@ networks:
 networks:
   app-network:
     driver: bridge
-    	# 官方說明
-    	# https://docs.docker.com/network/
+        # 官方說明
+        # https://docs.docker.com/network/
 
-    	# bridge:默認網絡驅動程序。橋接網絡。
-    	host: Docker主機網路。
+        # bridge:默認網絡驅動程序。橋接網絡。
+        host: Docker主機網路。
 
-    		# 錯誤 解決方案
-    		Docker ERROR: only one instance of "host" network is allowed
-    		https://stackoverflow.com/questions/63777655/docker-error-only-one-instance-of-host-network-is-allowed
-    		network_mode: host
+        # # 錯誤 解決方案
+        # Docker ERROR: only one instance of "host" network is allowed
+        # https://stackoverflow.com/questions/63777655/docker-error-only-one-instance-of-host-network-is-allowed
+        # network_mode: host
 
 # 使用預先存在的網絡
 # 如果希望容器加入預先存在的網絡，請使用以下external選項：
@@ -533,14 +533,14 @@ services:
     image: elasticsearch:7.13.3
     container_name: elasticsearch
     privileged: true
-	command: bash -c "cd /usr/local/dockercompose/elasticsearch/plugins && elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip" # 安裝 ik分詞器 需根據elasticsearch版本替換版本號
+    command: bash -c "cd /usr/local/dockercompose/elasticsearch/plugins && elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip" # 安裝 ik分詞器 需根據elasticsearch版本替換版本號
     environment:
       - "cluster.name=elasticsearch" # 設置集群名稱為elasticsearch
       - "discovery.type=single-node" # 以單一節點模式啟動
       - "ES_JAVA_OPTS=-Xms512m -Xmx2g" # 設置使用jvm內存大小
       - bootstrap.memory_lock=true # 關閉 swap
     volumes:
-	  - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
+      - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
       - ./es/data:/usr/local/dockercompose/elasticsearch/data:rw # 數據文件掛載
       - ./es/logs:/usr/local/dockercompose/elasticsearch/logs:rw
     ports:
