@@ -10,6 +10,7 @@
 	- [參考資料](#參考資料)
 - [指令](#指令)
 - [用法](#用法)
+	- [提取資訊](#提取資訊)
 
 ## 參考資料
 
@@ -26,5 +27,18 @@ pip install yt-dlp
 
 # 用法
 
+## 提取資訊
+
 ```Python
+import json
+import yt_dlp
+
+'''取得 youtube影片資訊'''
+
+URL = 'https://www.youtube.com/watch?v=BaW_jenozKc'
+
+ydl_opts = {}
+with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    info = ydl.extract_info(URL, download=False)
+    print(json.dumps(ydl.sanitize_info(info)))
 ```
