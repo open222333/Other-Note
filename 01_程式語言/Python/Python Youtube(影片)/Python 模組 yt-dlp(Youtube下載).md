@@ -8,6 +8,7 @@
 - [Python 模組 yt-dlp(Youtube下載)](#python-模組-yt-dlpyoutube下載)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [範例相關](#範例相關)
 - [指令](#指令)
 - [用法](#用法)
 	- [提取資訊](#提取資訊)
@@ -20,6 +21,10 @@
 [yt-dlp Github - 文檔位置](https://github.com/yt-dlp/yt-dlp)
 
 [yt-dlp YoutubeDL 選項](https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/YoutubeDL.py#L180)
+
+### 範例相關
+
+[YT-DLP download range not working for youtube links](https://stackoverflow.com/questions/73921240/yt-dlp-download-range-not-working-for-youtube-links)
 
 # 指令
 
