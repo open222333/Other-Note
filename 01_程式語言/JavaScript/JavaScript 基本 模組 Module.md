@@ -6,13 +6,15 @@
 ## 目錄
 
 - [JavaScript 基本 模組 Module](#javascript-基本-模組-module)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
 - [使用類別、物件和Closures的模組](#使用類別物件和closures的模組)
 - [Node中的模組](#node中的模組)
-  - [Node的匯出](#node的匯出)
-  - [Node的匯入](#node的匯入)
-  - [Web上的Node式模組](#web上的node式模組)
+	- [Node的匯出](#node的匯出)
+	- [Node的匯入](#node的匯入)
+	- [Web上的Node式模組](#web上的node式模組)
+- [ES6中的模組](#es6中的模組)
+	- [ES6的匯出](#es6的匯出)
 
 ## 參考資料
 
@@ -145,4 +147,11 @@ let sd = stddev(data);
 若以捆裝工具(例如:webpack)處理程式碼，可把此模組用於Web瀏覽器中執行的程式碼。
 
 但現在JavaScript有標準模組語法，使用
+```
+
+# ES6中的模組
+
+## ES6的匯出
+
+```
 ```

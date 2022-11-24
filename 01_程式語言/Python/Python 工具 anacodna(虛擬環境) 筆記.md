@@ -67,6 +67,15 @@ conda create --name myenv python=3.5
 #建立備份檔案.yaml
 conda env export
 
+# 使用檔案 安裝 套件
+conda install --yes --file requirements.txt
+
+# 如果requirements.txt中的包不可用，則會拋出“無包錯誤”
+while read requirement; do conda install --yes $requirement; done < requirements.txt
+
+# 在conda命令無效時使用pip命令來代替
+while read requirement; do conda install --yes $requirement || pip install $requirement; done < requirements.txt
+
 # 匯入/匯出環境
 conda env export > environment.yaml
 conda env create -f environment.yaml
