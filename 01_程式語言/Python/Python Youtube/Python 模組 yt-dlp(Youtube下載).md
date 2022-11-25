@@ -57,19 +57,34 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 from yt_dlp import YoutubeDL
 
 
-def download_youtube(urls, start_time:int=None, end_time:int=None):
+def download_youtube(urls, dir_path, temp_path=None, username=None, password=None, start_time:int = 0, end_time:int = None):
     '''下載 youtube影片 以及 圖片
 
     YoutubeDL選項
     https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/YoutubeDL.py
+
+	dir_path: 輸出資料夾
+	temp_path: 下載時，暫存資料夾
+	start_time: 開始時間
+	end_time: 結束時間
+	username: 登入帳號
+	password: 登入密碼
     '''
+	if not temp_path:
+		temp_path = dir_path
+
     params = {
-        'username': YT_USERNAME,
-        'password': YT_PASSWORD,
+        'username': username,
+        'password': password,
         'writethumbnail': True,
         # home 輸出路徑 temp 暫存路徑
-        'paths': {'home': YT_DIR, 'temp': YT_DIR}
+        'paths': {'home': dir_path, 'temp': temp_path},
+		'outtmpl': '%(id)s.%(ext)s'
     }
+
+	# 只抓片段
+	if end_time:
+		params['download_ranges'] = download_range_func(None, [(start_time, end_time)])
 
     with YoutubeDL(params=params) as ydl:
         ydl.download(urls)
