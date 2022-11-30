@@ -18,6 +18,10 @@
 - [型別](#型別)
 	- [字串](#字串)
 		- [字串前 u (Unicode) u"String"](#字串前-u-unicode-ustring)
+	- [串列(list)](#串列list)
+		- [常用方法](#常用方法)
+	- [字典(dict)](#字典dict)
+	- [元組(tuple)](#元組tuple)
 - [關鍵字](#關鍵字)
 	- [yield](#yield)
 - [函式](#函式)
@@ -182,6 +186,56 @@ print len(text) # 顯示 4
 text = u'測試'
 print type(text) # 顯示 <type 'unicode'>
 print len(text)  # 顯示 2
+```
+
+## 串列(list)
+
+### 常用方法
+
+```Python
+# 取得串列元素數目	n=len(list1)	n=6
+n = len(list1)
+
+# 取得元素最小值	n=min(list1)	n=1
+n = min(list1)
+
+# 取得元素最大值	n=max(list1)	n=6
+n = max(list1)
+
+# 第1次n1元素的索引值	n=list1.index(3)	n=2
+n = list1.index(n1)
+
+# n1元素出現的次數	n=list1.count(3)	n=1
+n = list1.count(n1)
+
+# 將n1作為元素加在串列最後	list1.append(8)	list1=[1,2,3,4,5,6,8]
+list1.append(n1)
+
+# 將x中元素逐一做為元素加在串列最後	list1.extend(x)	list1=[1,2,3,4,5,6,8,9]
+list1.extend(x)
+
+# 在位置n加入n1元素	list1.insert(3,8)	list1=[1,2,3,8,4,5,6]
+list1.insert(n, n1)
+
+# 取出最後元素並移除	n=list1.pop()	n=6,list1=[1,2,3,4,5]
+n = list1.pop()
+
+# 移除第1次的n1元素	list1.remove(3)	list1=[1,2,4,5,6]
+list1.remove(n1)
+
+# 反轉串列順序	list1.reverse()	list1=[6,5,4,3,2,1]
+list1.reverse()
+
+# 將串列由小排到大	list1.sort()	list1=[1,2,3,4,5,6]
+list1.sort()
+```
+
+## 字典(dict)
+
+## 元組(tuple)
+
+```
+元組（tuple）與列表（list）類似，不同之處在於元組的元素不能修改。
 ```
 
 # 關鍵字
