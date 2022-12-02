@@ -11,13 +11,16 @@
 	- [參考資料](#參考資料)
 - [指令](#指令)
 - [用法](#用法)
-	- [API](#api)
+	- [通用翻譯](#通用翻譯)
+	- [偵測語系](#偵測語系)
 
 ## 參考資料
 
 [baidu pypi](https://pypi.org/project/baidu/)
 
 [通用翻译API接入文档](https://fanyi-api.baidu.com/doc/21)
+
+[语种识别API接入文档](https://api.fanyi.baidu.com/doc/24)
 
 # 指令
 
@@ -28,18 +31,25 @@ pip install baidu
 
 # 用法
 
-## API
+## 通用翻譯
 
 ```Python
-def translate(q , print_msg=False, source_code='auto', target_code='zh'):
-	'''
-	q: 翻譯目標
-	'''
-    appid = '11111111111111111'
-    secretKey = 'esfsfesfsfsfsfsfsfsfsffsf'
+from urllib.parse import urlencode
+
+
+def baidu_translate(q, appid, secretKey, print_msg=False, source_code='auto', target_code='zh'):
+    '''百度翻譯
+
+    q: 翻譯目標
+    appid: 百度翻譯平台提供
+    secretKey: 百度翻譯平台提供
+    print_msg: 是否印出訊息
+    source_code: 來源字詞的語言 代碼
+    target_code: 預計翻譯成的語言 代碼
+    '''
     result = None
     salt = random.randint(32768, 65536)
-    sign = f'{appid}{q}{str(salt)}{secretKey}'
+    sign = appid+q+str(salt)+secretKey
     m1 = hashlib.md5()
     m1.update(sign.encode(encoding='utf-8'))
     sign = m1.hexdigest()
@@ -51,7 +61,8 @@ def translate(q , print_msg=False, source_code='auto', target_code='zh'):
         'salt':str(salt),
         'sign':sign
     }
-    url = 'https://fanyi-api.baidu.com/api/trans/vip/translate?' + urllib.parse.urlencode(params)
+    url = f'https://fanyi-api.baidu.com/api/trans/vip/translate?{urlencode(params)}'
+    # print('url = '+url)
     http = urllib3.PoolManager()
     try:
         r = http.request('GET',url,timeout=3.0)
@@ -70,4 +81,10 @@ def translate(q , print_msg=False, source_code='auto', target_code='zh'):
         print(f'翻譯目標：\n{q}\n')
         print(f'翻譯結果：\n{result}\n')
     return result
+```
+
+## 偵測語系
+
+```Python
+
 ```
