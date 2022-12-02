@@ -5,9 +5,12 @@
 - [Python 工具 pip(安裝模組)](#python-工具-pip安裝模組)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [狀況相關](#狀況相關)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [指令](#指令)
-- [無法連線pypi](#無法連線pypi)
+- [狀況](#狀況)
+	- [無法連線pypi](#無法連線pypi)
+	- [錯誤訊息 It is a distutils installed project](#錯誤訊息-it-is-a-distutils-installed-project)
 
 ## 參考資料
 
@@ -22,6 +25,10 @@
 [pip freeze](https://pip.pypa.io/en/stable/cli/pip_freeze/)
 
 [所有指令](https://pip.pypa.io/en/stable/cli/)
+
+### 狀況相關
+
+[pip cannot uninstall <package>: "It is a distutils installed project"](https://stackoverflow.com/questions/53807511/pip-cannot-uninstall-package-it-is-a-distutils-installed-project)
 
 # 安裝步驟 CentOS7
 
@@ -80,6 +87,34 @@ whereis pip
 where pip
 ```
 
-# 無法連線pypi
+# 狀況
+
+## 無法連線pypi
 
 [Python pip离线安装package方法总结（以TensorFlow为例）](https://imshuai.com/python-pip-install-package-offline-tensorflow?fbclid=IwAR3PzgsWlO36VkWjDr0UafrpuiyqL7l3D10XEK4lffQgllroZswA4DG4sfs)
+
+## 錯誤訊息 It is a distutils installed project
+
+```
+Most probably, you have installed this package via your OS' package manager, so you need to use that rather than pip to update or remove it, too.
+
+
+
+已使用其他套管理工具下載過
+
+使用 --ignore-installed 選項可能遇到風險
+It may work (potentially for a long enough time for your business needs), but may just as well break things on the system in unpredictable ways. One thing is sure: it makes the system's configuration unsupported and thus unmaintainable -- because you have essentially overwritten files from your distribution with some other arbitrary stuff. E.g.:
+
+	If the new files are binary incompatible with the old ones, other software from the distribution built to link against the originals will segfault or otherwise malfunction.
+
+	If the new version has a different set of files, you'll end up with a mix of old and new files which may break dependent software as well as the package itself.
+
+	If you change the package with your OS' package manager later, it will overwrite pip-installed files, with similarly unpredictable results.
+
+	If there are things like configuration files, differences in them between the versions can also lead to all sorts of breakage.
+```
+
+```bash
+
+pip install --ignore-installed [package]
+```
