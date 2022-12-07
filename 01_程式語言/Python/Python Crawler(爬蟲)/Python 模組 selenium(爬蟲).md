@@ -18,6 +18,8 @@
 - [Python 模組 selenium(爬蟲)](#python-模組-selenium爬蟲)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [範例相關](#範例相關)
+		- [下載器相關](#下載器相關)
 - [指令](#指令)
 - [用法](#用法)
 
@@ -27,7 +29,19 @@
 
 [官方網站](https://www.selenium.dev/)
 
+[官方文檔 API](https://www.selenium.dev/selenium/docs/api/py/api.html)
+
 [官方文檔](https://www.selenium.dev/documentation/)
+
+[selenium-python 文檔](https://selenium-python.readthedocs.io/api.html#selenium.webdriver.remote.webelement.WebElement.value_of_css_property)
+
+### 範例相關
+
+[Selenium firefox headless](https://pythonbasics.org/selenium-firefox-headless/)
+
+[[Day 12] 動態爬蟲 - 4](https://ithelp.ithome.com.tw/articles/10243628)
+
+### 下載器相關
 
 [webdriver下載](https://www.selenium.dev/documentation/webdriver/capabilities/)
 
