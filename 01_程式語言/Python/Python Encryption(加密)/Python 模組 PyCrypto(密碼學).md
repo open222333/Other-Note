@@ -1,11 +1,11 @@
-# Python 模組 PyCrypto(密碼學)
+# Python 模組 PyCrypto(加密演算法)
 
 ```
 ```
 
 ## 目錄
 
-- [Python 模組 PyCrypto(密碼學)](#python-模組-pycrypto密碼學)
+- [Python 模組 PyCrypto(加密演算法)](#python-模組-pycrypto加密演算法)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [指令](#指令)
