@@ -20,6 +20,7 @@ tar代表未壓縮的tar檔案。
 - [Linux 工具 tar(副檔名tar 壓縮工具)](#linux-工具-tar副檔名tar-壓縮工具)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [範例相關](#範例相關)
 - [指令](#指令)
 
 ## 參考資料
@@ -29,6 +30,10 @@ tar代表未壓縮的tar檔案。
 [tar wiki](https://zh.wikipedia.org/zh-tw/Tar)
 
 [GNU Tar 官方網站](https://www.gnu.org/software/tar/)
+
+### 範例相關
+
+[[Linux] .tar .tar.gz 常用壓縮打包指令 (打包、壓縮、解壓縮)](https://richarlin.tw/blog/linux-tar/)
 
 # 指令
 
@@ -54,17 +59,25 @@ tar 功能 選項 檔案
 	# -z，--gzip，--gunzip，--ungzip 呼叫gzip執行壓縮或解壓縮
 	# -Z，--compress，--uncompress 呼叫compress執行壓縮或解壓縮
 
-# 將/home目錄下的所有檔案打包入home_backup.tar檔案中
-tar -cvf home_backup.tar /home
-
 # 列出home_backup.tar檔案里已被打包的檔案
 tar -tf home_backup.tar
 
+# 存取 tar 格式的套件名稱為「tar」，此格式僅進行打包，並沒有使用壓縮。
+# 解壓縮
+tar -xvf File.tar
+# 指定解壓出test.c這個檔案。 解壓過程中會自動建立home這個子目錄。
+tar -xvf home_backup.tar home/test.c
 # 在當前目錄下解壓home_back.tar
 tar -xvf home_backup.tar
 
-# 指定解壓出test.c這個檔案。
-# 解壓過程中會自動建立home這個子目錄。
-tar -xvf home_backup.tar home/test.c
+# 打包(無壓縮)
+tar -cvf File.tar DirName
+# 將/home目錄下的所有檔案打包入home_backup.tar檔案中
+tar -cvf home_backup.tar /home
 
+# 存取 .tar.gz 格式的套件為「gzip」，此格式會進行打包並且壓縮。
+# 解壓縮
+tar -zxvf File.tar.gz
+# 壓縮
+tar -zcvf File.tar.gz DirName
 ```
