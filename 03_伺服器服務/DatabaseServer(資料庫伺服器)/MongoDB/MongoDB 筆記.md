@@ -11,12 +11,18 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 - [MongoDB 筆記](#mongodb-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [安裝相關](#安裝相關)
+		- [查詢相關](#查詢相關)
+		- [操作相關](#操作相關)
+		- [備份腳本相關](#備份腳本相關)
+		- [例外相關](#例外相關)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 	- [配置檔案設定](#配置檔案設定)
 	- [防火牆設定](#防火牆設定)
 - [安裝步驟 MacOS](#安裝步驟-macos)
 - [指令](#指令)
 	- [匯入匯出](#匯入匯出)
+	- [備份腳本](#備份腳本)
 - [資料庫指令](#資料庫指令)
 	- [資料庫指令 使用者](#資料庫指令-使用者)
 		- [mongodb 使用者許可權角色說明](#mongodb-使用者許可權角色說明)
@@ -24,33 +30,51 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 
 ## 參考資料
 
+[mongodb 官網](https://www.mongodb.com/home)
+
+[mongodb 手冊](https://www.mongodb.com/docs/manual/)
+
+[mongodb 下載地址](https://www.mongodb.com/download-center#community)
+
+### 安裝相關
+
 [centos安裝](https://iter01.com/156322.html)
-
-[中文文檔](https://www.docs4dev.com/docs/zh/mongodb/v3.6/reference/reference-program-mongorestore.html)
-
-[MongoDB CRUD Operations(各種程式使用的範例)](https://docs.mongodb.com/manual/crud/)
-
-[Mondb 邏輯運算子](https://www.mongodb.com/docs/manual/reference/operator/query/)
-
-[mongodb下載地址](https://www.mongodb.com/download-center#community)
-
-[mongodb 正則表達式](https://www.mongodb.com/docs/manual/reference/operator/query/regex/)
-
-[{ 欄位: { 運算子: 條件 } }](https://www.uj5u.com/shujuku/12759.html)
-
-[MongoDB 查詢資料邏輯運算子語法範例](https://matthung0807.blogspot.com/2019/08/mongodb_50.html)
-
-[mongodb - 聚合管道抛出错误 "A pipeline stage specification object must contain exactly one field."](https://www.coder.work/article/39368)
 
 [Install MongoDB 5.0 on CentOS 8/7 & RHEL 8/7](https://computingforgeeks.com/how-to-install-mongodb-on-centos-rhel-linux/)
 
-[mongod 資料庫指令 manpage](https://docs.mongodb.com/manual/reference/program/mongod/)
+### 查詢相關
 
-[mongodump reference page(文檔)](https://docs.mongodb.com/database-tools/mongodump/#mongodb-binary-bin.mongodump)
+[Mondb 邏輯運算子](https://www.mongodb.com/docs/manual/reference/operator/query/)
 
-[mongorestore reference page(文檔)](https://docs.mongodb.com/database-tools/mongorestore/#mongodb-binary-bin.mongorestore)
+[MongoDB 查詢資料邏輯運算子語法範例](https://matthung0807.blogspot.com/2019/08/mongodb_50.html)
+
+[mongodb 正則表達式](https://www.mongodb.com/docs/manual/reference/operator/query/regex/)
+
+[mongodb高級聚合查詢 - { 欄位: { 運算子: 條件 } }](https://www.uj5u.com/shujuku/12759.html)
+
+### 操作相關
+
+[MongoDB CRUD Operations(各種程式使用的範例 選擇操作右上角選擇程式語言) - 增刪查改，增加、刪除、查詢、改正](https://docs.mongodb.com/manual/crud/)
 
 [db.createUser() - 創建使用者](https://www.mongodb.com/docs/manual/reference/method/db.createUser/)
+
+[mongod 資料庫指令 manpage](https://docs.mongodb.com/manual/reference/program/mongod/)
+
+[Connection String URI Format - 連線資料庫字串格式](https://www.mongodb.com/docs/manual/reference/connection-string/)
+
+[mongodump reference page(文檔) - 匯出](https://docs.mongodb.com/database-tools/mongodump/#mongodb-binary-bin.mongodump)
+
+[mongorestore reference page(文檔) - 匯入](https://docs.mongodb.com/database-tools/mongorestore/#mongodb-binary-bin.mongorestore)
+
+[mongorestore - 匯入 中文文檔](https://www.docs4dev.com/docs/zh/mongodb/v3.6/reference/reference-program-mongorestore.html)
+
+### 備份腳本相關
+
+[Linux下shell脚本实现mongodb定时自动备份](https://www.cnblogs.com/Sungeek/p/11904825.html)
+
+### 例外相關
+
+[mongodb - 聚合管道抛出错误 "A pipeline stage specification object must contain exactly one field."](https://www.coder.work/article/39368)
 
 # 安裝步驟 CentOS7
 
@@ -245,6 +269,40 @@ mongorestore $path
     # <path>:設置備份數據所在位置，例如：c:\data\dump\test。
 	# dump檔匯入
 	--archive=mongo.dump
+```
+
+## 備份腳本
+
+```shell
+# mongodump命令路徑
+DUMP=/usr/local/mongodb/bin/mongodump
+# tar備份包臨時備份目錄,這個tar包最好定時傳到本地存儲做備份
+OUT_DIR=/data/backup/mongo/mongodb_bak_tmp
+# 完整備份目錄路徑
+TAR_DIR=/data/backup/mongo/mongodb_bak_path
+# 獲取當前系統時間
+DATE=$(date +%Y_%m_%d_%H_%M)
+# mongo帳號
+DB_USER=root
+# mongo密碼
+DB_PASS=123456
+# 刪除15天前的備份，即只保留近15天的備份
+DAYS=15
+# 最終保存的備份文件
+TAR_BAK="mongodb_bak_$DATE.tar.gz"
+
+cd $OUT_DIR
+#rm -rf $OUT_DIR/*
+mkdir -p $OUT_DIR/$DATE
+# 備份全部數據
+$DUMP -h 127.0.0.1:3717 -u $DB_USER -p $DB_PASS --authenticationDatabase "admin" -o $OUT_DIR/$DATE
+# 壓縮為.tar.gz格式
+tar -zcvf $TAR_DIR/$TAR_BAK $OUT_DIR/$DATE
+# 刪除15天前的備份文件
+find $TAR_DIR/ -mtime +$DAYS -delete
+# 刪除tar備份包10天前的備份文件
+find $OUT_DIR/ -mtime +10 -name "*.tar.gz" -exec rm -rf {} \;
+exit
 ```
 
 # 資料庫指令
@@ -523,8 +581,6 @@ dbAdminAnyDatabase
 ```
 
 ## 連接字符串URI格式
-
-[Connection String URI Format](https://www.mongodb.com/docs/manual/reference/connection-string/)
 
 ```
 mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
