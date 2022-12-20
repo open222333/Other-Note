@@ -1,4 +1,4 @@
-# JavaScript 物件 RegExp(正則表達式)
+# JavaScript 內建-物件 RegExp(正則表達式)
 
 ```
 正規表達式是被用來匹配字串中字元組合的模式。
@@ -7,7 +7,7 @@
 
 ## 目錄
 
-- [JavaScript 物件 RegExp(正則表達式)](#javascript-物件-regexp正則表達式)
+- [JavaScript 內建-物件 RegExp(正則表達式)](#javascript-內建-物件-regexp正則表達式)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 		- [驗證除錯工具相關](#驗證除錯工具相關)
@@ -15,6 +15,8 @@
 - [pattern](#pattern)
 
 ## 參考資料
+
+[RegExp MDN Web Doc](https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Reference/Global_Objects/RegExp)
 
 [正規表達式](https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Regular_Expressions)
 
