@@ -15,6 +15,11 @@
 	- [Web上的Node式模組](#web上的node式模組)
 - [ES6中的模組](#es6中的模組)
 	- [ES6的匯出](#es6的匯出)
+	- [ES6的匯入](#es6的匯入)
+	- [重新匯出](#重新匯出)
+- [Web上的ES6模組](#web上的es6模組)
+	- [使用import()的動態載入](#使用import的動態載入)
+	- [import.meta.url](#importmetaurl)
 
 ## 參考資料
 
@@ -154,4 +159,184 @@ let sd = stddev(data);
 ## ES6的匯出
 
 ```
+ES6模組匯出 在宣告前面加上關鍵字 export
+
+若不想讓export關鍵字四散
+以普通的方式定義常數、變數、函式、類別，通常在結尾寫單一個export述句
+```
+
+```JavaScript
+// ES6的匯出
+export const PI = Math.PI;
+export function degreesToRadians(d) {
+  return (d * PI) / 180;
+}
+
+export class Circle {
+  constructor(r) {
+    this.r = r;
+  }
+  area() {
+    return PI * this.r * this.r;
+  }
+}
+```
+
+```JavaScript
+// 若不想讓export關鍵字四散
+// 以普通的方式定義常數、變數、函式、類別，通常在結尾寫單一個export述句
+const PI = Math.PI;
+function degreesToRadians(d) {
+  return (d * PI) / 180;
+}
+
+class Circle {
+  constructor(r) {
+    this.r = r;
+  }
+  area() {
+    return PI * this.r * this.r;
+  }
+}
+
+// 此匯出語法 只是要求要有放在區括號內的一個以逗號區隔開來的識別字串列
+export { Circle, degreesToRadians, PI };
+```
+
+```JavaScript
+// 預設匯出
+// 只匯出一個值(通常是函式或類別)，通常使用 export default
+// 不同於export語法，若看到 export default 後面接{}，會直接匯出物件字面值
+
+// 模組有普通匯出也有一組預設匯出是合法的，但不常見。
+// 一個模組只能有一個預設匯出
+
+export default class BitSet {
+	// 實作省略
+}
+
+// 匯出更名, 此{}非物件字面值。
+export {
+	layout as calculateLayout,
+	render as renderLayout
+};
+```
+
+## ES6的匯入
+
+```
+以 import 關鍵字 匯入其它模組所匯出的值。
+以 from 關鍵字 接字串字面值，指出要匯入的模組名稱，所指定的模組的預設匯出值會變成目前模組中所指定的那個識別字的值。
+
+Web瀏覽器中，字串字面值會被解讀成URL
+Node中，字串字面值會被解讀為當前模組的一個檔案名稱
+
+模組指定值需以絕對路徑或相對路徑或是完整的URL
+```
+
+```JavaScript
+import BitSet from './bitset.js';
+
+// 匯入多個值
+import { mean, stddev } from "./stats.js";
+
+// 匯入所有東西，會創造一個物件並指定給stats的常數，非預設匯出會成為物件的特性。
+import * as stats from "./stats.js";
+
+// 同時用到 export 以及 export default, 同時匯入 模組的預設 以及 具名匯出,(不常見的)。
+import Histogram, { mean, stddev } from "./histogram-stats.js";
+
+// 引用完全沒有匯出的模組。單純使用import關鍵字以及模組指定符
+import "./analytics.js";
+
+// 兩個模組使用相同名稱
+import { render as renderImage } from "./imageutils.js";
+import { render as renderUI } from "./ui.js";
+
+// 同時匯入 模組的預設 以及 具名匯出 的另一種方式
+import { default as Histogram, mean, stddev } from "./histogram-stats.js";
+```
+
+## 重新匯出
+
+```
+假設
+./stats/mean.js 內定義 mean()
+./stats/stddev.js 內定義 stddev()
+建立一個 ./stats.js 使其能以一行程式碼將兩者都匯入
+```
+
+```JavaScript
+import { mean } from "./stats/mean.js";
+import { stddev } from "./stats/stddev.js";
+export { mean, stddev };
+
+// ES6 重新匯出
+export { mean } from "./stats/mean.js";
+export { stddev } from "./stats/stddev.js";
+
+// 可使用通配符(wildcard), 匯出所有具名值
+export * from "./stats/mean.js";
+export * from "./stats/stddev.js";
+
+// 使用as重新命名
+export { mean, mean as average } from "./stats/mean.js";
+export { stddev } from "./stats/stddev.js";
+
+// 以export default定義
+export { default as mean } from "./stats/mean.js";
+export { default as stddev } from "./stats/stddev.js";
+
+// 若re-export另一個模組的一個具名符號作為模組的預設匯出
+// 可先import再接著一次export default 或 下方述句
+export { mean as default } from "./stats.js";
+```
+
+# Web上的ES6模組
+
+```
+Web瀏覽器需支援 type="module"
+```
+
+```html
+<!-- 使用 <script type="module"> 定義模組化js進入點 -->
+<script type="module">import "./main.js";</script>
+```
+
+## 使用import()的動態載入
+
+```JavaScript
+// 靜態匯入
+import * as stats from "./stats.js";
+
+// 動態匯入
+import("./stats.js").then(stats => {
+	let average = stats.mean(data);
+})
+
+// 動態匯入 async函式
+async analyzeData(data) {
+	let stats = await import("./stats.js");
+	return {
+		average: stats.mean(data),
+		stddev: stats.stddev(data);
+	}
+}
+```
+
+## import.meta.url
+
+```
+能夠參考儲存在與該模組相同目錄(或相對於該目錄的地方)中的影像、資料檔案或其他資源。
+URL()建構器 依據一個絕對URL解析一個相對URL。
+```
+
+```JavaScript
+/**
+ * 例子：
+ * 假設模組需本地化的字串，而這些本地化檔案(loaclization files)儲存在一個l10n/目錄中，而其所在目錄與模組相同
+*/
+function loaclStringsURL(locale) {
+	return new URL(`l10/${locale}.json`, import.meta.url);
+}
 ```
