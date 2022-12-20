@@ -13,7 +13,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 ## 目錄
 
-- [Elasticsearch(搜尋引擎) & Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
+- [Elasticsearch(搜尋引擎) \& Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 		- [設定檔相關](#設定檔相關)
@@ -23,7 +23,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [集群相關](#集群相關)
 		- [分詞器相關](#分詞器相關)
 		- [映射(mappings)相關](#映射mappings相關)
-		- [_score評分相關](#_score評分相關)
+		- [\_score評分相關](#_score評分相關)
 		- [索引模板(index template)相關](#索引模板index-template相關)
 		- [資料類型(data type)相關](#資料類型data-type相關)
 - [觀念](#觀念)
@@ -36,7 +36,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 			- [Ingest Node](#ingest-node)
 			- [Machine Learning Node](#machine-learning-node)
 			- [Transform Node](#transform-node)
-		- [Shard & Cluster 的故障轉移](#shard--cluster-的故障轉移)
+		- [Shard \& Cluster 的故障轉移](#shard--cluster-的故障轉移)
 			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
 			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
 - [指令 API](#指令-api)
@@ -67,7 +67,8 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 		- [安裝步驟 CentOS7](#安裝步驟-centos7-1)
 - [例外狀況](#例外狀況)
 	- [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit)
-	- [Validation Failed: 1: this action would add [5] shards, but this cluster currently has [5000]/[5000] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
+	- [Validation Failed: 1: this action would add \[5\] shards, but this cluster currently has \[5000\]/\[5000\] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
+	- [kibana 發生 search\_phase\_execution\_exception 錯誤](#kibana-發生-search_phase_execution_exception-錯誤)
 
 ## 參考資料
 
@@ -2154,3 +2155,8 @@ yml設置無效果 需使用api
 curl -X PUT localhost:9200/_cluster/settings -H "Content-Type: application/json" -d '{ "persistent": { "cluster.max_shards_per_node": "30000" } }'
 ```
 
+## kibana 發生 search_phase_execution_exception 錯誤
+
+```bash
+curl -X DELETE http://localhost:9200/.kibana*
+```
