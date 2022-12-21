@@ -27,6 +27,8 @@ tar代表未壓縮的tar檔案。
 
 [tar(1) - Linux man page](https://linux.die.net/man/1/tar)
 
+[tar(1) — Linux manual page](https://man7.org/linux/man-pages/man1/tar.1.html)
+
 [tar wiki](https://zh.wikipedia.org/zh-tw/Tar)
 
 [GNU Tar 官方網站](https://www.gnu.org/software/tar/)
@@ -74,6 +76,13 @@ tar -xvf home_backup.tar
 tar -cvf File.tar DirName
 # 將/home目錄下的所有檔案打包入home_backup.tar檔案中
 tar -cvf home_backup.tar /home
+
+# #注意：-C 與文件夾之間沒有空格，文件夾與文件中間有空格)
+# 將 /root/sysin/ 下面的所有文件打包，不要包含 sysin 目錄
+tar -zcvf sysin.tgz -C/root/sysin/ *
+
+# 將 /opt/sysin/a.log 文件打包到當前同目錄下，不要帶路徑，即解壓後只有 a.log 單個文件。
+tar -zcvf /opt/sysin/a.tar.gz -C/opt/sysin/ a.log
 
 # 存取 .tar.gz 格式的套件為「gzip」，此格式會進行打包並且壓縮。
 # 解壓縮
