@@ -11,11 +11,13 @@
 		- [指令相關](#指令相關)
 		- [憑證相關](#憑證相關)
 		- [設定檔相關](#設定檔相關)
+		- [深入學習相關](#深入學習相關)
 - [指令](#指令)
 	- [連線設定](#連線設定)
 	- [ssh指令](#ssh指令)
 	- [scp指令 (傳遞檔案)](#scp指令-傳遞檔案)
-	- [ssh_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
+		- [rsync 與 scp 區別](#rsync-與-scp-區別)
+	- [ssh\_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
 
 ## 參考資料
 
@@ -42,6 +44,10 @@
 [ssh_config— OpenSSH 客戶端配置文件](https://man.openbsd.org/OpenBSD-current/man5/ssh_config.5)
 
 [增進 SSH 使用效率 - ssh_config](https://chusiang.gitbooks.io/working-on-gnu-linux/content/20.ssh_config.html)
+
+### 深入學習相關
+
+[How does `scp` differ from `rsync`? - `scp` 與 `rsync` 有何不同？](https://stackoverflow.com/questions/20244585/how-does-scp-differ-from-rsync)
 
 # 指令
 
@@ -251,6 +257,18 @@ scp -4 /path/file1 myuser@192.168.0.1:/path/file2
 
 # 使用 IPv6 -6
 scp -6 /path/file1 myuser@192.168.0.1:/path/file2
+```
+
+### rsync 與 scp 區別
+
+```
+主要區別在於它們複製文件的方式。
+
+scp基本上讀取源文件並將其寫入目標。它在本地或通過網絡執行簡單的線性複制。
+
+rsync還可以在本地或通過網絡複製文件。但它採用特殊的增量傳輸算法和一些優化來使操作更快。考慮通話。
+
+rsync有大量的命令行選項，允許用戶微調其行為。它支持複雜的過濾規則，以批處理模式、守護模式等方式運行，scp只有幾個開關。
 ```
 
 ## ssh_config(紀錄主機連線資訊)

@@ -8,13 +8,19 @@
 - [Linux 工具 rsync(同步鏡像備份)](#linux-工具-rsync同步鏡像備份)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [深入學習相關](#深入學習相關)
 - [指令](#指令)
+- [rsync 與 scp 區別](#rsync-與-scp-區別)
 
 ## 參考資料
 
 [rsync(1) - Linux man page](https://linux.die.net/man/1/rsync)
 
 [以 rsync 進行同步鏡像備份 - 鳥哥](https://linux.vbird.org/linux_server/centos6/0310telnetssh.php#rsync)
+
+### 深入學習相關
+
+[How does `scp` differ from `rsync`? - `scp` 與 `rsync` 有何不同？](https://stackoverflow.com/questions/20244585/how-does-scp-differ-from-rsync)
 
 # 指令
 
@@ -38,7 +44,7 @@ rsync [-avrlptgoD] [-e ssh] [user@host:/dir] [/local/path]
 
 
 # 利用 student 的身份登入 clientlinux.centos.vbird 將家目錄複製到本機 /tmp
-rsync -av -e ssh student@192.168.100.10:~ /tmp
+rsync v student@192.168.100.10:~ /tmp
 
 # 排除特定文件/目錄的複制
 # 使用rysnc命令複製文件或文件夾，請使用–exclude標誌
@@ -47,4 +53,16 @@ sent 82 bytes received 28 bytes 220.00 bytes/sectotal size is 0 speedup is 0.00[
 
 # 遠程複製文件時使用–exclude標誌
 rsync -av --progress --exclude="dir2" dir* 192.168.19.142:/sahilsending incremental file listdir1/dir3/dir4/dir5/
+```
+
+# rsync 與 scp 區別
+
+```
+主要區別在於它們複製文件的方式。
+
+scp基本上讀取源文件並將其寫入目標。它在本地或通過網絡執行簡單的線性複制。
+
+rsync還可以在本地或通過網絡複製文件。但它採用特殊的增量傳輸算法和一些優化來使操作更快。考慮通話。
+
+rsync有大量的命令行選項，允許用戶微調其行為。它支持複雜的過濾規則，以批處理模式、守護模式等方式運行，scp只有幾個開關。
 ```

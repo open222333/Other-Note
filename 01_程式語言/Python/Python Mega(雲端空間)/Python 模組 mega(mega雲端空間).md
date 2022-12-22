@@ -20,6 +20,8 @@
 
 [MEGAcmd User Guide - Github](https://github.com/meganz/MEGAcmd/blob/master/UserGuide.md)
 
+[mega sdk](https://github.com/meganz/sdk)
+
 # 指令
 
 ```bash
