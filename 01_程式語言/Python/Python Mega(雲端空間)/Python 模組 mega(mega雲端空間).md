@@ -11,10 +11,16 @@
 		- [指令工具相關](#指令工具相關)
 - [指令](#指令)
 - [用法](#用法)
+	- [範例](#範例)
+	- [資料欄位](#資料欄位)
 
 ## 參考資料
 
 [mega.py pypi](https://pypi.org/project/mega.py/)
+
+[mega.py Github](https://github.com/odwyersoftware/mega.py)
+
+[mega.py API_INFO.md 詳細說明](https://github.com/odwyersoftware/mega.py/blob/master/API_INFO.md)
 
 ### 指令工具相關
 
@@ -76,4 +82,83 @@ folder = m.find('my_mega_folder', exclude_deleted=True)
 # Upload a file to a destination folder
 folder = m.find('my_mega_folder')
 m.upload('myfile.doc', folder[0])
+
+# 根據 private id 刪除檔案
+client.destroy(private_id)
+
+# 根據 private id 搜尋檔案
+r = client.find(handle=private_id)
+```
+
+## 範例
+
+```Python
+from general import MEGA_ACCOUNT, MEGA_PASSWORD
+from mega import Mega
+from pprint import pprint
+from datetime import datetime
+
+'''測試mega'''
+
+
+mega = Mega()
+client = mega.login(MEGA_ACCOUNT, MEGA_PASSWORD)
+folder = 'Upload'
+
+def get_folder_files(folder):
+    result = client.find(folder)
+    folder_id = result[0]
+    all_files = client.get_files()
+    folder_files = {}
+    for _, file_info in all_files.items():
+        if file_info['p'] == folder_id:
+            # file_info['h']: private id
+            folder_files[file_info['h']] = file_info
+
+    # pprint(folder_files)
+    return folder_files
+
+
+def remove_file(private_id):
+    client.destroy(private_id)
+
+
+def remove_file(private_id):
+    return client.find(handle=private_id)
+```
+
+## 資料欄位
+
+```json
+
+{'f': [
+	{
+		'a': '',
+        'h': '',
+        'k': '',
+        'p': '',
+        's': 500000000,
+        't': 0,
+        'ts': 1672039067,
+        'u': ''
+	}]
+}
+
+Node attributes (json properties)
+'a' Type
+'h' Id
+'p' Parent Id
+'a' encrypted Attributes (within this: 'n' Name)
+'k' Node Key
+'u' User Id
+'s' Size
+'ts' Time Stamp
+
+Node types
+0 File
+1 Folder
+2 Root Folder
+3 Inbox
+4 Trash
+-1 Dummy
 ```
