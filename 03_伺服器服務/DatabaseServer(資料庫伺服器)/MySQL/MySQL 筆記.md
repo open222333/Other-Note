@@ -31,14 +31,14 @@
 	- [自行架設成功的步驟](#自行架設成功的步驟)
 	- [公司文檔 步驟](#公司文檔-步驟)
 		- [1.mysql-master設定](#1mysql-master設定)
-		- [mysql-master server_id和log_bin變數正確跳至第一步-建立master-slave使用者](#mysql-master-server_id和log_bin變數正確跳至第一步-建立master-slave使用者)
+		- [mysql-master server\_id和log\_bin變數正確跳至第一步-建立master-slave使用者](#mysql-master-server_id和log_bin變數正確跳至第一步-建立master-slave使用者)
 		- [2.mysql-slave設定](#2mysql-slave設定)
-		- [mysql-slave server_id和read_only變數正確跳至第三步](#mysql-slave-server_id和read_only變數正確跳至第三步)
+		- [mysql-slave server\_id和read\_only變數正確跳至第三步](#mysql-slave-server_id和read_only變數正確跳至第三步)
 		- [mysql-master 加入下列到 my.cnf](#mysql-master-加入下列到-mycnf)
 		- [3.備份mysql-master](#3備份mysql-master)
 - [例外狀況](#例外狀況)
-	- [MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
-	- [MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
+	- [MySQL 除錯 - 修復損壞的innodb：innodb\_force\_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
+	- [MySQL 除錯 - \[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
 	- [MySQL 除錯 - Table 'db.table' doesn't exist (1146)](#mysql-除錯---table-dbtable-doesnt-exist-1146)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
 	- [XtraBackup 操作指令](#xtrabackup-操作指令)
@@ -889,6 +889,9 @@ mysql> check table db.table;
 ```bash
 # 安裝
 yum install percona-xtrabackup-24 -y
+
+# MacOS
+brew install percona-xtrabackup
 ```
 
 ### 備份(即時備份)步驟
