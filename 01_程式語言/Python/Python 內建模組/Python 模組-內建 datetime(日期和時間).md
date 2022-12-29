@@ -77,4 +77,10 @@ datetime(2019, 5, 18, 15, 17, tzinfo=timezone(timedelta(hours=8))).isoformat()
 
 # 時間相加
 datetime.now().astimezone(timezone(timedelta(hours=8))).isoformat(timespec='seconds')
+
+# 時間戳
+timeStamp = 1557502800
+dateArray = datetime.datetime.utcfromtimestamp(timeStamp)
+otherStyleTime = dateArray.strftime("%Y-%m-%d %H:%M:%S")
+print(otherStyleTime) # 2019-05-10 23:40:00
 ```
