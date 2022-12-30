@@ -19,6 +19,7 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 	- [配置檔案設定](#配置檔案設定)
 	- [防火牆設定](#防火牆設定)
+		- [CentOS Database tool](#centos-database-tool)
 - [安裝步驟 MacOS](#安裝步驟-macos)
 - [指令](#指令)
 	- [匯入匯出](#匯入匯出)
@@ -41,6 +42,10 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 [centos安裝](https://iter01.com/156322.html)
 
 [Install MongoDB 5.0 on CentOS 8/7 & RHEL 8/7](https://computingforgeeks.com/how-to-install-mongodb-on-centos-rhel-linux/)
+
+[Installing the Database Tools on Linux - 在 Linux 上安裝數據庫工具](https://www.mongodb.com/docs/database-tools/installation/installation-linux/)
+
+[database-tools rpm](https://www.mongodb.com/try/download/database-tools)
 
 ### 查詢相關
 
@@ -188,6 +193,14 @@ firewall-cmd --zone=public --query-port=27017/tcp
 ### 開放對外埠 方法二
 
 iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 27017 -j ACCEPT
+```
+
+### CentOS Database tool
+
+```bash
+wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-rhel70-x86_64-100.6.1.rpm
+
+yum install -y mongodb-database-tools-*-100.6.0.rpm
 ```
 
 # 安裝步驟 MacOS
