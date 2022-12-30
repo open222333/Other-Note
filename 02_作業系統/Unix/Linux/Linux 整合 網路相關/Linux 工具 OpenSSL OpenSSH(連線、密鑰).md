@@ -12,11 +12,13 @@
 		- [憑證相關](#憑證相關)
 		- [設定檔相關](#設定檔相關)
 		- [深入學習相關](#深入學習相關)
+		- [範例相關](#範例相關)
 - [指令](#指令)
 	- [連線設定](#連線設定)
 	- [ssh指令](#ssh指令)
 	- [scp指令 (傳遞檔案)](#scp指令-傳遞檔案)
 		- [rsync 與 scp 區別](#rsync-與-scp-區別)
+	- [sshpass(傳送密碼)](#sshpass傳送密碼)
 	- [ssh\_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
 
 ## 參考資料
@@ -35,19 +37,31 @@
 
 [scp(1) - Linux man page](https://linux.die.net/man/1/scp)
 
+[sshpass(1) - Linux man page](https://linux.die.net/man/1/sshpass)
+
+[ssh-keygen(1) — Linux manual page](https://www.man7.org/linux/man-pages/man1/ssh-keygen.1.html)
+
+[ssh-copy-id - Man Page](https://www.mankier.com/1/ssh-copy-id)
+
 ### 憑證相關
 
 [Certificate Decoder - 查看憑證資訊(日期)](https://www.sslshopper.com/certificate-decoder.html)
 
 ### 設定檔相關
 
-[ssh_config— OpenSSH 客戶端配置文件](https://man.openbsd.org/OpenBSD-current/man5/ssh_config.5)
+[ssh ssh_config — OpenSSH 客戶端配置文件](https://man.openbsd.org/OpenBSD-current/man5/ssh_config.5)
+
+[ssh ssh_config — OpenSSH 客戶端配置文件](https://linux.die.net/man/5/ssh_config)
 
 [增進 SSH 使用效率 - ssh_config](https://chusiang.gitbooks.io/working-on-gnu-linux/content/20.ssh_config.html)
 
 ### 深入學習相關
 
 [How does `scp` differ from `rsync`? - `scp` 與 `rsync` 有何不同？](https://stackoverflow.com/questions/20244585/how-does-scp-differ-from-rsync)
+
+### 範例相關
+
+[Automated ssh-keygen without passphrase - 自動生成不要passphrase,相同檔名處理](https://unix.stackexchange.com/questions/69314/automated-ssh-keygen-without-passphrase-how)
 
 # 指令
 
@@ -269,6 +283,17 @@ scp基本上讀取源文件並將其寫入目標。它在本地或通過網絡�
 rsync還可以在本地或通過網絡複製文件。但它採用特殊的增量傳輸算法和一些優化來使操作更快。考慮通話。
 
 rsync有大量的命令行選項，允許用戶微調其行為。它支持複雜的過濾規則，以批處理模式、守護模式等方式運行，scp只有幾個開關。
+```
+
+## sshpass(傳送密碼)
+
+```bash
+yum install -y sshpass
+
+# 用 sshpass 傳送密碼 123qwe，ssh 登入 kvm7.deyu.wang 在目錄 /root 下產生一個檔案 abc 內容為 aaaa。 遠端連線時目錄 .ssh 中有一個檔案 known_hosts 會記錄曾經連線過的信任主機，若連線主機重新安裝或更換 ip，其 host key 不同，ssh 會產生警告訊息，要求確認並刪除在 known_hosts 中的記錄，才能連線。選項 -o StrictHostKeyChecking=no 就是不進行 host key 的檢查，以避免此中斷程式的動作
+sshpass -p123qwe ssh -o StrictHostKeyChecking=no kvm7.deyu.wang "echo aaaa > /root/abc"
+
+rsync -av -e "sshpass -p123qwe ssh" b.txt kvm7.deyu.wang:
 ```
 
 ## ssh_config(紀錄主機連線資訊)
