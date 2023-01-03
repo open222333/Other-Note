@@ -8,15 +8,45 @@
 - [Git 筆記](#git-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-		- [管理 commit log](#管理-commit-log)
-		- [圖形化介面軟體](#圖形化介面軟體)
-		- [git 原理](#git-原理)
+		- [圖形化介面軟體相關](#圖形化介面軟體相關)
+		- [git 原理相關](#git-原理相關)
+		- [狀況相關](#狀況相關)
+			- [管理 commit log](#管理-commit-log)
 - [Git 基本概念](#git-基本概念)
 - [Linux 安裝 Git](#linux-安裝-git)
 - [Mac 安裝 Git](#mac-安裝-git)
 - [SSH 綁定 創建](#ssh-綁定-創建)
 - [git-credential 個人令牌 token](#git-credential-個人令牌-token)
 - [Git 指令](#git-指令)
+	- [Config 環境設定](#config-環境設定)
+	- [Remote – 遠端設定](#remote--遠端設定)
+	- [Pull – 拉取下來 從遠端更新本地(有衝突會合併)](#pull--拉取下來-從遠端更新本地有衝突會合併)
+	- [Push – 將 Commit 送出去](#push--將-commit-送出去)
+	- [Add](#add)
+	- [操作檔案](#操作檔案)
+	- [Commit 提交](#commit-提交)
+	- [Branch 分支](#branch-分支)
+	- [Git checkout 切換 branch](#git-checkout-切換-branch)
+	- [Fetch 抓取](#fetch-抓取)
+	- [Git track all remote branch 抓取所有遠端分支](#git-track-all-remote-branch-抓取所有遠端分支)
+	- [diff比較](#diff比較)
+	- [Tag](#tag)
+	- [Bash 刪除所有Tag](#bash-刪除所有tag)
+	- [log 查看log紀錄](#log-查看log紀錄)
+	- [show](#show)
+	- [reset 還原](#reset-還原)
+	- [update-ref 刪除HEAD(適用取消首次commit)](#update-ref-刪除head適用取消首次commit)
+	- [grep 查詢](#grep-查詢)
+	- [stash 暫存](#stash-暫存)
+	- [merge 合併](#merge-合併)
+	- [Git Rebase 重改並合併歷史Commit](#git-rebase-重改並合併歷史commit)
+	- [Git blame](#git-blame)
+	- [Git 還原已被刪除的檔案](#git-還原已被刪除的檔案)
+	- [Git 維護](#git-維護)
+	- [Git revert 資料還原](#git-revert-資料還原)
+	- [Git Conflict Strategy 處理已經衝突的檔案](#git-conflict-strategy-處理已經衝突的檔案)
+	- [Git Blame 逐條程式碼Log](#git-blame-逐條程式碼log)
+	- [設定永遠快取密碼，則可執行以下指令進行設定](#設定永遠快取密碼則可執行以下指令進行設定)
 - [設置git忽略](#設置git忽略)
 - [程式輔助範例](#程式輔助範例)
 	- [Python 更改資料夾內所有專案設定](#python-更改資料夾內所有專案設定)
@@ -39,7 +69,21 @@
 [Git上的三種工作流程]
 (https://medium.com/i-think-so-i-live/git%E4%B8%8A%E7%9A%84%E4%B8%89%E7%A8%AE%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B-10f4f915167e)
 
-### 管理 commit log
+### 圖形化介面軟體相關
+
+[Fork](https://git-fork.com/)
+
+[Sourcetree](https://www.sourcetreeapp.com/)
+
+### git 原理相關
+
+[Git 內部原理 - Packfiles](http://iissnan.com/progit/html/zh-tw/ch9_4.html)
+
+### 狀況相關
+
+[【狀況題】手邊的工作做到一半，臨時要切換到別的任務](https://gitbook.tw/chapters/faq/stash)
+
+#### 管理 commit log
 
 [使用 git commit template 管理 git log](https://medium.com/dev-chill/%E4%BD%BF%E7%94%A8-git-commit-template-%E7%AE%A1%E7%90%86-git-log-cb70f95fda2f)
 
@@ -49,16 +93,6 @@
 管理 commit log
 目的：統一團隊之中的 commit message 格式。
 ```
-
-### 圖形化介面軟體
-
-[Fork](https://git-fork.com/)
-
-[Sourcetree](https://www.sourcetreeapp.com/)
-
-### git 原理
-
-[Git 內部原理 - Packfiles](http://iissnan.com/progit/html/zh-tw/ch9_4.html)
 
 # Git 基本概念
 
@@ -169,7 +203,15 @@ git config --global credential.helper 'store --file ~/.git-credentials'
 # 查看git版本
 git version
 
-### Git Config 環境設定 ###
+### Git status ###
+# 看目前的狀態
+git status
+```
+
+## Config 環境設定
+
+```bash
+### Config 環境設定 ###
 # 設定全域(--global) 帳號名
 git config --global user.name "username"
 # 設定全域 郵箱
@@ -187,7 +229,11 @@ git config credential.helper store
 
 # 移除設定與已存帳密
 git config --unset credential.helper
+```
 
+## Remote – 遠端設定
+
+```bash
 ### Remote – 遠端設定 ###
 # 列出remote repository info
 git remote -v
@@ -215,7 +261,11 @@ git remote set-url --push new-origin disabled
 
 # 刪除Repository
 git remote rm new-origin
+```
 
+## Pull – 拉取下來 從遠端更新本地(有衝突會合併)
+
+```bash
 ### Git Pull – 拉取下來 從遠端更新本地(有衝突會合併) ###
 # 預設為origin Master
 git pull
@@ -245,7 +295,11 @@ git pull --rebase
 #     A---B---C---F---D'---E'   master, origin/master
 # 所謂的”遠端”預設叫做origin，當你有多個不同遠端伺服器時，就會取不同名子了。
 ##############################
+```
 
+## Push – 將 Commit 送出去
+
+```bash
 ### Git Push – 將 Commit 送出去
 # 預設為origin Master
 git push
@@ -257,8 +311,11 @@ git push origin +HEAD
 
 # 適用於搭配reset刪除遠端commit
 git push origin +HEAD:{brach}
+```
 
+## Add
 
+```bash
 ### Git Add ###
 # 將資料先暫存到 staging area, add 之後再新增的資料, 於此次 commit 不會含在裡面.
 git add filename
@@ -271,7 +328,11 @@ git add -u
 
 # 進入互動模式
 git add -i
+```
 
+## 操作檔案
+
+```bash
 ### Git 刪除檔案 ###
 git rm filename
 
@@ -281,11 +342,11 @@ git rm --cached -r folder
 
 # 修改檔名、搬移目錄
 git mv filename new-filename
+```
 
-### Git status ###
-# 看目前的狀態
-git status
+## Commit 提交
 
+```bash
 ### Git Commit 提交 ###
 git commit
 git commit -m 'commit message'
@@ -303,7 +364,11 @@ git commit --allow-empty
 git commit --amend
 git commit --amend --date="Wed Feb 16 14:00 2017 +0800"
 git commit --amend --date="now"
+```
 
+## Branch 分支
+
+```bash
 ### Git Branch 分支 ###
 # 列出目前有多少 branch
 git branch
@@ -341,7 +406,11 @@ git branch -r
 
 # 列出所有 branch
 git branch -a
+```
 
+## Git checkout 切換 branch
+
+```
 ### Git checkout 切換 branch
 # 本地修改沒有提交的 都捨棄
 git checkout .
@@ -389,7 +458,11 @@ git branch -r
 # 刪除Remote branch
 git push origin :branch
 git push origin --delete branch # v1.7.0 support
+```
 
+## Fetch 抓取
+
+```bash
 ### Git Fetch 抓取 / Git Checkout 切換 Repository 的 branch ###
 # 抓取
 git fetch origin
@@ -401,7 +474,11 @@ git checkout --track origin/reps-branch
 # 抓取 reps-branch, 並將此 branch 以自訂名稱建立於 local 的 reps-branch
 # 須先執行 git fetch
 git checkout --track -b reps-branch origin/reps-branch
+```
 
+## Git track all remote branch 抓取所有遠端分支
+
+```bash
 ### Git track all remote branch 抓取所有遠端分支 ###
 # Bash - 將Remote Branches全名抓下來至Local(存在branch name問題不一致問題)
 for remote in `git branch -r `; do git branch --track $remote; done
@@ -414,7 +491,11 @@ for remote in `git branch -r --no-merged | grep -v /HEAD`; do git checkout --tra
 
 # 其實結果同上
 for remote in `git branch -r --no-merged | grep -v /HEAD `; do git branch --track ${remote/"origin/"/""}; done
+```
 
+## diff比較
+
+```bash
 ### Git diff ###
 # 與 Master 有哪些資料不同
 git diff master
@@ -461,7 +542,11 @@ git diff --diff-filter= [(A|C|D|M|R|T)…​[*]]]
 	# R = Renamed
 	# T = Changed
 	# D =Delete
+```
 
+## Tag
+
+```bash
 ### Git Tag ###
 # 新增Tag至當前commit
 git tag v1.0.0
@@ -486,14 +571,22 @@ git fetch --prune --tags
 
 # 列出remote Tags
 git ls-remote --tags origin
+```
 
+## Bash 刪除所有Tag
+
+```bash
 ### Bash 刪除所有Tag ###
 # Local
 git tag | xargs git tag -d
 
 # Remote
 git tag -l | xargs -n 1 git push --delete origin
+```
 
+## log 查看log紀錄
+
+```bash
 ### Git log 查看log紀錄 ###
 # 將所有 log 秀出
 git log
@@ -543,7 +636,11 @@ git log --pretty=format:'%h : %s' --topo-order --graph
 
 # 依照時間排序
 git log --pretty=format:'%h : %s' --date-order --graph
+```
 
+## show
+
+```bash
 ### Git show ###
 # 查 log 是 commit ebff810c461ad1924fc422fd1d01db23d858773b 的內容
 git show ebff
@@ -565,7 +662,11 @@ git show HEAD^^
 
 # 前前前前一版修改的資料
 git show HEAD~4
+```
 
+## reset 還原
+
+```bash
 ### Git reset 還原 ###
 #  還原到最前面
 git reset --hard HEAD
@@ -579,11 +680,19 @@ git reset --soft HEAD~3
 
 #  從 staging area 狀態回到 unstaging 或 untracked (檔案內容並不會改變)
 git reset HEAD filename
+```
 
+## update-ref 刪除HEAD(適用取消首次commit)
+
+```bash
 ### Git update-ref ###
 # 刪除HEAD(適用取消首次commit)
 git update-ref -d HEAD
+```
 
+## grep 查詢
+
+```bash
 ### Git grep ###
 # 查 v1 是否有 "te" 的字串
 git grep "te" v1
@@ -592,7 +701,7 @@ git grep "te" v1
 git grep "te"
 ```
 
-[【狀況題】手邊的工作做到一半，臨時要切換到別的任務](https://gitbook.tw/chapters/faq/stash)
+## stash 暫存
 
 ```bash
 ### Git stash 暫存 ###
@@ -618,6 +727,8 @@ git stash drop
 git stash clear
 ```
 
+## merge 合併
+
 ```bash
 ### Git merge 合併 ###
 # 合併另一個 branch，若沒有 conflict 衝突會直接 commit。若需要解決衝突則會再多一個 commit。
@@ -632,13 +743,16 @@ git merge <branch> -X ours
 # 衝突時以目標Branch為準
 git merge <branch> -X their
 
-
 # 將另一個 branch 的 commit 合併為一筆，特別適合需要做實驗的 fixes bug 或 new feature，最後只留結果。合併完不會幫你先 commit。
 git merge –squash
 
 # 只合併特定其中一個 commit。如果要合併多個，可以加上 -n 指令就不會先幫你 commit，這樣可以多 pick幾個要合併的 commit，最後再 git commit 即可。
 git cherry-pick 321d76f
+```
 
+## Git Rebase 重改並合併歷史Commit
+
+```bash
 ### Git Rebase 重改並合併歷史Commit ###
 # -i 進入對話模式執行rebase，可以將第一個`pick`以後都設`fixup`
 git rebase -i [commit]
@@ -649,23 +763,39 @@ git rebase -i [commit]
 # fixup a1d2257 Update README.md
 ##################
 # 上例後兩個commit會直接併回第一個commit
+```
 
+## Git blame
+
+```bash
 ### Git blame ###
 # 關於此檔案的所有 commit 紀錄
 git blame filename
+```
 
+## Git 還原已被刪除的檔案
+
+```bash
 ### Git 還原已被刪除的檔案 ###
 # 查看已刪除的檔案
 git ls-files -d
 # 將已刪除的檔案還原
 git ls-files -d | xargs git checkout --
+```
 
+## Git 維護
+
+```bash
 ### Git 維護 ###
 # 整理前和整理後的差異, 可由: git count-objects 看到.
 git gc
 git gc --prune
 git fsck --full
+```
 
+## Git revert 資料還原
+
+```bash
 ### Git revert 資料還原 ###
 # 回到前一次 commit 的狀態
 git revert HEAD
@@ -678,7 +808,11 @@ git reset HEAD filename
 
 # 從 unstaging 狀態回到最初 Repository 的檔案(檔案內容變回修改前)
 git checkout filename
+```
 
+## Git Conflict Strategy 處理已經衝突的檔案
+
+```bash
 ### Git Conflict Strategy 處理已經衝突的檔案 ###
 # 以我方(HEAD)策略處理套用全部檔案
 git checkout --ours .
@@ -686,13 +820,21 @@ git checkout --ours .
 git checkout --theirs .
 # 單檔處理範例
 git checkout --ours filename
+```
 
+## Git Blame 逐條程式碼Log
+
+```bash
 ### Git Blame 逐條程式碼Log ###
 # 列出此檔逐筆最後異動紀錄
 git blame [file]
  # 僅列出56至62行
 git blame -L 56,62 [file]
+```
 
+## 設定永遠快取密碼，則可執行以下指令進行設定
+
+```bash
 # 設定永遠快取密碼，則可執行以下指令進行設定
 # 如果使用 store 認證輔助方法，帳號密碼將會以明碼的方式儲存在 ~/.git-credentials 檔案中。
 git config --global credential.helper store
