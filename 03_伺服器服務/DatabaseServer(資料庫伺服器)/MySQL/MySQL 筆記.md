@@ -130,7 +130,7 @@ cat /var/log/mysqld.log | grep 'temporary password'
 
 ```sql
 -- 輸入登入密碼(修改預設密碼)
-ALTER USER root@'localhost' IDENTIFIED BY 'dnhK3wxbcMhn!';
+ALTER USER root@'localhost' IDENTIFIED BY 'newpassword';
 
 -- 修改root用戶可任意IP登入
 UPDATE mysql.user SET host = '%' WHERE user = 'root';
@@ -156,10 +156,27 @@ port=2020
 
 query_cache_limit=1024M
 query_cache_size=1024M
-
-; 指定MySQL允許的最大連接進程數。
 max_connections=10240
 
+### 產品 ###
+# 指定MySQL允許的最大連接進程數。
+max_connections = 4096
+key_buffer_size = 1024M
+max_allowed_packet = 2048M
+thread_stack = 512K
+thread_cache_size = 3072
+query_cache_limit = 2048M
+query_cache_size = 2048M
+innodb_buffer_pool_size = 4G
+innodb_log_file_size = 1024M
+
+join_buffer_size = 2048M
+sort_buffer_size = 1024M
+slow_query_log = on
+wait_timeout=600
+
+slow-query-log-file = /var/log/mysql/mysql-slow.log
+long_query_time = 2
 ```
 
 ```bash

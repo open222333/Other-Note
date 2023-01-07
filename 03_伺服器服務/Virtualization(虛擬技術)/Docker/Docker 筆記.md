@@ -9,27 +9,33 @@
 		- [配置相關](#配置相關)
 			- [log配置](#log配置)
 		- [網路相關](#網路相關)
+		- [Docker Hub相關](#docker-hub相關)
+		- [範例相關](#範例相關)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [配置文檔](#配置文檔)
-	- [log配置](#log配置-1)
-- [指令 docker](#指令-docker)
-	- [指令 網路相關](#指令-網路相關)
-- [指令 docker-compose](#指令-docker-compose)
-- [指令 docker hub](#指令-docker-hub)
-- [範例 Dockerfile](#範例-dockerfile)
-- [範例 docker-compose](#範例-docker-compose)
-	- [docker-compose.centos.yml](#docker-composecentosyml)
-	- [docker-compose.elasticsearch.yml](#docker-composeelasticsearchyml)
-	- [docker-compose.gitea.yml](#docker-composegiteayml)
-	- [docker-compose.mongodb_clusters_replica_set.yml](#docker-composemongodb_clusters_replica_setyml)
-	- [docker-compose.mysql_phpmyadmin.yml](#docker-composemysql_phpmyadminyml)
-	- [docker-compose.php.yml](#docker-composephpyml)
-	- [docker-compose.scrapy_splash.yml](#docker-composescrapy_splashyml)
-	- [docker-compose.celery_python.yml](#docker-composecelery_pythonyml)
-	- [docker-compose.mysql_master_slave.yml](#docker-composemysql_master_slaveyml)
-	- [docker-compose.nginx_plus(centos)-php_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
-	- [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
-	- [連線 主機別名](#連線-主機別名)
+	- [log](#log)
+	- [ipv6](#ipv6)
+- [指令](#指令)
+	- [docker](#docker)
+		- [images](#images)
+		- [docker hub](#docker-hub)
+		- [network](#network)
+	- [docker-compose](#docker-compose)
+- [範例](#範例)
+	- [Dockerfile](#dockerfile)
+	- [docker-compose](#docker-compose-1)
+		- [docker-compose.centos.yml](#docker-composecentosyml)
+		- [docker-compose.elasticsearch.yml](#docker-composeelasticsearchyml)
+		- [docker-compose.gitea.yml](#docker-composegiteayml)
+		- [docker-compose.mongodb\_clusters\_replica\_set.yml](#docker-composemongodb_clusters_replica_setyml)
+		- [docker-compose.mysql\_phpmyadmin.yml](#docker-composemysql_phpmyadminyml)
+		- [docker-compose.php.yml](#docker-composephpyml)
+		- [docker-compose.scrapy\_splash.yml](#docker-composescrapy_splashyml)
+		- [docker-compose.celery\_python.yml](#docker-composecelery_pythonyml)
+		- [docker-compose.mysql\_master\_slave.yml](#docker-composemysql_master_slaveyml)
+		- [docker-compose.nginx\_plus(centos)-php\_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
+		- [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
+		- [連線 主機別名](#連線-主機別名)
 - [例外狀況](#例外狀況)
 	- [log造成硬碟沒有空間](#log造成硬碟沒有空間)
 		- [清理 Log Script](#清理-log-script)
@@ -65,6 +71,21 @@
 ### 網路相關
 
 [Docker 网络模式详解及容器间网络通信](https://cloud.tencent.com/developer/news/687189)
+
+### Docker Hub相關
+
+[docker Hub 官網](https://hub.docker.com/search?type=image&image_filter=store%2Cofficial)
+
+### 範例相關
+
+[Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
+
+[docker-compose Github 範例](https://github.com/docker/awesome-compose)
+
+[docker-compose 撰寫規範](https://docs.docker.com/compose/compose-file/)
+
+[docker-compose `The Compose Specification`](https://github.com/compose-spec/compose-spec/blob/master/spec.md)
+
 
 # 安裝步驟 CentOS7
 
@@ -118,33 +139,28 @@ chmod +x /usr/local/bin/docker-compose
 
 # 安裝 Docker Compose
 ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-
-# 開啟ipv6
-vim /etc/docker/daemon.json
-{
-  "ipv6": true, // 開關
-  "fixed-cidr-v6": "2001:db8:1::/64"  // IPv6 subnet
-}
 ```
 
 # 配置文檔
 
 `/etc/docker/daemon.json`
 
-## log配置
-
-Container Log 預設路徑如下：
-
-```
-/var/lib/docker/containers/<container-id>/<container-id>-json.log
-```
-
 ```bash
-# 清除 log
-cat /dev/null > <container-id>-json.log
+vim /etc/docker/daemon.json
 
-# 清空 log
-cat /dev/null > *-json.log
+# 編輯完後執行以下動作
+# 重新載入
+systemctl daemon-reload
+
+# 重啟docker
+systemctl restart docker
+```
+
+## log
+
+```
+Container Log 預設路徑如下：
+/var/lib/docker/containers/<container-id>/<container-id>-json.log
 ```
 
 ```json
@@ -159,13 +175,27 @@ cat /dev/null > *-json.log
 ```
 
 ```bash
-# 重新載入
-systemctl daemon-reload
+# 清除 log
+cat /dev/null > <container-id>-json.log
 
-systemctl restart docker
+# 清空 log
+cat /dev/null > *-json.log
 ```
 
-# 指令 docker
+## ipv6
+
+```json
+// ipv6: 開關ipv6
+// fixed-cidr-v6: IPv6 subnet
+{
+  "ipv6": true,
+  "fixed-cidr-v6": "2001:db8:1::/64"
+}
+```
+
+# 指令
+
+## docker
 
 ```bash
 # 顯示 docker 的資訊
@@ -187,25 +217,18 @@ docker rmi [Image ID]
 docker ps
 	-a 所有容器,包含停止的
 
-# 查看images id
-docker images
-	--all , -a		顯示所有圖像（默認隱藏中間圖像）
-	--digests		顯示摘要
-	--filter , -f		根據提供的條件過濾輸出
-	--format		使用 Go 模板打印漂亮的圖像
-	--no-trunc		不要截斷輸出
-	--quiet , -q		僅顯示圖像 ID
-
 # 停止 Container
 docker stop [Container ID]
 
 # 刪除 Container
 docker rm [Container ID]
 
+# 重啟 容器
+docker restart [OPTIONS] CONTAINER [CONTAINER...]
+
 # 清除沒在使用的image
 docker system prune
 	-a 額外刪除任何已停止的容器和所有未使用的image
-
 
 # 透過 iamge 執行並產生一個新的 container
 docker run [OPTIONS] [Image 名稱]:[Image 版本] [執行指令]
@@ -226,9 +249,6 @@ docker logs -f --tail=20 [Container ID]
 # 取得一個指定版本的image,如果不指定,預設版本則為latest
 docker pull [Image 名稱]:[Image 版本]
 
-# 查詢正在執行的 container
-docker ps
-
 # 進入 container
 docker exec [OPTIONS] [Container ID] [執行指令]
 docker exec -ti [Container ID] bash
@@ -236,7 +256,36 @@ docker exec -ti [Container ID] bash
 	-t, --tty         配置一個終端機
 ```
 
-## 指令 網路相關
+### images
+
+```bash
+## 查看images id
+docker images
+	--all , -a		顯示所有圖像（默認隱藏中間圖像）
+	--digests		顯示摘要
+	--filter , -f		根據提供的條件過濾輸出
+	--format		使用 Go 模板打印漂亮的圖像
+	--no-trunc		不要截斷輸出
+	--quiet , -q		僅顯示圖像 ID
+```
+
+### docker hub
+
+```bash
+# 登出(確保您已註銷並且不會引起任何衝突)
+docker logout
+
+# 標記 使用特定版本:名稱:1.0.0(版本),默認'latest'
+docker tag <imageId> myusername/docker-whale
+
+# 登入
+docker login --username=myusername
+
+# push到DockerHub 使用特定版本:名稱:1.0.0(版本),默認'latest'
+docker push myusername/docker-whale
+```
+
+### network
 
 ```bash
 # 將容器連接到網絡
@@ -261,7 +310,7 @@ docker network prune
 docker network rm
 ```
 
-# 指令 docker-compose
+## docker-compose
 
 [官方文檔](https://docs.docker.com/compose/samples-for-compose/)
 
@@ -310,30 +359,9 @@ docker logs $container_id
 	# -f
 ```
 
-# 指令 docker hub
+# 範例
 
-[docker Hub 官網](https://hub.docker.com/search?type=image&image_filter=store%2Cofficial)
-
-```bash
-# 登出(確保您已註銷並且不會引起任何衝突)
-docker logout
-
-# 標記 使用特定版本:名稱:1.0.0(版本),默認'latest'
-docker tag <imageId> myusername/docker-whale
-
-# 登入
-docker login --username=myusername
-
-# 重啟 容器
-docker restart [OPTIONS] CONTAINER [CONTAINER...]
-
-# push到DockerHub 使用特定版本:名稱:1.0.0(版本),默認'latest'
-docker push myusername/docker-whale
-```
-
-# 範例 Dockerfile
-
-[Dockerfile reference](https://docs.docker.com/engine/reference/builder/)
+## Dockerfile
 
 `檔名要是Dockerfile`
 
@@ -397,13 +425,7 @@ RUN chmod +x /entrypoint.sh
 ENTRYPOINT      ["/entrypoint.sh"]
 ```
 
-# 範例 docker-compose
-
-[Github 範例](https://github.com/docker/awesome-compose)
-
-[docker-compose 撰寫規範](https://docs.docker.com/compose/compose-file/)
-
-[`The Compose Specification`](https://github.com/compose-spec/compose-spec/blob/master/spec.md)
+## docker-compose
 
 ```yml
 # 設定Container重新啟動的規則
@@ -508,7 +530,7 @@ networks:
 # 換言之，networks是可以省略的
 ```
 
-## docker-compose.centos.yml
+### docker-compose.centos.yml
 
 ```yml
 version: '3'
@@ -524,7 +546,7 @@ services:
       - ./etc/ssl/nginx:/etc/ssl/nginx
 ```
 
-## docker-compose.elasticsearch.yml
+### docker-compose.elasticsearch.yml
 
 ```yml
 version: '3'
@@ -569,7 +591,7 @@ services:
       - 5601:5601
 ```
 
-## docker-compose.gitea.yml
+### docker-compose.gitea.yml
 
 ```yml
 version: "3"
@@ -590,7 +612,7 @@ services:
       - "22:22"
 ```
 
-## docker-compose.mongodb_clusters_replica_set.yml
+### docker-compose.mongodb_clusters_replica_set.yml
 
 ```yml
 version: "3"
@@ -623,7 +645,7 @@ services:
       - ./data/mongo3:/data/db
 ```
 
-## docker-compose.mysql_phpmyadmin.yml
+### docker-compose.mysql_phpmyadmin.yml
 
 ```yml
 version: '3'
@@ -660,7 +682,7 @@ services:
       - mysql
 ```
 
-## docker-compose.php.yml
+### docker-compose.php.yml
 
 ```yml
 version: '3'
@@ -686,7 +708,7 @@ services:
       - 27017
 ```
 
-## docker-compose.scrapy_splash.yml
+### docker-compose.scrapy_splash.yml
 
 ```yml
 version: '3'
@@ -702,7 +724,7 @@ services:
     command: ping 127.0.0.1 # 為了不讓他中止
 ```
 
-## docker-compose.celery_python.yml
+### docker-compose.celery_python.yml
 
 ```yml
 version: '3'
@@ -731,7 +753,7 @@ CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/1
 ```
 
-## docker-compose.mysql_master_slave.yml
+### docker-compose.mysql_master_slave.yml
 
 ```yml
 version: '3'
@@ -837,7 +859,7 @@ SHOW SLAVE STATUS\G
 START SLAVE;
 ```
 
-## docker-compose.nginx_plus(centos)-php_fpm.yml
+### docker-compose.nginx_plus(centos)-php_fpm.yml
 
 ```yml
 version: '3'
@@ -904,7 +926,7 @@ RUN rm -rf /etc/nginx/*
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-## 多個服務使用同資料 示例用例
+### 多個服務使用同資料 示例用例
 
 ```
 當您有多個具有通用配置的服務時，擴展單個服務非常有用。
@@ -950,7 +972,7 @@ services:
       - queue
 ```
 
-## 連線 主機別名
+### 連線 主機別名
 
 `IMAGE`://`DOCKER_IP`:`PORT`
 
