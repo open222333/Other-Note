@@ -10,6 +10,7 @@
 - [查看port佔用](#查看port佔用)
 - [linux shell nologin 不可登入的系統帳號](#linux-shell-nologin-不可登入的系統帳號)
 - [linux PID查看以及刪除](#linux-pid查看以及刪除)
+- [檢查服務狀態](#檢查服務狀態)
 
 ## 參考資料
 
@@ -98,4 +99,12 @@ ps U username -f
 
 # 刪除PID
 kill PID
+```
+
+# 檢查服務狀態
+
+```
+ps aux | grep smb
+
+netstat -tunlp
 ```
