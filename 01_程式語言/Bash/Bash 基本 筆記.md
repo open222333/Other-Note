@@ -38,6 +38,8 @@ script 運作時需要的環境變數預先宣告與設定。
 
 [Linux Shell Script 入門教學](https://blog.techbridge.cc/2019/11/15/linux-shell-script-tutorial/)
 
+[第十二章、學習 Shell Scripts - 鳥哥](https://linux.vbird.org/linux_basic/centos7/0340bashshell-scripts.php)
+
 [shell中讀取ini配置。](https://www.firbug.com/a/202108/677572.html)
 
 ### 特殊說明相關
@@ -48,11 +50,17 @@ script 運作時需要的環境變數預先宣告與設定。
 
 [Shell重定向 ＆>file、2>&1、1>&2 、/dev/null的区别](https://blog.csdn.net/u011630575/article/details/52151995)
 
-### 特殊檔案
+### 特殊檔案相關
 
 [/dev/zero](https://zh.wikipedia.org/zh-tw//dev/zero)
 
 [/dev/null](https://zh.wikipedia.org/zh-tw//dev/null)
+
+### 用法相關
+
+[在 Bash 中解析 JSON](https://www.delftstack.com/zh-tw/howto/linux/parse-json-in-bash/#%25E5%259C%25A8-bash-%25E4%25B8%25AD%25E4%25BD%25BF%25E7%2594%25A8-jq%25E8%25BC%2595%25E9%2587%258F%25E7%25B4%259A%25E9%259D%2588%25E6%25B4%25BB%25E7%259A%2584%25E5%2591%25BD%25E4%25BB%25A4%25E5%2588%2597-json-%25E8%2599%2595%25E7%2590%2586%25E5%25B7%25A5%25E5%2585%25B7%25E8%25A7%25A3%25E6%259E%2590-json)
+
+[shell脚本选项设置及解析](https://blog.csdn.net/happyhorizion/article/details/80431468)
 
 # 特殊變數
 

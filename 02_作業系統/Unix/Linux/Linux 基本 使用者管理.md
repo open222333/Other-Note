@@ -4,12 +4,20 @@
 
 - [Linux 基本 使用者管理](#linux-基本-使用者管理)
 	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [新增使用者相關](#新增使用者相關)
 - [文檔](#文檔)
 	- [紀錄帳號](#紀錄帳號)
 	- [規範群組名稱與 GID 的對應](#規範群組名稱與-gid-的對應)
 	- [UID/GID密碼參數](#uidgid密碼參數)
 - [指令](#指令)
 	- [新增使用者(useradd passwd)](#新增使用者useradd-passwd)
+
+## 參考資料
+
+### 新增使用者相關
+
+[Linux 新增使用者 useradd 指令用法教學與範例](https://blog.gtwang.org/linux/linux-useradd-command-tutorial-examples/)
 
 # 文檔
 

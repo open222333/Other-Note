@@ -12,6 +12,8 @@
 
 [Samba - 官方網站](https://www.samba.org/)
 
+[Samba - 官方wiki](https://wiki.samba.org/index.php/Main_Page)
+
 ### 安裝相關
 
 [Samba Client 讓 Linux 使用 Windows 網芳磁碟設定](https://www.ichiayi.com/tech/samba_client)
@@ -27,6 +29,8 @@
 [CentOS 掛載 samba storage](https://icodding.blogspot.com/2015/09/centos-samba-storage.html)
 
 [How to Mount Samba Share on CentOS 7](https://elearning.wsldp.com/pcmagazine/mount-samba-cifs-centos-7-linux/)
+
+[Creating a Basic guest only smb.conf File](https://wiki.samba.org/index.php/Setting_up_Samba_as_a_Standalone_Server#Creating_a_Basic_guest_only_smb.conf_File)
 
 # 安裝步驟
 
@@ -370,6 +374,28 @@ testparm
 ;	writable = no
 ;	printable = no
 ;	write list = +staff
+```
+
+### 範例 允許訪客訪問 Creating a Basic guest only smb.conf File
+
+```
+以下是僅允許訪客訪問的 Samba 獨立服務器的最小配置：
+```
+
+```conf
+[global]
+        map to guest = Bad User
+        log file = /var/log/samba/%m
+        log level = 1
+        server role = standalone server
+
+[guest]
+        # This share allows anonymous (guest) access
+        # without authentication!
+        path = /srv/samba/guest/
+        read only = no
+        guest ok = yes
+        guest only = yes
 ```
 
 # 指令

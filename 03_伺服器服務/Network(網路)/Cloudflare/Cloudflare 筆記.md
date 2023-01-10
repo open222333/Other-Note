@@ -33,14 +33,16 @@ dig +short soa cloudflare.com
 ns3.cloudflare.com. dns.cloudflare.com.2029202248 10000 2400 604800 300
 ```
 
-# 回報 取得票證
+# 回報
 
+## 取得票證
+	
 位置：
 右上角 支援 -> 聯絡支援(需開啟新的支援入口)
 
 有什麼我們可以幫忙的嗎? -> Cloudflare Registrar
 您遇到什麼類型的 cloudflare registrar issue? -> WHOIS
 
-# 票證追蹤
+## 票證追蹤
 
 https://support.cloudflare.com/hc/zh-cn/requests/{票證ID}

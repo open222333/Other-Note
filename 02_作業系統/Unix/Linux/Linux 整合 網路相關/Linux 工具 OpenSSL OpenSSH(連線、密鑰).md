@@ -63,6 +63,8 @@
 
 [Automated ssh-keygen without passphrase - 自動生成不要passphrase,相同檔名處理](https://unix.stackexchange.com/questions/69314/automated-ssh-keygen-without-passphrase-how)
 
+[ssh 跳過第一次指紋確認](https://stackoverflow.com/questions/21383806/how-can-i-force-ssh-to-accept-a-new-host-fingerprint-from-the-command-line)
+
 # 指令
 
 ## 連線設定
@@ -243,6 +245,12 @@ ssh username@host_ip:port -fN -L [bind_address:]port:host:hostport
 	-x：關閉X11轉發功能
 	-y：開啟信任X11轉發功能
 	-L listen-port:host:port 指派本地的port 到達端機器地址上的port
+
+# Remove old key
+ssh-keygen -R $target_host
+
+# Add the new key
+ssh-keyscan $target_host >> ~/.ssh/known_hosts
 ```
 
 ## scp指令 (傳遞檔案)
