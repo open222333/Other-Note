@@ -11,6 +11,7 @@
 - [安裝步驟 CentOS](#安裝步驟-centos)
 - [指令](#指令)
 - [配置文件](#配置文件)
+	- [CloudFlare ini文檔](#cloudflare-ini文檔)
 
 ## 參考資料
 
@@ -147,4 +148,25 @@ rsa-key-size = 4096
 # server = https://acme.sectigo.com/v2/InCommonRSAOV
 # eab-kid = somestringofstuffwithoutquotes
 # eab-hmac-key = yaddayaddahexhexnotquoted
+```
+
+## CloudFlare ini文檔
+
+`dnscloudflare.ini`
+
+```ini
+# CloudFlare API key information
+dns_cloudflare_api_key =
+dns_cloudflare_email =
+```
+
+`cli.ini`
+
+```ini
+# Let's Encrypt site-wide configuration
+dns-cloudflare-credentials = /etc/letsencrypt/dnscloudflare.ini
+# Use the ACME v2 staging URI for testing things
+# server = https://acme-staging-v02.api.letsencrypt.org/directory
+# Production ACME v2 API endpoint
+server = https://acme-v02.api.letsencrypt.org/directory
 ```
