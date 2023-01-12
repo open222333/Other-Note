@@ -23,8 +23,9 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 - [安裝步驟 MacOS](#安裝步驟-macos)
 - [指令](#指令)
 	- [匯入匯出](#匯入匯出)
-	- [備份腳本](#備份腳本)
 - [資料庫指令](#資料庫指令)
+	- [刪除](#刪除)
+	- [查詢](#查詢)
 	- [使用者](#使用者)
 		- [mongodb 使用者許可權角色說明](#mongodb-使用者許可權角色說明)
 	- [連接字符串URI格式](#連接字符串uri格式)
@@ -229,7 +230,6 @@ ps -ef|grep mongod
 	/var/log/mongodb/mongod.log
 ```
 
-
 # 指令
 
 ```bash
@@ -282,40 +282,6 @@ mongorestore $path
     # <path>:設置備份數據所在位置，例如：c:\data\dump\test。
 	# dump檔匯入
 	--archive=mongo.dump
-```
-
-## 備份腳本
-
-```shell
-# mongodump命令路徑
-DUMP=/usr/local/mongodb/bin/mongodump
-# tar備份包臨時備份目錄,這個tar包最好定時傳到本地存儲做備份
-OUT_DIR=/data/backup/mongo/mongodb_bak_tmp
-# 完整備份目錄路徑
-TAR_DIR=/data/backup/mongo/mongodb_bak_path
-# 獲取當前系統時間
-DATE=$(date +%Y_%m_%d_%H_%M)
-# mongo帳號
-DB_USER=root
-# mongo密碼
-DB_PASS=123456
-# 刪除15天前的備份，即只保留近15天的備份
-DAYS=15
-# 最終保存的備份文件
-TAR_BAK="mongodb_bak_$DATE.tar.gz"
-
-cd $OUT_DIR
-#rm -rf $OUT_DIR/*
-mkdir -p $OUT_DIR/$DATE
-# 備份全部數據
-$DUMP -h 127.0.0.1:3717 -u $DB_USER -p $DB_PASS --authenticationDatabase "admin" -o $OUT_DIR/$DATE
-# 壓縮為.tar.gz格式
-tar -zcvf $TAR_DIR/$TAR_BAK $OUT_DIR/$DATE
-# 刪除15天前的備份文件
-find $TAR_DIR/ -mtime +$DAYS -delete
-# 刪除tar備份包10天前的備份文件
-find $OUT_DIR/ -mtime +10 -name "*.tar.gz" -exec rm -rf {} \;
-exit
 ```
 
 # 資料庫指令
@@ -388,18 +354,24 @@ db.users.save({"name":"lecaf"})
 db.users.insert({"name":"ghost", "age":10})
 
 // save()和insert()也存在著些許區別：若新增的數據主鍵已經存在，insert()會不做操作並提示錯誤，而save() 則更改原來的內容為新內容。
-
 insert({ _id : 1, " name " : " n1 "})   // _id是主键
 insert({ _id : 1, " name " : " n2 " })  // 會顯示錯誤, 因為1已經有資料了
 save({ _id : 1, " name " : " n2 " })    // 會把 n1 更新為 n2 ，類似update。
+```
 
+## 刪除
 
+```js
 // 刪除users集合所有資料
 db.users.remove()
 
 // 刪除users集合下name=lecaf的該筆資料
 db.users.remove({"name": "lecaf"})
+```
 
+## 查詢
+
+```js
 // 查詢users集合中所有資料
 db.users.find()
 
@@ -518,9 +490,6 @@ db.products.remove( { qty: { $gt: 20 } } )
 ## 使用者
 
 ```JavaScript
-// 連線進mongodb 設定管理者帳密
-mongo mongodb:27019
-
 // 建立使用者，設定賬號，密碼，許可權
 // admin資料庫
 use admin
@@ -539,22 +508,10 @@ db.createUser( { user: "accountAdmin01",
 
 // 修改使用者
 db.updateUser(用户名，更新，* writeConcern *)
-db.updateUser("user123",{pwd: "KNlZmiaNUp0B",customData: { title: "Senior Manager" }})
+db.updateUser("user123",{pwd: "KNlZmiaNUp0B", customData: { title: "Senior Manager" }})
 
-// 修改mongodb.conf檔案，啟用身份驗證
-// vim /etc/mongod.conf
-// security:
-//   authorization: enabled   # disable or enabled
-
-// 使用者認證
-use admin
-db.auth("root", "123456")
-
-db.updateUser(user, writeConcern) // 更新使用者
 db.dropUser('test') // 刪除使用者
 
-db.auth("name","pass")    //認證使用者，成功會回傳 1
-db.dropUser("name")       //刪除使用者
 db.system.users.find()    //查詢使用者
 ```
 
