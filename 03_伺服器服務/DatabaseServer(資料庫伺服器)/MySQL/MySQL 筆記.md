@@ -41,9 +41,10 @@
 	- [MySQL 除錯 - \[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
 	- [MySQL 除錯 - Table 'db.table' doesn't exist (1146)](#mysql-除錯---table-dbtable-doesnt-exist-1146)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
-	- [XtraBackup 操作指令](#xtrabackup-操作指令)
+	- [安裝 XtraBackup](#安裝-xtrabackup)
+	- [指令](#指令-1)
 		- [備份(即時備份)步驟](#備份即時備份步驟)
-		- [說明](#說明)
+	- [說明](#說明)
 
 ## 參考資料
 
@@ -901,7 +902,7 @@ mysql> check table db.table;
 
 # Percona XtraBackup(資料備份的工具)
 
-## XtraBackup 操作指令
+## 安裝 XtraBackup
 
 ```bash
 # 安裝
@@ -910,6 +911,8 @@ yum install percona-xtrabackup-24 -y
 # MacOS
 brew install percona-xtrabackup
 ```
+
+## 指令
 
 ### 備份(即時備份)步驟
 
@@ -967,7 +970,7 @@ chown -R mysql.mysql /var/lib/mysql
 service mysql start
 ```
 
-### 說明
+## 說明
 
 ```
 Xtrabackup是一個對InnoDB做資料備份的工具，支援線上熱備份(備份時不影響資料讀寫)，是商業備份工具InnoDB Hotbackup的一個很好的替代品。
