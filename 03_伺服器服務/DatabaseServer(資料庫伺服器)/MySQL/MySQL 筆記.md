@@ -41,6 +41,7 @@
 	- [MySQL 除錯 - \[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
 	- [MySQL 除錯 - Table 'db.table' doesn't exist (1146)](#mysql-除錯---table-dbtable-doesnt-exist-1146)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
+	- [MySQL Percona innobackupex 和 xtrabackup 有何不同？](#mysql-percona-innobackupex-和-xtrabackup-有何不同)
 	- [安裝 XtraBackup](#安裝-xtrabackup)
 	- [指令](#指令-1)
 		- [備份(即時備份)步驟](#備份即時備份步驟)
@@ -96,11 +97,23 @@
 
 ### Percona XtraBackup(備份工具)相關
 
+[percona 官網](https://www.percona.com/software/documentation)
+
 [Running Percona XtraBackup in a Docker container](https://www.percona.com/doc/percona-xtrabackup/2.4/installation/docker.html)
 
 [bitnami/percona-xtrabackup](https://hub.docker.com/r/bitnami/percona-xtrabackup/)
 
 [Xtrabackup介紹](https://www.itread01.com/content/1547450246.html)
+
+[xtrabackup - 手冊頁](https://www.mankier.com/1/xtrabackup#)
+
+[MySQL Percona innobackupex 和 XtraBackup 有何不同？](https://blog.longwin.com.tw/2022/09/mysql-percona-innobackupex-xtrabackup-different-2022/)
+
+[xtrabackup 選項參考](https://docs.percona.com/percona-xtrabackup/2.4/xtrabackup_bin/xbk_option_reference.html)
+
+[innobackupex 選項參考](https://docs.percona.com/percona-xtrabackup/2.4/innobackupex/innobackupex_option_reference.html)
+
+[Can I backup remote databases from my local server - 我可以從本地服務器備份遠程數據庫嗎](https://forums.percona.com/t/can-i-backup-remote-databases-from-my-local-server/2334/3)
 
 # 安裝步驟
 
@@ -901,6 +914,17 @@ mysql> check table db.table;
 ```
 
 # Percona XtraBackup(資料備份的工具)
+
+## MySQL Percona innobackupex 和 xtrabackup 有何不同？
+
+xtrabackup：
+	檔案格式：備份 innodb、xtradb，不能備份 MyISAM
+	innodb 不需要 LOCK 就可以備份
+innobackupex：(裡面封裝 xtrabackup 的 script 在裡面)
+	支援 innodb、xtradb (靠 xtrabackup) 和 MyISAM (主要做這個)
+	MyISAM 備份時會做 READ LOCK
+	通常直接使用 innobackupex 即可，若有確認資料庫沒有 MyISAM 格式的話，也可以直接使用 xtrabackup。
+
 
 ## 安裝 XtraBackup
 
