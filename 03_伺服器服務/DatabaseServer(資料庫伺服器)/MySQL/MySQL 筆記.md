@@ -37,9 +37,9 @@
 		- [mysql-master 加入下列到 my.cnf](#mysql-master-加入下列到-mycnf)
 		- [3.備份mysql-master](#3備份mysql-master)
 - [例外狀況](#例外狀況)
-	- [MySQL 除錯 - 修復損壞的innodb：innodb\_force\_recovery](#mysql-除錯---修復損壞的innodbinnodb_force_recovery)
-	- [MySQL 除錯 - \[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#mysql-除錯---warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
-	- [MySQL 除錯 - Table 'db.table' doesn't exist (1146)](#mysql-除錯---table-dbtable-doesnt-exist-1146)
+	- [修復損壞的innodb：innodb\_force\_recovery](#修復損壞的innodbinnodb_force_recovery)
+	- [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
+	- [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
 	- [MySQL Percona innobackupex 和 xtrabackup 有何不同？](#mysql-percona-innobackupex-和-xtrabackup-有何不同)
 	- [安裝 XtraBackup](#安裝-xtrabackup)
@@ -114,6 +114,10 @@
 [innobackupex 選項參考](https://docs.percona.com/percona-xtrabackup/2.4/innobackupex/innobackupex_option_reference.html)
 
 [Can I backup remote databases from my local server - 我可以從本地服務器備份遠程數據庫嗎](https://forums.percona.com/t/can-i-backup-remote-databases-from-my-local-server/2334/3)
+
+[dijeesh-mysql_remote_xtrabackup Github](https://github.com/dijeesh/mysql_remote_xtrabackup/blob/master/mysql_remote_stream_backup.sh)
+
+[如何將 mysql xtrabackup 帶到遠程服務器](https://stackoverflow.com/questions/71567854/how-to-take-mysql-xtrabackup-to-a-remote-server)
 
 # 安裝步驟
 
@@ -870,7 +874,7 @@ FLUSH TABLES WITH READ LOCK;
 
 # 例外狀況
 
-## MySQL 除錯 - 修復損壞的innodb：innodb_force_recovery
+## 修復損壞的innodb：innodb_force_recovery
 
 [MySQL崩潰-如何修復損壞的innodb：innodb_force_recovery](https://www.twblogs.net/a/5b8201762b71772165af295d)
 
@@ -884,7 +888,7 @@ InnoDB: Error: could not open single-table tablespace file ./data_dep/report.ibd
 innodb引擎出了問題
 ```
 
-## MySQL 除錯 - [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
+## [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
 
 [MySQL warning "IP address could not be resolved"](https://serverfault.com/questions/393862/mysql-warning-ip-address-could-not-be-resolved)
 
@@ -906,7 +910,7 @@ innodb引擎出了問題
     echo "192.241.xx.xx venus.example.com venus" >> /etc/hosts
 ```
 
-## MySQL 除錯 - Table 'db.table' doesn't exist (1146)
+## Table 'db.table' doesn't exist (1146)
 
 ```sql
 -- 檢查原因
