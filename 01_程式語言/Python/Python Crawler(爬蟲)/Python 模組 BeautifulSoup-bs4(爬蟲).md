@@ -35,8 +35,11 @@
 # 指令
 
 ```bash
-# 安裝套件
+# 安裝套件(舊版)
 pip install BeautifulSoup
+
+# 新的
+pip install beautifulsoup4
 ```
 
 # 用法
