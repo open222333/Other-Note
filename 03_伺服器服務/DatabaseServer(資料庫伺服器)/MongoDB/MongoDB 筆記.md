@@ -16,6 +16,7 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 		- [操作相關](#操作相關)
 		- [備份腳本相關](#備份腳本相關)
 		- [例外相關](#例外相關)
+		- [指令相關](#指令相關)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 	- [配置檔案設定](#配置檔案設定)
 	- [防火牆設定](#防火牆設定)
@@ -64,15 +65,7 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 
 [db.createUser() - 創建使用者](https://www.mongodb.com/docs/manual/reference/method/db.createUser/)
 
-[mongod 資料庫指令 manpage](https://docs.mongodb.com/manual/reference/program/mongod/)
-
 [Connection String URI Format - 連線資料庫字串格式](https://www.mongodb.com/docs/manual/reference/connection-string/)
-
-[mongodump reference page(文檔) - 匯出](https://docs.mongodb.com/database-tools/mongodump/#mongodb-binary-bin.mongodump)
-
-[mongorestore reference page(文檔) - 匯入](https://docs.mongodb.com/database-tools/mongorestore/#mongodb-binary-bin.mongorestore)
-
-[mongorestore - 匯入 中文文檔](https://www.docs4dev.com/docs/zh/mongodb/v3.6/reference/reference-program-mongorestore.html)
 
 ### 備份腳本相關
 
@@ -81,6 +74,17 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 ### 例外相關
 
 [mongodb - 聚合管道抛出错误 "A pipeline stage specification object must contain exactly one field."](https://www.coder.work/article/39368)
+
+### 指令相關
+
+[mongod 資料庫指令 manpage](https://docs.mongodb.com/manual/reference/program/mongod/)
+
+[mongodump reference page(文檔) - 匯出](https://docs.mongodb.com/database-tools/mongodump/#mongodb-binary-bin.mongodump)
+
+[mongorestore reference page(文檔) - 匯入](https://docs.mongodb.com/database-tools/mongorestore/#mongodb-binary-bin.mongorestore)
+
+[mongorestore - 匯入 中文文檔](https://www.docs4dev.com/docs/zh/mongodb/v3.6/reference/reference-program-mongorestore.html)
+
 
 # 安裝步驟 CentOS7
 
@@ -235,7 +239,48 @@ ps -ef|grep mongod
 ```bash
 # 執行檔mongodb 用來連入DB, 預設port 27017
 # 進入後指令查看下方
-mongo
+mongo [options] [db address] [file names (ending in .js)]
+	# db address can be:
+	# foo                   foo database on local machine
+	# 192.169.0.5/foo       foo database on 192.168.0.5 machine
+	# 192.169.0.5:9999/foo  foo database on 192.168.0.5 machine on port 9999
+	# Options:
+	# --shell                               run the shell after executing files
+	# --nodb                                don't connect to mongod on startup - no
+	# 										'db address' arg expected
+	# --norc                                will not run the ".mongorc.js" file on
+	# 										start up
+	# --quiet                               be less chatty
+	# --port arg                            port to connect to
+	# --host arg                            server to connect to
+	# --eval arg                            evaluate javascript
+	# -h [ --help ]                         show this usage information
+	# --version                             show version information
+	# --verbose                             increase verbosity
+	# --ipv6                                enable IPv6 support (disabled by
+	# 										default)
+	# --ssl                                 use SSL for all connections
+	# --sslCAFile arg                       Certificate Authority file for SSL
+	# --sslPEMKeyFile arg                   PEM certificate/key file for SSL
+	# --sslPEMKeyPassword arg               password for key in PEM file for SSL
+	# --sslCRLFile arg                      Certificate Revocation List file for
+	# 										SSL
+	# --sslAllowInvalidHostnames            allow connections to servers with
+	# 										non-matching hostnames
+	# --sslAllowInvalidCertificates         allow connections to servers with
+	# 										invalid certificates
+	# --sslFIPSMode                         activate FIPS 140-2 mode at startup
+
+	# Authentication Options:
+	# -u [ --username ] arg                 username for authentication
+	# -p [ --password ] arg                 password for authentication
+	# --authenticationDatabase arg          user source (defaults to dbname)
+	# --authenticationMechanism arg (=MONGODB-CR)
+	# 										authentication mechanism
+	# --gssapiServiceName arg (=mongodb)    Service name to use when authenticating
+	# 										using GSSAPI/Kerberos
+	# --gssapiHostName arg                  Remote host name to use for purpose of
+	# 										GSSAPI/Kerberos authentication
 
 # 查看log(需安裝jq)
 cat mongod.log | jq
