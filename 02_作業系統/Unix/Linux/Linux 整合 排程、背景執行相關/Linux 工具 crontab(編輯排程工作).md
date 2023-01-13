@@ -41,6 +41,9 @@ crontab -u gtwang -e
 
 # 刪除 crontab 內容
 crontab -r
+
+# 修改預設編輯器(Ubuntu)
+select-editor
 ```
 
 ## crontab 排程時間設定
@@ -93,3 +96,4 @@ CMD | 定期執行指令 | 例如:/path/to/cmd --your --parameter
 @weekly | 每週執行一次，亦即 0 0 * * 0。
 @daily | 每天執行一次，亦即 0 0 * * *。
 @hourly | 每小時執行一次，亦即 0 * * * *。
+
