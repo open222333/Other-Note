@@ -14,6 +14,10 @@
 
 [即時監控 Nginx 網頁伺服器狀態，啟用 stub_status 模組](https://blog.gtwang.org/linux/nginx-enable-stub_status-module-to-collect-metrics/)
 
+### 例外狀況
+
+[Nginx启动报错Cannot allocate memory](https://www.cnblogs.com/93bok/p/12424895.html)
+
 # 安裝
 
 ## 安裝步驟 MacOS
@@ -428,4 +432,40 @@ reading — 讀取客戶端的連接數
 writing — 響應數據到客戶端的數量
 
 waiting — 開啟 keep-alive 的情況下,這個值等於 active – (reading+writing), 意思就是 Nginx 已經處理完正在等候下一次請求指令的駐留連接.
+```
+
+# 例外處理
+
+## nginx: [warn] could not build optimal server_names_hash, you should increase either server_names_hash_max_size: 1024 or server_names_hash_bucket_size: 128; ignoring server_names_hash_bucket_size
+
+```
+nginx -t 有出現此警告
+```
+
+```
+nginx: [warn] could not build optimal server_names_hash, you should increase either server_names_hash_max_size: 1024 or server_names_hash_bucket_size: 128; ignoring server_names_hash_bucket_size
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+`修改 /etc/nginx/nginx.conf`
+
+```conf
+; /etc/nginx/nginx.conf
+server_names_hash_max_size = 2048
+server_names_hash_bucket_size = 256
+```
+
+## Cannot allocate memory
+
+```bash
+# 查看記憶體 還剩多少
+free -m
+```
+
+`/etc/nginx/nginx.conf`
+
+```conf
+; 把上邊的500m改成free內存的數量即可，但是也不要一點不剩，這裡改成了50m
+fastcgi_cache_path /data/www/wordpress/fastcgi/ngx_fcgi_cache levels=2:2 keys_zone=ngx_fcgi_cache:500m inactive=30s max_size=5g;
 ```
