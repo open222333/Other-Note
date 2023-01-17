@@ -1,15 +1,22 @@
-# linux 工具 certbot(https憑證)
+# Linux 工具 certbot(https憑證)
 
 ```
 ```
 
 ## 目錄
 
-- [linux 工具 certbot(https憑證)](#linux-工具-certbothttps憑證)
+- [Linux 工具 certbot(https憑證)](#linux-工具-certbothttps憑證)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝步驟 CentOS](#安裝步驟-centos)
+		- [安裝相關](#安裝相關)
+		- [撤銷證書相關](#撤銷證書相關)
+- [安裝步驟](#安裝步驟)
+	- [CentOS](#centos)
 - [指令](#指令)
+	- [建立](#建立)
+	- [刷新](#刷新)
+	- [測試檢查 查看](#測試檢查-查看)
+	- [撤銷](#撤銷)
 - [配置文件](#配置文件)
 	- [CloudFlare ini文檔](#cloudflare-ini文檔)
 
@@ -25,9 +32,17 @@
 
 [設定 Let's Encrypt HTTPS nginx certbot SSL 憑證自動更新 教學](https://blog.hellojcc.tw/setup-https-with-letsencrypt-on-nginx/)
 
-# 安裝步驟 CentOS
+### 安裝相關
 
 [安裝snapd](https://snapcraft.io/docs/installing-snap-on-centos)
+
+### 撤銷證書相關
+
+[Certbot 刪除 Let’s Encrypt 頒發的網域 SSL 憑證教學與範例](https://officeguide.cc/letsencrypt-certbot-delete-ssl-certificate-domain-tutorial-examples/)
+
+# 安裝步驟
+
+## CentOS
 
 ```bash
 # 安裝EPEL
@@ -66,6 +81,8 @@ yum install python2-certbot-dns-cloudflare -y
 
 # 指令
 
+## 建立
+
 ```bash
 # 可以註冊沒有電子郵件地址的帳戶 信箱(用於寄信通知用)
 certbot --register-unsafely-without-email
@@ -82,7 +99,11 @@ certbot -c cli.ini certonly --dns-cloudflare --no-autorenew -d test.com -d *.tes
 		Obtain certificates using a DNS TXT record (if you are using Cloudflare for DNS). (default: False)
 	--no-autorenew
 		Disable auto renewal of certificates. (default: True)
+```
 
+## 刷新
+
+```bash
 # 測試單次執行刷新憑證
 certbot renew -c cli-setting.ini --dns-cloudflare --cert-name %domain% --dry-run
 	-c CONFIG_FILE, --config CONFIG_FILE
@@ -96,6 +117,13 @@ certbot renew -c cli-setting.ini --dns-cloudflare --cert-name %domain% --dry-run
 	--no-autorenew
 
 	--cert-name {domain}
+```
+
+## 測試檢查 查看
+
+```bash
+# 列出 certbot 所有網域設定檔
+ls /etc/letsencrypt/renewal/
 
 # 測試檢查當前機器的憑證
 certbot certificates
@@ -109,6 +137,16 @@ certbot certificates
 		Key Type: RSA
 		Private Key Path: /etc/letsencrypt/live/example.com/privkey.pem
 	'''
+```
+
+## 撤銷
+
+```bash
+# 撤銷 my.domain.tw 網域 SSL 憑證
+certbot revoke --cert-path /etc/letsencrypt/live/my.domain.tw/cert.pem
+
+# 刪除 my.domain.tw 網域 SSL 憑證與相關設定
+sudo certbot delete --cert-name my.domain.tw
 ```
 
 # 配置文件
