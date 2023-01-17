@@ -317,6 +317,9 @@ git push origin +HEAD:{brach}
 
 ```bash
 ### Git Add ###
+# 
+git add .
+
 # 將資料先暫存到 staging area, add 之後再新增的資料, 於此次 commit 不會含在裡面.
 git add filename
 
