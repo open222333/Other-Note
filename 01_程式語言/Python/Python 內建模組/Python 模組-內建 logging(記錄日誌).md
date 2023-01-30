@@ -40,7 +40,9 @@
 
 [Python Logging 套件最詳盡中文教學 | Python教學、Python入門](https://stylengineer.com/program/python-logging-guide/)
 
-[](https://orcahmlee.github.io/python/python-logging/)
+[logging：如何使用 logging 紀錄事件](https://orcahmlee.github.io/python/python-logging/)
+
+[python log 檔限制大小問題](https://mark1002.github.io/2018/05/27/python-log-%E6%AA%94%E9%99%90%E5%88%B6%E5%A4%A7%E5%B0%8F%E5%95%8F%E9%A1%8C/)
 
 ## Log 的呈現 / 輸出方式
 
