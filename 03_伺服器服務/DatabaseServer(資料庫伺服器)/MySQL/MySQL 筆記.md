@@ -99,6 +99,8 @@
 
 [percona 官網](https://www.percona.com/software/documentation)
 
+[在 Red Hat Enterprise Linux 和 CentOS 上安裝 Percona XtraBackup](https://docs.percona.com/percona-xtrabackup/2.4/installation/yum_repo.html#whats-in-each-rpm-package)
+
 [Running Percona XtraBackup in a Docker container](https://www.percona.com/doc/percona-xtrabackup/2.4/installation/docker.html)
 
 [bitnami/percona-xtrabackup](https://hub.docker.com/r/bitnami/percona-xtrabackup/)
@@ -933,6 +935,12 @@ innobackupex：(裡面封裝 xtrabackup 的 script 在裡面)
 ## 安裝 XtraBackup
 
 ```bash
+# 安裝 percona-release 的 yum 存儲庫
+yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
+
+# 列出 可安裝套件
+yum list | grep percona
+
 # 安裝
 yum install percona-xtrabackup-24 -y
 
