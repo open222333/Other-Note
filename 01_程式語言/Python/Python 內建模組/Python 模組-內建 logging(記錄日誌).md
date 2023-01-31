@@ -22,9 +22,13 @@
 - [Python 模組-內建 logging(記錄日誌)](#python-模組-內建-logging記錄日誌)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [類別相關](#類別相關)
 		- [教學範例](#教學範例)
 	- [Log 的呈現 / 輸出方式](#log-的呈現--輸出方式)
 - [用法](#用法)
+	- [基本用法](#基本用法)
+	- [基本用法 - 指定log檔案大小](#基本用法---指定log檔案大小)
+	- [基本用法 - 指定時間](#基本用法---指定時間)
 	- [log 訊息分別以不同的格式輸出到不同的地方](#log-訊息分別以不同的格式輸出到不同的地方)
 	- [同一個 application 中使用不同型態的 logger 的結果 dictConfig()用法](#同一個-application-中使用不同型態的-logger-的結果-dictconfig用法)
 	- [使用配置文檔](#使用配置文檔)
@@ -33,6 +37,12 @@
 ## 參考資料
 
 [logging 官方文檔](https://docs.python.org/zh-tw/3/library/logging.html)
+
+### 類別相關
+
+[RotatingFileHandler](https://docs.python.org/zh-tw/3/library/logging.handlers.html#rotatingfilehandler)
+
+[TimedRotatingFileHandler](https://docs.python.org/zh-tw/3/library/logging.handlers.html#timedrotatingfilehandler)
 
 ### 教學範例
 
@@ -82,6 +92,46 @@ logger.info('info message')
 logger.warning('warn message')
 logger.error('error message')
 logger.critical('critical message')
+```
+
+## 基本用法
+
+```Python
+import logging
+
+logger = logging.getLogger('sample')
+log_handler = logging.FileHandler('sample.log')
+log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(log_formatter)
+logger.addHandler(log_handler)
+```
+
+## 基本用法 - 指定log檔案大小
+
+```Python
+import logging
+from logging.handlers import RotatingFileHandler
+
+logger = logging.getLogger('sample')
+# 使用 maxBytes 和 backupCount 值來允許文件以預定的大小
+log_handler = RotatingFileHandler('sample.log', maxBytes=0, backupCount=0)
+log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(log_formatter)
+logger.addHandler(log_handler)
+```
+
+## 基本用法 - 指定時間
+
+```Python
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
+logger = logging.getLogger('sample')
+# https://docs.python.org/zh-tw/3/library/logging.handlers.html#timedrotatingfilehandler
+log_handler = TimedRotatingFileHandler('sample.log', when='D', interval=1, backupCount=1)
+log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+log_handler.setFormatter(log_formatter)
+logger.addHandler(log_handler)
 ```
 
 ## log 訊息分別以不同的格式輸出到不同的地方
