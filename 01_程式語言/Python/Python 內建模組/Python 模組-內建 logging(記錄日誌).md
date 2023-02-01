@@ -54,6 +54,8 @@
 
 [python log 檔限制大小問題](https://mark1002.github.io/2018/05/27/python-log-%E6%AA%94%E9%99%90%E5%88%B6%E5%A4%A7%E5%B0%8F%E5%95%8F%E9%A1%8C/)
 
+[python通過TimedRotatingFileHandler按時間切割日誌](https://www.796t.com/content/1563349863.html)
+
 ## Log 的呈現 / 輸出方式
 
 事件會被記錄成 log，而 log 有兩種呈現 / 輸出方式：
@@ -132,6 +134,61 @@ log_handler = TimedRotatingFileHandler('sample.log', when='D', interval=1, backu
 log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 log_handler.setFormatter(log_formatter)
 logger.addHandler(log_handler)
+```
+
+```Python
+from logging import handlers
+import logging
+import os
+
+
+def _logging(**kwargs):
+
+    level = kwargs.pop('level', None)
+    filename = kwargs.pop('filename', None)
+    datefmt = kwargs.pop('datefmt', None)
+    format = kwargs.pop('format', None)
+
+    if level is None:
+        level = logging.DEBUG
+    if filename is None:
+        filename = 'default.log'
+    if datefmt is None:
+        datefmt = '%Y-%m-%d %H:%M:%S'
+    if format is None:
+        format = '%(asctime)s [%(module)s] %(levelname)s [%(lineno)d] %(message)s'
+
+    log = logging.getLogger(filename)
+    format_str = logging.Formatter(format, datefmt)
+
+    def namer(filename):
+        return filename.split('default.')[1]
+
+    # cmd = logging.StreamHandler()
+    # cmd.setFormatter(format_str)
+    # cmd.setLevel(level)
+    # log.addHandler(cmd)
+
+    os.makedirs("./debug/logs", exist_ok=True)
+    th_debug = handlers.TimedRotatingFileHandler(filename="./debug/" + filename, when='D', backupCount=3, encoding='utf-8')
+    # th_debug.namer = namer
+    th_debug.suffix = "%Y-%m-%d.log"
+    th_debug.setFormatter(format_str)
+    th_debug.setLevel(logging.DEBUG)
+    log.addHandler(th_debug)
+
+    th = handlers.TimedRotatingFileHandler(filename=filename, when='D', backupCount=3, encoding='utf-8')
+    # th.namer = namer
+    th.suffix = "%Y-%m-%d.log"
+    th.setFormatter(format_str)
+    th.setLevel(logging.INFO)
+    log.addHandler(th)
+    log.setLevel(level)
+    return log
+
+
+os.makedirs('./logs', exist_ok=True)
+logger = _logging(filename='./logs/default')
 ```
 
 ## log 訊息分別以不同的格式輸出到不同的地方
