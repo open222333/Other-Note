@@ -8,4 +8,8 @@
 
 ## 參考資料
 
+[PowerShell - wiki](https://zh.wikipedia.org/zh-tw/PowerShell)
+
+[PowerShell - 官方文檔](https://learn.microsoft.com/zh-tw/powershell/)
+
 [指令查詢](https://ss64.com/ps/)
