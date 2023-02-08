@@ -363,6 +363,18 @@ location /images {
 try_files $uri /$uri /index.html;
 ```
 
+## 範例
+
+### 從 HTTP 重定向到 HTTPS
+
+```nginx
+server {
+    listen 80 default_server;
+    server_name _;
+    return 301 https://$host$request_uri;
+}
+```
+
 # 紀錄檔 log
 
 ```
