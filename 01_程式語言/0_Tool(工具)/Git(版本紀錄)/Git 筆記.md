@@ -34,7 +34,7 @@
 	- [Bash 刪除所有Tag](#bash-刪除所有tag)
 	- [log 查看log紀錄](#log-查看log紀錄)
 	- [show](#show)
-	- [reset 還原](#reset-還原)
+	- [reset 還原 退回版本](#reset-還原-退回版本)
 	- [update-ref 刪除HEAD(適用取消首次commit)](#update-ref-刪除head適用取消首次commit)
 	- [grep 查詢](#grep-查詢)
 	- [stash 暫存](#stash-暫存)
@@ -317,7 +317,7 @@ git push origin +HEAD:{brach}
 
 ```bash
 ### Git Add ###
-# 
+#
 git add .
 
 # 將資料先暫存到 staging area, add 之後再新增的資料, 於此次 commit 不會含在裡面.
@@ -667,10 +667,21 @@ git show HEAD^^
 git show HEAD~4
 ```
 
-## reset 還原
+## reset 還原 退回版本
 
 ```bash
 ### Git reset 還原 ###
+# HEAD 表示當前版本
+# HEAD^ 上一個版本
+# HEAD^^ 上上一個版本
+# HEAD^^^ 上上上一個版本
+# HEAD~0 表示當前版本
+# HEAD~1 上一個版本
+# HEAD^2 上上一個版本
+# HEAD^3 上上上一個版本
+git reset [-- soft | -- mixed | -- hard ] [ HEAD ]
+# --mixed為默認，可以不用帶該參數，用於重置暫存區的文件與上一次的提交(commit)保持一致，工作區文件內容保持不變。
+
 #  還原到最前面
 git reset --hard HEAD
 
@@ -678,11 +689,24 @@ git reset --hard HEAD
 git reset --hard HEAD^
 git reset --hard HEAD~3
 
+# 回退上上上一個版本
+git reset -- hard HEAD~3
+# 回退到某個版本回退點之前的所有信息。
+git reset – hard bae128
+ # 將本地的狀態回退到和遠程的一樣
+git reset -- hard origin / master
+
 #  本地檔案不異動，純紀錄異動
 git reset --soft HEAD~3
 
 #  從 staging area 狀態回到 unstaging 或 untracked (檔案內容並不會改變)
 git reset HEAD filename
+
+# 回退到指定版本
+git reset 052e
+
+# 回退 hello.php 文件的版本到上一個版本
+git reset HEAD^ hello.php
 ```
 
 ## update-ref 刪除HEAD(適用取消首次commit)

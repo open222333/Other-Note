@@ -7,6 +7,7 @@
 	- [參考資料](#參考資料)
 		- [特殊變數、方法相關](#特殊變數方法相關)
 		- [環境變數相關](#環境變數相關)
+		- [類別相關](#類別相關)
 		- [pip(模組管理工具)](#pip模組管理工具)
 		- [Command Line Interface(CLI)](#command-line-interfacecli)
 	- [Python書籍推薦](#python書籍推薦)
@@ -22,6 +23,9 @@
 	- [字典(dict)](#字典dict)
 	- [元組(tuple)](#元組tuple)
 	- [集合(set)](#集合set)
+- [類別(class)](#類別class)
+	- [修飾詞 staticmethod](#修飾詞-staticmethod)
+	- [修飾詞 classmethod](#修飾詞-classmethod)
 - [關鍵字](#關鍵字)
 	- [yield](#yield)
 - [函式](#函式)
@@ -44,6 +48,10 @@
 ### 環境變數相關
 
 [環境變數 Windows](https://hackmd.io/@yizhewang/B1zdXG4br)
+
+### 類別相關
+
+[Python 的 staticmethod 與 classmethod](https://ji3g4zo6qi6.medium.com/python-tips-5d36df9f6ad5)
 
 ### pip(模組管理工具)
 
@@ -254,6 +262,33 @@ d = {key1: value1, key2: value2}
 
 ```
 只允許不可變成員，例如：元組，不允許串列、字典被加入集合。
+```
+
+# 類別(class)
+
+## 修飾詞 staticmethod
+
+```
+因為是被綁定在類別中，所以不需要建立物件即可使用。
+也因此無法存取物件資料，只能對傳入的參數做處理。
+```
+
+```Python
+@staticmethod
+def func(args, ...)
+```
+
+## 修飾詞 classmethod
+
+```
+classmethod與staticmethod的差別
+因為classmethod利用的cls來把自己綁定在類別上，所以classmethod可以透過cls來呼叫類別內的成員；
+但staticmethod只能操作傳入的參數。
+```
+
+```Python
+@classmethod
+def func(cls, args...)
 ```
 
 # 關鍵字
