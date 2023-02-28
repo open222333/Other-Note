@@ -129,6 +129,17 @@ if (match !== null) {
 	path = match[3]; // path == -d
 }
 
+let url = /(?<protocol>\w+):\/\/(?<host>[\w.]+)\/(?<path>\S*)/;
+let text = "Visit my blog at http://www.example.com/-d";
+let match = text.match(url);
+match[0] // => "http://www.example.com/-d"
+match.input // => text
+match.index // => 17
+match.groups.protocol // => "http"
+match.groups.host // => "www.example.com"
+match.groups.path // => "-d"
+
+
 // 尋找字串中匹配的部分，並取代之。
 String.prototype.replace()
 text.replace(/javascript/gi, "JavaScript")
@@ -140,6 +151,7 @@ String.prototype.search()
 
 // 在字串根據匹配到的項目拆成陣列。
 String.prototype.split()
+"1, 2, 3,\n4, 5".split(/\s*,\s*/) // => [ '1', '2', '3', '4', '5' ]
 ```
 
 # 旗標(flags)
