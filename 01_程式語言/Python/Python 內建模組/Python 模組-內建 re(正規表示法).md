@@ -45,8 +45,23 @@ re.search(pattern,string,flags)
 re.findall(pattern,string,flags)
     # 參數:re.I(re.IGNORECASE)：搜尋時忽略大小寫
     # 參數:re.VERBOSE：在正則表達式內增加註解
+	
 # 將搜尋結果回傳
 group()
+m = re.match(r"(?P<first_name>\w+) (?P<last_name>\w+)", "Isaac Newton")
+m['first_name']
+m['last_name']
+
+m = re.match(r"(?P<first_name>\w+) (?P<last_name>\w+)", "Malcolm Reynolds")
+m.group('first_name')
+m.group('last_name')
+
+m = re.match(r"(\w+) (\w+)", "Isaac Newton, physicist")
+m.group(0)       # The entire match
+m.group(1)       # The first parenthesized subgroup.
+m.group(2)       # The second parenthesized subgroup.
+m.group(1, 2)    # Multiple arguments give us a tuple.
+
 # 可傳回搜尋到字串的結束位置
 end()
 # 可傳回搜尋到字串的起始位置
