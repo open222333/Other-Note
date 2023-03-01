@@ -64,6 +64,8 @@ script 運作時需要的環境變數預先宣告與設定。
 
 [Bash Script 語法解析 - 各種單雙括弧、特殊符號語法](https://medium.com/vswe/bash-shell-script-cheat-sheet-15ce3cb1b2c7)
 
+[How can I replace each newline (\n) with a space using sed? - 替換\n tr '\n' ' ' < input_filename](https://stackoverflow.com/questions/1251999/how-can-i-replace-each-newline-n-with-a-space-using-sed)
+
 # 特殊變數
 
 ```bash

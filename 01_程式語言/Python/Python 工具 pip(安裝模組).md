@@ -30,6 +30,8 @@
 
 [pip cannot uninstall <package>: "It is a distutils installed project"](https://stackoverflow.com/questions/53807511/pip-cannot-uninstall-package-it-is-a-distutils-installed-project)
 
+[Python module not found even though "Requirement Already satisfied in Pip"](https://stackoverflow.com/questions/45345377/python-module-not-found-even-though-requirement-already-satisfied-in-pip)
+
 # 安裝步驟 CentOS7
 
 ```bash
@@ -70,6 +72,7 @@ pip install package==version
 
 # 更新指定版本
 pip install --upgrade package==version
+pip install -U package==version
 
 # 移除安裝過的套件
 pip uninstall package
