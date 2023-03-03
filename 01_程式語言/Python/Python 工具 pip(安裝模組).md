@@ -5,6 +5,7 @@
 - [Python 工具 pip(安裝模組)](#python-工具-pip安裝模組)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [指令心得相關](#指令心得相關)
 		- [狀況相關](#狀況相關)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [指令](#指令)
@@ -14,17 +15,21 @@
 
 ## 參考資料
 
-[pip](http://pip.readthedocs.org/en/stable/user_guide/#configuration)
+[官方文檔網站](https://pip.pypa.io/en/stable/#)
+
+[User Guide - 官方教學](http://pip.readthedocs.org/en/stable/user_guide/#configuration)
 
 `需要在 pip.ini 檔案中指定預設安裝位置`
 
-[Pip freeze generating '@ file:///' on conda environment](https://stackoverflow.com/questions/62863020/pip-freeze-generating-file-on-conda-environment)
+[官方 指令](https://pip.pypa.io/en/stable/cli/)
+
+### 指令心得相關
+
+[Pip freeze generating '@ file:///' on conda environment - 匯出requirement.txt格式](https://stackoverflow.com/questions/62863020/pip-freeze-generating-file-on-conda-environment)
 
 [pip list](https://pip.pypa.io/en/stable/cli/pip_list/)
 
 [pip freeze](https://pip.pypa.io/en/stable/cli/pip_freeze/)
-
-[所有指令](https://pip.pypa.io/en/stable/cli/)
 
 ### 狀況相關
 
@@ -69,6 +74,9 @@ pip install -r requirements.txt
 
 # 安裝指定版本
 pip install package==version
+
+# 查看package可安裝版本
+pip install package==
 
 # 更新指定版本
 pip install --upgrade package==version
