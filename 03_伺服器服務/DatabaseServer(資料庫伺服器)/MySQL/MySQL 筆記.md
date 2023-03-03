@@ -64,6 +64,8 @@
 
 [MySQL 8.0版本 指令](https://dev.mysql.com/doc/refman/8.0/en/mysql-command-options.html)
 
+[MySQL 8.0版本 文檔](https://dev.mysql.com/doc/refman/8.0/en/)
+
 [MySQL 5.7版本 文檔](https://dev.mysql.com/doc/refman/5.7/en/)
 
 [MySQL 教程](https://www.itread01.com/study/mysql-tutorial.html)
@@ -331,7 +333,7 @@ mysqldump -h source_MySQL_DB_instance_endpoint \
 
 # -d 只匯出表結構不導表資料
 # mysqldump -u[使用者名稱] -h[ip] -p[密碼] -P[埠號] 資料庫名 表名 >匯出的檔名.sql
-mysqldump -uuser -h127.0.0.1 -ppassword -P3306 -d dbname tablename>name.sql
+mysqldump -uuser -h127.0.0.1 -ppassword -P3306 --no-data dbname tablename>name.sql
 
 
 mysqldump -h 127.0.0.1 \
@@ -349,8 +351,6 @@ mysqldump -h 127.0.0.1 \
 # 	--column-statistics=0
 # 	多個資料庫
 # 	--databases db1 db2
-# 	所有資料庫
-# 	--all-databases
 # 	在每個創建數據庫表語句前添加刪除數據庫表的語句
 # 	--add-drop-table
 # 	備份數據庫表時鎖定數據庫表
@@ -393,7 +393,7 @@ mysqldump -h(ip) -uroot -p(password) databasename table1 table2 > database.sql
 # 恢復資料庫
 mysql -h(ip) -uroot -p(password) databasename< database.sql
 # 複製資料庫
-mysqldump –all-databases >all-databases.sql
+mysqldump –-all-databases >all-databases.sql
 # 修復資料庫
 mysqlcheck -A -o -uroot -p54safer
 
