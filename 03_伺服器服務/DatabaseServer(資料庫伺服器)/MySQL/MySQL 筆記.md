@@ -31,19 +31,17 @@
 	- [資料庫指令 - 使用者](#資料庫指令---使用者)
 	- [密碼設定強度修改](#密碼設定強度修改)
 - [許可權 列表](#許可權-列表)
-- [Master-Slave 主從架構](#master-slave-主從架構)
-	- [自行架設成功的步驟](#自行架設成功的步驟)
-	- [公司文檔 步驟](#公司文檔-步驟)
-		- [1.mysql-master設定](#1mysql-master設定)
-		- [mysql-master server\_id和log\_bin變數正確跳至第一步-建立master-slave使用者](#mysql-master-server_id和log_bin變數正確跳至第一步-建立master-slave使用者)
-		- [2.mysql-slave設定](#2mysql-slave設定)
-		- [mysql-slave server\_id和read\_only變數正確跳至第三步](#mysql-slave-server_id和read_only變數正確跳至第三步)
-		- [mysql-master 加入下列到 my.cnf](#mysql-master-加入下列到-mycnf)
-		- [3.備份mysql-master](#3備份mysql-master)
 - [例外狀況](#例外狀況)
 	- [修復損壞的innodb：innodb\_force\_recovery](#修復損壞的innodbinnodb_force_recovery)
 	- [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
 	- [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
+	- [升級為GTID模式](#升級為gtid模式)
+- [Master-Slave 主從架構架設](#master-slave-主從架構架設)
+	- [mysql-master設定](#mysql-master設定)
+	- [mysql-slave設定](#mysql-slave設定)
+	- [備份mysql-master](#備份mysql-master)
+	- [恢復備份到mysql-slave](#恢復備份到mysql-slave)
+		- [Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#slave_sql_running-no-slave_io_running-no-解決方案)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
 	- [MySQL Percona innobackupex 和 xtrabackup 有何不同？](#mysql-percona-innobackupex-和-xtrabackup-有何不同)
 	- [安裝 XtraBackup](#安裝-xtrabackup)
@@ -90,6 +88,8 @@
 
 [Unknown table 'COLUMN_STATISTICS' in information_schema (1109)](https://serverfault.com/questions/912162/mysqldump-throws-unknown-table-column-statistics-in-information-schema-1109)
 
+[mysql 優化技巧心得一(key_buffer_size設定)](https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/410436/)
+
 ### Master-Slave(主從環境)相關
 
 [MySQL Replication 主從式架構設定教學](https://blog.toright.com/posts/5062/mysql-replication-%E4%B8%BB%E5%BE%9E%E5%BC%8F%E6%9E%B6%E6%A7%8B%E8%A8%AD%E5%AE%9A%E6%95%99%E5%AD%B8.html)
@@ -98,9 +98,15 @@
 
 [docker-compose搭建mysql主從環境](https://hub.docker.com/r/bitnami/mysql)
 
+[Slave_IO_Running Slave_SQL_Running 排錯](https://www.cnblogs.com/l-hh/p/9922548.html#_label0)
+
+[mysql系列（一）—— 细说show slave status参数详解（最全）](https://blog.51cto.com/zhengmingjing/1910565)
+
 ### 操作相關
 
 [MySQL列出所有表](https://www.yiibai.com/mysql/show-tables.html)
+
+[MySQL 在线开启/关闭GTID](http://blog.itpub.net/31429259/viewspace-2643665/)
 
 ### 備份相關
 
@@ -428,9 +434,6 @@ mysql -uabc_f -p abc < abc.sql
 
 # 配置文檔
 
-[mysql 優化技巧心得一(key_buffer_size設定)](https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/410436/)
-
-
 設定檔位置:
 
 ```
@@ -571,6 +574,7 @@ use 庫名;
 
 -- 建立表
 create table 表名 (欄位設定列表);
+CREATE TABLE test (First_Name char(50),Last_Name char(50));
 -- 刪除表
 drop table 表名;
 -- 修改表
@@ -739,188 +743,6 @@ SUPER
 USAGE (無訪問許可權)
 ```
 
-# Master-Slave 主從架構
-
-```
-MYSQL_REPLICATION_MODE: 複製模式。可能的值master/ slave。沒有默認值。
-MYSQL_REPLICATION_USER：第一次運行時在主服務器上創建的複制用戶。沒有默認值。
-MYSQL_REPLICATION_PASSWORD: 複製用戶密碼。沒有默認值。
-MYSQL_MASTER_HOST: 複製主機的主機名/IP（從參數）。沒有默認值。
-MYSQL_MASTER_PORT_NUMBER: 複製master的服務器端口（slave參數）。默認為3306.
-MYSQL_MASTER_ROOT_USER：複製主機上的用戶可以訪問MYSQL_DATABASE（從參數）。默認為root
-MYSQL_MASTER_ROOT_PASSWORD：複製主機上的用戶密碼，可以訪問MYSQL_DATABASE（從參數）。沒有默認值。
-```
-
-## 自行架設成功的步驟
-
-進入MySQL
-
-```sql
-SHOW VARIABLES LIKE 'Position%';
-
--- ======== master server 部分 ========
-
--- 確認mysql-master server_id和log_bin變數
-SHOW VARIABLES LIKE 'server_id%';
-SHOW VARIABLES LIKE 'log_bin%';
-
--- 顯示master狀態：該File列顯示日誌文件的名稱並Position顯示文件中的位置。
--- 記錄這些值。稍後在設置副本時需要它們。
--- 它們表示副本應開始處理來自源的新更新的複制坐標。
-SHOW MASTER STATUS;
-
--- 建立master-slave使用者：要創建新帳戶，請使用CREATE USER。
--- 要授予此帳戶複製所需的權限，請使用該GRANT 語句。
--- 如果僅為複制目的創建帳戶，則該帳戶只需要 REPLICATION SLAVE權限。
--- 例如，要設置一個repl可以從example.com域內的任何主機連接以進行複制 的新用戶
-CREATE USER 'user'@'host' IDENTIFIED BY 'password';
-GRANT REPLICATION SLAVE ON *.* TO 'user'@'host';
-
--- 列出所有使用者帳號
-SELECT User,Host FROM mysql.user;
-
--- ======== slave server 部分 =====
-
--- 檢查mysql-slave server_id和read_only變數
-SHOW VARIABLES LIKE 'server_id%';
-SHOW VARIABLES LIKE 'read_only%';
-
--- 新增mysql-slave設定master資料 綁定到master
-CHANGE MASTER TO MASTER_HOST = 'master ip',
-MASTER_PORT = 3306,
-MASTER_USER = 'user',
-MASTER_PASSWORD = 'password',
-
--- 在master server時，輸入 SHOW MASTER STATUS 找出的資訊;
-MASTER_LOG_FILE = 'master bin_log filename',
-MASTER_LOG_POS = 'log position';
-
--- 確認slave狀態：SHOW SLAVE STATUS，注意：Slave_IO_Running: Yes、Slave_SQL_Running: Yes
-SHOW SLAVE STATUS\G
-
--- 執行slave
-START SLAVE;
-```
-
-## 公司文檔 步驟
-
-前置安裝 xtrabackup2.4
-
-```bash
-# centos7
-install xtrabackup2.4
-yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-yum list | grep percona
-# percona-xtrabackup-24 MySQL 大量資料時 可用工具
-yum install percona-xtrabackup-24
-
-# ubuntu
-wget https://repo.percona.com/apt/percona-release_1.0-25.generic_all.deb
-dpkg -i percona-release_1.0-25.generic_all.deb
-apt-get update
-apt-get install percona-xtrabackup-24 -y
-```
-
-### 1.mysql-master設定
-
-```bash
-# 登入mysql
-mysql -u{$username} -p{$password}
-```
-
-```sql
--- 確認mysql-master server_id和log_bin變數
-show variables like 'server_id%';
-show variables like  'log_bin%';
-```
-
-### mysql-master server_id和log_bin變數正確跳至第一步-建立master-slave使用者
-
-```bash
-# 停止mysql
-service mysql stop
-```
-
-mysql-master 加入下列到 /etc/my.cnf
-
-```conf
-[mysqld]
-log-bin = mysql-bin
-server-id = 1
-```
-
-```bash
-# 啟動mysql
-service mysql start
-
-# 登入mysql
-mysql -u{$username} -p{$password}
-```
-
-```sql
--- 確認mysql-master server_id和log_bin變數
-show variables like 'server_id%';
-show variables like  'log_bin%';
-
--- 建立master-slave使用者
-CREATE USER 'replication'@'192.168%' IDENTIFIED BY '.wFb9A?$9*WN';
-GRANT REPLICATION SLAVE ON *.* TO 'replication'@'192.168%';
-
--- 檢查使用者
-select User, Host From mysql.user;
-```
-
-### 2.mysql-slave設定
-
-```bash
-# 登入mysql
-mysql -u{$username} -p{$password}
-```
-
-```sql
--- 檢查mysql-slave server_id和read_only變數
-show variables like 'server_id%';
-show variables like  'read_only%';
-```
-
-### mysql-slave server_id和read_only變數正確跳至第三步
-
-```bash
-# 停止mysql
-service mysql stop
-```
-
-### mysql-master 加入下列到 my.cnf
-
-```conf
-[mysqld]
-server-id = 2
-read-only = ON
-```
-
-```bash
-# 啟動mysql
-service mysql start
-
-# 登入mysql
-mysql -u{$username} -p{$password}
-```
-
-```sql
--- 確認mysql-slave server_id和read_only變數
-show variables like 'server_id%';
-show variables like  'read_only%';
-```
-
-### 3.備份mysql-master
-
-```sql
--- master全表鎖定只讀
-FLUSH TABLES WITH READ LOCK;
-
--- 檢查master是否lock
-```
-
 # 例外狀況
 
 ## 修復損壞的innodb：innodb_force_recovery
@@ -966,6 +788,248 @@ innodb引擎出了問題
 mysql> check table db.table;
 ```
 
+## 升級為GTID模式
+
+加入設定到下列(其中一個)設定檔
+/etc/my.cnf
+/etc/mysql/my.cnf
+
+```conf
+gtid_mode = on
+enforce_gtid_consistency = on
+```
+
+# Master-Slave 主從架構架設
+
+```
+MYSQL_REPLICATION_MODE: 複製模式。可能的值master/ slave。沒有默認值。
+MYSQL_REPLICATION_USER：第一次運行時在主服務器上創建的複制用戶。沒有默認值。
+MYSQL_REPLICATION_PASSWORD: 複製用戶密碼。沒有默認值。
+MYSQL_MASTER_HOST: 複製主機的主機名/IP（從參數）。沒有默認值。
+MYSQL_MASTER_PORT_NUMBER: 複製master的服務器端口（slave參數）。默認為3306.
+MYSQL_MASTER_ROOT_USER：複製主機上的用戶可以訪問MYSQL_DATABASE（從參數）。默認為root
+MYSQL_MASTER_ROOT_PASSWORD：複製主機上的用戶密碼，可以訪問MYSQL_DATABASE（從參數）。沒有默認值。
+```
+
+## mysql-master設定
+
+```bash
+# 登入mysql
+mysql -u{$username} -p{$password}
+```
+
+```sql
+-- 確認mysql-master server_id和log_bin變數
+-- mysql-master 若server_id(1)和log_bin(ON)變數正確跳至-建立master-slave使用者
+show variables like 'server_id%';
+show variables like  'log_bin%';
+```
+
+```bash
+# 停止mysql
+service mysql stop
+```
+
+mysql-master 加入設定到下列(其中一個)設定檔
+/etc/my.cnf
+/etc/mysql/my.cnf
+
+```conf
+[mysqld]
+log-bin = mysql-bin
+server-id = 1
+```
+
+```bash
+# 啟動mysql
+service mysql start
+
+# 登入mysql
+mysql -u{$username} -p{$password}
+```
+
+```sql
+-- 確認mysql-master server_id和log_bin變數
+show variables like 'server_id%';
+show variables like  'log_bin%';
+
+-- 建立master-slave使用者
+-- 要授予此帳戶複製所需的權限，請使用該GRANT 語句。
+-- 如果僅為複制目的創建帳戶，則該帳戶只需要 REPLICATION SLAVE權限。
+-- 例如，要設置一個repl可以從example.com域內的任何主機連接以進行複制 的新用戶
+CREATE USER 'replication'@'192.168%' IDENTIFIED BY '.wFb9A?$9*WN';
+GRANT REPLICATION SLAVE ON *.* TO 'replication'@'192.168%';
+
+-- 檢查使用者 列出所有使用者帳號
+select User, Host From mysql.user;
+```
+
+## mysql-slave設定
+
+```bash
+# 登入mysql
+mysql -u{$username} -p{$password}
+```
+
+```sql
+-- 檢查mysql-slave server_id和read_only變數
+-- mysql-slave 若server_id(2)和read_only(ON)變數正確跳至第三步
+show variables like 'server_id%';
+show variables like  'read_only%';
+```
+
+```bash
+# 停止mysql
+service mysql stop
+```
+
+mysql-master 加入設定到下列(其中一個)設定檔
+/etc/my.cnf
+/etc/mysql/my.cnf
+
+```conf
+[mysqld]
+server-id = 2
+read-only = ON
+```
+
+```bash
+# 啟動mysql
+service mysql start
+
+# 登入mysql
+mysql -u{$username} -p{$password}
+```
+
+```sql
+-- 確認mysql-slave server_id和read_only變數
+show variables like 'server_id%';
+show variables like  'read_only%';
+```
+
+## 備份mysql-master
+
+```sql
+-- master全表鎖定只讀
+FLUSH TABLES WITH READ LOCK;
+
+-- 檢查master是否lock
+-- bin_log資料(紀錄file和position)
+SHOW VARIABLES LIKE 'Position%';
+-- 顯示master狀態：該File列顯示日誌文件的名稱並Position顯示文件中的位置。
+-- 記錄這些值。稍後在設置副本時需要它們。
+-- 它們表示副本應開始處理來自源的新更新的複制坐標。
+SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |     2584 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+-- 下方設定 {$master bin_log filename} = mysql-bin.000001
+-- 下方設定 {$log position} = 2584
+```
+
+```bash
+# xtrabackup完全備份
+xtrabackup --user={$username} --password={$password} --backup --target-dir={$xtrabackup_path}
+
+# 將/data目錄傳到mysql-slave機器 $xtrabackup_path 建議不要包含本身資料夾
+rsync -Pr {$xtrabackup_path} root@{$slave ip}:{$xtrabackup_path}
+```
+
+```sql
+-- 解開lock
+UNLOCK TABLES;
+```
+
+## 恢復備份到mysql-slave
+
+```bash
+# 停止mysql
+service mysql stop
+
+# 備份mysql目錄
+cd /var/lib
+cp -r ./mysql ./mysql.bak
+
+# mysql目錄資料清空
+cd mysql
+rm -rf ./*
+
+# 準備備份
+xtrabackup --prepare --target-dir={$xtrabackup_path}
+
+# 恢復備份
+xtrabackup --copy-back --target-dir={$xtrabackup_path}
+
+# mysql目錄權限修改
+chown -R mysql.mysql /var/lib/mysql
+
+# 啟動mysql
+service mysql start
+
+#登入mysql檢查
+mysql -u{$username} -p{$password}
+```
+
+```sql
+-- mysql-slave設定master資料
+CHANGE MASTER TO
+MASTER_HOST='{$master ip}',
+MASTER_PORT=3306,
+MASTER_USER='replication',
+MASTER_PASSWORD='.wFb9A?$9*WN',
+MASTER_LOG_FILE='{$master bin_log filename}',
+MASTER_LOG_POS={$log position};
+
+-- 執行slave
+start slave;
+
+-- 確認slave狀態
+-- Slave_IO_State: Waiting for master to send event
+-- Slave_IO_Running: Yes
+-- Slave_SQL_Running: Yes
+-- Last_IO_Error: 排錯 錯誤訊息
+show slave status\G
+```
+
+### Slave_SQL_Running: No, Slave_IO_Running: No 解決方案
+
+```sql
+-- 第一種 直接跳過一行造成停止的SQL指令
+stop slave;
+set global SQL_SLAVE_SKIP_COUNTER=1;
+start slave;
+show slave status\G
+
+-- 第二種 直接指定Master記錄的File及Position到Slave
+-- Slave_IO_Running: No 也適用
+-- === master部分 ===
+-- 查看Master主機的File和Position的值。
+show master status;
++——————+———–+————–+——————+
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++——————+———–+————–+——————+
+| mysql-bin.000118 | 199777882 | | |
++——————+———–+————–+——————+
+
+-- === slave部分 ===
+-- 停止slave
+stop slave;
+-- 手動設定master資料
+change master to
+master_host=’master_ip’ ,
+master_user=’user’,
+master_password=’pwd’,
+master_port=3306,
+master_log_file=’mysql-bin.000118′,
+master_log_pos=199777882;
+-- 執行slave
+start slave;
+-- 檢查slave狀態
+show slave status\G
+```
+
 # Percona XtraBackup(資料備份的工具)
 
 ## MySQL Percona innobackupex 和 xtrabackup 有何不同？
@@ -982,17 +1046,21 @@ innobackupex：(裡面封裝 xtrabackup 的 script 在裡面)
 ## 安裝 XtraBackup
 
 ```bash
+# centos7
 # 安裝 percona-release 的 yum 存儲庫
 yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
-
 # 列出 可安裝套件
 yum list | grep percona
-
 # 安裝
 yum install percona-xtrabackup-24 -y
-
 # MacOS
 brew install percona-xtrabackup
+
+# ubuntu
+wget https://repo.percona.com/apt/percona-release_1.0-25.generic_all.deb
+dpkg -i percona-release_1.0-25.generic_all.deb
+apt-get update
+apt-get install percona-xtrabackup-24 -y
 ```
 
 ## 指令
