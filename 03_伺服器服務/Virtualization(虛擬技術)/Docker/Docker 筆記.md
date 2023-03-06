@@ -17,7 +17,7 @@
 	- [ipv6](#ipv6)
 - [指令](#指令)
 	- [docker](#docker)
-		- [images](#images)
+		- [image](#image)
 		- [docker hub](#docker-hub)
 		- [network](#network)
 	- [docker-compose](#docker-compose)
@@ -256,11 +256,11 @@ docker exec -ti [Container ID] bash
 	-t, --tty         配置一個終端機
 ```
 
-### images
+### image
 
 ```bash
-## 查看images id
-docker images
+## 查看image id
+docker image
 	--all , -a		顯示所有圖像（默認隱藏中間圖像）
 	--digests		顯示摘要
 	--filter , -f		根據提供的條件過濾輸出
