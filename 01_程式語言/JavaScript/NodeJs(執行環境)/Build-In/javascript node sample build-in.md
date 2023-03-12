@@ -1,11 +1,11 @@
-# JavaScript Node 官方模組 sample()
+# JavaScript Node 內建-模組 sample()
 
 ```
 ```
 
 ## 目錄
 
-- [JavaScript Node 官方模組 sample()](#javascript-node-官方模組-sample)
+- [JavaScript Node 內建-模組 sample()](#javascript-node-內建-模組-sample)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [用法](#用法)
