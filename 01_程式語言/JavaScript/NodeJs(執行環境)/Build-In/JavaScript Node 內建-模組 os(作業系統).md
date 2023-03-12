@@ -1,4 +1,4 @@
-# JavaScript Node 官方模組 os(作業系統)
+# JavaScript Node 內建-模組 os(作業系統)
 
 ```
 提供了與操作系統相關的實用方法和屬性。
@@ -6,7 +6,7 @@
 
 ## 目錄
 
-- [JavaScript Node 官方模組 os(作業系統)](#javascript-node-官方模組-os作業系統)
+- [JavaScript Node 內建-模組 os(作業系統)](#javascript-node-內建-模組-os作業系統)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [用法](#用法)

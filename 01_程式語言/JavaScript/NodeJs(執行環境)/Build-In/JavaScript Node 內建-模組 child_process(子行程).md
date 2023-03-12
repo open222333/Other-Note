@@ -1,4 +1,4 @@
-# JavaScript Node 模組 child_process(子行程)
+# JavaScript Node 內建-模組 child_process(子行程)
 
 ```
 child_process 模組,通過它可以開啟多個子程序，在多個子程序之間可以共享記憶體空間，可以通過子程序的互相通訊來實現資訊的交換。
@@ -6,7 +6,7 @@ child_process 模組,通過它可以開啟多個子程序，在多個子程序�
 
 ## 目錄
 
-- [JavaScript Node 模組 child_process(子行程)](#javascript-node-模組-child_process子行程)
+- [JavaScript Node 內建-模組 child\_process(子行程)](#javascript-node-內建-模組-child_process子行程)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [用法](#用法)
