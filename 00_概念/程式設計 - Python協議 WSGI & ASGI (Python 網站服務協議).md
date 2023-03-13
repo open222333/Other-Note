@@ -1,14 +1,20 @@
-# WSGI & ASGI(Python 網站服務協議 規範) 筆記
+# 程式設計 - Python協議 WSGI & ASGI (Python 網站服務協議)
 
 ```
+定義的Web伺服器和Web應用程式或框架之間的一種簡單而通用的介面
+
 WSGI(Web Server Gateway Interface) 是一種協議，或是叫做規範。
+Web伺服器閘道介面（Python Web Server Gateway Interface，縮寫為WSGI）是為Python語言定義的Web伺服器和Web應用程式或框架之間的一種簡單而通用的介面。
+自從WSGI被開發出來以後，許多其它語言中也出現了類似介面。
 
 ASGI
+異步服務器網關接口( ASGI) 是Web 服務器將請求轉發到支持異步的Python編程語言框架和應用程序的調用約定。它被構建為Web 服務器網關接口(WSGI) 的後繼者。
+WSGI為同步Python應用程序提供了一個標準，而 ASGI 為異步和同步應用程序提供了一個標準，具有WSGI向後兼容的實現以及多個服務器和應用程序框架。
 ```
 
 ## 目錄
 
-- [WSGI & ASGI(Python 網站服務協議 規範) 筆記](#wsgi--asgipython-網站服務協議-規範-筆記)
+- [程式設計 - Python協議 WSGI \& ASGI (Python 網站服務協議)](#程式設計---python協議-wsgi--asgi-python-網站服務協議)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [WSGI 概念](#wsgi-概念)
@@ -18,6 +24,10 @@ ASGI
 - [自主部署選項](#自主部署選項)
 
 ## 參考資料
+
+[WSGI Python Web Server Gateway Interface(Web伺服器閘道器介面) - wiki](https://zh.wikipedia.org/zh-tw/Web%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BD%91%E5%85%B3%E6%8E%A5%E5%8F%A3)
+
+[ASGI Asynchronous Server Gateway Interface(異步服務器網關接口) - wiki](https://en.wikipedia.org/wiki/Asynchronous_Server_Gateway_Interface)
 
 [什麼是 WSGI & ASGI ?](https://medium.com/@eric248655665/%E4%BB%80%E9%BA%BC%E6%98%AF-wsgi-%E7%82%BA%E4%BB%80%E9%BA%BC%E8%A6%81%E7%94%A8-wsgi-f0d5f3001652)
 
