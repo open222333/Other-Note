@@ -1,4 +1,4 @@
-# 程式原則 RESTful API(API設計準則)
+# 程式設計 - RESTful-API(API設計準則)
 
 ```
 RESTful API是一種設計風格，這種風格使API設計具有整體一致性，易於維護、擴展，並且充份利用HTTP協定的特點。
@@ -6,7 +6,7 @@ RESTful API是一種設計風格，這種風格使API設計具有整體一致性
 
 ## 目錄
 
-- [程式原則 RESTful API(API設計準則)](#程式原則-restful-apiapi設計準則)
+- [程式設計 - RESTful-API(API設計準則)](#程式設計---restful-apiapi設計準則)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 		- [工具](#工具)

@@ -1,8 +1,8 @@
-# 前端框架 筆記
+# 程式設計 - SPA CSR SSR MPA SSG(前端框架)
 
 ## 目錄
 
-- [前端框架 筆記](#前端框架-筆記)
+- [前端框架 SPA CSR SSR MPA SSG](#前端框架-spa-csr-ssr-mpa-ssg)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 	- [SSR(Server Side Render)](#ssrserver-side-render)
