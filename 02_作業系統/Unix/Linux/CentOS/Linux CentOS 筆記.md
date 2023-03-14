@@ -173,8 +173,6 @@ semanage port -l | grep http_port_t
 # SELinux 設置為寬容模式，方便調試：
 sudo setenforce 0
 
-vim /etc/selinux/config
-
 ### === 關閉 SELinux === ###
 vim /etc/selinux/config
 

@@ -65,7 +65,7 @@ tar 功能 選項 檔案
 tar -tf home_backup.tar
 
 # 存取 tar 格式的套件名稱為「tar」，此格式僅進行打包，並沒有使用壓縮。
-# 解壓縮
+# 解包
 tar -xvf File.tar
 # 指定解壓出test.c這個檔案。 解壓過程中會自動建立home這個子目錄。
 tar -xvf home_backup.tar home/test.c
@@ -79,7 +79,7 @@ tar -cvf home_backup.tar /home
 
 # #注意：-C 與文件夾之間沒有空格，文件夾與文件中間有空格)
 # 將 /root/sysin/ 下面的所有文件打包，不要包含 sysin 目錄
-tar -zcvf sysin.tgz -C/root/sysin/ *
+tar -zcvf sysin.tar.gz -C/root/sysin/ *
 
 # 將 /opt/sysin/a.log 文件打包到當前同目錄下，不要帶路徑，即解壓後只有 a.log 單個文件。
 tar -zcvf /opt/sysin/a.tar.gz -C/opt/sysin/ a.log
