@@ -1056,6 +1056,7 @@ yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
 yum list | grep percona
 # 安裝
 yum install percona-xtrabackup-24 -y
+
 # MacOS
 brew install percona-xtrabackup
 
