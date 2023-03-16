@@ -12,6 +12,7 @@
 		- [git 原理相關](#git-原理相關)
 		- [狀況相關](#狀況相關)
 			- [管理 commit log](#管理-commit-log)
+		- [Gitea(Git 私服)](#giteagit-私服)
 - [Git 基本概念](#git-基本概念)
 - [Linux 安裝 Git](#linux-安裝-git)
 - [Mac 安裝 Git](#mac-安裝-git)
@@ -93,6 +94,18 @@
 管理 commit log
 目的：統一團隊之中的 commit message 格式。
 ```
+
+### Gitea(Git 私服)
+
+```
+建立一個容易安裝，執行快速，安装和使用體驗良好的自建 Git 服務。
+採用 GO 為後端語言，Go 可以產生各平台使用的執行檔。
+它支援 Linux、macOS 和 Windows 外，處理器架構包含 amd64、i386、ARM 和 PowerPC 等。
+```
+
+[Gitea 官方網站](https://gitea.io/zh-tw/)
+
+[關於 Gitea](https://docs.gitea.io/zh-tw/)
 
 # Git 基本概念
 
@@ -341,7 +354,12 @@ git rm filename
 
 ### Git 清除Cache ###
 # 例如Git含有submodule欲刪除後，需要清空.git/index Cache以讓Main module追蹤原submodule目錄。
+# 解除追蹤檔案
+git rm --cached filename
+# 解除追蹤資料夾
 git rm --cached -r folder
+# 解除追蹤所有
+git rm --cached -r .
 
 # 修改檔名、搬移目錄
 git mv filename new-filename

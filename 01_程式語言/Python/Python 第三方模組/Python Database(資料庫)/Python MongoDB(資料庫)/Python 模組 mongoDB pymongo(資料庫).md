@@ -79,6 +79,16 @@ pip install pymongo
 
 # 用法
 
+```Python
+from pymongo import MongoClient
+
+client = MongoClient('127.0.0.1', 27017)
+# 顯示所有db
+dbs = client.list_database_names()
+# 顯示db下所有collection
+client[db].list_collection_names()
+```
+
 ## Insert
 
 ```Python
