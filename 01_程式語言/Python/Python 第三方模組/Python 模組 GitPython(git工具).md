@@ -48,4 +48,8 @@ repo.index.commit("Some commit message")
 repo = Repo(full_local_path)
 origin = repo.remote(name="origin")
 origin.push()
+
+repo = Repo(full_local_path)
+config = repo.config_reader()
+config.get_value("user", "name")
 ```

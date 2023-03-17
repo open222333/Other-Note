@@ -61,7 +61,7 @@ deactivate
 source deactivate
 
 # 檢查目前版本
-conda –V
+conda --version
 
 # 進行更新
 conda update conda
@@ -92,6 +92,10 @@ conda info
 	# 不顯示進度條。
 # 顯示目前所有環境
 conda info --envs
+
+# 列出可用於安裝的 Python 版本
+conda search python
+conda search --full-name python
 
 # 建立虛擬環境
 conda create
