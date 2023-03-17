@@ -20,7 +20,7 @@
 
 [Command reference - conda 命令參考](https://docs.conda.io/projects/conda/en/latest/commands.html)
 
-# 安裝步驟 Anaconda
+# 安裝
 
 ```bash
 # 下載到本地 https://www.anaconda.com/products/distribution 取得下載網址
@@ -32,7 +32,7 @@ bash Anaconda3-5.3.1-Linux-x86_64.sh
 source ~/.bashrc
 ```
 
-# 安裝步驟 CentOS7 Miniconda
+## 安裝步驟 CentOS7 Miniconda(輕量化)
 
 ```bash
 # https://docs.conda.io/en/latest/miniconda.html 取得下載網址
@@ -42,6 +42,21 @@ wget 下載網址
 bash Miniconda3-latest-Linux-x86_64.sh
 
 source ~/.bashrc
+```
+
+## 卸載
+
+```bash
+# 卸載 Anaconda 或 Miniconda
+# 使用以下命令刪除整個 Miniconda 安裝目錄：
+rm -rf ~/miniconda
+
+# 可選：編輯~/.bash_profile以從 PATH 環境變量中刪除 Miniconda 目錄。
+# 可選：刪除可能已在主目錄中創建的以下隱藏文件和文件夾：
+# .condarc文件
+# .conda目錄
+# .continuum目錄
+rm -rf ~/.condarc ~/.conda ~/.continuum
 ```
 
 # 指令

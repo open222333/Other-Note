@@ -1,5 +1,18 @@
 # Cloudflare 筆記
 
+## 目錄
+
+- [Cloudflare 筆記](#cloudflare-筆記)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [心得相關](#心得相關)
+- [狀況](#狀況)
+	- [新增網站 出現 is not a registered domain](#新增網站-出現-is-not-a-registered-domain)
+- [回報](#回報)
+	- [取得票證](#取得票證)
+	- [票證追蹤](#票證追蹤)
+
+
 ## 參考資料
 
 [官方網站](https://www.cloudflare.com/zh-tw/)
@@ -10,7 +23,13 @@
 
 [Getting access to the Cloudflare API](https://developers.cloudflare.com/api/)
 
+[Add domain API](https://developers.cloudflare.com/api/operations/pages-domains-add-domain)
+
+### 心得相關
+
 [无法将我的域名添加到 Cloudflare](https://support.cloudflare.com/hc/zh-cn/articles/205359838-%E6%97%A0%E6%B3%95%E5%B0%86%E6%88%91%E7%9A%84%E5%9F%9F%E5%90%8D%E6%B7%BB%E5%8A%A0%E5%88%B0-Cloudflare-)
+
+[通过自动化将多个站点添加到 Cloudflare](https://developers.cloudflare.com/support/other-languages/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87/%E9%80%9A%E8%BF%87%E8%87%AA%E5%8A%A8%E5%8C%96%E5%B0%86%E5%A4%9A%E4%B8%AA%E7%AB%99%E7%82%B9%E6%B7%BB%E5%8A%A0%E5%88%B0-cloudflare/)
 
 # 狀況
 
