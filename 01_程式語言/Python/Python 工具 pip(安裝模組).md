@@ -7,7 +7,7 @@
 	- [參考資料](#參考資料)
 		- [指令心得相關](#指令心得相關)
 		- [狀況相關](#狀況相關)
-- [安裝步驟 CentOS7](#安裝步驟-centos7)
+- [安裝](#安裝)
 - [指令](#指令)
 - [狀況](#狀況)
 	- [無法連線pypi](#無法連線pypi)
@@ -37,11 +37,29 @@
 
 [Python module not found even though "Requirement Already satisfied in Pip"](https://stackoverflow.com/questions/45345377/python-module-not-found-even-though-requirement-already-satisfied-in-pip)
 
-# 安裝步驟 CentOS7
+# 安裝
 
 ```bash
-# 安裝
-yum install python3-pip -y
+### CentOS7 ###
+yum update
+yum install epel-release
+# Python2
+yum –y install python2-pip
+# Python3
+yum –y install python3-pip
+
+### Ubuntu ###
+# Python3
+apt update
+apt install python3-pip
+# Python2 使用 get-pip.py 腳本
+apt update
+# 使用 curl 下載 get-pip.py 腳本
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+# 使用 python2 運行腳本以安裝 pip
+python get-pip.py
+# 確認是否安裝
+pip2 --version
 ```
 
 # 指令
