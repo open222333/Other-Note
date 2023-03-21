@@ -1,4 +1,4 @@
-# Python 模組 mongoDB pymongo(資料庫)
+# Python 模組 pymongo(MongoDB資料庫)
 
 ```
 列出了傳統 SQL 與 MongoDB 的概念性對應關係：
@@ -22,7 +22,7 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 
 ## 目錄
 
-- [Python 模組 mongoDB pymongo(資料庫)](#python-模組-mongodb-pymongo資料庫)
+- [Python 模組 pymongo(MongoDB資料庫)](#python-模組-pymongomongodb資料庫)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 		- [查詢相關](#查詢相關)
@@ -35,6 +35,7 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 	- [Update](#update)
 	- [聚合aggregate](#聚合aggregate)
 	- [使用ObjectID搜尋資料](#使用objectid搜尋資料)
+	- [slaveOk 更換寫法](#slaveok-更換寫法)
 
 ## 參考資料
 
@@ -45,6 +46,10 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 [MongoDB CRUD Operations(各種程式使用的範例)](https://docs.mongodb.com/manual/crud/)
 
 [PyMongo 4.3.2 Documentation - 官方文檔](https://pymongo.readthedocs.io/en/stable/index.html)
+
+[Read Preference (讀取偏好參考) - 官方文檔](https://www.mongodb.com/docs/manual/core/read-preference/)
+
+[Read Preference 詳細說明 - 官方文檔](https://www.mongodb.com/docs/manual/core/read-preference/#std-label-replica-set-read-preference-modes)
 
 ### 查詢相關
 
@@ -194,4 +199,25 @@ client = MongoClient('127.0.0.1:27017')
 collection = client['db']['collection']
 
 data = collection.find_one({'col.col2': ObjectId('id')})
+```
+
+## slaveOk 更換寫法
+
+```Python
+# ssl connection for pymongo > 2.3
+if pymongo.version >= "2.3":
+	if replica is None:
+		con = pymongo.MongoClient(host, port)
+		con = pymongo.MongoClient(host, port, slaveOk=True)
+	else:
+		# slaveOk 更改為使用 SECONDARY_PREFERRED
+		con = pymongo.MongoClient(
+			host,
+			port,
+			username=usernam,
+			password=password,
+			authSource=auth_db,
+			read_preference=pymongo.ReadPreference.SECONDARY_PREFERRED
+		)
+
 ```

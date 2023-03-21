@@ -1,11 +1,11 @@
-# Python 模組 MySQL pymysql(資料庫)
+# Python 模組 pymysql(MySQL資料庫)
 
 ```
 ```
 
 ## 目錄
 
-- [Python 模組 MySQL pymysql(資料庫)](#python-模組-mysql-pymysql資料庫)
+- [Python 模組 pymysql(MySQL資料庫)](#python-模組-pymysqlmysql資料庫)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [指令](#指令)
