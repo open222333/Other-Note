@@ -12,8 +12,9 @@ Intl 對像是 ECMAScript 國際化 API 的一個命名空間，它提供了精�
 	- [參考資料](#參考資料)
 - [用法](#用法)
 	- [Intl.NumberFormat (格式化數字)](#intlnumberformat-格式化數字)
-	- [Intl.DateTimeFormat](#intldatetimeformat)
+	- [Intl.DateTimeFormat (格式化日期與時間)](#intldatetimeformat-格式化日期與時間)
 	- [Intl.DisplsyName](#intldisplsyname)
+	- [Intl.Collator (比較字串)](#intlcollator-比較字串)
 
 ## 參考資料
 
@@ -32,11 +33,10 @@ Intl 對像是 ECMAScript 國際化 API 的一個命名空間，它提供了精�
 ## Intl.NumberFormat (格式化數字)
 
 ```JavaScript
-// Intl.NumberFormat
-new Intl.NumberFormat('en').format(1000); // 1,000
-
-// Intl.NumberFormat (格式化數字)
 /**
+ * Intl.NumberFormat
+ * 格式化數字
+ *
  * stytle: 數字格式類型，預設 "decimal"，百分比 "percent"，金額 "currency"
  * currency: 如果 stytle 是 "currency"，則此特性為必要。ISO貨幣碼 USD(美元),GBP(英鎊)
  * currencyDisplay: 如果 stytle 是 "currency"，貨幣如何顯示，預設值: 貨幣符號 "symbol"。使用ISO碼 "code", 貨幣名稱 "name"
@@ -75,12 +75,17 @@ arabic(1234567890); // => ١٢٣٤٥٦٧٨٩٠
  */
 let hindi = Intl.NumberFormat("hi-IN-u-nu-deva").format;
 hindi(1234567890); // => १,२३,४५,६७,८९०
+
+new Intl.NumberFormat('en').format(1000); // 1,000
 ```
 
-## Intl.DateTimeFormat
+## Intl.DateTimeFormat (格式化日期與時間)
 
 ```JavaScript
 /**
+ * DateTimeFormat
+ * 格式化日期與時間
+ *
  * year: 四位數年 "numeric"，二位數縮寫 "2-digit"
  * month: 數字 "numeric"，呈現二位數 "2-digit"，完整名稱 "long"，縮寫名稱 "short"，不保證唯一的高度縮寫 "narrow"
  * day: 數字 "numeric"，呈現二位數 "2-digit"
@@ -167,4 +172,45 @@ const dateTimeFieldNames = new Intl.DisplayNames('zh-Hant', {
 });
 dateTimeFieldNames.of('year'); // 年
 dateTimeFieldNames.of('weekOfYear'); // 週
+```
+
+## Intl.Collator (比較字串)
+
+```JavaScript
+/**
+ * Intl.Collator
+ * 比較字串
+ * 使用compare()比較字串，會回傳數字，大於0:第一字串在第二字串之前，小於0:第一字串在第二字串之後，等於0:這兩個字串對collator而言相等。
+ *
+ * usage: 此collator物件要如何使用，預設值"sort"。可選值:"search"。
+ * sensitivity: 是否區分字母大小寫。預設值"base"，usage特性若是"sort"時預設會是"variant"，若usage特性是"search"時預設取決於地區。"base"忽略大小寫與重音。"accent"考慮重音，忽略大小寫。"case"考慮大小寫，忽略重音。"variant"大小寫、重音都比較。
+ * ignorePunctuation: 若為true則忽略空白與標點符號。
+ * numeric: 若比較的字串有整數或含有整數，依照數值排列而非字母則設為true。
+ * caseFirst: "upper"依照大寫優先排序。"lower"依照小寫優先排序。
+ */
+
+// 基本的比較器(comparator)用於使用者所在地區的排序
+const collator = new Intl.Collator().compare;
+["a", "z", "A", "Z"].sort(collator); // => [ 'a', 'A', 'z', 'Z' ]
+
+// 依照檔案名稱內的數字排列
+const filenameOrder = new Intl.Collator(undefined, {numeric: true}).compare;
+["page10", "page9"].sort(filenameOrder); // => [ 'page9', 'page10' ]
+
+// 找出大致匹配目標字串的所有字串
+const fuzzyMatcher = new Intl.Collator(undefined, {
+  sensitivity: "base",
+  ignorePunctuation: true,
+}).compare;
+let strings = ["food", "fool", "Føø Bar"];
+strings.findIndex((s) => fuzzyMatcher(s, "foobar") === 0); // => 2
+
+// "de-DE-uco-phonebk": 德國電話順序
+// "zh-TW-u-copinyin": 台灣拼音順序
+// 1994以前 CH LL 在西班牙被視為分別的字母
+const modernSpanish = Intl.Collator("es-ES").compare;
+const traditionalSpanish = Intl.Collator("es-ES-u-co-trad").compare;
+let palabras = ["luz", "llama", "como", "chico"];
+palabras.sort(modernSpanish); // => [ 'chico', 'como', 'llama', 'luz' ]
+palabras.sort(traditionalSpanish); // => [ 'como', 'chico', 'luz', 'llama' ]
 ```
