@@ -17,11 +17,10 @@ Amazon CloudWatch 是針對 DevOps 工程師、開發人員、網路可靠性工
 - [AWS 安裝CloudWatch](#aws-安裝cloudwatch)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝 AWS CloudWatch 代理程式](#安裝-aws-cloudwatch-代理程式)
-	- [`CentOS`](#centos)
-	- [`Ubuntu`](#ubuntu)
+- [linux 安裝 AWS CloudWatch 代理程式](#linux-安裝-aws-cloudwatch-代理程式)
 	- [建立 CloudWatch 代理程式組態檔案](#建立-cloudwatch-代理程式組態檔案)
-- [用法](#用法)
+	- [使用命令列啟動 CloudWatch 代理程式](#使用命令列啟動-cloudwatch-代理程式)
+	- [使用命令列查詢本機 CloudWatch 代理程式的狀態](#使用命令列查詢本機-cloudwatch-代理程式的狀態)
 
 ## 參考資料
 
@@ -31,9 +30,9 @@ Amazon CloudWatch 是針對 DevOps 工程師、開發人員、網路可靠性工
 
 [Amazon CloudWatch](https://aws.amazon.com/tw/cloudwatch/)
 
-# 安裝 AWS CloudWatch 代理程式
+# linux 安裝 AWS CloudWatch 代理程式
 
-## `CentOS`
+`CentOS`:
 
 ```bash
 ### 安裝AWS CloudWatch代理程式
@@ -63,7 +62,7 @@ output format:json
 
 ```
 
-## `Ubuntu`
+`Ubuntu`:
 
 ```bash
 ### 安裝AWS CloudWatch代理程式
@@ -169,15 +168,14 @@ vi config.json
 }
 ```
 
-# 用法
+## 使用命令列啟動 CloudWatch 代理程式
 
 ```bash
-# 啟動 CloudWatch 代理程式
 /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m onPremise -s -c file:./config.json
-
-# 關掉 CloudWatch 監控
-/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a stop
-
-# 查詢本機 CloudWatch 代理程式的狀態
-/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status
 ```
+
+## 使用命令列查詢本機 CloudWatch 代理程式的狀態
+
+```bash
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status
+```bash
