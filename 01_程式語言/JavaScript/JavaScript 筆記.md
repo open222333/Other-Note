@@ -7,13 +7,23 @@
 	- [參考資料](#參考資料)
 		- [應用範例部分](#應用範例部分)
 		- [標準化工具](#標準化工具)
-- [Javascrapt 基本 語彙結構](#javascrapt-基本-語彙結構)
-- [Javascrapt 基本 運算子](#javascrapt-基本-運算子)
-- [Javascrapt 基本 述句(statements)](#javascrapt-基本-述句statements)
-- [Javascrapt 基本 型別 值 變數](#javascrapt-基本-型別-值-變數)
-- [Javascrapt 基本 i++ ++i 差別](#javascrapt-基本-i-i-差別)
-- [框架](#框架)
-- [使用 format 格式化字符串](#使用-format-格式化字符串)
+		- [函式相關](#函式相關)
+		- [基礎相關](#基礎相關)
+		- [術語](#術語)
+			- [框架](#框架)
+- [語彙結構](#語彙結構)
+- [運算子](#運算子)
+	- [i++ ++i 差別](#i-i-差別)
+- [述句(statements)](#述句statements)
+- [型別 值 變數](#型別-值-變數)
+	- [使用 format 格式化字符串](#使用-format-格式化字符串)
+- [迭代器與產生器](#迭代器與產生器)
+- [全域函式](#全域函式)
+	- [計時器](#計時器)
+		- [setTimeout()](#settimeout)
+		- [clearTimeout()](#cleartimeout)
+		- [setInterval()](#setinterval)
+		- [clearInterval()](#clearinterval)
 
 ## 參考資料
 
@@ -78,13 +88,37 @@ https://pjchender.dev/javascript/js-map/)
 
 [使用 jQuery的 $.Ajax() 技術和介接api吧](https://ithelp.ithome.com.tw/articles/10226692)
 
+[javascript ++i 和 i++ 的差別](https://tools.wingzero.tw/article/sn/242)
+
 ### 標準化工具
 
 [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
 [js-beautify - 線上 格式化](https://beautifier.io/)
 
-# Javascrapt 基本 語彙結構
+### 函式相關
+
+[setTimeout()](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout)
+
+[clearTimeout()](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout)
+
+[setInterval()](https://developer.mozilla.org/en-US/docs/Web/API/setInterval)
+
+[clearInterval()](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval)
+
+### 基礎相關
+
+[認識 JavaScript Iterable 和 Iterator - Symbol 迭代器](https://jiepeng.me/2018/04/19/iterable-and-iterator-in-javascript)
+
+### 術語
+
+#### 框架
+
+```
+把框架想像成是「整合html、js和css的格式」
+```
+
+# 語彙結構
 
 ```
 註解:
@@ -118,7 +152,7 @@ https://pjchender.dev/javascript/js-map/)
 	像是 firstName, lastName, carName，第二個字的字母大寫。
 ```
 
-# Javascrapt 基本 運算子
+# 運算子
 
 ```
 遞增, 遞減
@@ -191,7 +225,31 @@ in
 **=, *=, /=, %=, +=, -=, &=, ^=, |=, <<=, >>=, >>>=
 ```
 
-# Javascrapt 基本 述句(statements)
+## i++ ++i 差別
+
+```
+在 javascript 裡面使用 ++i 或 i++ 都可以代表原始值加一，不過還是有一點差別
+
+基本上這個對原始的 i 沒有影響，不過如果要賦予值就會有差別了，
+
+來看一下 i++ 的狀況：
+    let a=1, b=1;
+    b=a++;
+    console.log(b) // b=1
+
+如果 ++ 在後面，會先把值賦予後才 +1，所以 b 會是原本 a 的值。
+
+如果是 ++i 的狀況
+    let x=3, y=3;
+    y=++x;
+    console.log("y",y) // y=4
+
+如果++ 在前，就會先把值加上去之後才賦予值到左邊，所以 y 會是 4。
+
+這就是這兩者的差別。
+```
+
+# 述句(statements)
 
 ```
 statement - 述句
@@ -331,8 +389,7 @@ expression - 表達式
         匯出
 ```
 
-
-# Javascrapt 基本 型別 值 變數
+# 型別 值 變數
 
 ```
 JavaScript 中，可以分為兩大類資料型態：
@@ -390,39 +447,7 @@ JavaScript 中，可以分為兩大類資料型態：
     鍵值(keys)到值(values)的一種映射(mapping)
 ```
 
-# Javascrapt 基本 i++ ++i 差別
-
-[javascript ++i 和 i++ 的差別](https://tools.wingzero.tw/article/sn/242)
-
-```
-在 javascript 裡面使用 ++i 或 i++ 都可以代表原始值加一，不過還是有一點差別
-
-基本上這個對原始的 i 沒有影響，不過如果要賦予值就會有差別了，
-
-來看一下 i++ 的狀況：
-    let a=1, b=1;
-    b=a++;
-    console.log(b) // b=1
-
-如果 ++ 在後面，會先把值賦予後才 +1，所以 b 會是原本 a 的值。
-
-如果是 ++i 的狀況
-    let x=3, y=3;
-    y=++x;
-    console.log("y",y) // y=4
-
-如果++ 在前，就會先把值加上去之後才賦予值到左邊，所以 y 會是 4。
-
-這就是這兩者的差別。
-```
-
-# 框架
-
-```
-把框架想像成是「整合html、js和css的格式」
-```
-
-# 使用 format 格式化字符串
+## 使用 format 格式化字符串
 
 ```JavaScript
 // 方式1：使用ES6
@@ -441,4 +466,147 @@ String.prototype.format = function() {
 
 var s = '你好 {0} {1}'.formar('value1', 123)
 console.log(s)
+```
+
+# 迭代器與產生器
+
+```
+可迭代物件 具有一個特殊迭代器方法的任何物件，會回傳一個迭代器物件。
+迭代器 是具有next()方法的任何物件，此方法會回傳一個迭代結果物件。
+迭代結果物件 是具有value和done特性的物件。
+```
+
+```
+```
+
+# 全域函式
+
+## 計時器
+
+```
+setTimeout() 和 setInterval() 共用一個編號池，技術上，clearTimeout() 和 clearInterval() 可以互換。
+但是，為了避免混淆，不要混用取消定時函數。
+```
+
+### setTimeout()
+
+```JavaScript
+// 設置一個計時器，一旦計時器到期，該計時器就會執行一個函數或指定的代碼段。
+/**
+ * setTimeout(code)
+ * setTimeout(code, delay)
+ * setTimeout(functionRef)
+ * setTimeout(functionRef, delay)
+ * setTimeout(functionRef, delay, param1)
+ * setTimeout(functionRef, delay, param1, param2)
+ * setTimeout(functionRef, delay, param1, param2, ... paramN)
+ *
+ * function 是你想要在到期時間 (delay毫秒) 之後執行的函數。
+ * code 這是一個可選語法，你可以使用字符串而不是function ，在delay毫秒之後編譯和執行字符串 (使用該語法是不推薦的， 原因和使用 eval()一樣，有安全風險)。
+ * delay 可選 延遲的毫秒數 (一秒等於 1000 毫秒)，函數的調用會在該延遲之後發生。如果省略該參數，delay 取默認值 0，意味著“馬上”執行，或者盡快執行。不管是哪種情況，實際的延遲時間可能會比期待的 (delay 毫秒數) 值長，原因請查看實際延時比設定值更久的原因：最小延遲時間。
+ * arg1, ..., argN 可選 附加參數，一旦定時器到期，它們會作為參數傳遞給function
+ *
+ * 返回值timeoutID是一個正整數，表示定時器的編號。這個值可以傳遞給clearTimeout()來取消該定時器。
+ */
+
+
+setTimeout(() => {
+  console.log("this is the first message");
+}, 5000);
+setTimeout(() => {
+  console.log("this is the second message");
+}, 3000);
+setTimeout(() => {
+  console.log("this is the third message");
+}, 1000);
+
+// Output:
+
+// this is the third message
+// this is the second message
+// this is the first message
+
+```
+
+### clearTimeout()
+
+```JavaScript
+/**
+ * clearTimeout(timeoutID)
+ * timeoutID 要取消的超時的標識符。此 ID 由對 setTimeout() 的相應調用返回。
+ */
+const alarm = {
+  remind(aMessage) {
+    alert(aMessage);
+    this.timeoutID = undefined;
+  },
+
+  setup() {
+    if (typeof this.timeoutID === "number") {
+      this.cancel();
+    }
+
+    this.timeoutID = setTimeout(
+      (msg) => {
+        this.remind(msg);
+      },
+      1000,
+      "Wake up!"
+    );
+  },
+
+  cancel() {
+    clearTimeout(this.timeoutID);
+  },
+};
+window.addEventListener("click", () => alarm.setup());
+```
+
+### setInterval()
+
+```JavaScript
+/**
+ * setInterval(code)
+ * setInterval(code, delay)
+ * setInterval(func)
+ * setInterval(func, delay)
+ * setInterval(func, delay, arg0)
+ * setInterval(func, delay, arg0, arg1)
+ * setInterval(func, delay, arg0, arg1, ... argN)
+ *
+ * func 要重複調用的函數，每經過指定 delay 毫秒後執行一次。第一次調用發生在 delay 毫秒之後。
+ * code 這個語法是可選的，你可以傳遞一個字符串來代替一個函數對象，你傳遞的字符串會被編譯然後每經過 delay 毫秒執行一次。這個語法因為與 eval() 存在相同的安全風險所以不推薦使用。
+ * delay 是每次延遲的毫秒數（一秒等於 1000 毫秒），函數的每次調用會在該延遲之後發生。如果未指定，則其默認值為 0。參見下方的延遲限制以了解詳細的 delay 的取值範圍
+ * arg1, ..., argN 可選 當計時結束的時候，將被傳遞給 func 函數的附加參數
+ *
+ * 返回值
+ * intervalID 是一個非零數值，用來標識通過 setInterval() 創建的定時器，這個值可以用來作為 clearInterval() 的參數來清除對應的定時器。
+ */
+var intervalID = setInterval(myCallback, 500, 'Parameter 1', 'Parameter 2');
+
+function myCallback(a, b)
+{
+ // Your code here
+ // Parameters are purely optional.
+ console.log(a);
+ console.log(b);
+}
+```
+
+### clearInterval()
+
+```JavaScript
+/**
+ * clearInterval(intervalID)
+ * intervalID 要取消的重複操作的標識符。此 ID 由對 的相應調用返回setInterval()。
+ */
+const intervalID = setInterval(myCallback, 500, "Parameter 1", "Parameter 2");
+
+function myCallback(a, b) {
+  // Your code here
+  // Parameters are purely optional.
+  console.log(a);
+  console.log(b);
+}
+
 ```

@@ -11,13 +11,21 @@ URL 標准定義了 URL、域、IP 地址、application/x-www-form-urlencoded �
 - [JavaScript 內建-物件 URL(剖析url)](#javascript-內建-物件-url剖析url)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [函式相關](#函式相關)
 - [用法](#用法)
+- [傳統的URL函式(已棄用)](#傳統的url函式已棄用)
 
 ## 參考資料
 
 [URL MDN Web Doc](https://developer.mozilla.org/zh-TW/docs/Web/API/URL)
 
 [URL - 標準化](https://url.spec.whatwg.org/)
+
+### 函式相關
+
+[encodeURIComponent()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent)
+
+[decodeURIComponent()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/decodeURIComponent)
 
 # 用法
 
@@ -88,4 +96,26 @@ params.append("opts", "exact");
 params.toString(); // => q=term&opts=exact
 params2url.search = params;
 params2url.href; // => http://example.com/?q=term&opts=exact
+```
+
+# 傳統的URL函式(已棄用)
+
+```JavaScript
+// 已被棄用
+escape()
+unescape()
+
+// 替代
+// 函數通過將特定字符的每個實例替換為一個、兩個、三或四轉義序列來對統一資源標識符 (URI) 進行編碼 (該字符的 UTF-8 編碼僅為四轉義序列) 由兩個 "代理" 字符組成)。
+encodeURI()
+// 解碼由encodeURI 創建或其他流程得到的統一資源標識符（URI）。
+decodeURI()
+
+/**
+ * 通過將特定字符的每個實例替換成代表字符的 UTF-8 編碼的一個、兩個、三個或四個轉義序列來編碼 URI（只有由兩個“代理”字符組成的字符會被編碼為四個轉義序列）。
+ * 與 encodeURI() 相比，此函數會編碼更多的字符，包括 URI 語法的一部分。
+ */
+encideURIComponent()
+// 解碼由 encodeURIComponent 方法或者其他類似方法編碼的部分統一資源標識符（URI）。
+decodeURIComponent()
 ```
