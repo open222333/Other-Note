@@ -16,6 +16,8 @@
 
 [nslookup](https://ss64.com/bash/nslookup.html)
 
+[nslookup(1) - Linux man page](https://linux.die.net/man/1/nslookup)
+
 # 指令
 
 ```bash
