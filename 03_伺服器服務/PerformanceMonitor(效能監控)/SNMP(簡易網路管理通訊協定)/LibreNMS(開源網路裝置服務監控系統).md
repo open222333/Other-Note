@@ -15,9 +15,13 @@ LibreNMS 是一套開源的網路與服務監控系統，主要以 PHP、MariaDB
 
 ## 參考資料
 
-[官方網站](https://www.librenms.org/)
+[LibreNMS 官方網站](https://www.librenms.org/)
 
-[librenms docker- github](https://github.com/librenms/docker)
+[LibreNMS docker- github](https://github.com/librenms/docker)
+
+[LibreNMS Docs 文檔](https://docs.librenms.org/)
+
+[LibreNMS Community 論壇](https://community.librenms.org/)
 
 ### 教學相關
 
