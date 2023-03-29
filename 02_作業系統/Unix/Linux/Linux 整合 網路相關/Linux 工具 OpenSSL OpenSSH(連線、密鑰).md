@@ -246,6 +246,14 @@ ssh username@host_ip:port -fN -L [bind_address:]port:host:hostport
 	-y：開啟信任X11轉發功能
 	-L listen-port:host:port 指派本地的port 到達端機器地址上的port
 
+ssh-keygen
+	-m PEM 將金鑰格式設定為 PEM
+	-t rsa 要建立的金鑰類型，在此案例中採用 RSA 格式
+	-b 4096 金鑰中的位元數，在此案例中為 4096
+	-C "azureuser@myserver" 附加至公開金鑰檔案結尾以便輕鬆識別的註解。 通常會以電子郵件地址作為註解，但您可以使用任何最適合您的基礎結構的項目。
+	-f ~/.ssh/mykeys/myprivatekey 私密金鑰檔案的檔案名稱 (如果選擇不使用預設名稱)。 加上 .pub 的對應公開金鑰檔案會產生在相同的目錄中。 此目錄必須已存在。
+	-N mypassphrase = 用來存取私密金鑰檔案的其他複雜密碼。
+
 # Remove old key
 ssh-keygen -R $target_host
 
