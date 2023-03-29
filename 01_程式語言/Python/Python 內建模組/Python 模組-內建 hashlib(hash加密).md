@@ -28,6 +28,7 @@
 ```Python
 import hashlib, binascii, os
 
+
 def hash_password(password):
     """Hash a password for storing."""
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
@@ -49,13 +50,16 @@ def verify_password(stored_password, provided_password):
 ```
 
 ```Python
->>> stored_password = hash_password('ThisIsAPassWord')
->>> print(stored_password)
-cdd5492b89b64f030e8ac2b96b680c650468aad4b24e485f587d7f3e031ce8b63cc7139b18
-aba02e1f98edbb531e8a0c8ecf971a61560b17071db5eaa8064a87bcb2304d89812e1d07fe
-bfea7c73bda8fbc2204e0407766197bc2be85eada6a5
->>> verify_password(stored_password, 'ThisIsAPassWord')
-True
->>> verify_password(stored_password, 'WrongPassword')
-False
+import hashlib
+
+path = 'aaaaaaaaaaaaaaaaaa'
+salt = hashlib.md5()
+salt.update(path.encode('utf-8'))
+salt.hexdigest()
+
+
+path = 'aaaaaaaaaaaaaaaaaa'
+salt = hashlib.sha256()
+salt.update(path.encode('utf-8'))
+salt.hexdigest()
 ```
