@@ -150,6 +150,7 @@
 ```bash
 # 安裝
 pip install Flask
+pip install flask
 
 flask run --reload --debugger --host 0.0.0.0 --port 80
 	–reload # 修改 py 檔後，Flask server 會自動 reload
