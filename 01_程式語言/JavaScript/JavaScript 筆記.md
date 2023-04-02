@@ -18,6 +18,8 @@
 - [型別 值 變數](#型別-值-變數)
 	- [使用 format 格式化字符串](#使用-format-格式化字符串)
 - [迭代器與產生器](#迭代器與產生器)
+	- [迭代器(iterator)](#迭代器iterator)
+	- [產生器(generator)](#產生器generator)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -109,6 +111,8 @@ https://pjchender.dev/javascript/js-map/)
 ### 基礎相關
 
 [認識 JavaScript Iterable 和 Iterator - Symbol 迭代器](https://jiepeng.me/2018/04/19/iterable-and-iterator-in-javascript)
+
+[認識生成器](https://ithelp.ithome.com.tw/articles/10280527)
 
 ### 術語
 
@@ -470,13 +474,139 @@ console.log(s)
 
 # 迭代器與產生器
 
+## 迭代器(iterator)
+
 ```
 可迭代物件 具有一個特殊迭代器方法的任何物件，會回傳一個迭代器物件。
 迭代器 是具有next()方法的任何物件，此方法會回傳一個迭代結果物件。
 迭代結果物件 是具有value和done特性的物件。
+
+關閉一個迭代器 return()方法
+迭代器物件可以實作一個return()方法
+如果迭代在next()回傳done特性被設為true的迭代結果前就停止(例如:使用break述句離開for/of迴圈)
+直譯器會檢查該迭代器物件是否有一個return()方法
+若存在此方法，直譯器會不帶引數引用return()方法，賦予迭代器關閉檔案、釋放記憶體或進行其他清理工作的機會。
+return()必須回傳一個迭代結果物件，此物件特性會被忽略，但回傳非物件值會是一種錯誤。
 ```
 
+```JavaScript
+class Range {
+  constructor(from, to) {
+    this.from = from;
+    this.to = to;
+  }
+
+  // 使一個Range表現得像是由數字組成的一個Set
+  has(x) {
+    return typeof x === "number" && this.from <= x && x <= this.to;
+  }
+
+  // 使用集合記法(set notation)回傳該範圍的字串表示值
+  toString() {
+    return `x | ${this.from} ≤ x ≤ ${this.to}`;
+  }
+
+  // 回傳一個迭代氣物件來使一個Range可迭代
+  // 注意到此方法的名稱是一個特符號，而非一個字串
+  [Symbol.iterator]() {
+    /**
+     * 每個迭代器實體都必須獨立於其他實體來迭代該範圍
+     * 所以需要一個狀態變數追蹤在迭代中的位置
+     * 必須從第一個>= from 得整數開始
+     */
+    let next = Math.ceil(this.from); // 這是回傳的下一個值
+    let last = this.to; // 不會回傳大於這個的任何東西
+    return {
+      // 這是一個迭代器物件
+      // next()方法使它成為一個迭代器物件
+      // 它必須回傳一個迭代器結果物件
+      next() {
+        return next <= last // 如果尚未回傳最後一個值
+          ? {value: next++} // 就回傳下一個值並遞增他
+          : {done: true}; // 否則 指出我們完成了
+      },
+
+      // 為了方便，使這個迭代器本身是可迭代的
+      [Symbol.iterator]() {
+        return this;
+      },
+    };
+  }
+}
 ```
+
+## 產生器(generator)
+
+```
+定義產生器函式(generator function)
+以關鍵字 function* 定義
+執行產生器函式會回傳產生器物件(generator object)
+產生器物件是一個迭代器
+呼叫他的next()方法會導致該產生器韓式的主體從頭開始執行或從目前的位置
+直到抵達一個yield述句
+```
+
+```JavaScript
+// 產出一位數質數(基數為10)之集合的一個產生器函式
+function* oneDigitprimes() {
+  /**
+   * 調用此函式不會執行程式碼，
+   * 而只是回傳一個產生器物件呼叫那個產生器的next()方法會執行其程式碼，
+   * 直到有一個yield述句為next()方法提供回傳值。
+   */
+  yield 2;
+  yield 3;
+  yield 5;
+  yield 7;
+}
+
+// 調用產生器函式
+let primes = oneDigitprimes();
+// 產生器是會迭代所產出那些值得一種迭代器物件
+primes.next().value; // => 2
+primes.next().value; // => 3
+primes.next().value; // => 5
+primes.next().value; // => 7
+primes.next().done; // => true
+
+// 產生器有一個Symbol.迭代器方法使他們可以迭代
+primes[Symbol.iterator](); // => primes
+
+// 可像對其他可迭代型別那樣來使用迭代器
+[...oneDigitprimes()]; // => [ 2, 3, 5, 7 ]
+console.log([...oneDigitprimes()]);
+let sum = 0;
+for (let primes of oneDigitprimes()) sum += primes;
+sum; // => 17
+console.log(sum);
+
+// 以運算式形式定義產生器
+const seq = function* (from, to) {
+  for (let i = from; i <= to; i++) yield i;
+};
+[...seq(3, 5)]; // => [ 3, 4, 5 ]
+console.log([...seq(3, 5)]);
+
+// 物件與類別字面值中，可使用簡寫記法在定義方法的時候完全省略function關鍵字
+let o = {
+  x: 1,
+  y: 2,
+  z: 3,
+  // 定義產生器，在方法前面加*
+  *g() {
+    for (let key of Object.keys(this)) {
+      yield key;
+    }
+  },
+};
+[...o.g()]; // => [ 'x', 'y', 'z', 'g' ]
+console.log([...o.g()]);
+
+
+// 迭代器範例所展示的[Symbol.iterator]()方法 可修改成以下
+*[Symbol.iterator]() {
+for (let x = Math.ceil(this.from); x <= this.to; x++) yield x;
+}
 ```
 
 # 全域函式
