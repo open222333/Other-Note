@@ -11,6 +11,7 @@
 		- [使用者權限相關](#使用者權限相關)
 		- [安裝相關](#安裝相關)
 		- [Master-Slave(主從環境)相關](#master-slave主從環境相關)
+		- [叢集(Cluster)相關](#叢集cluster相關)
 		- [操作相關](#操作相關)
 		- [備份相關](#備份相關)
 			- [備份指令相關](#備份指令相關)
@@ -42,10 +43,17 @@
 	- [備份mysql-master](#備份mysql-master)
 	- [恢復備份到mysql-slave](#恢復備份到mysql-slave)
 		- [Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#slave_sql_running-no-slave_io_running-no-解決方案)
+- [Cluster 叢集架設](#cluster-叢集架設)
+	- [指令](#指令-1)
+	- [實作](#實作)
+		- [Manage node](#manage-node)
+		- [Data node](#data-node)
+		- [SQL node](#sql-node)
+		- [啟動 Cluster 環境](#啟動-cluster-環境)
 - [Percona XtraBackup(資料備份的工具)](#percona-xtrabackup資料備份的工具)
 	- [MySQL Percona innobackupex 和 xtrabackup 有何不同？](#mysql-percona-innobackupex-和-xtrabackup-有何不同)
 	- [安裝 XtraBackup](#安裝-xtrabackup)
-	- [指令](#指令-1)
+	- [指令](#指令-2)
 		- [xtrabackup選項](#xtrabackup選項)
 			- [用法範例](#用法範例)
 		- [innobackupex選項](#innobackupex選項)
@@ -102,6 +110,14 @@
 [Slave_IO_Running Slave_SQL_Running 排錯](https://www.cnblogs.com/l-hh/p/9922548.html#_label0)
 
 [mysql系列（一）—— 细说show slave status参数详解（最全）](https://blog.51cto.com/zhengmingjing/1910565)
+
+### 叢集(Cluster)相關
+
+```
+叢集的概念就是把一台式架構拆分為多台式架構，並且可以提供 HA 高可用性與負載均衡的需求，更不需要擔心延展性的問題，若是 Loading 加大了只需要增加 node 去分擔 Loading
+```
+
+[架設 HA 高可用性：MySQL Cluster 叢集 – 7.4.11(5.6.29)](https://shazi.info/%E6%9E%B6%E8%A8%AD-ha-%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%9Amysql-cluster-%E5%8F%A2%E9%9B%86-7-4-115-6-29/)
 
 ### 操作相關
 
@@ -1031,6 +1047,204 @@ master_log_pos=199777882;
 start slave;
 -- 檢查slave狀態
 show slave status\G
+```
+
+# Cluster 叢集架設
+
+```
+MySQL Cluster Nodes：
+
+Manage Nodes：負責監控叢集所有 Nodes 的狀態，並且由此控制所有 Nodes 的替換。
+Data Nodes：負責所有 SQL Data 的 Nodes，單純儲存資料，將資料寫在 RAM & Disk。
+SQL Nodes：負責 SQL 的 Table schema 和 Client 連接的空間。
+```
+
+## 指令
+
+```bash
+# 從 Manage node 確認所有 node 狀態
+ndb_mgm
+```
+
+## 實作
+
+```bash
+# 所有的 nodes 都需要安裝 mysql-cluster
+wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-7.4/mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686.tar.gz
+tar zxvf mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686.tar.gz
+mkdir /usr/local/mysql && mv mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686 !$
+```
+
+### Manage node
+
+```bash
+mkdir /var/lib/mysql-cluster
+vim /var/lib/mysql-cluster/config.ini
+
+# ndb_mgm 和 ndb_mgmd 等工具放到 /usr/local/bin 方便使用
+cp /usr/local/mysql/bin/ndb_mgm* /usr/local/bin/
+```
+
+```ini
+; NoOfReplicas=2：代表著存在2份一樣的資料在 Data node，Data node允許著1台的故障容錯還有另一份資料可以正常運行
+; EX:若 Data node 只有2台，所以設定2，再多沒有意義只是增加 write loading
+
+; DataMemory & IndexMemory：代表著資料和索引可以儲存的記憶體容量有多大。
+
+; NodeId：每一個 nodes 都必須擁有獨一無二的 id 值
+
+[NDBD DEFAULT]
+NoOfReplicas=2
+DataMemory=1024M
+IndexMemory=256M
+
+[MYSQLD DEFAULT]
+
+[NDB_MGMD DEFAULT]
+DataDir=/var/lib/mysql-cluster
+
+[TCP DEFAULT]
+
+[NDB_MGMD]
+NodeId=1
+HostName=172.10.0.140
+
+[MYSQLD]
+NodeId=2
+HostName=172.10.0.141
+
+[MYSQLD]
+NodeId=3
+HostName=172.10.0.142
+
+[NDBD]
+NodeId=4
+HostName=172.10.0.143
+DataDir=/var/lib/mysql-cluster
+
+[NDBD]
+NodeId=5
+HostName=172.10.0.144
+DataDir=/var/lib/mysql-cluster
+```
+
+### Data node
+
+```bash
+vim /etc/my.cnf
+```
+
+```ini
+[mysqld]
+# enable cluster service
+ndbcluster
+
+# with connect manage node
+ndb-connectstring=172.10.0.140:1186
+
+# defaulte database engine
+default-storage-engine=NDBCLUSTER
+
+# setting character
+skip-character-set-client-handshake
+character-set-server = utf8
+collation-server = utf8_general_ci
+init-connect = SET NAMES utf8
+
+[mysql_cluster]
+# cluster management node
+ndb-connectstring=172.10.0.140:1186
+```
+
+### SQL node
+
+```bash
+# check permissions
+adduser mysql -d /usr/local/mysql
+chmod -R root.mysql /usr/local/mysql
+chmod -R mysql /usr/local/mysql/data
+vim /etc/my.cnf
+```
+
+```ini
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+user=mysql
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+ndbcluster
+default_storage_engine=ndbcluster
+ndb-connectstring=172.10.0.140:1186
+
+[mysql_cluster]
+ndb-connectstring=172.10.0.140:1186
+
+[mysqld_safe]
+log-error=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+[client]
+socket=/usr/local/mysql/data/mysql.sock
+```
+
+```bash
+/usr/local/mysql/scripts/mysql_install_db --user=mysql
+cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql.server
+```
+
+### 啟動 Cluster 環境
+
+```
+啟動順序 Manager node > Data node > SQL node。
+
+如果是第一次啟動 SQL node 請使用 –initial 初始化
+
+!!!!!!
+如果已經有資料請絕對不要使用 –initial 否則此 node 的資料全毀
+!!!!!!
+```
+
+```bash
+# in Manage node
+ndb_mgmd -v -f /var/lib/mysql-cluster/config.ini
+
+# in Data node , first use --initial
+/usr/local/mysql/bin/ndbd --defaults-file=/etc/my.cnf -v
+
+# in SQL node
+/etc/init.d/mysql.server start
+
+# 匯入資料庫(ndbcluster)
+# cluster 的資料庫類型都必須為 ndbcluster，在匯入資料庫前必須改為 NDBCLUSTER
+# Type=InnoDB
+mysqldump -uroot -p db | sed 's/ENGINE=InnoDB/ENGINE=NDBCLUSTER/g' > db.sql
+# or
+# Type=MyISAM
+mysqldump -uroot -p db | sed 's/ENGINE=MyISAM/ENGINE=NDBCLUSTER/g' > db.sql
+```
+
+```bash
+# 從 Manage node 確認所有 node 狀態
+ndb_mgm
+
+# -- NDB Cluster -- Management Client --
+# ndb_mgm> show
+
+# Connected to Management Server at: localhost:1186
+# Cluster Configuration
+# ---------------------
+# [ndbd(NDB)]	2 node(s)
+# id=3    @172.10.0.143  (mysql-5.6.29 ndb-7.4.11, Nodegroup: 0)
+# id=4	@172.10.0.144  (mysql-5.6.29 ndb-7.4.11, Nodegroup: 0, *)
+
+# [ndb_mgmd(MGM)]	1 node(s)
+# id=1	@172.10.0.140  (mysql-5.6.29 ndb-7.4.11)
+
+# [mysqld(API)]	2 node(s)
+# id=2	@172.10.0.141  (mysql-5.6.29 ndb-7.4.11)
+# id=3	@172.10.0.142  (mysql-5.6.29 ndb-7.4.11)
 ```
 
 # Percona XtraBackup(資料備份的工具)
