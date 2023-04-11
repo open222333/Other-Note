@@ -10,6 +10,7 @@
 	- [參考資料](#參考資料)
 		- [安裝相關](#安裝相關)
 		- [撤銷證書相關](#撤銷證書相關)
+		- [](#)
 - [安裝步驟](#安裝步驟)
 	- [CentOS](#centos)
 - [指令](#指令)
@@ -39,6 +40,10 @@
 ### 撤銷證書相關
 
 [Certbot 刪除 Let’s Encrypt 頒發的網域 SSL 憑證教學與範例](https://officeguide.cc/letsencrypt-certbot-delete-ssl-certificate-domain-tutorial-examples/)
+
+###
+
+[自動刷新ssl](https://snippetinfo.net/mobile/media/1752)
 
 # 安裝步驟
 
