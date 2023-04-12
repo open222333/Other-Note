@@ -8,12 +8,17 @@
 - [Git 筆記](#git-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [檔案結構](#檔案結構)
 		- [圖形化介面軟體相關](#圖形化介面軟體相關)
 		- [git 原理相關](#git-原理相關)
 		- [狀況相關](#狀況相關)
 			- [管理 commit log](#管理-commit-log)
 		- [Gitea(Git 私服)](#giteagit-私服)
 - [Git 基本概念](#git-基本概念)
+- [專案檔案結構](#專案檔案結構)
+	- [基本資料夾結構](#基本資料夾結構)
+	- [Git 特殊文件](#git-特殊文件)
+	- [GitHub 特殊文件和資料夾](#github-特殊文件和資料夾)
 - [Linux 安裝 Git](#linux-安裝-git)
 - [Mac 安裝 Git](#mac-安裝-git)
 - [SSH 綁定 創建](#ssh-綁定-創建)
@@ -69,6 +74,10 @@
 
 [Git上的三種工作流程]
 (https://medium.com/i-think-so-i-live/git%E4%B8%8A%E7%9A%84%E4%B8%89%E7%A8%AE%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B-10f4f915167e)
+
+### 檔案結構
+
+[GitHub Repository Structure Best Practices - GitHub 存儲庫結構最佳實踐](https://medium.com/code-factory-berlin/github-repository-structure-best-practices-248e6effc405)
 
 ### 圖形化介面軟體相關
 
@@ -132,6 +141,63 @@ Stash：
 	是一個工作狀態儲存棧，用於儲存/恢復WorkSpace中的臨時狀態。
 ```
 
+# 專案檔案結構
+
+## 基本資料夾結構
+
+```
+src：源代碼資料夾！但是，在使用標頭的語言中（或者如果有適用於應用程序的框架）不要將這些文件放在這裡。
+test：單元測試、集成測試……去這裡。
+.config：它應該與本地機器上的設置相關的本地配置。
+.build：此資料夾應包含與構建過程相關的所有腳本（PowerShell、Docker compose……）。
+dep：這是應該存儲所有依賴項的目錄。
+doc：文檔資料夾
+res：用於項目中的所有靜態資源。例如，圖像。
+samples：提供“Hello World”和支持文檔的 Co 代碼。
+tools：方便你使用的目錄。應包含腳本以自動執行項目中的任務，例如，構建腳本、重命名腳本。例如通常包含 .sh、.cmd。
+```
+
+## Git 特殊文件
+
+```
+.gitignore：供 git 忽略的 blob 列表。影響 git add 和 git clean 等命令。你可以使用 gitignore.io 來生成一個乾淨有用的 gitignore。
+.gitattributes：讓定義文件的屬性（例如，更改文件在 diff 中的外觀）。
+.mailmap：讓你告訴 git 歷史中重複的名字或電子郵件實際上是同一個人。
+.gitmodules：讓定義子模塊（ git 存儲庫的子目錄，這些子目錄是其他 git 存儲庫的簽出）。
+```
+
+## GitHub 特殊文件和資料夾
+
+```
+README：README或README.txt或README.md等是一個回答項目的內容、原因和方式的文件。GitHub 將識別並自動顯示README存儲庫訪問者。這是一個很棒的列表，包含更專業的自述文件。
+
+LICENSE：LICENSEor LICENSE.txtor LICENSE.mdetc. 是解釋合法許可的文件，比如任何權利，任何限制，任何規定等。GitHub開發了一個工具來幫助你選擇合適的許可：https://choosealicense.com/
+
+CHANGELOG：CHANGELOG或CHANGELOG.txt或CHANGELOG.md等是描述回購中發生的事情的文件。版本號增加、軟件更新、錯誤修復……是文件內容的示例。
+
+CONTRIBUTORS：CONTRIBUTORS或CONTRIBUTORS.txt或CONTRIBUTORS.md等是一個文件，列出了對回購做出貢獻的人。
+
+AUTHORS：AUTHORS或AUTHORS.txt或AUTHORS.md等是一個文件，列出了項目的重要作者，例如與作品有法律關係的人。
+
+SUPPORT： SUPPORT orSUPPORT.txt或SUPPORT.mdetc. 是一個文件，解釋了讀者如何獲得有關存儲庫的幫助。GitHub 在“New Issue”頁面上鍊接了這個文件。
+
+SECURITY： SECURITY描述的項目的安全策略，包括當前通過安全更新維護的版本列表。它還提供了有關的用戶如何提交漏洞報告的說明。有關詳細信息，請查看以下鏈接。
+
+CODE_OF_CONDUCT： CODE_OF_CONDUCT該文件解釋瞭如何參與社區以及如何解決項目社區成員之間的任何問題。這裡有一些例子。
+
+CONTRIBUTING： CONTRIBUTING是一個解釋人們應該如何貢獻的文件，它可以幫助驗證人們是否提交了格式正確的拉取請求並打開了有用的問題。GitHub 在“新問題”頁面和“新拉取請求”頁面上鍊接此文件。這有助於人們了解如何做出貢獻。
+
+ACKNOWLEDGMENTS： ACKNOWLEDGMENTS或ACKNOWLEDGMENTS.txt或ACKNOWLEDGMENTS.md等是描述相關工作的文件，例如其他項目是依賴項，或庫，或模塊，或具有想要包含在項目中的自己的版權或許可。
+
+CODEOWNERS： CODEOWNERS是定義負責存儲庫中代碼的個人或團隊的文件。當有人打開修改他們擁有的代碼的拉取請求時，代碼所有者將被自動請求審查。當具有管理員或所有者權限的人啟用了必需的審查時，他們還可以選擇要求代碼所有者的批准，然後作者才能將拉取請求合併到存儲庫中。
+
+FUNDING：funding.yml是為的項目籌集資金或支持的項目的文件。
+
+ISSUE_TEMPLATE：當將問題模板添加到存儲庫時，項目貢獻者將自動在問題正文中看到模板的內容。模板自定義和標準化希望在貢獻者打開問題時包含的信息。要將多個問題模板添加到存儲庫，請ISSUE_TEMPLATE/在項目根目錄中創建一個目錄。在該ISSUE_TEMPLATE/目錄中，可以根據需要創建任意數量的問題模板，例如ISSUE_TEMPLATE/bugs.md. 此列表包含多個問題和拉取請求模板。
+
+PULL_REQUEST_TEMPLATE：當將PULL_REQUEST_TEMPLATE文件添加到存儲庫時，項目貢獻者將自動在拉取請求正文中看到模板的內容。模板自定義和標準化希望在貢獻者創建拉取請求時包含的信息。PULL_REQUEST_TEMPLATE/可以在任何支持的資料夾中創建一個子目錄以包含多個拉取請求模板。
+```
+
 # Linux 安裝 Git
 
 ```bash
@@ -193,7 +259,7 @@ $XDG_CONFIG_HOME/git/credentials
 第二個用戶特定的憑據文件。
 如果$XDG_CONFIG_HOME未設置或為空，$HOME/.config/git/credentials將被使用。
 ~/.git-credentials如果也有匹配的憑據，則不會使用存儲在此文件中的任何憑據。
-如果您有時使用不支持的舊版本 Git，最好不要創建此文件。
+如果有時使用不支持的舊版本 Git，最好不要創建此文件。
 
 對於憑證查找，文件按上面給出的順序讀取，找到的第一個匹配憑證優先於列表下方文件中找到的憑證。
 
@@ -723,7 +789,7 @@ git reset HEAD filename
 # 回退到指定版本
 git reset 052e
 
-# 回退 hello.php 文件的版本到上一個版本
+# 回退 hello.php的版本到上一個版本
 git reset HEAD^ hello.php
 ```
 

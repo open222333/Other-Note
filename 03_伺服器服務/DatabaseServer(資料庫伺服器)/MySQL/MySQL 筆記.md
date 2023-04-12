@@ -1004,6 +1004,9 @@ MASTER_LOG_POS={$log position};
 -- 執行slave
 start slave;
 
+-- 確認master狀態
+show master status\G
+
 -- 確認slave狀態
 -- Slave_IO_State: Waiting for master to send event
 -- Slave_IO_Running: Yes
