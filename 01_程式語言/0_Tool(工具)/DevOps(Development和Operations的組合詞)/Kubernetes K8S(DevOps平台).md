@@ -19,3 +19,5 @@ Kubernetes是用於自動部署、擴充和管理「容器化應用程式」的�
 [官方文檔](https://kubernetes.io/zh-cn/docs/home/)
 
 [Kubernetes - wiki](https://zh.wikipedia.org/zh-tw/Kubernetes)
+
+[Kubernetes Tutorial for Beginners [FULL COURSE in 4 Hours]](https://www.youtube.com/watch?v=X48VuDVv0do&t=138s&ab_channel=TechWorldwithNana)

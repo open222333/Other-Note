@@ -1,4 +1,4 @@
-# mitmproxy(中間人代理工具) 筆記
+# Linux 工具 mitmproxy(中間人代理工具)
 
 ```
 mitmproxy 是 man-in-the-middle proxy 的簡稱，譯為中間人代理工具
@@ -20,10 +20,11 @@ mitmweb -> web 介面工具
 
 ## 目錄
 
-- [mitmproxy(中間人代理工具) 筆記](#mitmproxy中間人代理工具-筆記)
+- [Linux 工具 mitmproxy(中間人代理工具)](#linux-工具-mitmproxy中間人代理工具)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝步驟 MacOS](#安裝步驟-macos)
+- [安裝步驟](#安裝步驟)
+	- [MacOS](#macos)
 - [手動安裝 CA 證書](#手動安裝-ca-證書)
 - [指令](#指令)
 
@@ -39,7 +40,9 @@ mitmweb -> web 介面工具
 
 [python 使用範例](https://docs.mitmproxy.org/stable/addons-examples/)
 
-# 安裝步驟 MacOS
+# 安裝步驟
+
+## MacOS
 
 ```bash
 # 安裝
