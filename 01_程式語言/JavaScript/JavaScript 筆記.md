@@ -21,6 +21,9 @@
 	- [迭代器(iterator)](#迭代器iterator)
 	- [產生器(generator)](#產生器generator)
 		- [yield\*和遞迴產生器](#yield和遞迴產生器)
+		- [產生器進階功能](#產生器進階功能)
+			- [產生器函式的回傳值](#產生器函式的回傳值)
+			- [yield運算式的值](#yield運算式的值)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -545,6 +548,8 @@ class Range {
 產生器物件是一個迭代器
 呼叫他的next()方法會導致該產生器韓式的主體從頭開始執行或從目前的位置
 直到抵達一個yield述句
+
+function 之後加了個 * 符號，這表示這會是個產生器函式，只有在產生器函式中，才可以使用 yield。
 ```
 
 ```JavaScript
@@ -693,7 +698,67 @@ function* oneDigitprimes() {
 
 ### yield*和遞迴產生器
 
+```JavaScript
+// yield*和遞迴產生器
+
+function* oneDigitprimes() {
+  yield 2;
+  yield 3;
+  yield 5;
+  yield 7;
+}
+
+// 循序非交錯產出多個可迭代物件的元素
+function* sequence(...iterables) {
+  for (let iterable of iterables) {
+    for (let item of iterable) {
+      yield item;
+    }
+  }
+}
+
+[...sequence("abc", oneDigitprimes())]; // => ['a', 'b', 'c', 2, 3, 5, 7]
+console.log([...sequence("abc", oneDigitprimes())]);
+
+// 使用yield*簡化
+function* sequence2(...iterables) {
+  for (let iterable of iterables) {
+    yield* iterable;
+  }
+}
+
+[...sequence2("abc", oneDigitprimes())]; // => ['a', 'b', 'c', 2, 3, 5, 7]
+console.log([...sequence2("abc", oneDigitprimes())]);
 ```
+
+### 產生器進階功能
+
+#### 產生器函式的回傳值
+
+```JavaScript
+// 一個產生器函式的回傳值
+function* oneAndDone() {
+  yield 1;
+  return "done"; // 回傳值不會出現在一般迭代中
+}
+
+[...oneAndDone()]; // => [1]
+console.log([...oneAndDone()]);
+
+// 但如果明確呼叫next()可以取用回傳值
+let generator = oneAndDone();
+generator.next(); // => { value: 1, done: false }
+generator.next(); // => { value: 'done', done: true }
+generator.next(); // => { value: undefined, done: true }
+```
+
+#### yield運算式的值
+
+```
+yield 是一個運算式 可以有一個值
+```
+
+```JavaScript
 ```
 
 # 全域函式
