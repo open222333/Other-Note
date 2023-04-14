@@ -104,6 +104,8 @@ certbot -c cli.ini certonly --dns-cloudflare --no-autorenew -d test.com -d *.tes
 		Obtain certificates using a DNS TXT record (if you are using Cloudflare for DNS). (default: False)
 	--no-autorenew
 		Disable auto renewal of certificates. (default: True)
+	--quiet
+		除錯誤之外的所有輸出靜音。
 ```
 
 ## 刷新
