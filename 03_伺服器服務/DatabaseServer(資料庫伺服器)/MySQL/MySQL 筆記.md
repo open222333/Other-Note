@@ -119,6 +119,8 @@
 
 [架設 HA 高可用性：MySQL Cluster 叢集 – 7.4.11(5.6.29)](https://shazi.info/%E6%9E%B6%E8%A8%AD-ha-%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%9Amysql-cluster-%E5%8F%A2%E9%9B%86-7-4-115-6-29/)
 
+[Galera Cluster for MySQL 详解（一）——基本原理](https://blog.csdn.net/wzy0623/article/details/102522268)
+
 ### 操作相關
 
 [MySQL列出所有表](https://www.yiibai.com/mysql/show-tables.html)
