@@ -66,6 +66,10 @@ script 運作時需要的環境變數預先宣告與設定。
 
 [How can I replace each newline (\n) with a space using sed? - 替換\n tr '\n' ' ' < input_filename](https://stackoverflow.com/questions/1251999/how-can-i-replace-each-newline-n-with-a-space-using-sed)
 
+[Shell 基礎 1-宣告, 變數, 函數, 確認檔案存在](https://www.brilliantcode.net/1978/shell-basics-1-declare-variable-function-file-exists/)
+
+[Shell 基礎 2-判斷指令執行成功](https://www.brilliantcode.net/2166/shell-script-how-to-do-things-after-command-finished/)
+
 # 特殊變數
 
 ```bash
@@ -266,6 +270,32 @@ set -e
 
 ... code ...
 exec "$@"
+```
+
+## 判斷指令是否執行成功
+
+```bash
+#!/bin/bash
+# $?
+# 變數 $? 是 Linux 指令執行結束時所送出的執行結果代碼，而這就是來自於程式的尾端都要 return 結果。
+# 基本上，$? 數值為 0 的話，就代表執行正常結束，反之就是其他狀態。
+
+cd /home/test/Documents
+tar -zcf /home/test/test.tar.gz ./*
+
+# 記得包住 if 判斷條件的中括號內側，都要留一個空白字元。
+if [ "$?" -eq "0" ]
+then
+   echo "Success."
+else
+   echo "Failure."
+fi
+
+if [ "$?" -eq "0" ]; then
+	echo "certbot Success."
+else
+	echo "certbot Failure."
+fi
 ```
 
 # 偽裝置
