@@ -309,6 +309,11 @@ yum install -y sshpass
 # 用 sshpass 傳送密碼 123qwe，ssh 登入 kvm7.deyu.wang 在目錄 /root 下產生一個檔案 abc 內容為 aaaa。 遠端連線時目錄 .ssh 中有一個檔案 known_hosts 會記錄曾經連線過的信任主機，若連線主機重新安裝或更換 ip，其 host key 不同，ssh 會產生警告訊息，要求確認並刪除在 known_hosts 中的記錄，才能連線。選項 -o StrictHostKeyChecking=no 就是不進行 host key 的檢查，以避免此中斷程式的動作
 sshpass -p123qwe ssh -o StrictHostKeyChecking=no kvm7.deyu.wang "echo aaaa > /root/abc"
 
+# 遠程創建文件file
+sshpass -p 123456 ssh admin@1.1.1.1 "touch file"
+# 把本地文件file1傳入遠程機器1.1.1.2上的用戶目錄下
+sshpass -p 123456 scp file1 admin@1.1.1.2:~
+
 rsync -av -e "sshpass -p123qwe ssh" b.txt kvm7.deyu.wang:
 ```
 
