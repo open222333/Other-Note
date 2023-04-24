@@ -52,13 +52,13 @@ def verify_password(stored_password, provided_password):
 ```Python
 import hashlib
 
-path = 'aaaaaaaaaaaaaaaaaa'
+path = 'teststr'
 salt = hashlib.md5()
 salt.update(path.encode('utf-8'))
 salt.hexdigest()
 
 
-path = 'aaaaaaaaaaaaaaaaaa'
+path = 'teststr'
 salt = hashlib.sha256()
 salt.update(path.encode('utf-8'))
 salt.hexdigest()
