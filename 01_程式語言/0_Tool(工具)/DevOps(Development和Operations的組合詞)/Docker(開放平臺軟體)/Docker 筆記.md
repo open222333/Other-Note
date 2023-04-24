@@ -1025,8 +1025,8 @@ do
     if [ -d $file ];then
         echo $file"-json.log"
         cat /dev/null > $file/$file-json.log
-      else
-        echo 0
+	else
+		echo 0
     fi
 done
 echo "========== Clean Docker Containers Log =========="
