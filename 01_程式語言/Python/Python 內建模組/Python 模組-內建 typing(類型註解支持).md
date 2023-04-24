@@ -19,4 +19,10 @@
 # 用法
 
 ```Python
+from typing import Union
+
+'''聯合類型；等價於，意味著滿足X 或Y 之一。Union[X, Y]X | Y'''
+
+def testname(q: Union[str, None]):
+	return
 ```

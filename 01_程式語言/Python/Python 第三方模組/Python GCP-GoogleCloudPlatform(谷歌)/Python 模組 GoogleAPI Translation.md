@@ -20,6 +20,7 @@ Python google翻譯API 官方(需要付費)
 
 [Cloud Translation API 代碼範例](https://cloud.google.com/translate/docs/samples)
 
+[Python client library](https://cloud.google.com/translate/docs/reference/libraries/v2/python)
 
 [免費套件 (不穩定)](https://clay-atlas.com/blog/2020/05/05/python-cn-note-package-googletrans-google-translate/)
 
@@ -31,6 +32,9 @@ pip3 install googletrans
 
 # 安裝套件
 pip install google-cloud-storage
+
+# 安裝套件 translatev2
+pip install google-cloud-translate==2.0.1
 ```
 
 # 用法

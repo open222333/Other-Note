@@ -44,6 +44,7 @@
 	- [恢復備份到mysql-slave](#恢復備份到mysql-slave)
 		- [Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#slave_sql_running-no-slave_io_running-no-解決方案)
 - [Cluster 叢集架設](#cluster-叢集架設)
+	- [](#)
 	- [指令](#指令-1)
 	- [實作](#實作)
 		- [Manage node](#manage-node)
@@ -62,8 +63,6 @@
 		- [innobackupex 對比 xtrabackup](#innobackupex-對比-xtrabackup)
 
 ## 參考資料
-
-[SQL筆記](../../../../../01_程式語言/SQL/SQL%20筆記.md)
 
 [MySQl官方網站](https://dev.mysql.com/)
 
@@ -120,6 +119,8 @@
 [架設 HA 高可用性：MySQL Cluster 叢集 – 7.4.11(5.6.29)](https://shazi.info/%E6%9E%B6%E8%A8%AD-ha-%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%9Amysql-cluster-%E5%8F%A2%E9%9B%86-7-4-115-6-29/)
 
 [Galera Cluster for MySQL 详解（一）——基本原理](https://blog.csdn.net/wzy0623/article/details/102522268)
+
+[如何建置 MariaDb Galera Cluster](https://gary840227.medium.com/mariadb-cluster-f7220e9eaac8)
 
 ### 操作相關
 
@@ -1062,6 +1063,18 @@ MySQL Cluster Nodes：
 Manage Nodes：負責監控叢集所有 Nodes 的狀態，並且由此控制所有 Nodes 的替換。
 Data Nodes：負責所有 SQL Data 的 Nodes，單純儲存資料，將資料寫在 RAM & Disk。
 SQL Nodes：負責 SQL 的 Table schema 和 Client 連接的空間。
+```
+
+##
+
+```
+多主架構：真正的多主多活群集，可隨時對任何節點進行讀寫。
+同步複製：集群不同節點之間數據同步，某節點崩潰時沒有數據丟失。
+數據一致：所有節點保持相同狀態，節點之間無數據分歧。
+並行複制：重放支持多線程並行執行以獲得更好的性能。
+故障轉移：故障節點本身對集群的影響非常小，某節點出現問題時無需切換操作，因此不需要使用VIP，也不會中斷服務。
+自動克隆：新增節點會自動拉取在線節點的數據，最終集群所有節點數據一致，而不需要手動備份恢復。
+應用透明：提供透明的客戶端訪問，不需要對應用程序進行更改。
 ```
 
 ## 指令
