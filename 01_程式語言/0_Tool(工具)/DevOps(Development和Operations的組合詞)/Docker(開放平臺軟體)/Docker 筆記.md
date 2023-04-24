@@ -38,6 +38,8 @@
 		- [連線 主機別名](#連線-主機別名)
 - [例外狀況](#例外狀況)
 	- [log造成硬碟沒有空間](#log造成硬碟沒有空間)
+		- [Container Log 預設路徑：](#container-log-預設路徑)
+		- [清理 Log](#清理-log)
 		- [清理 Log Script](#清理-log-script)
 
 ## 參考資料
@@ -997,11 +999,13 @@ services:
 Docker container 的 Log 會因為運作的時間愈長，檔案的 size 也會隨之愈大，這樣會導致機器的硬碟空間被 Log 佔據，所以可以限制 Log 文件的 size 大小以避免硬碟空間被塞爆
 ```
 
-Container Log 預設路徑如下：
+### Container Log 預設路徑：
 
 ```
 /var/lib/docker/containers/<container-id>/<container-id>-json.log
 ```
+
+### 清理 Log
 
 ```bash
 # 需進入到/var/lib/docker/containers/<container-id>後執行
