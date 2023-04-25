@@ -24,7 +24,11 @@
 		- [產生器進階功能](#產生器進階功能)
 			- [產生器函式的回傳值](#產生器函式的回傳值)
 			- [yield運算式的值](#yield運算式的值)
-			- [產生器的return()和throw()方法](#產生器的return和throw方法)
+- [非同步 (Asynchronous)](#非同步-asynchronous)
+	- [使用	Callbacks 的非同步程式設計](#使用callbacks-的非同步程式設計)
+		- [計時器(Timers)](#計時器timers)
+		- [事件 (Events)](#事件-events)
+		- [網路事件](#網路事件)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -785,10 +789,102 @@ let n4 = g.next("d"); // n4 == { value: 4, done: true }
 console.log("generator returned", n4.value);
 ```
 
-#### 產生器的return()和throw()方法
+# 非同步 (Asynchronous)
 
 ```
+停止運算，等候資料抵達或某些事件發生。
+```
 
+## 使用	Callbacks 的非同步程式設計
+
+### 計時器(Timers)
+
+```JavaScript
+// 計時器(Timers)
+
+/**
+ * setTimeout() 函式
+ * https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout
+ */
+
+/**
+ * setInterval() 函式
+ * https://developer.mozilla.org/zh-CN/docs/Web/API/setInterval
+ */
+function checkForUpdates() {
+  // 虛構的檢查更新函式
+  console.log("test");
+}
+
+// setTimeout() 會呼叫指定的callback函式部傳入任何引數
+// let updateIntervalId = setTimeout(checkForUpdates(), 60000);
+
+// 若是要檢查更新 會希望重複執行 使用setInterval
+// 一秒後呼叫checkForUpdates 在那之後每6秒重複呼叫一次
+let updateIntervalId = setInterval(checkForUpdates, 1000);
+
+// setInterval()所回傳的值(updateIntervalId)可用來停止重複調用
+function stopCheckingForUpdates() {
+  clearInterval(updateIntervalId);
+}
+
+setTimeout(stopCheckingForUpdates, 5000);
+```
+
+### 事件 (Events)
+
+```JavaScript
+// 事件 (Events)
+/**
+ * 客戶端的JavaScript 程式幾乎都是 事件驅動
+ * 以addEventListener()來註冊的callback函式
+ * 這些callback函式被稱為 事件處理器(event handlers) 或 事件收聽器(event listeners)
+ */
+
+// 請求Web瀏覽器回傳一個物件來表示
+// 匹配這個CSS選擇器(selector)的HTML <button> 元素
+let okay = document.querySelector("#confirmUpdateDialog button.okay");
+
+function applyUpdate() {
+  // 虛構的callback函式
+  console.log("test");
+}
+
+// 註冊一個callback函式 使用者點擊按鈕時調用
+okay.addEventListener("click", applyUpdate);
+```
+
+### 網路事件
+
+```JavaScript
+// 網路事件
+/**
+ * 網路請求(network requests)
+ */
+
+function getCurrentVersionNumber(versionCallback) {
+  //對後端的版本API發出一個以指令搞控制的HTTP請求
+  let request = new XMLHttpRequest();
+  request.open("GET", "http://www.example.com/api/version");
+  request.send();
+
+  // 註冊一個會再回應(response)抵達時被調用的callback
+  request.onload = function () {
+    if (request.status === 200) {
+      // 若HTTP狀態是良好的 取得版本號碼並呼叫callback
+      let currentVersion = parseFloat(request.responseText);
+      versionCallback(null, currentVersion);
+    } else {
+      // 否則回報一個錯誤給callback
+      versionCallback(response.statusText, null);
+    }
+  };
+
+  // 註冊另一個callback 在網路發生錯誤時被調用
+  request.onerror = request.ontimeout = function (e) {
+    versionCallback(e.type, null);
+  };
+}
 ```
 
 # 全域函式
@@ -820,24 +916,31 @@ setTimeout() 和 setInterval() 共用一個編號池，技術上，clearTimeout(
  *
  * 返回值timeoutID是一個正整數，表示定時器的編號。這個值可以傳遞給clearTimeout()來取消該定時器。
  */
-
+// 計時器
+/**
+ * 示範如何使用setTimeout() setInterval() clearInterval() 搭配Console API 顯示簡單的數位時鐘
+ */
 
 setTimeout(() => {
-  console.log("this is the first message");
-}, 5000);
+  console.log("Ready...");
+}, 1000);
 setTimeout(() => {
-  console.log("this is the second message");
+  console.log("set...");
+}, 2000);
+setTimeout(() => {
+  console.log("go!");
 }, 3000);
-setTimeout(() => {
-  console.log("this is the third message");
+
+// 一秒一次: 清空主控台，並印出目前時間
+let clock = setInterval(() => {
+  console.clear();
+  console.log(new Date().toLocaleTimeString());
 }, 1000);
 
-// Output:
-
-// this is the third message
-// this is the second message
-// this is the first message
-
+// 十秒之後，停止上面重複的程式碼
+setTimeout(() => {
+  clearInterval(clock);
+}, 10000);
 ```
 
 ### clearTimeout()
