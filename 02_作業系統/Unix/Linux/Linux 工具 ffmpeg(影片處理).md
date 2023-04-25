@@ -39,6 +39,8 @@
 
 [影音剪輯 / 使用 ffmpeg 分割影片 (指定開始及結束時間或固定時間長度分割)](https://note.charlestw.com/ffmpeg-trim-chunk/)
 
+[FFmpeg转码太慢的解决方案](https://blog.51cto.com/xiaohaiwa/5380303)
+
 # 指令 ffmpeg
 
 ```bash
@@ -67,6 +69,8 @@ ffmpeg -i (檔案) -s 640x480 -b 500k -vcodec libx264 -r 29.97 -acodec libfaac -
 -level：指定level
 -f：強迫輸出格式
 -y：若檔名重覆即不詢問直接覆蓋
+# 多線程
+-threads 5 -preset ultrafast
 
 wmv轉檔設定
 -vcodec wmv2
@@ -94,19 +98,18 @@ ffprobe -show_format inputFile
 HLS（HTTP Live Stream）是蘋果推出的影音串流的標準，目前可支援大多數的行動裝置與電視盒，如何利用ffmpeg將直播或影片進行切片（chunk）轉成HLS格式。
 ```
 
-```
-範例：
-'ffmpeg \
--i {video_path} \
--c copy \
--hls_segment_type mpegts \
--hls_time 10 \
--start_number 1 \
--hls_key_info_file {keyinfo_path} \
--hls_segment_filename {output_video_dir}/{output_video_name}_%05d.ts \
--hls_list_size 0 \
--hls_playlist_type vod \
--hls_flags delete_segments+split_by_time {output_video_dir}/{output_video_name}.m3u8 -y'
+```bash
+ffmpeg \
+	-i {video_path} \
+	-c copy \
+	-hls_segment_type mpegts \
+	-hls_time 10 \
+	-start_number 1 \
+	-hls_key_info_file {keyinfo_path} \
+	-hls_segment_filename {output_video_dir}/{output_video_name}_%05d.ts \
+	-hls_list_size 0 \
+	-hls_playlist_type vod \
+	-hls_flags delete_segments+split_by_time {output_video_dir}/{output_video_name}.m3u8 -y
 
 
 -start_number：從指定的數字開始序列。默認值為 1。
@@ -154,7 +157,10 @@ HLS（HTTP Live Stream）是蘋果推出的影音串流的標準，目前可支�
 
 -hls_segment_type: fmp4 or mpegts，切片的格式為mp4或者為mpeg-2 ts格式
 
--hls_list_size：設定playlist播放清單最多的內容，如果是0則無限制。因此為直播內容，可預先保留最大的值，這裡設定為10，就是會預先切個10個切片的播放清單，前面hls_time設定為6秒，切十個，就是預留60秒的內容進行播放。相對的，就有會將近60秒的延遲。
+-hls_list_size：
+	設定playlist播放清單最多的內容，如果是0則無限制。
+	因此為直播內容，可預先保留最大的值，這裡設定為10，就是會預先切個10個切片的播放清單，前面hls_time設定為6秒，切十個，就是預留60秒的內容進行播放。
+	相對的，就有會將近60秒的延遲。
 
 -hls_flags：有很多參數可用
 	delete_segments: 在segment的持續時間加上播放列表(playlist)的持續時間之後的一段時間之後刪除從播放列表中刪除的段文件(segment)。
