@@ -9,6 +9,11 @@ Node.js 是能夠在伺服器端運行 JavaScript 的開放原始碼、跨平台
 - [JavaScript NodeJs 筆記](#javascript-nodejs-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [安裝相關](#安裝相關)
+		- [nvm相關 (版本管理器)](#nvm相關-版本管理器)
+		- [npm相關 (軟體套件管理系統)](#npm相關-軟體套件管理系統)
+		- [yarn相關 (軟體套件管理系統)](#yarn相關-軟體套件管理系統)
+		- [應用相關](#應用相關)
 - [nvm 指令](#nvm-指令)
 - [npm 指令](#npm-指令)
 - [yarn 指令](#yarn-指令)
@@ -22,17 +27,41 @@ Node.js 是能夠在伺服器端運行 JavaScript 的開放原始碼、跨平台
 
 [官方網站](https://nodejs.org/en/)
 
-[NVM 安裝與使用 Node.js](https://pjchender.dev/nodejs/nvm/)
-
 [官方API文檔](https://nodejs.org/api/)
 
-[使用 VS Code 來開發 Node.js](https://ithelp.ithome.com.tw/articles/10225889)
+[node cli 指令列表](https://nodejs.org/api/cli.html)
+
+### 安裝相關
+
+[Building Node.js on supported platforms](https://github.com/nodejs/node/blob/main/BUILDING.md#building-nodejs-on-supported-platforms)
+
+### nvm相關 (版本管理器)
+
+[nvm github](https://github.com/nvm-sh/nvm)
+
+[NVM 安裝與使用 Node.js](https://pjchender.dev/nodejs/nvm/)
+
+### npm相關 (軟體套件管理系統)
+
+[npm 文檔](https://docs.npmjs.com/)
+
+[npm cli 指令列表](https://docs.npmjs.com/cli/v8/commands)
+
+### yarn相關 (軟體套件管理系統)
+
+[yarn 官方網站](https://yarnpkg.com/)
+
+[yarn cli 指令列表](https://yarnpkg.com/cli/install)
+
+### 應用相關
+
+[Node 模組規範鏖戰：難以相容的 CJS 與 ESM - 2022-02-21](https://iter01.com/662822.html)
 
 [Node.js 中文网](http://nodejs.cn/learn/introduction-to-nodejs)
 
-# nvm 指令
+[使用 VS Code 來開發 Node.js](https://ithelp.ithome.com.tw/articles/10225889)
 
-[nvm github](https://github.com/nvm-sh/nvm)
+# nvm 指令
 
 ```
 nvm 是 Node.js 的版本管理器 (version manager)，可在同一台主機上安裝多個版本的 Node.js 環境，因為不同專案可能會使用不同的 Node.js 版本，那就需要透過一個版本管理器來切換不同的 Node.js 版本。
@@ -102,10 +131,6 @@ brew uninstall node
 
 # npm 指令
 
-[npm 文檔](https://docs.npmjs.com/)
-
-[npm cli 指令列表](https://docs.npmjs.com/cli/v8/commands)
-
 ```
 npm是Node.js預設的、用JavaScript編寫的軟體套件管理系統。
 ```
@@ -152,10 +177,6 @@ npm list
 
 # yarn 指令
 
-[yarn 官方網站](https://yarnpkg.com/)
-
-[yarn cli 指令列表](https://yarnpkg.com/cli/install)
-
 ```
 Yarn是Facebook在2016年為Node.js JavaScript運行時環境開發的軟件打包系統，它提供了速度，一致性，穩定性和安全性。
 ```
@@ -166,10 +187,6 @@ yarn install
 ```
 
 # node 指令
-
-[node api 文檔](https://nodejs.org/api/)
-
-[node cli 指令列表](https://nodejs.org/api/cli.html)
 
 ```bash
 # 進入nodejs 工作階段
@@ -183,8 +200,6 @@ node -v
 ```
 
 # Node.JS 模組規範 - CJS(CommonJS) 與 ESM(ES Modules)
-
-[Node 模組規範鏖戰：難以相容的 CJS 與 ESM - 2022-02-21](https://iter01.com/662822.html)
 
 ```
 自 13.2.0 版本開始，Node.js 在保留了 CommonJS（CJS）語法的前提下，新增了對 ES Modules（ESM）語法的支援。
@@ -228,5 +243,4 @@ import('./esm/b.js').then(({ foo }) => {
 # 安裝14以下的版本，先進入Rosetta shell環境
 # https://dev.to/httpjunkie/setup-node-version-manager-nvm-on-mac-m1-7kl
 arch -x86_64 zsh
-
 ```
