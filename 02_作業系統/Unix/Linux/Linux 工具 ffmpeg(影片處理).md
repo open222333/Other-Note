@@ -8,18 +8,24 @@
 - [Linux 工具 ffmpeg(影片處理)](#linux-工具-ffmpeg影片處理)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [安裝相關](#安裝相關)
 		- [HLS參數相關](#hls參數相關)
 		- [ffprobe相關](#ffprobe相關)
 		- [應用相關](#應用相關)
+- [安裝](#安裝)
 - [指令 ffmpeg](#指令-ffmpeg)
 - [指令 ffprobe](#指令-ffprobe)
 - [HLS（HTTP Live Stream）](#hlshttp-live-stream)
 
 ## 參考資料
 
-[常用教學](https://wilsbur.pixnet.net/blog/post/146836324)
+[官方文檔](https://ffmpeg.org/ffmpeg.html)
 
-[文檔](https://ffmpeg.org/ffmpeg.html)
+[官方下載](http://ffmpeg.org/download.html)
+
+### 安裝相關
+
+[快速安装 FFmpeg 静态构建版本](https://anlan.cc/191)
 
 ### HLS參數相關
 
@@ -37,9 +43,35 @@
 
 ### 應用相關
 
+[ffmpeg常用指令介紹](https://wilsbur.pixnet.net/blog/post/146836324)
+
 [影音剪輯 / 使用 ffmpeg 分割影片 (指定開始及結束時間或固定時間長度分割)](https://note.charlestw.com/ffmpeg-trim-chunk/)
 
 [FFmpeg转码太慢的解决方案](https://blog.51cto.com/xiaohaiwa/5380303)
+
+# 安裝
+
+```bash
+# Centos7 ffmpeg version 3.4
+yum install epel-release
+rpm -v --import http://li.nux.ro/download/nux/RPM-GPG-KEY-nux.ro
+rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm
+yum install ffmpeg ffmpeg-devel
+# 解除安裝
+yum remove ffmpeg -y
+
+# Centos7 ffmpeg version 6.x  Linux Static Builds
+# https://johnvansickle.com/ffmpeg/
+wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+# 解壓縮
+tar xvf ffmpeg-release-*-static.tar.xz
+# 刪除
+rm -rf ffmpeg-release-*-static.tar.xz
+# 移動可執行文件到/usr/bin/方便系統調用
+mv ffmpeg-6.0-amd64-static/ffmpeg  ffmpeg-6.0-amd64-static/ffprobe /usr/bin/
+# 檢查版本
+ffmpeg -version
+```
 
 # 指令 ffmpeg
 

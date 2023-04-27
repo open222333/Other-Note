@@ -3,7 +3,7 @@
 ```
 ```
 
-# # 目錄
+## 目錄
 
 - [Python 工具 anacodna(虛擬環境) 筆記](# python-工具-anacodna虛擬環境-筆記)
 	- [目錄](# 目錄)
@@ -12,13 +12,21 @@
 - [安裝步驟 CentOS7 Miniconda](# 安裝步驟-centos7-miniconda)
 - [指令](# 指令)
 
-# # 參考資料
+## 參考資料
+
+[Anaconda 官方網站](https://www.anaconda.com/)
 
 [Anaconda 文檔](https://docs.anaconda.com/)
 
+[Command reference - conda 命令參考](https://docs.conda.io/projects/conda/en/latest/commands.html)
+
+[conda/conda Github](https://github.com/conda/conda)
+
+### Miniconda相關
+
 [Miniconda 文檔](https://docs.conda.io/en/latest/miniconda.html)
 
-[Command reference - conda 命令參考](https://docs.conda.io/projects/conda/en/latest/commands.html)
+[Installing on Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
 # 安裝
 

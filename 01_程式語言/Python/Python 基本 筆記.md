@@ -5,6 +5,7 @@
 - [Python 基本 筆記](#python-基本-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [安裝相關](#安裝相關)
 		- [特殊變數、方法相關](#特殊變數方法相關)
 		- [環境變數相關](#環境變數相關)
 		- [類別相關](#類別相關)
@@ -35,11 +36,23 @@
 
 ## 參考資料
 
-[內建函式 文檔](https://docs.python.org/3/library/functions.html)
+[官方網站](https://www.python.org/)
 
-[內建模組 文檔](https://docs.python.org/zh-tw/3/py-modindex.html)
+[官方網站 下載](https://www.python.org/downloads/)
 
-[python 命令行執行](https://docs.python.org/zh-tw/3/using/cmdline.html)
+[Python Developer's Guide 官方教學](https://devguide.python.org/versions/#versions)
+
+[內建函式 官方文檔](https://docs.python.org/3/library/functions.html)
+
+[內建模組 官方文檔](https://docs.python.org/zh-tw/3/py-modindex.html)
+
+[命令列與環境 官方](https://docs.python.org/zh-tw/3/using/cmdline.html)
+
+### 安裝相關
+
+[linux 安裝 官方教學](https://devguide.python.org/getting-started/setup-building/#linux)
+
+[【Python】在 CentOS 7 上安裝 Python3](https://kirin.idv.tw/python-install-python3-in-centos7/)
 
 ### 特殊變數、方法相關
 
@@ -91,8 +104,6 @@ import this
 ```
 
 # 環境變數
-
-[環境變數 Windows](https://hackmd.io/@yizhewang/B1zdXG4br)
 
 ```python
 # 將目前工作目錄設定為指令搞所在目錄
