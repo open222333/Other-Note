@@ -23,6 +23,13 @@
 
 [官方下載](http://ffmpeg.org/download.html)
 
+[【CPU】关于x86、x86_64/x64、amd64和arm64/aarch64](https://www.jianshu.com/p/2753c45af9bf)
+
+```
+x86=i386=IA32
+amd64=x86_64=x64!=IA64
+```
+
 ### 安裝相關
 
 [快速安装 FFmpeg 静态构建版本](https://anlan.cc/191)
@@ -60,17 +67,26 @@ yum install ffmpeg ffmpeg-devel
 # 解除安裝
 yum remove ffmpeg -y
 
-# Centos7 ffmpeg version 6.x  Linux Static Builds
+# Centos7 ffmpeg version 4.4 Linux Static Builds
 # https://johnvansickle.com/ffmpeg/
-wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+# [ARM架構](https://zh.wikipedia.org/zh-tw/ARM%E6%9E%B6%E6%A7%8B)
+# [x86-64](https://zh.wikipedia.org/zh-tw/X86-64)
+wget https://www.johnvansickle.com/ffmpeg/old-releases/ffmpeg-4.4-amd64-static.tar.xz
 # 解壓縮
-tar xvf ffmpeg-release-*-static.tar.xz
-# 刪除
-rm -rf ffmpeg-release-*-static.tar.xz
+tar xvf ffmpeg-4.4-amd64-static.tar.xz
+# 刪除 壓縮包
+rm -f ffmpeg-4.4-amd64-static.tar.xz
 # 移動可執行文件到/usr/bin/方便系統調用
-mv ffmpeg-6.0-amd64-static/ffmpeg  ffmpeg-6.0-amd64-static/ffprobe /usr/bin/
+mv ffmpeg-4.4-amd64-static/ffmpeg  ffmpeg-4.4-amd64-static/ffprobe /usr/bin/
+# 刪除 資料夾
+rm -rf ffmpeg-4.4-amd64-static
 # 檢查版本
 ffmpeg -version
+
+# 查看linux kernel
+uname -r
+
+uname -a
 ```
 
 # 指令 ffmpeg
