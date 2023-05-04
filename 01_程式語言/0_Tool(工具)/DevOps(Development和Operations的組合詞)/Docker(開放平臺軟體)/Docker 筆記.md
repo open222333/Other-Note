@@ -84,10 +84,13 @@
 
 [docker-compose Github 範例](https://github.com/docker/awesome-compose)
 
-[docker-compose 撰寫規範](https://docs.docker.com/compose/compose-file/)
+[docker-compose 撰寫規範 官方文檔](https://docs.docker.com/compose/compose-file/)
 
-[docker-compose `The Compose Specification`](https://github.com/compose-spec/compose-spec/blob/master/spec.md)
+[docker-compose 撰寫規範 - Github](https://github.com/compose-spec/compose-spec/blob/master/spec.md)
 
+[docker-compose command 官方文檔](https://docs.docker.com/compose/compose-file/05-services/#command)
+
+[Dockerfile CMD 官方文檔](https://docs.docker.com/engine/reference/builder/#cmd)
 
 # 安裝步驟 CentOS7
 

@@ -8,6 +8,7 @@
 - [Python 模組 celery(排程)](#python-模組-celery排程)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [範例相關](#範例相關)
 - [指令](#指令)
 - [用法](#用法)
 
@@ -15,25 +16,27 @@
 
 [celery pypi](https://pypi.org/project/celery/)
 
-[取的celery ID](https://micewww.pp.rl.ac.uk/projects/maus/wiki/MAUSCelery)
-
 [celery 文檔](https://docs.celeryproject.org/en/stable/userguide/periodic-tasks.html)
 
 [Celery 官網](http://www.celeryproject.org/)
 
 [Celery 官方文件英文版](http://docs.celeryproject.org/en/latest/index.html)
 
-[Celery 官方文件中文版](http://docs.jinkan.org/docs/celery/)
+[celery配置 文檔](https://docs.celeryproject.org/en/3.1/configuration.html)
 
-[Celery的基本使用]
-(https://www.796t.com/article.php?id=57131)
+[Celery 文件中文版](http://docs.jinkan.org/docs/celery/)
+
+### 範例相關
+
+[取的celery ID](https://micewww.pp.rl.ac.uk/projects/maus/wiki/MAUSCelery)
+
+[Celery的基本使用](https://www.796t.com/article.php?id=57131)
 
 [celery + flask](https://github.com/a607ernie/flask-celery-demo)
 
 [如何使用 Celery multi worker 啟用自動縮放？](https://stackoverflow.com/questions/46989636/how-to-enable-auto-scaling-with-celery-multi-workers)
 
-[多worker、多队列]
-(https://www.cnblogs.com/yangjian319/p/9097171.html)
+[多worker、多队列](https://www.cnblogs.com/yangjian319/p/9097171.html)
 
 [Python celery原理及執行流程解析](https://www.796t.com/article.php?id=23198)
 
@@ -44,8 +47,6 @@
 [mysql - celery worker 之间如何实现类似锁文件的机制？](https://www.coder.work/article/4558945)
 
 [python - 在Celery - Python中進程( worker )之間共享數據的最佳解決方案是什麼？](https://www.coder.work/article/546114)
-
-[celery配置 文檔](https://docs.celeryproject.org/en/3.1/configuration.html)
 
 [Celery autodiscover_tasks用途](https://stackoverflow.com/questions/53726215/what-is-the-purpose-of-celerys-autodiscover-tasks-function)
 
