@@ -8,7 +8,7 @@
 		- [安裝相關](#安裝相關)
 		- [特殊變數、方法相關](#特殊變數方法相關)
 		- [環境變數相關](#環境變數相關)
-		- [類別相關](#類別相關)
+		- [修飾詞相關](#修飾詞相關)
 		- [pip(模組管理工具)](#pip模組管理工具)
 		- [Command Line Interface(CLI)](#command-line-interfacecli)
 	- [Python書籍推薦](#python書籍推薦)
@@ -27,6 +27,8 @@
 - [類別(class)](#類別class)
 	- [修飾詞 staticmethod](#修飾詞-staticmethod)
 	- [修飾詞 classmethod](#修飾詞-classmethod)
+	- [修飾詞 property](#修飾詞-property)
+		- [範例](#範例)
 - [關鍵字](#關鍵字)
 	- [yield](#yield)
 - [函式](#函式)
@@ -62,9 +64,11 @@
 
 [環境變數 Windows](https://hackmd.io/@yizhewang/B1zdXG4br)
 
-### 類別相關
+### 修飾詞相關
 
 [Python 的 staticmethod 與 classmethod](https://ji3g4zo6qi6.medium.com/python-tips-5d36df9f6ad5)
+
+[[Python教學] @property是什麼? 使用場景和用法介紹](https://www.maxlist.xyz/2019/12/25/python-property/)
 
 ### pip(模組管理工具)
 
@@ -300,6 +304,59 @@ classmethod與staticmethod的差別
 ```Python
 @classmethod
 def func(cls, args...)
+```
+
+## 修飾詞 property
+
+```
+@property 是要實現物件導向中設計中封裝的實現方式
+
+特性:
+	將 class (類) 的方法轉換為 只能讀取的 屬性
+	重新實現一個屬性的 setter、getter 和 deleter 方法
+```
+
+### 範例
+
+```Python
+# 將 class (類) 的方法轉換為 只能讀取的 屬性
+# 重新實現一個屬性的 setter、getter 和 deleter 方法
+class Bank_acount:
+    def __init__(self):
+        self._password = '預設密碼 0000'
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        self._password = value
+
+    @password.deleter
+    def password(self):
+        del self._password
+        print('del complite')
+```
+
+```Python
+from werkzeug.security import generate_password_hash, check_password_hash
+
+'''
+案例：當使用者在建立會員帳號密碼時，密碼傳送進資料庫前會被加密的過程
+'''
+
+class User:
+    @property
+    def password(self):
+        raise AttributeError('password is not readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
 ```
 
 # 關鍵字
