@@ -20,6 +20,7 @@
 		- [CSRF相關](#csrf相關)
 		- [網站模版樣本 相關](#網站模版樣本-相關)
 		- [教學範例相關](#教學範例相關)
+		- [細節相關](#細節相關)
 - [指令](#指令)
 - [啟動方式](#啟動方式)
 	- [選項1(官方推薦此選項)](#選項1官方推薦此選項)
@@ -46,7 +47,8 @@
 			- [方法一. CSRF token](#方法一-csrf-token)
 			- [方法二. SameSite cookie](#方法二-samesite-cookie)
 	- [變量與請求](#變量與請求)
-	- [與pymysql](#與pymysql)
+	- [實作 flask與pymysql](#實作-flask與pymysql)
+		- [`講解 _app_ctx_stack.top`](#講解-_app_ctx_stacktop)
 
 ## 參考資料
 
@@ -145,6 +147,10 @@
 ### 教學範例相關
 
 [Flask實作](https://hackmd.io/@shaoeChen/HJiZtEngG/https%3A%2F%2Fhackmd.io%2Fs%2FrkgXYoBeG)
+
+### 細節相關
+
+[Flask应用上下文 - _app_ctx_stack.top](https://zhuanlan.zhihu.com/p/150219295)
 
 # 指令
 
@@ -812,9 +818,9 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-## 與pymysql
+## 實作 flask與pymysql
 
-```
+```Python
 import pymysql.cursors
 from flask import _app_ctx_stack, current_app
 
@@ -905,4 +911,130 @@ class FlaskMySQL(object):
         ctx = _app_ctx_stack.top
         if hasattr(ctx, 'pymysql_db'):
             ctx.pymysql_db.close()
+```
+
+### `講解 _app_ctx_stack.top`
+
+Flask支持多應用，即多個app
+
+為了實現app隔離，Flask使用LocalStack數據結構來記錄每個app的上下文(即運行配置)。
+這裡定義了一個_app_ctx_stack 變量，類型為LocalStack()，用來存儲app的上下文。
+
+```Python
+# globals.py(site-packages\flask\globals.py)
+
+def _find_app():
+    top = _app_ctx_stack.top
+    if top is None:
+        raise RuntimeError(_app_ctx_err_msg)
+    return top.app
+
+
+# context locals
+_request_ctx_stack = LocalStack()
+_app_ctx_stack = LocalStack()
+current_app = LocalProxy(_find_app)
+request = LocalProxy(partial(_lookup_req_object, 'request'))
+session = LocalProxy(partial(_lookup_req_object, 'session'))
+g = LocalProxy(partial(_lookup_app_object, 'g'))
+```
+
+往裡面添加內容
+
+```Python
+# app.py(site-packages\flask\app.py)
+def app_context(self):
+	"""Create an :class:`~flask.ctx.AppContext`. Use as a ``with``
+	block to push the context, which will make :data:`current_app`
+	point at this application.
+
+	An application context is automatically pushed by
+	:meth:`RequestContext.push() <flask.ctx.RequestContext.push>`
+	when handling a request, and when running a CLI command. Use
+	this to manually create a context outside of these situations.
+
+	::
+
+		with app.app_context():
+			init_db()
+
+	See :doc:`/appcontext`.
+
+	.. versionadded:: 0.9
+	"""
+	return AppContext(self)
+```
+
+在創建app實例的時候，一般會緊跟著加載相關配置，例如
+
+```Python
+app = Flask(__name__)
+with app.app_context():
+	init_db()
+	init_log()
+```
+
+在調用app_context的時候，會返回AppContext(self)。
+
+```Python
+# site-packages\flask\ctx.py
+class AppContext(object):
+    """The application context binds an application object implicitly
+    to the current thread or greenlet, similar to how the
+    :class:`RequestContext` binds request information.  The application
+    context is also implicitly created if a request context is created
+    but the application is not on top of the individual application
+    context.
+    """
+
+    def __init__(self, app):
+        self.app = app
+        self.url_adapter = app.create_url_adapter(None)
+        self.g = app.app_ctx_globals_class()
+
+        # Like request context, app contexts can be pushed multiple times
+        # but there a basic "refcount" is enough to track them.
+        self._refcnt = 0
+
+    def push(self):
+        """Binds the app context to the current context."""
+        self._refcnt += 1
+        if hasattr(sys, 'exc_clear'):
+            sys.exc_clear()
+        _app_ctx_stack.push(self)
+        appcontext_pushed.send(self.app)
+
+    def pop(self, exc=_sentinel):
+        """Pops the app context."""
+        try:
+            self._refcnt -= 1
+            if self._refcnt <= 0:
+                if exc is _sentinel:
+                    exc = sys.exc_info()[1]
+                self.app.do_teardown_appcontext(exc)
+        finally:
+            rv = _app_ctx_stack.pop()
+        assert rv is self, 'Popped wrong app context.  (%r instead of %r)' \
+            % (rv, self)
+        appcontext_popped.send(self.app)
+
+    def __enter__(self):
+        self.push()
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        self.pop(exc_value)
+
+        if BROKEN_PYPY_CTXMGR_EXIT and exc_type is not None:
+            reraise(exc_type, exc_value, tb)
+```
+
+AppContext類有一個_enter方法，當with語句運行的時候，會調用_enter_方法，
+
+而_ enter _裡面的push方法就將app相關的配置push到_app_ctx_stack裡面。
+
+結合globals.py裡面的_find_app，如果要拿到當前的app，就可以使用下列語句
+
+```Python
+from flask import current_app
 ```

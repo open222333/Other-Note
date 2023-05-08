@@ -78,6 +78,12 @@ except:
 
 # 使用 fetchone() 方法獲取單條數據
 data = cursor.fetchone()
+
+# 使用 fetchall() 方法獲取所有數據
+cursor.fetchall()
+
+# 使用 fetchmany() 方法獲取指定數量數據
+cursor.fetchmany()
 print ("Database version : %s " % data)
 
 
