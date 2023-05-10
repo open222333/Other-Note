@@ -10,6 +10,7 @@
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [用法](#用法)
+	- [判斷檔案是否存在於遠端伺服器](#判斷檔案是否存在於遠端伺服器)
 
 ## 參考資料
 
@@ -17,5 +18,17 @@
 
 # 用法
 
+## 判斷檔案是否存在於遠端伺服器
+
 ```Python
+import subprocess
+
+ssh_host = 'username@host'
+file = '/path/to/test'
+
+resp = subprocess.call(['ssh', ssh_host, f'test -e {file}'])
+if resp == 0:
+	print (f'{file} exists')
+else:
+	print (f'{file} does not exist')
 ```

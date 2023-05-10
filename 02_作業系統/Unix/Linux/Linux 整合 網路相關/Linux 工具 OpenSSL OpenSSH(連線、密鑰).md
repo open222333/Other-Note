@@ -117,6 +117,10 @@ ssh user@host 'mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys' <  /home/username
 # 複製公鑰
 ssh-copy-id -i ~/.ssh/key.pub user@host
 
+# 測試遠程檔案是否存在
+ssh $ssh_host test -e $file
+ssh root@172.104.86.251 test -e /var/jiaobaba/uploads/UP-4ca87e5a296de3b1f812ae248ac8cae9/UP-4ca87e5a296de3b1f812ae248ac8cae9.mp4 
+
 # chmod u=rw,go= file
 # 對file的所有者設定讀寫權限，清空該使用者群組和其他使用者對file的所有權限（空格代表無權限）
 chmod -R go= ~/.ssh
