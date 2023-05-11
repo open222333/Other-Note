@@ -30,6 +30,7 @@
 		- [事件 (Events)](#事件-events)
 		- [網路事件](#網路事件)
 		- [Node中的callbacks和事件](#node中的callbacks和事件)
+	- [Promise 物件](#promise-物件)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -975,6 +976,10 @@ function getText(url, callback) {
 }
 ```
 
+## Promise 物件
+
+
+
 # 全域函式
 
 ## 計時器
@@ -1111,5 +1116,4 @@ function myCallback(a, b) {
   console.log(a);
   console.log(b);
 }
-
 ```
