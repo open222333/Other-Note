@@ -2,3 +2,6 @@
 *test*.*
 node_modules
 note_tool.conf
+
+# 排除忽略
+!Linux 工具 test(檢查).md
