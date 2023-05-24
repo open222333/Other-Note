@@ -5,6 +5,7 @@
 - [Redis 筆記](#redis-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [GUI相關](#gui相關)
 - [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [安裝步驟 Mac](#安裝步驟-mac)
 - [master-slave 配置](#master-slave-配置)
@@ -18,7 +19,11 @@
 
 [官方文檔 redis 配置 設定檔](https://redis.io/topics/config)
 
+[官方文檔 教學](https://www.tutorialspoint.com/redis/index.htm)
+
 [Redis Master-Slave](https://stevenitlife.blogspot.com/2018/09/redis-master-slave.html)
+
+### GUI相關
 
 [Redis GUI工具](https://tableplus.com/)
 
