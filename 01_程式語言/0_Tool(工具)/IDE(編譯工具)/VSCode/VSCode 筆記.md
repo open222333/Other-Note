@@ -2014,5 +2014,6 @@ MacOS: cmd + shift + p
     },
 	"python.formatting.provider": "autopep8",
 	"python.formatting.autopep8Path": "/usr/local/anaconda3/bin/autopep8"
+	// "python.formatting.autopep8Path": "/opt/homebrew/anaconda3/bin/autopep8"
   }
 ```
