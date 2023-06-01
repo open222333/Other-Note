@@ -21,6 +21,7 @@
 		- [docker hub](#docker-hub)
 		- [network](#network)
 	- [docker-compose](#docker-compose)
+		- [排錯](#排錯)
 - [範例](#範例)
 	- [Dockerfile](#dockerfile)
 	- [docker-compose](#docker-compose-1)
@@ -36,6 +37,7 @@
 		- [docker-compose.nginx\_plus(centos)-php\_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
 		- [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
 		- [連線 主機別名](#連線-主機別名)
+		- [連接已存在的dokcer-compose網路](#連接已存在的dokcer-compose網路)
 - [例外狀況](#例外狀況)
 	- [log造成硬碟沒有空間](#log造成硬碟沒有空間)
 		- [Container Log 預設路徑：](#container-log-預設路徑)
@@ -305,7 +307,7 @@ docker network disconnect
 # 顯示一個或多個網絡的詳細信息
 docker network inspect
 
-# 列出網絡
+# 查看 Docker 中的網路
 docker network ls
 
 # 刪除所有未使用的網絡
@@ -313,6 +315,9 @@ docker network prune
 
 # 移除一個或多個網絡
 docker network rm
+
+# 查看特定網路的詳細資訊
+docker network inspect <network_name>
 ```
 
 ## docker-compose
@@ -362,6 +367,15 @@ docker-compose exec <service> bash  -f  docker exec -it <id or container-name> b
 docker logs $container_id
 	# --tail 顯示筆數
 	# -f
+```
+
+### 排錯
+
+```bash
+# 讀取並解析 docker-compose.yml 檔案，然後輸出檔案的解析結果。
+# 如果檔案的語法沒有錯誤，它會顯示成功的訊息並輸出解析的內容。
+# 如果檔案包含語法錯誤，它會顯示相關的錯誤訊息以及具體的錯誤位置。
+docker-compose config
 ```
 
 # 範例
@@ -992,6 +1006,30 @@ services:
     image: postgres
     ports:
       - "8001:5432"
+```
+
+### 連接已存在的dokcer-compose網路
+
+```bash
+# 確認已存在的 Docker Compose 網路：
+# 使用以下命令檢視現有的 Docker Compose 網路：
+docker network ls
+```
+
+```yml
+version: '3'
+
+services:
+  service1:
+    # 服務1的設定
+
+  service2:
+    # 服務2的設定
+
+networks:
+  default:
+    external:
+      name: existing_network
 ```
 
 # 例外狀況

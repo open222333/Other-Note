@@ -67,25 +67,26 @@
 
 ## 使用步驟
 
-1. 下載 jqGrid
-    http://www.trirand.com/blog/?page_id=6
+1. 下載 jqGrid 將下載的壓縮檔案解壓縮到目錄
+   [下載網址 jQuery Grid Plugin – jqGrid](http://www.trirand.com/blog/?page_id=6)
 
-2. 創建 js css 資料夾 放入下載資料 如以下：
+2. 引入相關的檔案：在 HTML 文件中引入 jGrid 的相關檔案。通常需要引入以下檔案：
 
+```html
+<!-- 確保指定正確的檔案路徑，以便瀏覽器可以正確載入這些檔案。 -->
+<script src="path/to/jquery.js"></script>
+<script src="path/to/jquery-ui.js"></script>
+<script src="path/to/jquery.jqGrid.js"></script>
+<link rel="stylesheet" href="path/to/jquery-ui.css">
+<link rel="stylesheet" href="path/to/ui.jqgrid.css">
 ```
-/myproject/css/
-	ui.jqgrid.css
-	/ui-lightness/
-		/images/
-		jquery-ui-1.7.2.custom.css
-/myproject/js/
-	/i18n/
-		grid.locale-bg.js
-		list of all language files
-		….
-	Changes.txt
-	jquery-1.4.2.min.js
-	jquery.jqGrid.min.js
+
+3. 初始化 jGrid：JavaScript 代碼中，使用適當的選擇器選擇 jGrid 的容器元素，並使用 .jqGrid() 方法初始化 jGrid。指定適當的設定和資料源。
+
+```javascript
+$("#grid").jqGrid({
+  // 設定和資料源
+});
 ```
 
 ## 複選框 multiselect
