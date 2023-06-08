@@ -871,7 +871,7 @@ mysql -u{$username} -p{$password}
 ```sql
 -- 確認mysql-master server_id和log_bin變數
 show variables like 'server_id%';
-show variables like  'log_bin%';
+show variables like 'log_bin%';
 
 -- 建立master-slave使用者
 -- 要授予此帳戶複製所需的權限，請使用該GRANT 語句。
@@ -895,7 +895,7 @@ mysql -u{$username} -p{$password}
 -- 檢查mysql-slave server_id和read_only變數
 -- mysql-slave 若server_id(2)和read_only(ON)變數正確跳至第三步
 show variables like 'server_id%';
-show variables like  'read_only%';
+show variables like 'read_only%';
 ```
 
 ```bash
@@ -903,7 +903,7 @@ show variables like  'read_only%';
 service mysql stop
 ```
 
-mysql-master 加入設定到下列(其中一個)設定檔
+mysql-slave 加入設定到下列(其中一個)設定檔
 /etc/my.cnf
 /etc/mysql/my.cnf
 
@@ -924,7 +924,7 @@ mysql -u{$username} -p{$password}
 ```sql
 -- 確認mysql-slave server_id和read_only變數
 show variables like 'server_id%';
-show variables like  'read_only%';
+show variables like 'read_only%';
 ```
 
 ## 備份mysql-master
@@ -953,8 +953,10 @@ SHOW MASTER STATUS;
 # xtrabackup完全備份
 xtrabackup --user={$username} --password={$password} --backup --target-dir={$xtrabackup_path}
 
-# 將/data目錄傳到mysql-slave機器 $xtrabackup_path 建議不要包含本身資料夾
-rsync -Pr {$xtrabackup_path} root@{$slave ip}:{$xtrabackup_path}
+# 將/data目錄傳到mysql-slave機器
+# 後面 $xtrabackup_path 不要包含本身資料夾: /root/mysql_back20230608 -> /root
+# linode部分 ip可以使用內網ip
+rsync -Pr {$xtrabackup_path} root@{$slave_ip}:{$xtrabackup_path}
 ```
 
 ```sql
@@ -1041,7 +1043,7 @@ show master status;
 -- === slave部分 ===
 -- 停止slave
 stop slave;
--- 手動設定master資料
+-- 手動設定master資料 linode部分 ip可以使用內網ip
 change master to
 master_host=’master_ip’ ,
 master_user=’user’,
