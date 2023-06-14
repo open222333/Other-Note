@@ -18,6 +18,8 @@
 
 [Nginx启动报错Cannot allocate memory](https://www.cnblogs.com/93bok/p/12424895.html)
 
+[Nginx 24: Too Many Open Files Error And Solution](https://www.cyberciti.biz/faq/linux-unix-nginx-too-many-open-files/)
+
 # 安裝
 
 ## 安裝步驟 MacOS
@@ -480,4 +482,92 @@ free -m
 ```conf
 ; 把上邊的500m改成free內存的數量即可，但是也不要一點不剩，這裡改成了50m
 fastcgi_cache_path /data/www/wordpress/fastcgi/ngx_fcgi_cache levels=2:2 keys_zone=ngx_fcgi_cache:500m inactive=30s max_size=5g;
+```
+
+## Nginx 24: Too Many Open Files Error And Solution
+
+```bash
+# Linux/UNIX 對文件句柄數和打開文件數設置了軟硬限制。可以使用 ulimit 命令查看這些限制。例如：
+su - nginx
+# 或者在 Debian 或 Ubuntu Linux 上使用 www-data 帳戶
+su - www-data
+
+# 要查看硬值和軟值，請按如下方式發出命令
+ulimit -Hn
+ulimit -Sn
+
+#
+runuser -u nginx -- bash
+runuser -u www-data -- bash # For Debian/Ubuntu
+## OR ##
+runuser -u nginx -- sh
+```
+
+```bash
+# 另一種選擇是使用 cat 命令和 grep 命令，如下所示，
+# 使用名為 /var/run/nginx.pid 或 /var/run/nginx/nginx.pid 的 nginx pid 文件（文件名可能會根據 Linux/Unix 變體更改）
+cat /proc/$(cat /var/run/nginx.pid)/limits
+## OR ##
+grep -i 'Max open files' /proc/$(cat /var/run/nginx.pid)/limits
+
+# 方法 1 – 在 Linux 操作系統級別增加 Open FD 限制（沒有 systemd）
+# 操作系統對 nginx 服務器可以打開的文件數量進行了限制。
+# 可以通過在 Linux 下設置或增加系統打開文件限制來輕鬆解決此問題。
+# 編輯文件/etc/sysctl.conf 添加 fs.file-max = 70000
+vim /etc/sysctl.conf
+
+# 編輯/etc/security/limits.conf，輸入：
+# nginx       soft    nofile   10000
+# nginx       hard    nofile  30000
+vim /etc/security/limits.conf
+
+# 使用 sysctl 命令重新加載更改
+# Making changes to /proc filesystem permanently
+# https://www.cyberciti.biz/faq/making-changes-to-proc-filesystem-permanently/
+sysctl -p
+
+# 方法 2 – 使用 systemd 在 Linux 操作系統級別增加 Open FD 限制
+# 編輯或創建一個新文件 /etc/systemd/system/nginx.service.d/override.conf
+# 根據需要替換 4096，例如 65535
+# [Service]
+# LimitNOFILE=65535
+systemctl edit nginx.service
+
+# 使用 systemctl 命令重新加載 systemd 的磁盤更改
+systemctl daemon-reload
+
+# nginx worker_rlimit_nofile Option (Increase Open FD Limit at the Nginx Level)
+# nginx worker_rlimit_nofile 選項（在 Nginx 級別增加 Open FD 限制）
+vi /usr/local/nginx/conf/nginx.conf
+## OR ##
+vi /etc/nginx/nginx.conf
+
+# 範例
+# events {
+#     worker_connections 65535; #vg
+#     multi_accept on; #vg
+# }
+
+# server {
+#     worker_connections 65535; #vg
+#     multi_accept on; #vg
+# }
+
+
+# 重新加載 nginx 網絡服務器。根據 Linux 下的 init 使用 systemctl 命令或服務命令。
+systemctl restart nginx #< SYSTEMD
+service nginx restart #< SYS V init
+
+# 再次測試新的 FD 限制：
+su - nginx
+## OR ##
+runuser -u nginx -- bash
+ulimit -Hn
+ulimit -Sn
+
+# 或者使用 grep 命令：
+grep -i 'Max open files' /proc/$(cat /var/run/nginx.pid)/limits
+
+# 或者對於其他發行版，例如 Alpine Linux：
+grep -i 'Max open files' /proc/$(cat /var/run/nginx/nginx.pid)/limits
 ```
