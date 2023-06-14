@@ -416,8 +416,7 @@ mysqldump -u使用者名稱 -p密碼 -d 資料庫名 > 資料庫名.sql
 
 # 備份資料庫
 mysqldump -h(ip) -uroot -p(password) databasename table1 table2 > database.sql
-# 恢復資料庫
-mysql -h(ip) -uroot -p(password) databasename< database.sql
+
 # 複製資料庫
 mysqldump –-all-databases >all-databases.sql
 # 修復資料庫
@@ -450,6 +449,8 @@ mysql>source path/$name.sql;
 `方法二`
 # mysql -u使用者名稱 -p密碼 資料庫名 < 資料庫名.sql
 mysql -u$username -p $dbname < $name.sql
+# 恢復資料庫
+mysql -h(ip) -uroot -p(password) databasename< database.sql
 ```
 
 # 配置文檔
