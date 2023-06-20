@@ -30,7 +30,8 @@
 		- [事件 (Events)](#事件-events)
 		- [網路事件](#網路事件)
 		- [Node中的callbacks和事件](#node中的callbacks和事件)
-	- [Promise 物件](#promise-物件)
+	- [Promise 物件 (Ch13)](#promise-物件-ch13)
+	- [鏈串承諾（Chaining Promises）](#鏈串承諾chaining-promises)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -976,9 +977,95 @@ function getText(url, callback) {
 }
 ```
 
-## Promise 物件
+## Promise 物件 (Ch13)
 
+```
+Promises 是 JavaScript 中處理異步操作的一種機制，它能夠使代碼更具可讀性和易於管理。
+Promises 提供了一種對象，表示一個異步操作的最終完成或失敗的結果。
+```
 
+```JavaScript
+// 創建一個 Promise：
+const myPromise = new Promise((resolve, reject) => {
+  // 異步操作的代碼
+  // 當操作成功時，調用 resolve()，並將結果作為參數傳遞
+  // 當操作失敗時，調用 reject()，並將錯誤作為參數傳遞
+});
+
+// 處理 Promise 的結果：
+myPromise
+  .then((result) => {
+    // 當 Promise 成功時，執行的處理函式
+    console.log(result);
+  })
+  .catch((error) => {
+    // 當 Promise 失敗時，執行的處理函式
+    console.error(error);
+  });
+
+// Promise 鏈式調用：
+myPromise
+  .then((result) => {
+    // 第一個異步操作成功時的處理
+    return anotherAsyncOperation(result);
+  })
+  .then((anotherResult) => {
+    // 第二個異步操作成功時的處理
+    console.log(anotherResult);
+  })
+  .catch((error) => {
+    // 異步操作失敗時的處理
+    console.error(error);
+  });
+
+```
+
+## 鏈串承諾（Chaining Promises）
+
+```
+指在 Promise 中使用連續的 .then() 方法來處理異步操作的一種技巧。
+這樣可以讓多個異步操作按照特定的順序進行，並依賴前一個操作的結果。
+```
+
+```JavaScript
+// 在這個例子中，asyncOperation1() 返回一個 Promise，當它成功後，在 .then() 中處理它的結果並調用 asyncOperation2()。
+// 接著，asyncOperation2() 返回另一個 Promise，當它成功後，在下一個 .then() 中處理它的結果並調用 asyncOperation3()。
+// 最後，asyncOperation3() 成功後，在最後一個 .then() 中處理它的結果
+// 如果在鏈串承諾的過程中有任何一個操作出現錯誤，將會跳過後續的 .then()，直接執行 .catch() 中的錯誤處理邏輯。
+// 這樣可以確保錯誤被捕獲並進行適當的處理。
+asyncOperation1()
+  .then((result1) => {
+    // 在第一個異步操作成功後的處理
+    // 可以使用 result1 作為前一個操作的結果
+    return asyncOperation2(result1);
+  })
+  .then((result2) => {
+    // 在第二個異步操作成功後的處理
+    // 可以使用 result2 作為前一個操作的結果
+    return asyncOperation3(result2);
+  })
+  .then((result3) => {
+    // 在第三個異步操作成功後的處理
+    // 可以使用 result3 作為前一個操作的結果
+    console.log(result3);
+  })
+  .catch((error) => {
+    // 異步操作失敗時的處理
+    console.error(error);
+  });
+
+// 異步操作返回的是另一個 Promise，可以直接返回該 Promise，而不需要額外使用 .then()。
+// 這樣可以簡化代碼，使其更具可讀性。
+asyncOperation1()
+  .then((result1) => asyncOperation2(result1))
+  .then((result2) => asyncOperation3(result2))
+  .then((result3) => {
+    console.log(result3);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+```
 
 # 全域函式
 
