@@ -14,6 +14,7 @@
 - [用法](#用法)
 	- [使用步驟](#使用步驟)
 	- [複選框 multiselect](#複選框-multiselect-1)
+	- [範例](#範例)
 
 ## 參考資料
 
@@ -123,4 +124,91 @@ page	取得目前頁碼
 rowNum	要求的列數
 datatype	資料類型
 records	Grid裡的記錄筆數
+```
+
+## 範例
+
+```JavaScript
+<script type="text/javascript">
+    $(function() {
+
+        $.jgrid.styleUI.Bootstrap.base.rowTable = "table table-striped";
+        $("#jqGrid").jqGrid({
+            loadBeforeSend: function(jqXHR) {
+                jqXHR.setRequestHeader("Authorization", 'Bearer ' + $.cookie('token'));
+            },
+            url: '{{ url_for('path.to.api_list_preview_video') }}',
+            mtype: "GET",
+            responsive: true,
+            styleUI: 'Bootstrap',
+            datatype: "json",
+            colModel: [
+                { label: 'code', name: 'code', width:5, editable: true, edittype: "text", search: false},
+                {
+                  label: 'preview_video_path',
+                  name: 'preview_video_path',
+                  width:10,
+                  editable: true,
+                  edittype: "text",
+                  search: false,
+                  formatter: function(cellValue, options, rowObject) {
+					// 檔案檢查
+                    if (cellValue) {
+                      var link = '<a href="' + cellValue + '" target="_blank">' + cellValue + '</a>';
+                      return link;
+                    } else {
+                      return '檔案不存在';
+                    }
+                  }
+              },
+            ],
+            viewrecords: true,
+            height: 450,
+            rowNum: 100,
+            rowList: [100, 500, 1000],
+            pager: "#jqGridPager",
+            sortname: 'creation_date',
+            autowidth: true,
+            loadonce: false,
+            loadError: function(jqXHR, textStatus, errorThrown) {
+                apiErrorHandler(jqXHR);
+            }
+        });
+        $("#jqGrid").navGrid("#jqGridPager", {
+                edit: false,
+                add: false,
+                del: false,
+                search: true,
+                refresh: true,
+                view: false,
+                align: "left"
+            }, {}, {
+                closeAfterAdd: true,
+                reloadAfterSubmit: false,
+                recreateForm: true,
+                savekey: [true, 13],
+                errorTextFormat: function(data) {
+                    return 'Error: ' + data.msg
+                },
+                afterSubmit: function(response, postdata) {
+                    return [Boolean(response['responseJSON'].success), response['responseJSON'].msg, 0]
+                }
+            }, {}, // delete options
+            {
+                multipleSearch: true,
+                searchOnEnter: true,
+                closeAfterSearch: true,
+                closeAfterReset: true,
+                closeOnEscape: true
+            }
+        );
+
+        $("#jqGrid").bind("jqGridAddEditClickSubmit", function(e, rowid, orgClickEvent) {
+            $('#loadingModal').modal('show');
+        });
+        $("#jqGrid").bind("jqGridAddEditAfterSubmit", function(e, rowid, orgClickEvent) {
+            $('#loadingModal').modal('hide');
+        });
+    });
+</script>
 ```
