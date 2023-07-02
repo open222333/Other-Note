@@ -11,6 +11,7 @@
 - [建立 Telegram 機器人](#建立-telegram-機器人)
 - [指令](#指令)
 - [用法](#用法)
+	- [獲取 Telegram 聊天 ID](#獲取-telegram-聊天-id)
 
 ## 參考資料
 
@@ -76,5 +77,26 @@ start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
 
 # 啟動機器人：啟動更新者，讓機器人開始監聽和回應使用者的指令。
+updater.start_polling()
+```
+
+## 獲取 Telegram 聊天 ID
+
+```Python
+from telegram.ext import Updater, CommandHandler
+
+# 建立一個指令處理函式
+def get_chat_id(update, context):
+    chat_id = update.effective_chat.id
+    context.bot.send_message(chat_id=chat_id, text=f"Chat ID: {chat_id}")
+
+# 建立一個更新者的實例，並連結到 Telegram 伺服器
+updater = Updater(token='YOUR_API_TOKEN', use_context=True)
+
+# 將處理函式與指令綁定
+get_chat_id_handler = CommandHandler('get_chat_id', get_chat_id)
+updater.dispatcher.add_handler(get_chat_id_handler)
+
+# 啟動機器人
 updater.start_polling()
 ```

@@ -9,6 +9,7 @@
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [建立 Telegram 機器人](#建立-telegram-機器人)
+- [Python](#python)
 
 ## 參考資料
 
@@ -28,4 +29,32 @@
 	提供機器人的用戶名（例如：MyTestBot1234_bot）。請注意，機器人的用戶名必須以 "_bot" 結尾。
 	BotFather 將返回一條消息，包含你的機器人的 API 密鑰（例如：123456789:ABCdefGHIjklmnopQRSTuVWXyz）。
 	複製並保存 API 密鑰，它將用於在你的程式碼中驗證和操作機器人。
+```
+
+# Python
+
+```Python
+import requests
+
+def get_chat_id(api_token):
+    # 發送 getUpdates 請求獲取最新的更新
+    response = requests.get(f"https://api.telegram.org/bot{api_token}/getUpdates")
+
+    # 解析 API 响應，提取聊天 ID
+    if response.status_code == 200:
+        data = response.json()
+        if "result" in data and data["result"]:
+            chat_id = data["result"][0]["message"]["chat"]["id"]
+            return chat_id
+    return None
+
+# 設置您的 Telegram Bot API Token
+api_token = "YOUR_API_TOKEN"
+
+# 獲取聊天 ID
+chat_id = get_chat_id(api_token)
+if chat_id:
+    print(f"聊天 ID: {chat_id}")
+else:
+    print("獲取聊天 ID 失敗。")
 ```
