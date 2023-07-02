@@ -32,6 +32,7 @@
 		- [Node中的callbacks和事件](#node中的callbacks和事件)
 	- [Promise 物件 (Ch13)](#promise-物件-ch13)
 	- [鏈串承諾（Chaining Promises）](#鏈串承諾chaining-promises)
+	- [await運算式 async函式](#await運算式-async函式)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -1065,6 +1066,37 @@ asyncOperation1()
   .catch((error) => {
     console.error(error);
   });
+```
+
+## await運算式 async函式
+
+```
+await 運算式是在 async 函式內部使用的關鍵字，它用於等待一個 Promise 的解析結果。
+await 運算式只能在 async 函式內部使用。當 await 運算式被執行時，它會阻塞函式的執行，直到 Promise 解析完成。
+這使得程式碼可以按照預期的順序進行非同步操作。
+使用 await 運算式可以使程式碼更具可讀性，並且可以處理非同步操作的結果。
+請注意，await 只能用於處理 Promise，如果用於非 Promise 的物件，它將自動轉換為一個解析為該物件的 Promise。
+```
+
+```JavaScript
+async function fetchData() {
+  try {
+    // 發送請求並等待 Promise 解析為 response
+    let response = await fetch("/api/user/profile");
+
+    // 等待 Promise 解析為 JSON 格式的內容
+    let profile = await response.json();
+
+    // 在這裡可以使用獲取到的 profile 物件進行後續處理
+    console.log(profile);
+  } catch (error) {
+    // 在錯誤發生時進行處理
+    console.error(error);
+  }
+}
+
+// 執行 fetchData 函式
+fetchData();
 ```
 
 # 全域函式
