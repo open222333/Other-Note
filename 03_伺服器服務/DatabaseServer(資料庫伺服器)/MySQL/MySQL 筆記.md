@@ -37,6 +37,7 @@
 	- [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
 	- [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
 	- [升級為GTID模式](#升級為gtid模式)
+	- [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
 - [Master-Slave 主從架構架設](#master-slave-主從架構架設)
 	- [mysql-master設定](#mysql-master設定)
 	- [mysql-slave設定](#mysql-slave設定)
@@ -109,6 +110,8 @@
 [Slave_IO_Running Slave_SQL_Running 排錯](https://www.cnblogs.com/l-hh/p/9922548.html#_label0)
 
 [mysql系列（一）—— 细说show slave status参数详解（最全）](https://blog.51cto.com/zhengmingjing/1910565)
+
+[MySQL主从复制，启动slave时报错Slave failed to initialize relay log info structure from the repository](https://blog.csdn.net/weixin_37998647/article/details/79950133)
 
 ### 叢集(Cluster)相關
 
@@ -820,6 +823,25 @@ gtid_mode = on
 enforce_gtid_consistency = on
 ```
 
+## ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository
+
+```
+主從備份遇到此錯誤
+mysql> start slave;
+ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository
+```
+
+```sql
+mysql> reset slave;
+Query OK, 0 rows affected (0.10 sec)
+
+-- 看情況執行
+mysql> change master to master_host='IP', master_port=3306, master_user='用户名', MASTER_PASSWORD='密码', master_log_file='mysql-bin.000594', MASTER_LOG_POS=98175332;
+
+mysql> start slave;
+Query OK, 0 rows affected (0.10 sec)
+```
+
 # Master-Slave 主從架構架設
 
 ```
@@ -843,7 +865,7 @@ mysql -u{$username} -p{$password}
 -- 確認mysql-master server_id和log_bin變數
 -- mysql-master 若server_id(1)和log_bin(ON)變數正確跳至-建立master-slave使用者
 show variables like 'server_id%';
-show variables like  'log_bin%';
+show variables like 'log_bin%';
 ```
 
 ```bash
