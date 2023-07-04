@@ -11,7 +11,9 @@
 		- [網路相關](#網路相關)
 		- [Docker Hub相關](#docker-hub相關)
 		- [範例相關](#範例相關)
-- [安裝步驟 CentOS7](#安裝步驟-centos7)
+- [安裝](#安裝)
+	- [安裝步驟 CentOS7](#安裝步驟-centos7)
+	- [安裝步驟 Ubuntu](#安裝步驟-ubuntu)
 - [配置文檔](#配置文檔)
 	- [log](#log)
 	- [ipv6](#ipv6)
@@ -94,7 +96,9 @@
 
 [Dockerfile CMD 官方文檔](https://docs.docker.com/engine/reference/builder/#cmd)
 
-# 安裝步驟 CentOS7
+# 安裝
+
+## 安裝步驟 CentOS7
 
 ```bash
 # 設置存儲庫
@@ -146,6 +150,38 @@ chmod +x /usr/local/bin/docker-compose
 
 # 安裝 Docker Compose
 ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+```
+
+## 安裝步驟 Ubuntu
+
+```bash
+# 更新APT軟體包索引
+apt update
+
+# 安裝Docker相關的軟體包，以支持使用APT進行安裝
+apt install -y apt-transport-https ca-certificates curl software-properties-common
+
+# 添加Docker官方GPG金鑰：
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+# 添加Docker官方APT存儲庫：
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 更新APT軟體包索引：
+apt update
+
+# 安裝Docker Engine：
+apt install -y docker-ce docker-ce-cli containerd.io
+
+# 安裝Docker Compose：
+# 下載Docker Compose二進位文件：
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+# 添加執行權限：
+chmod +x /usr/local/bin/docker-compose
+
+# 驗證安裝：
+docker-compose --version
 ```
 
 # 配置文檔
