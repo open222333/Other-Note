@@ -17,7 +17,9 @@
 - [配置文檔](#配置文檔)
 	- [log](#log)
 	- [ipv6](#ipv6)
+	- [常用配置(20230705)](#常用配置20230705)
 - [指令](#指令)
+	- [服務](#服務)
 	- [docker](#docker)
 		- [image](#image)
 		- [docker hub](#docker-hub)
@@ -126,19 +128,9 @@ yum-config-manager \
 # 安裝最新版本的 Docker Engine 和 containerd，或者進入下一步安裝特定版本：
 yum install docker-ce docker-ce-cli containerd.io -y
 
-# 啟動服務
-systemctl start docker
-# 查詢啟動狀態
-systemctl status docker
-# 重新啟動
-systemctl restart docker
-# 停止服務
-systemctl stop docker
-# 開機啟動
-systemctl enable docker
-
 # 通過運行hello-world 映像驗證 Docker Engine 是否已正確安裝。
 docker run hello-world
+docker --version
 
 # 安裝Docker-Compose
 
@@ -150,6 +142,9 @@ chmod +x /usr/local/bin/docker-compose
 
 # 安裝 Docker Compose
 ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+# 驗證安裝：
+docker-compose --version
 ```
 
 ## 安裝步驟 Ubuntu
@@ -172,6 +167,10 @@ apt update
 
 # 安裝Docker Engine：
 apt install -y docker-ce docker-ce-cli containerd.io
+
+# 通過運行hello-world 映像驗證 Docker Engine 是否已正確安裝。
+docker run hello-world
+docker --version
 
 # 安裝Docker Compose：
 # 下載Docker Compose二進位文件：
@@ -236,7 +235,36 @@ cat /dev/null > *-json.log
 }
 ```
 
+## 常用配置(20230705)
+
+```json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "50m",
+    "max-file": "3"
+  },
+  "ipv6": true,
+  "fixed-cidr-v6": "2001:db8:1::/64"
+}
+```
+
 # 指令
+
+## 服務
+
+```bash
+# 啟動服務
+systemctl start docker
+# 查詢啟動狀態
+systemctl status docker
+# 重新啟動
+systemctl restart docker
+# 停止服務
+systemctl stop docker
+# 開機啟動
+systemctl enable docker
+```
 
 ## docker
 
