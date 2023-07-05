@@ -9,6 +9,8 @@
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [用法](#用法)
+	- [限制](#限制)
+	- [分組](#分組)
 
 ## 參考資料
 
@@ -34,4 +36,55 @@ args = parser.parse_args()
 if args.output:
     print(f'{args.name} 測試輸出訊息 {args.output}')
 
+```
+
+## 限制
+
+```Python
+import argparse
+
+parser = argparse.ArgumentParser()
+
+# 添加必需參數
+parser.add_argument('--required_param', required=True, help='必需參數')
+
+# 添加可以接受多個值的參數
+parser.add_argument('--multi_param', nargs='*', help='多值參數')
+
+# 添加只能選擇特定值的參數
+parser.add_argument('--choice_param', choices=['option1', 'option2'], help='可選值參數')
+
+# 建立互斥組
+group = parser.add_mutually_exclusive_group()
+
+# 添加互斥參數
+group.add_argument('--option1', action='store_true', help='選項1')
+group.add_argument('--option2', action='store_true', help='選項2')
+
+# 解析命令列參數
+args = parser.parse_args()
+```
+
+## 分組
+
+```Python
+import argparse
+
+# 建立 ArgumentParser 物件
+parser = argparse.ArgumentParser()
+
+# 建立一個參數群組
+group1 = parser.add_argument_group('群組1', '群組1的描述')
+
+# 將參數添加到群組1中
+group1.add_argument('--option1', help='選項1')
+
+# 建立另一個參數群組
+group2 = parser.add_argument_group('群組2', '群組2的描述')
+
+# 將參數添加到群組2中
+group2.add_argument('--option2', help='選項2')
+
+# 解析命令列參數
+args = parser.parse_args()
 ```
