@@ -11,6 +11,7 @@
 - [用法](#用法)
 	- [限制](#限制)
 	- [分組](#分組)
+	- [一個參數要求前置參數](#一個參數要求前置參數)
 
 ## 參考資料
 
@@ -87,4 +88,26 @@ group2.add_argument('--option2', help='選項2')
 
 # 解析命令列參數
 args = parser.parse_args()
+```
+
+## 一個參數要求前置參數
+
+```Python
+import argparse
+
+# 創建解析器
+parser = argparse.ArgumentParser()
+
+# 添加前置參數
+parser.add_argument('required_arg', help='必需的前置參數')
+
+# 添加另一個參數，要求前置參數存在
+parser.add_argument('--dependent_arg', nargs='?', help='依賴於前置參數的參數')
+
+# 解析命令行參數
+args = parser.parse_args()
+
+# 使用前置參數和依賴參數
+print('前置參數:', args.required_arg)
+print('依賴參數:', args.dependent_arg)
 ```
