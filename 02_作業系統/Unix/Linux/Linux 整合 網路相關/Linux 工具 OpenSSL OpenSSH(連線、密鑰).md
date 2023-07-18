@@ -20,6 +20,7 @@
 		- [rsync 與 scp 區別](#rsync-與-scp-區別)
 	- [sshpass(傳送密碼)](#sshpass傳送密碼)
 	- [ssh\_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
+		- [常用建立連線設定步驟](#常用建立連線設定步驟)
 
 ## 參考資料
 
@@ -78,7 +79,7 @@ openssl rand 16 > {key_dir}/{key_name}.key
 openssl rand [-out file] [-rand file(s)] [-base64] [-hex] num
 
 ssh-keygen
-	# -f  指定密鑰文件名。
+	# -f  指定密鑰文件名。 ssh-keygen -f /path/to/your_key
 	# -N  提供一個新的密語。
     # -P  提供(舊)密語。
     # -p  要求改變某私鑰文件的密語而不重建私鑰。程序將提示輸入私鑰文件名、原來的密語、以及兩次輸入新密語。
@@ -119,7 +120,7 @@ ssh-copy-id -i ~/.ssh/key.pub user@host
 
 # 測試遠程檔案是否存在
 ssh $ssh_host test -e $file
-ssh root@172.104.86.251 test -e /var/jiaobaba/uploads/UP-4ca87e5a296de3b1f812ae248ac8cae9/UP-4ca87e5a296de3b1f812ae248ac8cae9.mp4 
+ssh root@172.104.86.251 test -e /var/jiaobaba/uploads/UP-4ca87e5a296de3b1f812ae248ac8cae9/UP-4ca87e5a296de3b1f812ae248ac8cae9.mp4
 
 # chmod u=rw,go= file
 # 對file的所有者設定讀寫權限，清空該使用者群組和其他使用者對file的所有權限（空格代表無權限）
@@ -348,20 +349,45 @@ sftp
 
 # 另一種格式
 Host ssh-jp-manager
-        User            tom_li
+        User            root
         HostName        192.168.11.25
 		Port			預設為22
         ServerAliveInterval     60 # 保持連線
         IdentityFile	 ~/.ssh/id_rsa
+Host test1
+        User            root
+        HostName        192.168.11.1
+        ServerAliveInterval     60
+        IdentityFile	 ~/.ssh/test1
+Host test2
+        User            root
+        HostName        192.168.11.2
+        ServerAliveInterval     60
+        IdentityFile     ~/.ssh/test2
+Host test3
+        User            user
+        HostName        192.168.11.3
+        ServerAliveInterval     60
+        IdentityFile     ~/.ssh/test3
 
 # 背景建立 連線通道
 ssh user@host -fN -L 127.0.0.1:port:host_ip:port
 ```
 
-```
-Host
-Hostname
-Port
-User
-identityfile
+### 常用建立連線設定步驟
+
+```bash
+ssh-keygen -f ~/.ssh/$hostname
+
+# 複製公鑰
+ssh-copy-id -i ~/.ssh/$hostname.pub $user@$host
+
+# 編輯 填入資料
+vim ~/.ssh/config
+
+Host $hostname
+		User            $user
+		HostName        $host
+		ServerAliveInterval     60
+		IdentityFile     ~/.ssh/$hostname
 ```
