@@ -1,4 +1,4 @@
-# Javascript Vue 筆記
+# JavaScript Node 模組 Vue(前端框架)
 
 ```
 Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前端JavaScript框架，也是一個建立單頁應用的Web應用框架。
@@ -6,7 +6,7 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 
 ## 目錄
 
-- [Javascript Vue 筆記](#javascript-vue-筆記)
+- [JavaScript Node 模組 Vue(前端框架)](#javascript-node-模組-vue前端框架)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 		- [Vue3相關](#vue3相關)
@@ -14,6 +14,7 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 		- [教學相關](#教學相關)
 		- [UI元素](#ui元素)
 		- [VSCode相關](#vscode相關)
+		- [瀏覽器開發者插件](#瀏覽器開發者插件)
 - [安裝](#安裝)
 	- [Vue CLI](#vue-cli)
 	- [Vite](#vite)
@@ -21,6 +22,8 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 	- [Vue CLI](#vue-cli-1)
 	- [Vite](#vite-1)
 - [專案結構](#專案結構)
+- [用法](#用法)
+	- [Vue3 指令](#vue3-指令)
 - [VSCode套件](#vscode套件)
 	- [Vetur](#vetur)
 	- [Volar](#volar)
@@ -39,6 +42,12 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 [Vue3官方示例](https://cn.vuejs.org/examples/#hello-world)
 
 [Vue3 瀏覽器工具 Vue Devtools](https://devtools.vuejs.org/guide/installation.html)
+
+[Built-in Directives(內置指令)](https://vuejs.org/api/built-in-directives.html)
+
+[Vue3 組件](https://vuejs.org/guide/essentials/component-basics.html)
+
+[Vue3 組件(中文)](https://cn.vuejs.org/guide/essentials/component-basics.html)
 
 ### Vite網站
 
@@ -61,6 +70,14 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 [【整理分享】6 個 Vue3 開發必備的 VSCode 外掛](https://tw511.com/a/01/47269.html)
 
 [怎麼設定VSCode，蘇爽的偵錯Vue、React 程式碼！](https://tw511.com/a/01/43125.html)
+
+### 瀏覽器開發者插件
+
+[Vue Devtools](https://devtools.vuejs.org/)
+
+[Chrome 插件 - Vue.js devtools](https://chrome.google.com/webstore/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
+
+[Firefox 所属插件页 - Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
 
 # 安裝
 
@@ -91,6 +108,10 @@ npm run serve
 ```
 
 ## Vite
+
+```
+Vite 是一個輕量級的、速度極快的構建工具，對 Vue SFC 提供第一優先級支持。
+```
 
 ```bash
 # 創建一個新的 Vue 項目, my-project 替換為你想要的項目名稱
@@ -130,6 +151,19 @@ main.js：應用程式的入口檔案，初始化 Vue 實例並掛載根元件�
 babel.config.js：Babel 設定檔案，用於配置 JavaScript 的轉譯規則。
 package.json：專案設定和依賴清單，包含了專案的基本資訊、指令腳本、開發相依性和產品相依性等。
 README.md：專案說明文件，用於描述專案的功能、使用方法、貢獻指南等資訊。
+```
+
+# 用法
+
+## Vue3 指令
+
+```
+v-bind 用於將 Vue 實例的數據綁定到 HTML 元素的屬性上。
+v-if 用於根據表達式的值來條件性地渲染元素或組件。
+v-show Vue.js 提供的一種指令，用於根據表達式的值來條件性地顯示或隱藏元素。
+v-for 用於根據數組或對象的屬性值來循環渲染元素或組件。
+v-on 用於在 HTML 元素上綁定事件監聽器，使其能夠觸發 Vue 實例中的方法或函數。
+v-model 用於在表單控件和 Vue 實例的數據之間創建雙向數據綁定。
 ```
 
 # VSCode套件
