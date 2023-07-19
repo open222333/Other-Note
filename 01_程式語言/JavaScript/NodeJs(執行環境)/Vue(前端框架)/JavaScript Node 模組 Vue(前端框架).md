@@ -1,4 +1,4 @@
-# JavaScript Node 模組 Vue(前端框架)
+# JavaScript Node 模組 vue(前端框架)
 
 ```
 Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前端JavaScript框架，也是一個建立單頁應用的Web應用框架。
@@ -6,7 +6,7 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 
 ## 目錄
 
-- [JavaScript Node 模組 Vue(前端框架)](#javascript-node-模組-vue前端框架)
+- [JavaScript Node 模組 vue(前端框架)](#javascript-node-模組-vue前端框架)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 		- [Vue3相關](#vue3相關)
@@ -62,6 +62,18 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 ### UI元素
 
 [Element Plus 官網](https://element-plus.org/en-US/)
+
+[Tailwind UI](https://tailwindui.com/)
+
+[Tailblocks](https://tailblocks.cc/)
+
+[Tailwind Components](https://tailwindcomponents.com/)
+
+[Tailwind Kit](https://www.tailwind-kit.com/components)
+
+[Shades Generator for Tailwind](https://javisperez.github.io/tailwindcolorshades/)
+
+[Creator vitawind v2](https://vitawind.vercel.app/scaffolding/creator/)
 
 ### VSCode相關
 
