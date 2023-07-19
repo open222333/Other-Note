@@ -20,6 +20,8 @@
 ```bash
 # 安裝
 npm install sample
+
+yarn add sample
 ```
 
 # 用法

@@ -23,6 +23,8 @@
 
 [网站快速成型工具](https://element.eleme.io/#/zh-CN/component/layout)
 
+[組件文檔](https://element-plus.org/zh-CN/component/button.html)
+
 # 指令
 
 ## 安裝
