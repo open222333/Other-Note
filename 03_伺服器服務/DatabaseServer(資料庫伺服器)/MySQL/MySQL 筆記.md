@@ -18,6 +18,7 @@
 			- [解說相關](#解說相關)
 			- [Percona XtraBackup(備份工具)相關](#percona-xtrabackup備份工具相關)
 				- [XtraBackup 心得相關](#xtrabackup-心得相關)
+		- [錯誤處理相關](#錯誤處理相關)
 - [安裝步驟](#安裝步驟)
 	- [CentOS7](#centos7)
 		- [配置設定](#配置設定)
@@ -92,6 +93,8 @@
 
 ### Master-Slave(主從環境)相關
 
+[MySQL如何不停机维护主从同步](https://zhuanlan.zhihu.com/p/472339202)
+
 [MySQL Replication 主從式架構設定教學](https://blog.toright.com/posts/5062/mysql-replication-%E4%B8%BB%E5%BE%9E%E5%BC%8F%E6%9E%B6%E6%A7%8B%E8%A8%AD%E5%AE%9A%E6%95%99%E5%AD%B8.html)
 
 [docker-compose搭建mysql主從環境](https://www.uj5u.com/ruanti/275444.html)
@@ -101,16 +104,6 @@
 [Slave_IO_Running Slave_SQL_Running 排錯](https://www.cnblogs.com/l-hh/p/9922548.html#_label0)
 
 [mysql系列（一）—— 细说show slave status参数详解（最全）](https://blog.51cto.com/zhengmingjing/1910565)
-
-[MySQL主从复制，启动slave时报错Slave failed to initialize relay log info structure from the repository](https://blog.csdn.net/weixin_37998647/article/details/79950133)
-
-[解决Mysql复制Relay log read failure 的问题](https://blog.51cto.com/wuwei5460/1552798)
-
-[MySQL relay log corrupted, how do I fix it? Tried but failed](https://dba.stackexchange.com/questions/53893/mysql-relay-log-corrupted-how-do-i-fix-it-tried-but-failed)
-
-[MySQL Replication 遇到 Got fatal error 1236 from master 修復](https://blog.longwin.com.tw/2013/09/mysql-replication-error-1236-fix-2013/)
-
-[MySQL主从复制，启动slave时报错1872 Slave failed to initialize relay log info structure from the repository](https://blog.51cto.com/u_15127597/4309432)
 
 ### 叢集(Cluster)相關
 
@@ -192,6 +185,20 @@ innobackupex：是將xtrabackup進行封裝的perl腳本，可以備份和恢復
 [如何將 mysql xtrabackup 帶到遠程服務器](https://stackoverflow.com/questions/71567854/how-to-take-mysql-xtrabackup-to-a-remote-server)
 
 [MySQL8.0 使用Xtrabackup对数据库进行部分备份恢复](https://www.modb.pro/db/448714)
+
+### 錯誤處理相關
+
+[MySQL主从复制，启动slave时报错Slave failed to initialize relay log info structure from the repository](https://blog.csdn.net/weixin_37998647/article/details/79950133)
+
+[解决Mysql复制Relay log read failure 的问题](https://blog.51cto.com/wuwei5460/1552798)
+
+[MySQL relay log corrupted, how do I fix it? Tried but failed](https://dba.stackexchange.com/questions/53893/mysql-relay-log-corrupted-how-do-i-fix-it-tried-but-failed)
+
+[MySQL Replication 遇到 Got fatal error 1236 from master 修復](https://blog.longwin.com.tw/2013/09/mysql-replication-error-1236-fix-2013/)
+
+[MySQL主从复制，启动slave时报错1872 Slave failed to initialize relay log info structure from the repository](https://blog.51cto.com/u_15127597/4309432)
+
+[[MySQL] SQL_ERROR 1032解决办法](https://www.cnblogs.com/langdashu/p/5920436.html)
 
 # 安裝步驟
 
@@ -471,6 +478,11 @@ mysql -u root -p -e "SHOW VARIABLES LIKE 'datadir';"
 # 使用 mysqlbinlog 命令檢視二進制日誌。
 # 請將 mysql-bin.000001 替換為錯誤訊息中提供的實際日誌檔案名稱，並將 566933897 替換為結束日誌位置：
 mysqlbinlog mysql-bin.000001 --start-position=566933897
+
+# 利用mysqlbinlog工具找出440267874的事件
+mysqlbinlog --base64-output=decode-rows -vv mysql-bin.000003 |grep -A 20 '440267874'
+mysqlbinlog --base64-output=decode-rows -vv mysql-bin.000003 --stop-position=440267874 | tail -20
+mysqlbinlog --base64-output=decode-rows -vv mysql-bin.000003 > decode.log
 ```
 
 # 配置文檔
@@ -680,8 +692,7 @@ UPDATE mysql.user SET host = '%' WHERE user = 'user';
 
 -- 修改使用者密碼
 SET PASSWORD FOR '目標使用者'@'主機' = PASSWORD('密碼');
-SET PASSWORD FOR testuser@'%' = PASSWORD('su.3m, u;6ru');
-SET PASSWORD FOR root@'%' = PASSWORD('ZB2tf8U#L6');
+SET PASSWORD FOR testuser@'%' = PASSWORD('11111111111');
 
 -- 刷新MySQL的系統權限相關表
 flush privileges;
