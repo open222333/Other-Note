@@ -231,9 +231,13 @@ service iptables restart
 
 # 防火牆的記錄
 iptables-save > filename
+# 將當前的 iptables 規則打印到標準輸出（終端屏幕）
+iptables-save
 
 # 防火牆的回復
+# 沒有後續指定的情況下，會默認加載 /etc/sysconfig/iptables 文件中的規則
 iptables-restore < filename
+iptables-restore 
 
 ###-----------------------------------------------------###
 # 清除設定
