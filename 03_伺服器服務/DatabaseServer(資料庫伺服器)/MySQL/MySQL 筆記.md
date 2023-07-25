@@ -1134,6 +1134,9 @@ SQL Nodes：負責 SQL 的 Table schema 和 Client 連接的空間。
 ```bash
 # 從 Manage node 確認所有 node 狀態
 ndb_mgm
+
+# 啟動管理節點：(在管理節點上執行)
+ndb_mgmd --config-file=config.ini
 ```
 
 ## 實作
