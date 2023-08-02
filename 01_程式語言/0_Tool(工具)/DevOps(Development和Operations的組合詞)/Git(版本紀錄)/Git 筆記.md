@@ -15,14 +15,15 @@
 			- [管理 commit log](#管理-commit-log)
 		- [Gitea(Git 私服)](#giteagit-私服)
 - [Git 基本概念](#git-基本概念)
-- [專案檔案結構](#專案檔案結構)
-	- [基本資料夾結構](#基本資料夾結構)
-	- [Git 特殊文件](#git-特殊文件)
-	- [GitHub 特殊文件和資料夾](#github-特殊文件和資料夾)
-- [Linux 安裝 Git](#linux-安裝-git)
-- [Mac 安裝 Git](#mac-安裝-git)
-- [SSH 綁定 創建](#ssh-綁定-創建)
-- [git-credential 個人令牌 token](#git-credential-個人令牌-token)
+	- [專案檔案結構](#專案檔案結構)
+		- [基本資料夾結構](#基本資料夾結構)
+		- [Git 特殊文件](#git-特殊文件)
+		- [GitHub 特殊文件和資料夾](#github-特殊文件和資料夾)
+- [安裝](#安裝)
+	- [Linux](#linux)
+	- [Mac](#mac)
+	- [SSH 綁定 創建](#ssh-綁定-創建)
+	- [git-credential 個人令牌 token](#git-credential-個人令牌-token)
 - [Git 指令](#git-指令)
 	- [Config 環境設定](#config-環境設定)
 	- [Remote – 遠端設定](#remote--遠端設定)
@@ -53,10 +54,10 @@
 	- [Git Conflict Strategy 處理已經衝突的檔案](#git-conflict-strategy-處理已經衝突的檔案)
 	- [Git Blame 逐條程式碼Log](#git-blame-逐條程式碼log)
 	- [設定永遠快取密碼，則可執行以下指令進行設定](#設定永遠快取密碼則可執行以下指令進行設定)
-- [設置git忽略](#設置git忽略)
-- [程式輔助範例](#程式輔助範例)
+	- [設置git忽略](#設置git忽略)
+- [範例](#範例)
 	- [Python 更改資料夾內所有專案設定](#python-更改資料夾內所有專案設定)
-- [Git pull 錯誤操作](#git-pull-錯誤操作)
+	- [Git pull 錯誤操作](#git-pull-錯誤操作)
 
 ## 參考資料
 
@@ -141,9 +142,9 @@ Stash：
 	是一個工作狀態儲存棧，用於儲存/恢復WorkSpace中的臨時狀態。
 ```
 
-# 專案檔案結構
+## 專案檔案結構
 
-## 基本資料夾結構
+### 基本資料夾結構
 
 ```
 src：源代碼資料夾！但是，在使用標頭的語言中（或者如果有適用於應用程序的框架）不要將這些文件放在這裡。
@@ -157,7 +158,7 @@ samples：提供“Hello World”和支持文檔的 Co 代碼。
 tools：方便你使用的目錄。應包含腳本以自動執行項目中的任務，例如，構建腳本、重命名腳本。例如通常包含 .sh、.cmd。
 ```
 
-## Git 特殊文件
+### Git 特殊文件
 
 ```
 .gitignore：供 git 忽略的 blob 列表。影響 git add 和 git clean 等命令。你可以使用 gitignore.io 來生成一個乾淨有用的 gitignore。
@@ -166,7 +167,7 @@ tools：方便你使用的目錄。應包含腳本以自動執行項目中的任
 .gitmodules：讓定義子模塊（ git 存儲庫的子目錄，這些子目錄是其他 git 存儲庫的簽出）。
 ```
 
-## GitHub 特殊文件和資料夾
+### GitHub 特殊文件和資料夾
 
 ```
 README：README或README.txt或README.md等是一個回答項目的內容、原因和方式的文件。GitHub 將識別並自動顯示README存儲庫訪問者。這是一個很棒的列表，包含更專業的自述文件。
@@ -198,7 +199,9 @@ ISSUE_TEMPLATE：當將問題模板添加到存儲庫時，項目貢獻者將自
 PULL_REQUEST_TEMPLATE：當將PULL_REQUEST_TEMPLATE文件添加到存儲庫時，項目貢獻者將自動在拉取請求正文中看到模板的內容。模板自定義和標準化希望在貢獻者創建拉取請求時包含的信息。PULL_REQUEST_TEMPLATE/可以在任何支持的資料夾中創建一個子目錄以包含多個拉取請求模板。
 ```
 
-# Linux 安裝 Git
+# 安裝
+
+## Linux
 
 ```bash
 # Debian
@@ -208,7 +211,7 @@ yum install git-all -y
 apt-get install git-all
 ```
 
-# Mac 安裝 Git
+## Mac
 
 ```bash
 # Homebrew
@@ -218,7 +221,7 @@ brew install git
 brew upgrade git
 ```
 
-# SSH 綁定 創建
+## SSH 綁定 創建
 
 [Linux 基本 網路相關](../../02_作業系統/01_Unix/01_Linux/Linux%20基本%20網路相關.md)
 
@@ -237,7 +240,7 @@ eval "$(ssh-agent -s)"	# 先使用下列指令開啟SSH代理伺服器
 ssh-add ~/.ssh/id_rsa	# 接著將我們剛剛產生的金鑰加入到SSH Agent
 ```
 
-# git-credential 個人令牌 token
+## git-credential 個人令牌 token
 
 [git-credential-store - Helper to store credentials on disk](https://git-scm.com/docs/git-credential-store)
 
@@ -958,7 +961,7 @@ git config --global credential.helper store
 
 ```
 
-# 設置git忽略
+## 設置git忽略
 
 ```bash
 # 新增文檔
@@ -993,7 +996,7 @@ config/database.yml
 .gitignore
 ```
 
-# 程式輔助範例
+# 範例
 
 ## Python 更改資料夾內所有專案設定
 
@@ -1016,7 +1019,7 @@ for file in files:
         os.system(f"cd {file} && git config user.email {email}")
 ```
 
-# Git pull 錯誤操作
+## Git pull 錯誤操作
 
 [git pull 撤销误操作](https://blog.csdn.net/code_segment/article/details/78597441)
 

@@ -33,6 +33,8 @@
 	- [Promise 物件 (Ch13)](#promise-物件-ch13)
 	- [鏈串承諾（Chaining Promises）](#鏈串承諾chaining-promises)
 	- [await運算式 async函式](#await運算式-async函式)
+		- [async 實作細節](#async-實作細節)
+	- [for/await迴圈](#forawait迴圈)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -1097,6 +1099,58 @@ async function fetchData() {
 
 // 執行 fetchData 函式
 fetchData();
+```
+
+```JavaScript
+// 假設使用 async 寫 getJSON函式
+async function getJSON(url) {
+  let response = await fetch(url);
+  let body = await response.json();
+  return body;
+}
+
+// 假設 以這個函式擷取兩個JSON值 等 value1 完成 再取 value2
+let value1 = getJSON(url1);
+let value2 = getJSON(url2);
+
+// 以下同時取 value1, value2
+let [value1, value2] = await Promise.all([getJSON(url1), getJSON(url2)]);
+```
+
+### async 實作細節
+
+```JavaScript
+// async 實作細節
+async function f(x) {
+  /** 主體 */
+}
+
+// 等同於
+function f(x) {
+  return new Promise(function (resolve, reject) {
+    try {
+      resolve(
+        (function (x) {
+          /** 主體 */
+        })(x)
+      );
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+```
+
+## for/await迴圈
+
+```
+for await ... of 是 JavaScript 中的一個特殊語法，用於遍歷異步可迭代對象中的元素。
+
+它主要用於處理異步操作，例如 Promise 或 AsyncFunction 返回的可迭代對象。
+```
+
+```JavaScript
+const fs
 ```
 
 # 全域函式
