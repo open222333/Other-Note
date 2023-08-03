@@ -10,8 +10,9 @@ ApacheBench僅能測試一個網頁所能承受的負載能力，並無法模擬
 - [Linux 工具 ab(網站伺服器壓力測試工具)](#linux-工具-ab網站伺服器壓力測試工具)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝步驟 CentOS7](#安裝步驟-centos7)
-- [安裝步驟 Ubuntu](#安裝步驟-ubuntu)
+- [安裝](#安裝)
+	- [CentOS7](#centos7)
+	- [Ubuntu](#ubuntu)
 - [指令](#指令)
 
 ## 參考資料
@@ -30,7 +31,9 @@ ApacheBench僅能測試一個網頁所能承受的負載能力，並無法模擬
 
 [To install Apache from Source Code on CentOS 6](https://www.linuxhelp.com/how-to-install-apache-from-source-code-on-centos-6)
 
-# 安裝步驟 CentOS7
+# 安裝
+
+## CentOS7
 
 ```bash
 # 安裝
@@ -156,7 +159,7 @@ exit 0
 chmod +x /etc/init.d/httpd
 ```
 
-# 安裝步驟 Ubuntu
+## Ubuntu
 
 ```bash
 # 安裝

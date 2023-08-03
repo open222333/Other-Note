@@ -34,26 +34,26 @@
 	- [資料庫指令 - 使用者](#資料庫指令---使用者)
 	- [密碼設定強度修改](#密碼設定強度修改)
 		- [許可權 列表](#許可權-列表)
-- [例外狀況](#例外狀況)
-	- [修復損壞的innodb：innodb\_force\_recovery](#修復損壞的innodbinnodb_force_recovery)
-	- [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
-	- [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
-	- [升級為GTID模式](#升級為gtid模式)
-	- [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
 - [Master-Slave 主從架構架設](#master-slave-主從架構架設)
 	- [mysql-master設定](#mysql-master設定)
 	- [mysql-slave設定](#mysql-slave設定)
 	- [備份mysql-master](#備份mysql-master)
 	- [恢復備份到mysql-slave](#恢復備份到mysql-slave)
-		- [Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#slave_sql_running-no-slave_io_running-no-解決方案)
 - [Cluster 叢集架設](#cluster-叢集架設)
-	- [說明](#說明)
 	- [指令](#指令-1)
 	- [實作](#實作)
 		- [Manage node](#manage-node)
 		- [Data node](#data-node)
 		- [SQL node](#sql-node)
 		- [啟動 Cluster 環境](#啟動-cluster-環境)
+- [例外狀況](#例外狀況)
+	- [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
+	- [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
+	- [修復損壞的innodb：innodb\_force\_recovery](#修復損壞的innodbinnodb_force_recovery)
+	- [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
+	- [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
+	- [升級為GTID模式](#升級為gtid模式)
+	- [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
 
 ## 參考資料
 
@@ -794,81 +794,6 @@ SUPER
 USAGE (無訪問許可權)
 ```
 
-# 例外狀況
-
-## 修復損壞的innodb：innodb_force_recovery
-
-[MySQL崩潰-如何修復損壞的innodb：innodb_force_recovery](https://www.twblogs.net/a/5b8201762b71772165af295d)
-
-```bash
-# CentOS 7
-cat /var/log/mysqld.log
-
-查看錯誤日誌：
-InnoDB: Error: could not open single-table tablespace file ./data_dep/report.ibd
-
-innodb引擎出了問題
-```
-
-## [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
-
-[MySQL warning "IP address could not be resolved"](https://serverfault.com/questions/393862/mysql-warning-ip-address-could-not-be-resolved)
-
-[Is DNS the Achilles heel in your MySQL installation?](https://www.percona.com/blog/2008/05/31/dns-achilles-heel-mysql-installation/)
-
-```
-一
-    CentOS 7
-    /etc/my.cnf
-    添加 skip_name_resolve
-    跳過反向解析
-
-二(沒用)
-    CentOS 7
-    /etc/hosts
-    添加 X.X.X.X some_name
-    0.0.0.0 : 全都通過
-
-    echo "192.241.xx.xx venus.example.com venus" >> /etc/hosts
-```
-
-## Table 'db.table' doesn't exist (1146)
-
-```sql
--- 檢查原因
-mysql> check table db.table;
-```
-
-## 升級為GTID模式
-
-加入設定到下列(其中一個)設定檔
-/etc/my.cnf
-/etc/mysql/my.cnf
-
-```conf
-gtid_mode = on
-enforce_gtid_consistency = on
-```
-
-## ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository
-
-```
-主從備份遇到此錯誤
-mysql> start slave;
-ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository
-```
-
-```sql
-mysql> reset slave;
-Query OK, 0 rows affected (0.10 sec)
-
--- 看情況執行
-mysql> change master to master_host='IP', master_port=3306, master_user='用户名', MASTER_PASSWORD='密码', master_log_file='mysql-bin.000594', MASTER_LOG_POS=98175332;
-
-mysql> start slave;
-Query OK, 0 rows affected (0.10 sec)
-```
-
 # Master-Slave 主從架構架設
 
 ```
@@ -898,13 +823,13 @@ show variables like 'log_bin%';
 ```bash
 # 停止mysql
 service mysql stop
+systemctl sstoptart mysqld
 ```
 
-mysql-master 加入設定到下列(其中一個)設定檔
-/etc/my.cnf
-/etc/mysql/my.cnf
-
 ```conf
+; mysql-master 加入設定到下列(其中一個)設定檔
+; /etc/my.cnf
+; /etc/mysql/my.cnf
 [mysqld]
 log-bin = mysql-bin
 server-id = 1
@@ -913,6 +838,7 @@ server-id = 1
 ```bash
 # 啟動mysql
 service mysql start
+systemctl start mysqld
 
 # 登入mysql
 mysql -u{$username} -p{$password}
@@ -951,13 +877,13 @@ show variables like 'read_only%';
 ```bash
 # 停止mysql
 service mysql stop
+systemctl sstoptart mysqld
 ```
 
-mysql-slave 加入設定到下列(其中一個)設定檔
-/etc/my.cnf
-/etc/mysql/my.cnf
-
 ```conf
+; mysql-slave 加入設定到下列(其中一個)設定檔
+; /etc/my.cnf
+; /etc/mysql/my.cnf
 [mysqld]
 server-id = 2
 read-only = ON
@@ -966,6 +892,7 @@ read-only = ON
 ```bash
 # 啟動mysql
 service mysql start
+systemctl start mysqld
 
 # 登入mysql
 mysql -u{$username} -p{$password}
@@ -1070,43 +997,6 @@ show master status\G
 show slave status\G
 ```
 
-### Slave_SQL_Running: No, Slave_IO_Running: No 解決方案
-
-```sql
--- 第一種 直接跳過一行造成停止的SQL指令
-stop slave;
-set global SQL_SLAVE_SKIP_COUNTER=1;
-start slave;
-show slave status\G
-
--- 第二種 直接指定Master記錄的File及Position到Slave
--- Slave_IO_Running: No 也適用
--- === master部分 ===
--- 查看Master主機的File和Position的值。
-show master status;
-+——————+———–+————–+——————+
-| File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
-+——————+———–+————–+——————+
-| mysql-bin.000118 | 199777882 | | |
-+——————+———–+————–+——————+
-
--- === slave部分 ===
--- 停止slave
-stop slave;
--- 手動設定master資料 linode部分 ip可以使用內網ip
-change master to
-master_host=’master_ip’ ,
-master_user=’user’,
-master_password=’pwd’,
-master_port=3306,
-master_log_file=’mysql-bin.000118′,
-master_log_pos=199777882;
--- 執行slave
-start slave;
--- 檢查slave狀態
-show slave status\G
-```
-
 # Cluster 叢集架設
 
 ```
@@ -1115,11 +1005,7 @@ MySQL Cluster Nodes：
 Manage Nodes：負責監控叢集所有 Nodes 的狀態，並且由此控制所有 Nodes 的替換。
 Data Nodes：負責所有 SQL Data 的 Nodes，單純儲存資料，將資料寫在 RAM & Disk。
 SQL Nodes：負責 SQL 的 Table schema 和 Client 連接的空間。
-```
 
-## 說明
-
-```
 多主架構：真正的多主多活群集，可隨時對任何節點進行讀寫。
 同步複製：集群不同節點之間數據同步，某節點崩潰時沒有數據丟失。
 數據一致：所有節點保持相同狀態，節點之間無數據分歧。
@@ -1318,4 +1204,159 @@ ndb_mgm
 # [mysqld(API)]	2 node(s)
 # id=2	@172.10.0.141  (mysql-5.6.29 ndb-7.4.11)
 # id=3	@172.10.0.142  (mysql-5.6.29 ndb-7.4.11)
+```
+
+# 例外狀況
+
+## 修復 master slave 最快速方法
+
+```bash
+# master 鎖定表寫入 進行 資料匯出 bin-log 複製
+FLUSH TABLES WITH READ LOCK;
+
+SHOW MASTER STATUS;
++------------------+----------+--------------+------------------+-------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set |
++------------------+----------+--------------+------------------+-------------------+
+| mysql-bin.000001 |     2584 |              |                  |                   |
++------------------+----------+--------------+------------------+-------------------+
+
+xtrabackup --user=root --password --backup --target-dir=/root/xtrabackup_$date
+cp /var/lib/mysql/mysql-bin.$binlog_number /root
+scp /root/mysql-bin.$binlog_number root@$slave_ip:/root
+
+# 匯出資料 搜集完必須資訊後 解鎖寫入
+UNLOCK TABLES;
+
+# 將/data目錄傳到mysql-slave機器
+rsync -Pr /root/xtrabackup_$date root@$slave_ip:/root
+
+cd /var/lib/mysql
+rm -rf ./*
+
+xtrabackup --prepare --target-dir=/root/xtrabackup_$date
+xtrabackup --copy-back --target-dir=/root/xtrabackup_$date
+
+cp /root/mysql-bin.$binlog_number /var/lib/mysql
+chown -R mysql.mysql /var/lib/mysql
+
+STOP SLAVE;
+RESET SLAVE;
+
+CHANGE MASTER TO
+MASTER_LOG_FILE='mysql-bin.$binlog_number',
+MASTER_LOG_POS=$postion;
+
+START SLAVE;
+SHOW SLAVE STATUS\G
+```
+
+## 修復 master slave Slave_SQL_Running: No, Slave_IO_Running: No 解決方案
+
+```sql
+-- 第一種 直接跳過一行造成停止的SQL指令
+stop slave;
+set global SQL_SLAVE_SKIP_COUNTER=1;
+start slave;
+show slave status\G
+
+-- 第二種 直接指定Master記錄的File及Position到Slave
+-- Slave_IO_Running: No 也適用
+-- === master部分 ===
+-- 查看Master主機的File和Position的值。
+show master status;
++——————+———–+————–+——————+
+| File | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++——————+———–+————–+——————+
+| mysql-bin.000118 | 199777882 | | |
++——————+———–+————–+——————+
+
+-- === slave部分 ===
+-- 停止slave
+stop slave;
+-- 手動設定master資料 linode部分 ip可以使用內網ip
+change master to
+master_host=’master_ip’ ,
+master_user=’user’,
+master_password=’pwd’,
+master_port=3306,
+master_log_file=’mysql-bin.000118′,
+master_log_pos=199777882;
+-- 執行slave
+start slave;
+-- 檢查slave狀態
+show slave status\G
+```
+
+## 修復損壞的innodb：innodb_force_recovery
+
+[MySQL崩潰-如何修復損壞的innodb：innodb_force_recovery](https://www.twblogs.net/a/5b8201762b71772165af295d)
+
+```bash
+# CentOS 7
+cat /var/log/mysqld.log
+
+查看錯誤日誌：
+InnoDB: Error: could not open single-table tablespace file ./data_dep/report.ibd
+
+innodb引擎出了問題
+```
+
+## [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
+
+[MySQL warning "IP address could not be resolved"](https://serverfault.com/questions/393862/mysql-warning-ip-address-could-not-be-resolved)
+
+[Is DNS the Achilles heel in your MySQL installation?](https://www.percona.com/blog/2008/05/31/dns-achilles-heel-mysql-installation/)
+
+```
+一
+    CentOS 7
+    /etc/my.cnf
+    添加 skip_name_resolve
+    跳過反向解析
+
+二(沒用)
+    CentOS 7
+    /etc/hosts
+    添加 X.X.X.X some_name
+    0.0.0.0 : 全都通過
+
+    echo "192.241.xx.xx venus.example.com venus" >> /etc/hosts
+```
+
+## Table 'db.table' doesn't exist (1146)
+
+```sql
+-- 檢查原因
+mysql> check table db.table;
+```
+
+## 升級為GTID模式
+
+加入設定到下列(其中一個)設定檔
+/etc/my.cnf
+/etc/mysql/my.cnf
+
+```conf
+gtid_mode = on
+enforce_gtid_consistency = on
+```
+
+## ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository
+
+```
+主從備份遇到此錯誤
+mysql> start slave;
+ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository
+```
+
+```sql
+mysql> reset slave;
+Query OK, 0 rows affected (0.10 sec)
+
+-- 看情況執行
+mysql> change master to master_host='IP', master_port=3306, master_user='用户名', MASTER_PASSWORD='密码', master_log_file='mysql-bin.000594', MASTER_LOG_POS=98175332;
+
+mysql> start slave;
+Query OK, 0 rows affected (0.10 sec)
 ```

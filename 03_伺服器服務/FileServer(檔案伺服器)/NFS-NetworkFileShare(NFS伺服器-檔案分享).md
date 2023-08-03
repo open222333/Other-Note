@@ -8,13 +8,16 @@
 - [NFS-NetworkFileShare(NFS伺服器-檔案分享) 筆記](#nfs-networkfilesharenfs伺服器-檔案分享-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝步驟 CentOS7](#安裝步驟-centos7)
+- [安裝](#安裝)
+	- [CentOS7](#centos7)
 - [參數](#參數)
 - [NFS 配置文件](#nfs-配置文件)
 - [使用者](#使用者)
 - [RPC (Remote Procedure Call，RPC)](#rpc-remote-procedure-callrpc)
 
 ## 參考資料
+
+[Linux 工具 nfs-utils nfs-kernel-server(Network File System(NFS)遠端掛載)](../../02_作業系統/Unix/Linux/Linux%20工具/Linux%20磁碟與檔案系統部分/Linux%20工具%20nfs-utils%20nfs-kernel-server(Network%20File%20System(NFS)遠端掛載).md)
 
 [RHEL / CentOS 7 安裝 NFS Server](https://www.ltsplus.com/linux/rhel-centos-7-install-nfs-server)
 
@@ -32,7 +35,9 @@
 
 [遠端程序呼叫 Remote Procedure Call，RPC](https://zh.wikipedia.org/zh-tw/%E9%81%A0%E7%A8%8B%E9%81%8E%E7%A8%8B%E8%AA%BF%E7%94%A8)
 
-# 安裝步驟 CentOS7
+# 安裝
+
+## CentOS7
 
 ```bash
 #######################

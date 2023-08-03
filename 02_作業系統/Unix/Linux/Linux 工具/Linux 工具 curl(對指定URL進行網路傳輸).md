@@ -10,15 +10,19 @@ cURL涉及是任何網路協定傳輸，不涉及對具體資料的具體處理�
 - [Linux 工具 curl(對指定URL進行網路傳輸)](#linux-工具-curl對指定url進行網路傳輸)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [範例相關](#範例相關)
 - [指令](#指令)
-- [測試 回傳速度](#測試-回傳速度)
-	- [參考資料](#參考資料-1)
+	- [測試 回傳速度](#測試-回傳速度)
 
 ## 參考資料
 
 [官方文檔 man page](https://curl.se/docs/manpage.html)
 
 [proxy範例](http://username:password@host_ip:port)
+
+### 範例相關
+
+[How do I measure request and response times at once using cURL?](https://stackoverflow.com/questions/18215389/how-do-i-measure-request-and-response-times-at-once-using-curl)
 
 # 指令
 
@@ -40,11 +44,7 @@ curl -x host_ip:port google.com
 	# 	取得細節 主要用於調試
 ```
 
-# 測試 回傳速度
-
-## 參考資料
-
-[How do I measure request and response times at once using cURL?](https://stackoverflow.com/questions/18215389/how-do-i-measure-request-and-response-times-at-once-using-curl)
+## 測試 回傳速度
 
 ```bash
 curl -w "@curl-format.txt" -o /dev/null -s "http://wordpress.com/"
