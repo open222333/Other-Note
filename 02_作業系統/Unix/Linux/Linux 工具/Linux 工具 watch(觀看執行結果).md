@@ -8,7 +8,7 @@
 - [Linux 工具 watch(觀看執行結果)](#linux-工具-watch觀看執行結果)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [watch 指令](#watch-指令)
+- [指令](#指令)
 
 ## 參考資料
 
@@ -16,7 +16,7 @@
 
 [Linux 以 watch 指令重複執行程式並監看結果教學](https://blog.gtwang.org/linux/linux-watch-run-command-repeatedly/)
 
-## watch 指令
+# 指令
 
 ```bash
 

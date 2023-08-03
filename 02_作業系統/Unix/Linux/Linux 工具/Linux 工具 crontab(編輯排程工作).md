@@ -8,7 +8,7 @@
 - [Linux 工具 crontab(編輯排程工作)](#linux-工具-crontab編輯排程工作)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [crontab 指令](#crontab-指令)
+- [指令](#指令)
 	- [crontab 排程時間設定](#crontab-排程時間設定)
 		- [欄位說明:](#欄位說明)
 		- [特殊字元:](#特殊字元)
@@ -16,15 +16,11 @@
 
 ## 參考資料
 
-User Commands:
+[User Commands: crontab(1) — Linux manual page](https://man7.org/linux/man-pages/man1/crontab.1.html)
 
-[crontab(1) — Linux manual page](https://man7.org/linux/man-pages/man1/crontab.1.html)
+[File Formats: crontab(5) — Linux manual page](https://man7.org/linux/man-pages/man5/crontab.5.html)
 
-File Formats:
-
-[crontab(5) — Linux manual page](https://man7.org/linux/man-pages/man5/crontab.5.html)
-
-## crontab 指令
+# 指令
 
 ```bash
 # 查看目前設置

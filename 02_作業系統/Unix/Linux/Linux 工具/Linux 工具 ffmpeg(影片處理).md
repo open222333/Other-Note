@@ -13,9 +13,10 @@
 		- [ffprobe相關](#ffprobe相關)
 		- [應用相關](#應用相關)
 - [安裝](#安裝)
-- [指令 ffmpeg](#指令-ffmpeg)
-- [指令 ffprobe](#指令-ffprobe)
-- [HLS（HTTP Live Stream）](#hlshttp-live-stream)
+- [指令](#指令)
+	- [ffmpeg](#ffmpeg)
+	- [ffprobe](#ffprobe)
+	- [HLS（HTTP Live Stream）](#hlshttp-live-stream)
 
 ## 參考資料
 
@@ -89,7 +90,9 @@ uname -r
 uname -a
 ```
 
-# 指令 ffmpeg
+# 指令
+
+## ffmpeg
 
 ```bash
 ffmpeg -formats：查看ffmpeg支援的格式
@@ -133,14 +136,14 @@ ffmpeg 影片切割
 -t 00:00:30 切割00:00:30秒
 ```
 
-# 指令 ffprobe
+## ffprobe
 
 ```bash
 # 查看音視頻文件的封裝格式
 ffprobe -show_format inputFile
 ```
 
-# HLS（HTTP Live Stream）
+## HLS（HTTP Live Stream）
 
 ```
 HLS（HTTP Live Stream）是蘋果推出的影音串流的標準，目前可支援大多數的行動裝置與電視盒，如何利用ffmpeg將直播或影片進行切片（chunk）轉成HLS格式。

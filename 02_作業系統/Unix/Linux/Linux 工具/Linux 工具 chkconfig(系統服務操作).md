@@ -9,14 +9,14 @@
 - [Linux 工具 chkconfig(系統服務操作)](#linux-工具-chkconfig系統服務操作)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [指令 使用](#指令-使用)
+- [指令](#指令)
 
 ## 參考資料
 
 [LINUX chkconfig命令](https://b8807053.pixnet.net/blog/post/336314975-linux-chkconfig%E5%91%BD%E4%BB%A4)
 
 
-## 指令 使用
+# 指令
 
 ```bash
 # 將系統上所有的服務全部列出來
