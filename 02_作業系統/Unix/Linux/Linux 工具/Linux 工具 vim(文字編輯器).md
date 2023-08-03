@@ -11,11 +11,28 @@ Vim是從vi發展出來的一個文字編輯器。
 - [Linux 工具 vim(文字編輯器)](#linux-工具-vim文字編輯器)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+- [安裝](#安裝)
 - [指令](#指令)
 
 ## 參考資料
 
 [官方網站](https://www.vim.org/)
+
+# 安裝
+
+```bash
+# 在 Ubuntu 或 Debian 上：
+apt-get update && apt-get install vim -y
+
+# 在 CentOS 或 Red Hat 上：
+yum install vim -y
+
+# 在 Fedora 上：
+dnf install vim -y
+
+# 在 openSUSE 上：
+zypper install vim -y
+```
 
 # 指令
 

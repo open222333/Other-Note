@@ -9,6 +9,7 @@
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [安裝](#安裝)
+- [指令](#指令)
 
 ## 參考資料
 
@@ -27,11 +28,11 @@
 ```bash
 # 安裝
 # CentOS Linux:
-sudo yum install epel-release
-sudo yum update
+yum install epel-release
+yum update
 
 # Debian/Ubuntu Linux:
-sudo apt-get install htop
+apt-get install htop
 ```
 
 設定檔位置:`$HOME/.config/htop/htoprc` - 直接把這個檔案刪除，會恢復預設的設定值
@@ -57,4 +58,9 @@ sudo apt-get install htop
     MEM%：記憶體使用率。
     TIME+：程序執行時間。
     Comamnd：執行程序的命令。
+```
+
+# 指令
+
+```bash
 ```

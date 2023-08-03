@@ -10,6 +10,7 @@
 	- [參考資料](#參考資料)
 		- [深入學習相關](#深入學習相關)
 		- [排錯相關](#排錯相關)
+- [安裝](#安裝)
 - [指令](#指令)
 - [rsync 與 scp 區別](#rsync-與-scp-區別)
 - [狀況](#狀況)
@@ -27,6 +28,24 @@
 ### 排錯相關
 
 [rsync故障排除解答](https://blog.51cto.com/53cto/1771826)
+
+# 安裝
+
+```bash
+# 安裝 rsync
+# 在 Ubuntu 或 Debian 上：
+apt-get update
+apt-get install rsync
+
+# 在 CentOS 或 Red Hat 上：
+yum install rsync
+
+# 在 Fedora 上：
+dnf install rsync
+
+# 在 openSUSE 上：
+zypper install rsync
+```
 
 # 指令
 
