@@ -170,7 +170,6 @@ sudo useradd -s /sbin/nologin gtwang
 # 更改骨架目錄
 sudo useradd -k /etc/custom.skel gtwang
 
-
 # 查看shadow使用的加密的機制
 authconfig --test | grep hashing
 

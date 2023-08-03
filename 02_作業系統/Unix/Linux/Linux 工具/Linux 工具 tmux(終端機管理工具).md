@@ -8,7 +8,8 @@
 - [Linux 工具 tmux(終端機管理工具)](#linux-工具-tmux終端機管理工具)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [tmux 指令](#tmux-指令)
+- [安裝](#安裝)
+- [指令](#指令)
 	- [設定檔](#設定檔)
 
 ## 參考資料
@@ -19,31 +20,22 @@
 
 [tmux wiki](https://wiki.archlinux.org/title/tmux)
 
-## tmux 指令
-
-tmux 還有很多進階的功能，詳細的用法可以參考 tmux 的線上手冊：
-
-```bash
-man tmux
-```
-
-安裝 tmux
-
-若是 Ubuntu Linux 可用 apt 安裝 tmux：
+# 安裝
 
 ```bash
 # Ubuntu Linux 安裝 tmux
-sudo apt install tmux
-```
+apt install tmux
 
-若為 CentOS Linux 則可用 yum 安裝 tmux：
-
-```bash
 # CentOS Linux 安裝 tmux
-sudo yum install tmux
+yum install tmux
 ```
 
+# 指令
+
 ```bash
+# 詳細的用法 參考 tmux 的線上手冊
+man tmux
+
 # 進入 tmux
 tmux
 

@@ -23,9 +23,9 @@ mitmweb -> web 介面工具
 - [Linux 工具 mitmproxy(中間人代理工具)](#linux-工具-mitmproxy中間人代理工具)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝步驟](#安裝步驟)
+		- [手動安裝 CA 證書](#手動安裝-ca-證書)
+- [安裝](#安裝)
 	- [MacOS](#macos)
-- [手動安裝 CA 證書](#手動安裝-ca-證書)
 - [指令](#指令)
 
 ## 參考資料
@@ -40,29 +40,19 @@ mitmweb -> web 介面工具
 
 [python 使用範例](https://docs.mitmproxy.org/stable/addons-examples/)
 
-# 安裝步驟
+### 手動安裝 CA 證書
+
+[About Certificates](https://docs.mitmproxy.org/stable/concepts-certificates/)
+
+[关于证书](https://ptorch.com/docs/10/mitmproxy-concepts-certificates)
+
+# 安裝
 
 ## MacOS
 
 ```bash
 # 安裝
 brew install mitmproxy
-```
-
-# 手動安裝 CA 證書
-
-```
-安裝後啟動 mitmproxy
-連線mitmproxy(一般使用proxy的方式)
-可使用 http://mitm.it/ 安裝證書
-```
-
-[About Certificates](https://docs.mitmproxy.org/stable/concepts-certificates/)
-
-[关于证书](https://ptorch.com/docs/10/mitmproxy-concepts-certificates)
-
-```bash
-# 手動安裝證書
 ```
 
 # 指令

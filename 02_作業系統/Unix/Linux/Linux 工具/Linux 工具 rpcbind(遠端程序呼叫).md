@@ -1,6 +1,8 @@
-# Linux 工具 rpcbind(Remote Procedure Call，RPC, 遠端程序呼叫)
+# Linux 工具 rpcbind(遠端程序呼叫)
 
 ```
+Remote Procedure Call，RPC
+
 分散式計算中，遠端程序呼叫（英語：Remote Procedure Call，RPC）是一個電腦通信協定。
 該協定允許執行於一台電腦的程式呼叫另一個位址空間（通常為一個開放網路的一台電腦）的子程式，而程式設計師就像呼叫本地程式一樣，無需額外地為這個互動作用編程（無需關注細節）。
 RPC是一種伺服器-客戶端（Client/Server）模式，經典實現是一個通過傳送請求-接受回應進行資訊互動的系統。
@@ -23,7 +25,7 @@ portmap進程一般使用TCP/UDP的111端口。
 
 ## 目錄
 
-- [Linux 工具 rpcbind(Remote Procedure Call，RPC, 遠端程序呼叫)](#linux-工具-rpcbindremote-procedure-callrpc-遠端程序呼叫)
+- [Linux 工具 rpcbind(遠端程序呼叫)](#linux-工具-rpcbind遠端程序呼叫)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [指令](#指令)

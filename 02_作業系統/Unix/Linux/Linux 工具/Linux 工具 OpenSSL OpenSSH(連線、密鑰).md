@@ -13,6 +13,8 @@
 		- [設定檔相關](#設定檔相關)
 		- [深入學習相關](#深入學習相關)
 		- [範例相關](#範例相關)
+- [安裝](#安裝)
+	- [CentOS7](#centos7)
 - [指令](#指令)
 	- [連線設定](#連線設定)
 	- [ssh指令](#ssh指令)
@@ -65,6 +67,14 @@
 [Automated ssh-keygen without passphrase - 自動生成不要passphrase,相同檔名處理](https://unix.stackexchange.com/questions/69314/automated-ssh-keygen-without-passphrase-how)
 
 [ssh 跳過第一次指紋確認](https://stackoverflow.com/questions/21383806/how-can-i-force-ssh-to-accept-a-new-host-fingerprint-from-the-command-line)
+
+# 安裝
+
+## CentOS7
+
+```bash
+yum install -y sshpass
+```
 
 # 指令
 
@@ -309,8 +319,6 @@ rsync有大量的命令行選項，允許用戶微調其行為。它支持複雜
 ## sshpass(傳送密碼)
 
 ```bash
-yum install -y sshpass
-
 # 用 sshpass 傳送密碼 123qwe，ssh 登入 kvm7.deyu.wang 在目錄 /root 下產生一個檔案 abc 內容為 aaaa。 遠端連線時目錄 .ssh 中有一個檔案 known_hosts 會記錄曾經連線過的信任主機，若連線主機重新安裝或更換 ip，其 host key 不同，ssh 會產生警告訊息，要求確認並刪除在 known_hosts 中的記錄，才能連線。選項 -o StrictHostKeyChecking=no 就是不進行 host key 的檢查，以避免此中斷程式的動作
 sshpass -p123qwe ssh -o StrictHostKeyChecking=no kvm7.deyu.wang "echo aaaa > /root/abc"
 
