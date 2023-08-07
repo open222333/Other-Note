@@ -25,6 +25,7 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
 - [範例](#範例)
 - [例外狀況](#例外狀況)
 	- [Failed to start IPv4 firewall with iptables](#failed-to-start-ipv4-firewall-with-iptables)
+- [範例](#範例-1)
 
 ## 參考資料
 
@@ -237,7 +238,7 @@ iptables-save
 # 防火牆的回復
 # 沒有後續指定的情況下，會默認加載 /etc/sysconfig/iptables 文件中的規則
 iptables-restore < filename
-iptables-restore 
+iptables-restore
 
 ###-----------------------------------------------------###
 # 清除設定
@@ -340,3 +341,17 @@ service iptables save
 systemctl restart iptables.service
 ```
 
+# 範例
+
+```
+*filter
+:INPUT DROP [0:0]    # 將 INPUT 默認規則設為 DROP，即拒絕所有連線
+:FORWARD DROP [0:0]  # 將 FORWARD 默認規則設為 DROP，通常不需要在單個主機上使用這個規則
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -p tcp --dport 22 -s <指定的IP地址> -j ACCEPT # 允許特定 IP 連接到 22 端口
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+```

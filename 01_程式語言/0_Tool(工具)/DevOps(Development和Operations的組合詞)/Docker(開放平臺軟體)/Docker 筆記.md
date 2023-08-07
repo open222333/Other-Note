@@ -134,7 +134,8 @@ docker --version
 
 # 安裝Docker-Compose
 
-#下載 Docker Compose 的當前穩定版本
+# 下載 Docker Compose 的當前穩定版本
+# https://docs.docker.com/compose/release-notes/
 curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
 # 對二進製文件應用可執行權限
