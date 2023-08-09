@@ -17,6 +17,8 @@ Flasgger 是一個用於自動生成和顯示 Swagger API 文件的 Python 套�
 
 [flasgger pypi](https://pypi.org/project/flasgger/)
 
+[flasgger/flasgger - Github](https://github.com/flasgger/flasgger#examples-and-demo-app)
+
 # 指令
 
 ```bash
@@ -37,7 +39,32 @@ app.config['SWAGGER'] = {
     "hide_top_bar": True
 }
 CORS(app)
-Swagger(app)
+
+# 修改模板
+template = {
+  "swagger": "2.0",
+  "info": {
+    "title": "My API",
+    "description": "API for my data",
+    "contact": {
+      "responsibleOrganization": "ME",
+      "responsibleDeveloper": "Me",
+      "email": "me@me.com",
+      "url": "www.me.com",
+    },
+    "termsOfService": "http://me.com/terms",
+    "version": "0.0.1"
+  },
+  "host": "mysite.com",  # overrides localhost:500
+  "basePath": "/api",  # base bash for blueprint registration
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "operationId": "getmyData"
+}
+
+swagger = Swagger(app, template=template)
 
 @app.route('/v1/node', methods=['GET'])
 def node_topo():
