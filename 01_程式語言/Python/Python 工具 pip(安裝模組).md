@@ -90,21 +90,25 @@ pip list --format=freeze > requirements.txt
 # 安裝套件時使用
 pip install -r requirements.txt
 
+# 若遇到錯誤 忽略錯誤繼續安裝下一個
+while read requirement; do pip install $requirement || true; done < requirements.txt
+
+
 # 安裝指定版本
-pip install package==version
+pip install $package==version
 
 # 查看package可安裝版本
-pip install package==
+pip install $package==
 
 # 更新指定版本
-pip install --upgrade package==version
-pip install -U package==version
+pip install --upgrade $package==version
+pip install -U $package==version
 
 # 移除安裝過的套件
-pip uninstall package
+pip uninstall $package
 
 # 更新套件
-pip install -U package
+pip install -U $package
 
 # 只下載不安裝
 pip download
@@ -144,6 +148,6 @@ It may work (potentially for a long enough time for your business needs), but ma
 ```
 
 ```bash
-
-pip install --ignore-installed [package]
+# 强制重新安装
+pip install --ignore-installed $package
 ```
