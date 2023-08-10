@@ -47,10 +47,10 @@ RDBMS
 - [Cluster 叢集架設](#cluster-叢集架設)
 	- [指令](#指令-1)
 	- [實作](#實作)
-		- [Manage node](#manage-node)
-		- [Data node](#data-node)
-		- [SQL node](#sql-node)
-		- [啟動 Cluster 環境](#啟動-cluster-環境)
+		- [Linux](#linux)
+			- [Manage node (管理節點) - 負責監控叢集所有 Nodes 的狀態，並且由此控制所有 Nodes 的替換。](#manage-node-管理節點---負責監控叢集所有-nodes-的狀態並且由此控制所有-nodes-的替換)
+			- [Data node - 負責所有 SQL Data 的 Nodes，單純儲存資料，將資料寫在 RAM \& Disk。](#data-node---負責所有-sql-data-的-nodes單純儲存資料將資料寫在-ram--disk)
+			- [SQL node (原本的 MySQL Server) - 負責 SQL 的 Table schema 和 Client 連接的空間。](#sql-node-原本的-mysql-server---負責-sql-的-table-schema-和-client-連接的空間)
 - [例外狀況](#例外狀況)
 	- [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
 	- [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
@@ -116,11 +116,19 @@ RDBMS
 叢集的概念就是把一台式架構拆分為多台式架構，並且可以提供 HA 高可用性與負載均衡的需求，更不需要擔心延展性的問題，若是 Loading 加大了只需要增加 node 去分擔 Loading
 ```
 
+[官方下載 Cluster MySQL Community Downloads - MySQL Cluster](https://dev.mysql.com/downloads/cluster/)
+
+[官方 Cluster 發行指南 版本說明 ](https://dev.mysql.com/doc/index-cluster.html)
+
+[官方 Cluster 用戶手冊(右上角可切換版本)](https://dev.mysql.com/doc/mysql-cluster-manager/8.0/en/)
+
 [架設 HA 高可用性：MySQL Cluster 叢集 – 7.4.11(5.6.29)](https://shazi.info/%E6%9E%B6%E8%A8%AD-ha-%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%9Amysql-cluster-%E5%8F%A2%E9%9B%86-7-4-115-6-29/)
 
 [Galera Cluster for MySQL 详解（一）——基本原理](https://blog.csdn.net/wzy0623/article/details/102522268)
 
 [如何建置 MariaDb Galera Cluster](https://gary840227.medium.com/mariadb-cluster-f7220e9eaac8)
+
+[Docker Compose Setup for InnoDB Cluster](https://dev.mysql.com/blog-archive/docker-compose-setup-for-innodb-cluster/)
 
 ### 操作相關
 
@@ -230,6 +238,12 @@ yum install mysql-community-server -y
 
 # 查看預設密碼(須先start)
 cat /var/log/mysqld.log | grep 'temporary password'
+
+# 看情況執行
+# 執行 MySQL 的初始化過程，創建數據庫系統表和初始數據
+/usr/local/mysql/scripts/mysql_install_db --user=mysql
+# 將 MySQL 官方提供的管理腳本複製到系統初始化腳本的目錄中，以便你可以使用系統的服務管理工具（如 service 或 systemctl）來控制 MySQL 服務的啟動、停止和管理。
+cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql.server
 ```
 
 ```sql
@@ -1005,12 +1019,6 @@ show slave status\G
 # Cluster 叢集架設
 
 ```
-MySQL Cluster Nodes：
-
-Manage Nodes：負責監控叢集所有 Nodes 的狀態，並且由此控制所有 Nodes 的替換。
-Data Nodes：負責所有 SQL Data 的 Nodes，單純儲存資料，將資料寫在 RAM & Disk。
-SQL Nodes：負責 SQL 的 Table schema 和 Client 連接的空間。
-
 多主架構：真正的多主多活群集，可隨時對任何節點進行讀寫。
 同步複製：集群不同節點之間數據同步，某節點崩潰時沒有數據丟失。
 數據一致：所有節點保持相同狀態，節點之間無數據分歧。
@@ -1018,87 +1026,153 @@ SQL Nodes：負責 SQL 的 Table schema 和 Client 連接的空間。
 故障轉移：故障節點本身對集群的影響非常小，某節點出現問題時無需切換操作，因此不需要使用VIP，也不會中斷服務。
 自動克隆：新增節點會自動拉取在線節點的數據，最終集群所有節點數據一致，而不需要手動備份恢復。
 應用透明：提供透明的客戶端訪問，不需要對應用程序進行更改。
+
+數據分佈和冗餘：通常情況下，你會希望至少有一個 Data Node，以確保數據的冗餘存儲。如果只有一個 Data Node，那麼你的數據將不具備冗餘，一旦該節點出現故障，數據將不可用。
+
+性能平衡：SQL Node 負責處理查詢，而 Data Node 負責存儲數據和執行一些數據操作。如果 SQL Node 非常多，而 Data Node 很少，可能會導致 SQL 查詢的性能問題。相反，如果 Data Node 很多，但 SQL Node 很少，則可能影響查詢性能。
+
+資源分配：每個節點需要一定的計算和存儲資源。確保在部署時平衡資源，避免某些節點過於擁擠，而其他節點資源空閑。
 ```
 
 ## 指令
 
 ```bash
+# 所有的 nodes 都需要安裝 mysql-cluster
+wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-7.4/mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686.tar.gz
+# wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-7.6/mysql-cluster-gpl-7.6.27-linux-glibc2.12-x86_64.tar.gz
+tar -zxvf mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686.tar.gz
+mkdir /usr/local/mysql
+mv mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686/* /usr/local/mysql
+
+wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-7.5/mysql-cluster-gpl-7.5.31-linux-glibc2.12-i686.tar.gz
+tar -zxvf mysql-cluster-gpl-7.5.31-linux-glibc2.12-i686.tar.gz
+mkdir /usr/local/mysql
+mv mysql-cluster-gpl-7.5.31-linux-glibc2.12-x86_64/* /usr/local/mysql
+
+# ndb_mgm 和 ndb_mgmd 等工具放到 /usr/local/bin 方便使用
+cp /usr/local/mysql/bin/ndb_mgm* /usr/local/bin/
+
+# 啟動順序 Manager node > Data node > SQL node。
+# 如果是第一次啟動 SQL node 請使用 –initial 初始化
+# 初始化 MySQL Cluster
+ndb_initialize
+
 # 從 Manage node 確認所有 node 狀態
 ndb_mgm
 
+# -- NDB Cluster -- Management Client --
+# ndb_mgm> show
+
+# Connected to Management Server at: localhost:1186
+# Cluster Configuration
+# ---------------------
+# [ndbd(NDB)]	2 node(s)
+# id=3    @172.10.0.143  (mysql-5.6.29 ndb-7.4.11, Nodegroup: 0)
+# id=4	@172.10.0.144  (mysql-5.6.29 ndb-7.4.11, Nodegroup: 0, *)
+
+# [ndb_mgmd(MGM)]	1 node(s)
+# id=1	@172.10.0.140  (mysql-5.6.29 ndb-7.4.11)
+
+# [mysqld(API)]	2 node(s)
+# id=2	@172.10.0.141  (mysql-5.6.29 ndb-7.4.11)
+# id=3	@172.10.0.142  (mysql-5.6.29 ndb-7.4.11)
+
+
 # 啟動管理節點：(在管理節點上執行)
 ndb_mgmd --config-file=config.ini
+ndb_mgmd -f /path/to/config.ini
+
+ndb_mgmd -v -f /var/lib/mysql-cluster/config.ini
+	-v 啟用詳細的日誌輸出（verbose）
+	-f 指定配置文件的路徑。 # 包含有關集群的配置信息，例如節點的 IP 地址、端口、數據存儲位置
+
+# 啟動數據節點（Data Node）
+ndbd
+ndbd --defaults-file=/etc/my.cnf -v
+	# 當你第一次啟動 MySQL Cluster 或添加新的數據節點時，可以使用此選項來進行初始化。
+	# 如果已經有資料請絕對不要使用 –initial 否則此 node 的資料全毀
+	--initial 表示在初始化過程中運行 ndbd。
+	-v 表示啟用詳細的日誌輸出（verbose）
+	--defaults-file 指定用於配置 ndbd 的配置文件的路徑
+
+# 啟動 SQL node
+systemctl start mysqld
+
+# 匯入資料庫(ndbcluster)
+# cluster 的資料庫類型都必須為 ndbcluster，在匯入資料庫前必須改為 NDBCLUSTER
+# Type=InnoDB
+mysqldump -uroot -p db | sed 's/ENGINE=InnoDB/ENGINE=NDBCLUSTER/g' > db.sql
+# or
+# Type=MyISAM
+mysqldump -uroot -p db | sed 's/ENGINE=MyISAM/ENGINE=NDBCLUSTER/g' > db.sql
 ```
 
 ## 實作
 
-```bash
-# 所有的 nodes 都需要安裝 mysql-cluster
-wget https://dev.mysql.com/get/Downloads/MySQL-Cluster-7.4/mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686.tar.gz
-tar zxvf mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686.tar.gz
-mkdir /usr/local/mysql && mv mysql-cluster-gpl-7.4.11-linux-glibc2.5-i686 !$
-```
+### Linux
 
-### Manage node
+#### Manage node (管理節點) - 負責監控叢集所有 Nodes 的狀態，並且由此控制所有 Nodes 的替換。
 
 ```bash
+# 創建資料夾並編輯配置文檔提供給管理節點使用
 mkdir /var/lib/mysql-cluster
 vim /var/lib/mysql-cluster/config.ini
-
-# ndb_mgm 和 ndb_mgmd 等工具放到 /usr/local/bin 方便使用
-cp /usr/local/mysql/bin/ndb_mgm* /usr/local/bin/
 ```
 
 ```ini
+[ndbd default]
 ; NoOfReplicas=2：代表著存在2份一樣的資料在 Data node，Data node允許著1台的故障容錯還有另一份資料可以正常運行
 ; EX:若 Data node 只有2台，所以設定2，再多沒有意義只是增加 write loading
-
-; DataMemory & IndexMemory：代表著資料和索引可以儲存的記憶體容量有多大。
-
-; NodeId：每一個 nodes 都必須擁有獨一無二的 id 值
-
-[NDBD DEFAULT]
-NoOfReplicas=2
+NoOfReplicas=2             # 數據副本數量
+; DataMemory：這個配置項指定了數據節點用於存儲數據的內存量。在 MySQL Cluster 中，數據被分割成多個片段（fragments），每個片段都存儲在數據節點的內存中。這個配置項的值通常需要根據你的數據量和內存容量來進行調整。在這個例子中，數據節點的內存存儲被設定為 1024MB（1GB）。
 DataMemory=1024M
+; IndexMemory：這個配置項指定了數據節點用於存儲索引的內存量。索引是用於加速數據查詢的重要組件，因此將一部分內存分配給索引存儲可以提高查詢性能。和 DataMemory 一樣，IndexMemory 的值也需要根據你的索引大小和內存容量進行調整。在這個例子中，索引節點的內存存儲被設定為 256MB。
 IndexMemory=256M
 
-[MYSQLD DEFAULT]
-
-[NDB_MGMD DEFAULT]
+[ndb_mgmd default]
+; DataDir: 指定管理節點的數據存儲目錄。管理節點負責維護集群的元數據（例如配置和拓撲信息）。這個目錄將包含相關的元數據文件。
 DataDir=/var/lib/mysql-cluster
+; PortNumber: 指定管理節點使用的 TCP 端口號。其他節點（例如 MySQL Server 和 Data Node）將使用這個端口連接到管理節點。
+; ArbitrationRank: 指定管理節點的仲裁排名。在配置數據、拓撲或故障檢測時，仲裁節點（Arbitration Node）將根據這個排名來做出決定。
+; Timeout: 指定管理節點之間通信的超時時間。如果通信超時，則可能觸發重新選舉。
+; 其他管理節點相關的配置項：你可以在 [ndb_mgmd default] 區塊中設定其他與管理節點相關的配置項，例如 NodeId、NodeGroup、HostName 等等。
 
-[TCP DEFAULT]
+[mysqld default]
+; 設定 MySQL Data Node （NDB Data Node）的默認配置
+; datamemory: 指定每個 MySQL Data Node 可用於數據存儲的內存大小。例如：datamemory=1024M 表示每個 Data Node 將使用 1024MB 的內存進行數據存儲。
+; indexmemory: 指定每個 MySQL Data Node 可用於索引存儲的內存大小。例如：indexmemory=256M 表示每個 Data Node 將使用 256MB 的內存進行索引存儲。
+; 其他 MySQL 相關的配置項：你可以在 [mysqld default] 區塊中設定其他與 MySQL 相關的配置項，例如 maxnoofconcurrentoperations、maxnoofattributes、maxnooftables 等等。
 
-[NDB_MGMD]
-NodeId=1
-HostName=172.10.0.140
+[tcp default]
+; portnumber: 指定節點之間通信使用的 TCP 端口號。例如：portnumber=2202 表示使用 2202 端口進行通信。
+; bindaddress: 指定要綁定的 IP 地址，即指定節點監聽的 IP 地址。例如：bindaddress=0.0.0.0 表示監聽所有可用 IP 地址。
+; sndbuf: 指定 TCP 發送緩衝區大小，用於調整 TCP 發送性能。
+; rcvbuf: 指定 TCP 接收緩衝區大小，用於調整 TCP 接收性能。
+; 其他 TCP 相關的配置項：你可以在 [tcp default] 區塊中設定其他與 TCP 相關的配置項，例如 maxconnections、maxreplicas、timeout 等等。
 
-[MYSQLD]
-NodeId=2
-HostName=172.10.0.141
+[ndb_mgmd]
+; 這是管理節點的配置區塊，可以指定管理節點的 HostName 和 NodeId。
+HostName=192.168.1.100     # 管理節點 IP 地址
+NodeId=1                   # 節點 ID
 
-[MYSQLD]
-NodeId=3
-HostName=172.10.0.142
+[ndbd]
+HostName=192.168.1.101     # 數據節點 IP 地址
+; NodeId：每一個 nodes 都必須擁有獨一無二的 id 值
+NodeId=2                   # 節點 ID
 
-[NDBD]
-NodeId=4
-HostName=172.10.0.143
-DataDir=/var/lib/mysql-cluster
+[ndbd]
+HostName=192.168.1.102     # 數據節點 IP 地址
+NodeId=3                   # 節點 ID
 
-[NDBD]
-NodeId=5
-HostName=172.10.0.144
-DataDir=/var/lib/mysql-cluster
+[mysqld]
+; 這是 SQL 節點（MySQL 服務節點）的配置區塊
+HostName=192.168.1.103     # SQL 節點 IP 地址
 ```
 
-### Data node
-
-```bash
-vim /etc/my.cnf
-```
+#### Data node - 負責所有 SQL Data 的 Nodes，單純儲存資料，將資料寫在 RAM & Disk。
 
 ```ini
+; vim /etc/my.cnf
 [mysqld]
 # enable cluster service
 ndbcluster
@@ -1120,95 +1194,44 @@ init-connect = SET NAMES utf8
 ndb-connectstring=172.10.0.140:1186
 ```
 
-### SQL node
-
-```bash
-# check permissions
-adduser mysql -d /usr/local/mysql
-chmod -R root.mysql /usr/local/mysql
-chmod -R mysql /usr/local/mysql/data
-vim /etc/my.cnf
-```
+#### SQL node (原本的 MySQL Server) - 負責 SQL 的 Table schema 和 Client 連接的空間。
 
 ```ini
+; vim /etc/my.cnf
 [mysqld]
-datadir=/var/lib/mysql
-socket=/var/lib/mysql/mysql.sock
-user=mysql
-# Disabling symbolic-links is recommended to prevent assorted security risks
-symbolic-links=0
+; 將存儲引擎設置為 NDB
+default_storage_engine = ndb
+; 設置 MySQL Cluster 管理節點 (ndb_mgmd) 的 IP 地址和端口
+ndb-connectstring = <mgmd_host>:<mgmd_port>
 
-ndbcluster
+; 設置網絡接口
+bind-address = <interface_ip>
+; 指定 MySQL 的數據目錄，這是存放 MySQL 數據文件的位置。
+datadir=/var/lib/mysql
+; 指定 MySQL 服務器的 socket 文件的位置，用於與服務器進行通信。
+socket=/var/lib/mysql/mysql.sock
+; 指定 MySQL 服務器的運行用戶
+user=mysql
+; 禁用符號鏈接
+symbolic-links=0
+; 設定默認的存儲引擎為 ndbcluster
 default_storage_engine=ndbcluster
+; 定 MySQL Cluster 管理節點的 IP 地址和端口，以便 MySQL 服務器可以連接到管理節點
 ndb-connectstring=172.10.0.140:1186
 
 [mysql_cluster]
-ndb-connectstring=172.10.0.140:1186
+;  MySQL 服務器在集群中都有一個唯一的節點 ID
+ndb_nodeid = <node_id>
 
 [mysqld_safe]
+; 指定 MySQL 服務器的錯誤日誌文件的位置
 log-error=/var/log/mysqld.log
+; 指定 MySQL 服務器的進程 ID 文件的位置
 pid-file=/var/run/mysqld/mysqld.pid
 
 [client]
+; 指定 MySQL 客戶端的 socket 文件的位置，用於與 MySQL 服務器進行通信。
 socket=/usr/local/mysql/data/mysql.sock
-```
-
-```bash
-/usr/local/mysql/scripts/mysql_install_db --user=mysql
-cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql.server
-```
-
-### 啟動 Cluster 環境
-
-```
-啟動順序 Manager node > Data node > SQL node。
-
-如果是第一次啟動 SQL node 請使用 –initial 初始化
-
-!!!!!!
-如果已經有資料請絕對不要使用 –initial 否則此 node 的資料全毀
-!!!!!!
-```
-
-```bash
-# in Manage node
-ndb_mgmd -v -f /var/lib/mysql-cluster/config.ini
-
-# in Data node , first use --initial
-/usr/local/mysql/bin/ndbd --defaults-file=/etc/my.cnf -v
-
-# in SQL node
-/etc/init.d/mysql.server start
-
-# 匯入資料庫(ndbcluster)
-# cluster 的資料庫類型都必須為 ndbcluster，在匯入資料庫前必須改為 NDBCLUSTER
-# Type=InnoDB
-mysqldump -uroot -p db | sed 's/ENGINE=InnoDB/ENGINE=NDBCLUSTER/g' > db.sql
-# or
-# Type=MyISAM
-mysqldump -uroot -p db | sed 's/ENGINE=MyISAM/ENGINE=NDBCLUSTER/g' > db.sql
-```
-
-```bash
-# 從 Manage node 確認所有 node 狀態
-ndb_mgm
-
-# -- NDB Cluster -- Management Client --
-# ndb_mgm> show
-
-# Connected to Management Server at: localhost:1186
-# Cluster Configuration
-# ---------------------
-# [ndbd(NDB)]	2 node(s)
-# id=3    @172.10.0.143  (mysql-5.6.29 ndb-7.4.11, Nodegroup: 0)
-# id=4	@172.10.0.144  (mysql-5.6.29 ndb-7.4.11, Nodegroup: 0, *)
-
-# [ndb_mgmd(MGM)]	1 node(s)
-# id=1	@172.10.0.140  (mysql-5.6.29 ndb-7.4.11)
-
-# [mysqld(API)]	2 node(s)
-# id=2	@172.10.0.141  (mysql-5.6.29 ndb-7.4.11)
-# id=3	@172.10.0.142  (mysql-5.6.29 ndb-7.4.11)
 ```
 
 # 例外狀況
