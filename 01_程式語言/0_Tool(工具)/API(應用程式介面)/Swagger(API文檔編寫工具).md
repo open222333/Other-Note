@@ -29,6 +29,10 @@
 
 [官方 線上編輯器](https://editor.swagger.io/#/)
 
+[官方 文檔 2.0](https://swagger.io/docs/specification/2-0/basic-structure/)
+
+[官方 文檔 3.0](https://swagger.io/docs/specification/basic-structure/)
+
 ### 建置相關
 
 [Swagger UI on docker for testing REST APIs](https://articles.wesionary.team/swagger-ui-on-docker-for-testing-rest-apis-5b3d5fcdee7)
