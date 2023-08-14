@@ -31,6 +31,7 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 - [指令](#指令)
 - [用法](#用法)
 	- [Insert](#insert)
+	- [index](#index)
 	- [Query](#query)
 	- [Update](#update)
 	- [聚合aggregate](#聚合aggregate)
@@ -122,6 +123,37 @@ db.inventory.insert_many(
         },
     ]
 )
+```
+
+## index
+
+```Python
+from pymongo import MongoClient
+
+client = MongoClient("mongodb://localhost:27017/")
+db = client["您的資料庫名稱"]
+collection = db["您的集合名稱"]
+
+# 建立單一欄位的升序索引
+collection.create_index("欄位名稱")
+
+# 建立單一欄位的降序索引
+collection.create_index([("欄位名稱", pymongo.DESCENDING)])
+
+# 建立複合索引
+collection.create_index([("欄位1", pymongo.ASCENDING), ("欄位2", pymongo.DESCENDING)])
+
+# 建立全文搜尋索引
+collection.create_index([("文字欄位", pymongo.TEXT)])
+
+# 建立雜湊索引
+collection.create_index("雜湊欄位", hashField=True)
+
+# 建立唯一索引
+collection.create_index("唯一欄位", unique=True)
+
+# 建立具有過期時間的索引（TTL 索引）
+collection.create_index("過期時間欄位", expireAfterSeconds=3600)
 ```
 
 ## Query
