@@ -48,6 +48,10 @@
 
 [blob video 下載 - How do we download a blob url video](https://stackoverflow.com/questions/42901942/how-do-we-download-a-blob-url-video)
 
+[[C#/Java] 针对 QINIU-PROTECTION-10 的m3u8视频文件解密](https://www.cnblogs.com/mq0036/p/14962044.html)
+
+[m3u8加密文件原理及下载脚本](https://blog.csdn.net/devil8123665/article/details/124719006)
+
 # 範例
 
 ## blob video 下載
