@@ -357,26 +357,27 @@ sftp
 
 # 另一種格式
 Host ssh-jp-manager
-        User            root
-        HostName        192.168.11.25
-		Port			預設為22
-        ServerAliveInterval     60 # 保持連線
-        IdentityFile	 ~/.ssh/id_rsa
+    User root
+    HostName 192.168.11.25
+    Port 22
+    ServerAliveInterval 60
+    IdentityFile ~/.ssh/id_rsa
+
 Host test1
-        User            root
-        HostName        192.168.11.1
-        ServerAliveInterval     60
-        IdentityFile	 ~/.ssh/test1
+	User            root
+	HostName        192.168.11.1
+	ServerAliveInterval     60
+	IdentityFile	 ~/.ssh/test1
 Host test2
-        User            root
-        HostName        192.168.11.2
-        ServerAliveInterval     60
-        IdentityFile     ~/.ssh/test2
+	User            root
+	HostName        192.168.11.2
+	ServerAliveInterval     60
+	IdentityFile     ~/.ssh/test2
 Host test3
-        User            user
-        HostName        192.168.11.3
-        ServerAliveInterval     60
-        IdentityFile     ~/.ssh/test3
+	User            user
+	HostName        192.168.11.3
+	ServerAliveInterval     60
+	IdentityFile     ~/.ssh/test3
 
 # 背景建立 連線通道
 ssh user@host -fN -L 127.0.0.1:port:host_ip:port
