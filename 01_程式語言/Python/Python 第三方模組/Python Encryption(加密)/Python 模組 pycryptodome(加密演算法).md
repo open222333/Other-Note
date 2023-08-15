@@ -19,12 +19,13 @@
 
 [pycryptodome 文檔](https://pycryptodome.readthedocs.io/en/latest/src/introduction.html)
 
+[SystemError: PY_SSIZE_T_CLEAN macro must be defined for '#' formats](https://stackoverflow.com/questions/70705404/systemerror-py-ssize-t-clean-macro-must-be-defined-for-formats)
+
 # 指令
 
 ```bash
 # 安裝
 pip install pycryptodome
-
 
 pip install pycryptodomex
 ```

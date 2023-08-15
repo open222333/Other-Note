@@ -19,11 +19,19 @@
 
 [pycrypto文檔](https://www.dlitz.net/software/pycrypto/api/2.6/)
 
+[SystemError: PY_SSIZE_T_CLEAN macro must be defined for '#' formats](https://stackoverflow.com/questions/70705404/systemerror-py-ssize-t-clean-macro-must-be-defined-for-formats)
+
+
 # 指令
 
 ```bash
 # 安裝
 pip install pycrypto
+
+# pycrypto 不再維護：請參閱 pycrypto.org pycryptodome 是 pycrypto 現代維護的替代品
+# https://www.pycrypto.org/
+pip uninstall pycrypto
+pip install pycryptodome
 ```
 
 # 用法
