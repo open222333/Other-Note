@@ -6,13 +6,14 @@
 ## 目錄
 
 - [Python 模組 pymysql(MySQL資料庫)](#python-模組-pymysqlmysql資料庫)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [語法相關](#語法相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [語法相關](#語法相關)
 - [指令](#指令)
 - [用法](#用法)
-	- [範例](#範例)
-		- [與flask current\_app](#與flask-current_app)
+  - [基本2](#基本2)
+  - [基本2](#基本2-1)
+  - [與flask current\_app](#與flask-current_app)
 
 ## 參考資料
 
@@ -38,6 +39,39 @@ pip install pymysql
 ```
 
 # 用法
+
+## 基本2
+
+```Python
+import pymysql
+
+# 連接到 MySQL 數據庫
+connection = pymysql.connect(
+    host='localhost',
+    user='username',
+    password='password',
+    database='dbname'
+)
+
+try:
+    # 創建游標
+    with connection.cursor() as cursor:
+        # 執行查詢
+        sql = "SELECT * FROM mytable"
+        cursor.execute(sql)
+
+        # 獲取結果
+        results = cursor.fetchall()
+
+        # 輸出結果
+        for row in results:
+            print(row)
+finally:
+    # 關閉連接
+    connection.close()
+```
+
+## 基本2
 
 ```Python
 import pymysql
@@ -91,9 +125,7 @@ cur.close()
 conn.close()
 ```
 
-## 範例
-
-### 與flask current_app
+## 與flask current_app
 
 ```Python
 import pymysql.cursors
