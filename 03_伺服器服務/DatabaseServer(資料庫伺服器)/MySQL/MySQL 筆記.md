@@ -13,6 +13,8 @@ RDBMS
 - [MySQL 筆記](#mysql-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [MySQL Shell 相關](#mysql-shell-相關)
+    - [MySQL Router 相關](#mysql-router-相關)
     - [使用者權限相關](#使用者權限相關)
     - [安裝相關](#安裝相關)
     - [Master-Slave(主從環境)相關](#master-slave主從環境相關)
@@ -26,6 +28,7 @@ RDBMS
       - [Percona XtraBackup(備份工具)相關](#percona-xtrabackup備份工具相關)
         - [XtraBackup 心得相關](#xtrabackup-心得相關)
     - [錯誤處理相關](#錯誤處理相關)
+      - [InnoDB Cluster 錯誤](#innodb-cluster-錯誤)
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
     - [log文檔預設位置](#log文檔預設位置)
@@ -33,11 +36,13 @@ RDBMS
     - [配置設定](#配置設定)
     - [安装 MySQL Shell](#安装-mysql-shell)
     - [安裝 NDB Cluster](#安裝-ndb-cluster)
+    - [安裝 MySQL Router](#安裝-mysql-router)
   - [MacOS](#macos)
     - [安装 MySQL Shell](#安装-mysql-shell-1)
   - [Ubuntu](#ubuntu)
     - [安装 MySQL Shell](#安装-mysql-shell-2)
 - [指令](#指令)
+  - [MySQL Router](#mysql-router)
   - [MySQL Shell 指令](#mysql-shell-指令)
     - [innodb Cluster 相關](#innodb-cluster-相關)
   - [SQL 指令](#sql-指令)
@@ -56,6 +61,8 @@ RDBMS
   - [備份mysql-master](#備份mysql-master)
   - [恢復備份到mysql-slave](#恢復備份到mysql-slave)
 - [Cluster 叢集架設](#cluster-叢集架設)
+  - [說明](#說明)
+    - [GTID 模式](#gtid-模式)
   - [NDB Cluster 實作](#ndb-cluster-實作)
     - [Linux](#linux)
       - [Manage node (管理節點) - 負責監控叢集所有 Nodes 的狀態，並且由此控制所有 Nodes 的替換。](#manage-node-管理節點---負責監控叢集所有-nodes-的狀態並且由此控制所有-nodes-的替換)
@@ -67,7 +74,11 @@ RDBMS
       - [配置](#配置)
         - [優化配置](#優化配置)
       - [MySQL Shell 指令](#mysql-shell-指令-1)
+    - [使用程式腳本建立 InnoDB Cluster](#使用程式腳本建立-innodb-cluster)
+      - [JavaScript](#javascript)
+      - [Python](#python)
 - [例外狀況](#例外狀況)
+  - [has the following errant GTIDs that do not exist in the cluster](#has-the-following-errant-gtids-that-do-not-exist-in-the-cluster)
   - [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
   - [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
   - [修復損壞的innodb：innodb\_force\_recovery](#修復損壞的innodbinnodb_force_recovery)
@@ -90,7 +101,33 @@ RDBMS
 
 [MySQL 教程](https://www.itread01.com/study/mysql-tutorial.html)
 
+### MySQL Shell 相關
+
 [MySQL Shell 下載頁面](https://dev.mysql.com/downloads/shell/)
+
+[mysql-shell 指令](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-commands.html)
+
+### MySQL Router 相關
+
+```
+MySQL Router 的一些主要用法和特點：
+
+高可用性： MySQL Router 可以在數個 MySQL 服務器之間進行負載均衡和數據路由，以實現高可用性。它可以檢測到服務器的可用性並自動將流量重定向到可用的服務器。
+
+負載均衡： MySQL Router 可以根據配置的負載均衡策略將流量分發到多個 MySQL 服務器上，以確保各個服務器的負載分配均衡。
+
+讀寫分離： MySQL Router 支持讀寫分離，可以將讀取請求路由到一個或多個讀取實例，同時將寫入請求路由到主要寫入實例。這有助於提高讀取效能和分擔主要寫入實例的負擔。
+
+自動故障切換： MySQL Router 可以自動檢測數據庫服務器的故障，並將流量重定向到可用的服務器，以確保應用程序的連接不受影響。
+
+SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和服務器之間的傳輸。
+
+動態配置： MySQL Router 可以通過配置文件進行動態配置，您可以定義路由規則、服務器組和讀寫分離設置。
+```
+
+[MySQL Router 8.0](https://dev.mysql.com/doc/mysql-router/8.0/en/)
+
+[Chapter 2 Installing MySQL Router - 安裝](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-installation.html)
 
 ### 使用者權限相關
 
@@ -153,6 +190,8 @@ MySQL Server 5.7 版本不支持 NDB Cluster
 InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管理具有高可用性和自動故障恢復能力的 MySQL 數據庫集群。
 ```
 
+[centos7+mysql5.7集群安装](https://blog.csdn.net/onlycool_me/article/details/78614400?spm=1001.2101.3001.6650.5&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-5-78614400-blog-114349883.235%5Ev38%5Epc_relevant_anti_vip_base&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-5-78614400-blog-114349883.235%5Ev38%5Epc_relevant_anti_vip_base&utm_relevant_index=6)
+
 [Docker Compose Setup for InnoDB Cluster](https://dev.mysql.com/blog-archive/docker-compose-setup-for-innodb-cluster/)
 
 [Centos 7.5基于MySQL 5.7的 InnoDB Cluster 多节点高可用集群环境部署记录](https://www.cnblogs.com/kevingrace/p/10466530.html)
@@ -160,6 +199,10 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 [MySQL InnoDB Cluster 搭建 (MySQL 5.7.25)](https://dongrenwen.github.io/2020/04/17/install-mysql-cluster/#%E8%BD%AF%E4%BB%B6%E7%89%88%E6%9C%AC)
 
 [《Day16》如何建置MySQL Innodb cluster](https://ithelp.ithome.com.tw/articles/10239904)
+
+[Setting up an InnoDB Cluster With a Few Lines of Code - 用幾行代碼設置一個InnoDB集群](https://www.percona.com/blog/setting-up-an-innodb-cluster-with-a-few-lines-of-code/)
+
+[MySQL InnoDB Cluster环境搭建和简单测试](https://cloud.tencent.com/developer/article/1069016)
 
 #### NDB Cluster
 
@@ -275,6 +318,10 @@ innobackupex：是將xtrabackup進行封裝的perl腳本，可以備份和恢復
 [Is DNS the Achilles heel in your MySQL installation?](https://www.percona.com/blog/2008/05/31/dns-achilles-heel-mysql-installation/)
 
 [MySQL崩潰-如何修復損壞的innodb：innodb_force_recovery](https://www.twblogs.net/a/5b8201762b71772165af295d)
+
+#### InnoDB Cluster 錯誤
+
+[Multi Source Replication MySQL 5.6 to 5.7 GTID Auto Position Issues](https://stackoverflow.com/questions/30606345/multi-source-replication-mysql-5-6-to-5-7-gtid-auto-position-issues)
 
 # 安裝步驟
 
@@ -510,6 +557,27 @@ mv mysql-cluster-gpl-7.5.31-linux-glibc2.12-x86_64/* /usr/local/mysql
 cp /usr/local/mysql/bin/ndb_mgm* /usr/local/bin/
 ```
 
+### 安裝 MySQL Router
+
+```bash
+# 安裝 MySQL 軟件庫的配置文件
+# Debian 系統
+dpkg -i mysql-apt-config_0.8.25-1_all.deb
+
+# 更新套件信息
+apt-get update
+
+# 安裝 MySQL Router
+apt-get -y install mysql-router
+
+# CentOS 7 系統
+# 安裝 MySQL 軟件庫的 RPM 配置文件
+rpm -Uvh mysql80-community-release-el7-7.noarch.rpm
+
+# 安裝 MySQL Router
+yum install -y mysql-router-community
+```
+
 ## MacOS
 
 ```bash
@@ -557,6 +625,31 @@ apt install mysql-shell
 
 # 指令
 
+## MySQL Router
+
+```bash
+# 啟動 MySQL Router
+mysqlrouter -c /path/to/router.conf
+```
+
+```conf
+; router.conf
+[DEFAULT]
+user=mysqlrouter
+keyring_path=/var/lib/mysqlrouter/keyring
+
+[mysqlrouter]
+user=mysqlrouter
+password=routerpassword
+
+; 此處的 routing:primary 表示主要路由
+[routing:primary]
+bind_address=127.0.0.1
+bind_port=3306
+destinations=127.0.0.1:3306
+routing_strategy=first-available
+```
+
 ## MySQL Shell 指令
 
 ```bash
@@ -575,7 +668,6 @@ mysqlsh -u username -h hostname -p
 ```
 
 ### innodb Cluster 相關
-
 
 ```JavaScript
 // 查看集群狀態
@@ -613,6 +705,11 @@ dba.rebootClusterFromCompleteOutage('ClusterName');
 // 解散集群
 var cluster = dba.getCluster('ClusterName')
 cluster.dissolve({force:true})
+
+// 刪除 Metadata schema
+// 這個選項會刪除 Metadata schema，然後你可以重新建立一個新的 MySQL InnoDB Cluster。
+// 請注意，這會導致 Metadata 中的任何相關資訊都會丟失，包括以前建立的 Cluster 設定。
+dba.dropMetadataSchema()
 ```
 
 ## SQL 指令
@@ -1237,6 +1334,8 @@ show slave status\G
 
 # Cluster 叢集架設
 
+## 說明
+
 ```
 多主架構：真正的多主多活群集，可隨時對任何節點進行讀寫。
 同步複製：集群不同節點之間數據同步，某節點崩潰時沒有數據丟失。
@@ -1251,6 +1350,29 @@ show slave status\G
 性能平衡：SQL Node 負責處理查詢，而 Data Node 負責存儲數據和執行一些數據操作。如果 SQL Node 非常多，而 Data Node 很少，可能會導致 SQL 查詢的性能問題。相反，如果 Data Node 很多，但 SQL Node 很少，則可能影響查詢性能。
 
 資源分配：每個節點需要一定的計算和存儲資源。確保在部署時平衡資源，避免某些節點過於擁擠，而其他節點資源空閑。
+```
+
+### GTID 模式
+
+```
+GTID（Global Transaction Identifier）模式是 MySQL 中用於跨多個服務器保證事務一致性的一種方法。GTID 是一種唯一標識事務的方式，它可以確保在分佈式系統中，每個事務都具有全局唯一的標識，無論事務在哪個服務器上執行。
+
+在 GTID 模式下，每個事務都會被賦予一個全局唯一的 ID，這個 ID 包括了事務在特定服務器上的執行信息，例如服務器的 UUID 和事務的序號。這樣，無論事務在哪個服務器上執行，它的 GTID 都是唯一的，這使得在不同服務器上的事務相互之間可以進行溝通和追蹤。
+
+GTID 模式的優點包括：
+
+全局唯一性： 每個事務的 GTID 都是全局唯一的，不受服務器或數據庫更改的影響。
+易於故障恢復： GTID 可以用於確定故障發生前已提交的事務，從而更容易進行故障恢復。
+跨服務器複製： GTID 可以使服務器之間的數據複製更可靠和一致。
+簡化拓撲變更： 在拓撲變更（例如添加或移除主從關係）時，GTID 可以幫助確定在哪個事務上進行切換。
+MySQL 提供了幾種不同的 GTID 模式，包括：
+
+GTID_OFF： 不使用 GTID。
+GTID_ON： 啟用 GTID，但不強制使用。
+GTID_MODE=ON_PERMISSIVE： 啟用 GTID，並允許使用非 GTID 的事務。
+GTID_MODE=ON_COMMIT： 啟用 GTID，並要求事務在提交時生成 GTID。
+GTID_MODE=ON_PURGE： 啟用 GTID，並自動清理無效的 GTID。
+在設置 GTID 模式時，需要確保所有參與的 MySQL 服務器都支持所選的模式，並進行相應的配置。 GTID 可以在 MySQL 的配置文件中進行設置，也可以在運行時使用相應的 SQL 命令進行設置和查詢。詳細的配置和操作可以參考 MySQL 官方文檔。
 ```
 
 ## NDB Cluster 實作
@@ -1463,6 +1585,12 @@ log-bin = mysql-bin
 server-id = <unique_id>
 
 # 將 binlog checksum 設置為 NONE
+# Binlog checksum 是 MySQL 中的一種安全機制，用於檢測二進制日誌（binlog）中的數據完整性。
+# 它通過在 binlog 中添加一個校驗和（checksum）來確保日誌中的數據未被損壞或更改。
+# 這有助於提高數據庫的可靠性和安全性，防止因日誌數據損壞而導致的數據不一致性或重要信息的丟失。
+# NONE（默認選項）：表示不使用校驗和，二進制日誌中不包含校驗和信息。這意味著數據完整性不會得到額外的檢查。
+# CRC32：使用 CRC32 算法計算校驗和，並將其附加到每條二進制日誌記錄中。CRC32 是循環冗餘校驗的一種算法，用於檢測數據錯誤。
+# NEW_CRC：這是 MySQL 5.6.2 版本引入的新算法，與 CRC32 不同。NEW_CRC 也是一種循環冗餘校驗算法，但它更加強大，可以檢測到更多類型的數據錯誤。
 binlog_checksum=NONE
 
 # 啟用 GTID (Global Transaction ID)
@@ -1662,9 +1790,12 @@ dba.checkInstanceConfiguration('root@node_2:3306')
 dba.checkInstanceConfiguration('root@node_3:3306')
 
 // 分別登陸到每個節點的主機，再登陸 mysql-shell 進行持久化操作
-// shell.connect('root@node_1:3306')
-// shell.connect('root@node_2:3306')
-// shell.connect('root@node_3:3306')
+shell.connect('root@localhost:3306')
+
+shell.connect('root@manager_node:3306')
+shell.connect('root@node_1:3306')
+shell.connect('root@node_2:3306')
+shell.connect('root@node_3:3306')
 // 自動設置 Group Replication： 如果當前實例還沒有啟用 Group Replication，函數將自動執行必要的步驟來啟用 Group Replication。
 // 自動加入 InnoDB Cluster： 如果當前實例是 InnoDB Cluster 的一部分，函數將自動將實例加入到 InnoDB Cluster 中。
 // 配置和驗證參數： 函數將根據配置文件和集群設置來配置和驗證實例的參數，以確保其與其他實例保持一致。
@@ -1674,6 +1805,9 @@ dba.checkInstanceConfiguration('root@node_3:3306')
 dba.configureLocalInstance()
 // 根據下面提示輸入 my.cnf 到完整路徑
 // Please specify the path to the MySQL configuration file: /etc/my.cnf
+
+// 範例 在 manager_node
+shell.connect('root@localhost:3306')
 
 // 創建集群
 dba.createCluster('ClusterName')
@@ -1690,10 +1824,181 @@ var cluster = dba.getCluster('ClusterName')
 cluster.status()
 
 // 方法二：
-dba.getCluster('ClusterName').cluster.status()
+dba.getCluster('ClusterName').status()
+```
+
+### 使用程式腳本建立 InnoDB Cluster
+
+#### JavaScript
+
+```JavaScript
+// https://www.percona.com/blog/setting-up-an-innodb-cluster-with-a-few-lines-of-code/
+print('InnoDB cluster set up\n');
+print('==================================\n');
+print('Setting up a Percona Server for MySQL - InnoDB cluster.\n\n');
+
+var dbPass = shell.prompt('Password for the MySQL root account: ', { type: "password" });
+var numNodes = shell.prompt('Number of data nodes: ');
+var dbHosts = [];
+
+for (let i = 1; i <= numNodes; i++) {
+    var hostName = shell.prompt('Hostname for node' + i + ': ');
+    dbHosts.push(hostName);
+}
+
+function sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+        currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+}
+
+print('\nNumber of Hosts: ' + dbHosts.length + '\n');
+print('\nList of hosts:\n');
+for (let s = 0; s < dbHosts.length; s++) {
+    print('Host: ' + dbHosts[s] + '\n');
+}
+
+function setupCluster() {
+    print('\nConfiguring the instances.');
+    for (let n = 0; n < dbHosts.length; n++) { print('\n=> ');
+        dba.configureInstance('root@' + dbHosts[n] + ':3306', { clusterAdmin: "", clusterAdminPassword: '', password: dbPass, interactive: false, restart: true });
+    }
+    print('\nConfiguring Instances completed.\n\n');
+
+    sleep(5000); // source: https://www.sitepoint.com/delay-sleep-pause-wait/
+
+    print('Setting up InnoDB Cluster.\n\n');
+    shell.connect({ user: 'root', password: dbPass, host: dbHosts[0], port: 3306 });
+
+    var cluster = dba.createCluster("InnoDBCluster");
+
+    print('Adding instances to the cluster.\n');
+    for (let x = 1; x < dbHosts.length; x++) { print('\n=> ');
+        cluster.addInstance('root@' + dbHosts[x] + ':3306', { password: dbPass, recoveryMethod: 'clone' });
+    }
+    print('\nInstances successfully added to the cluster.\n');
+}
+
+try {
+    setupCluster();
+
+    print('\nInnoDB cluster deployed successfully.\n');
+} catch (e) {
+    print('\nThe InnoDB cluster could not be created.\n');
+    print(e + '\n');
+}
+```
+
+#### Python
+
+```Python
+import time
+
+print('InnoDB cluster set up\n')
+print('==================================\n')
+print('Setting up a Percona Server for MySQL - InnoDB cluster.\n\n')
+
+dbPass = input('Password for the MySQL root account: ')
+numNodes = int(input('Number of data nodes: '))
+dbHosts = []
+
+for i in range(1, numNodes + 1):
+    hostName = input('Hostname for node' + str(i) + ': ')
+    dbHosts.append(hostName)
+
+def sleep(milliseconds):
+    date = time.time()
+    currentDate = None
+    while currentDate is None or (currentDate - date) < milliseconds / 1000:
+        currentDate = time.time()
+
+print('\nNumber of Hosts: ' + str(len(dbHosts)) + '\n')
+print('\nList of hosts:\n')
+for host in dbHosts:
+    print('Host: ' + host + '\n')
+
+def setupCluster():
+    print('\nConfiguring the instances.')
+    for host in dbHosts:
+        print('\n=> ')
+        # Replace the following line with your actual configuration logic
+        # dba.configureInstance('root@' + host + ':3306', { clusterAdmin: "", clusterAdminPassword: '', password: dbPass, interactive: False, restart: True })
+
+    print('\nConfiguring Instances completed.\n\n')
+    sleep(5)  # Sleep for 5 seconds
+
+    print('Setting up InnoDB Cluster.\n\n')
+    # Replace the following line with your actual connection and cluster setup logic
+    # shell.connect(user='root', password=dbPass, host=dbHosts[0], port=3306)
+    # cluster = dba.createCluster("InnoDBCluster")
+
+    print('Adding instances to the cluster.\n')
+    for x in range(1, len(dbHosts)):
+        print('\n=> ')
+        # Replace the following line with your actual instance addition logic
+        # cluster.addInstance('root@' + dbHosts[x] + ':3306', { password: dbPass, recoveryMethod: 'clone' })
+
+    print('\nInstances successfully added to the cluster.\n')
+
+try:
+    setupCluster()
+    print('\nInnoDB cluster deployed successfully.\n')
+except Exception as e:
+    print('\nThe InnoDB cluster could not be created.\n')
+    print(str(e) + '\n')
 ```
 
 # 例外狀況
+
+## has the following errant GTIDs that do not exist in the cluster
+
+```
+innodb cluster 遇到狀況
+
+node_1:3306 具有以下不正常的 GTID，這些 GTID 在集群中不存在：
+120c119a-3cc8-11ee-af4c-0242ac130004:1-5
+```
+
+```JavaScript
+// https://stackoverflow.com/questions/62758154/mysql-server-5-7-cant-add-new-cluster-instance-with-mysql-shell-cluster-addi
+
+// 通過清空表解決了這個問題：mysql.gtid_execulated
+// https://dev.mysql.com/doc/refman/5.7/en/replication-administration-skip.html
+// 手動丟棄額外的 GTID 事件(無效)
+cluster = dba.getCluster()
+cluster.setRecoveryMethod("discard")
+cluster.addInstance("username@hostname:port")
+
+// 通過克隆方法完全覆蓋狀態(MySQL 8.0以上)
+cluster = dba.getCluster()
+cluster.setRecoveryMethod("clone")
+cluster.addInstance("username@hostname:port")
+
+cluster.addInstance('root@node_1:3306', { recoveryMethod: 'clone' });
+```
+
+```sql
+-- RESET MASTER; 是用來清除 MySQL 主資料庫的二進制日誌（binary logs）的指令。這個操作應該要謹慎執行，因為它會刪除所有的二進制日誌文件，並且可能會導致數據丟失。
+
+-- 以下是在執行 RESET MASTER; 指令時需要注意的幾點：
+
+-- 數據丟失： RESET MASTER; 會刪除所有的二進制日誌，這可能導致您無法進行數據恢復。請確保您有備份數據的方法，以免丟失重要的數據。
+
+-- 從後備複製： 如果您的數據庫設置了從站（slave）來進行數據複製，那麼在執行 RESET MASTER; 後，從站可能無法再進行更新。您需要重新配置從站以便它能夠從新的主資料庫中獲取數據。
+
+-- 二進制日誌： 在執行 RESET MASTER; 後，系統會創建一個新的二進制日誌文件，並開始記錄新的變更。已經存在的二進制日誌文件會被刪除。
+
+-- 權限檢查： 執行 RESET MASTER; 需要足夠的權限，通常需要超級用戶權限（如 SUPER 權限）。請確保您具有足夠的權限才能執行該操作。
+
+-- 影響其他操作： 在執行 RESET MASTER; 時，您可能需要考慮到正在執行的其他操作，例如備份、數據複製等。該操作可能會中斷這些操作，因此請確保您選擇了適當的時間來執行它。
+
+-- 總之，RESET MASTER; 是一個強大且有潛在風險的指令，您應該在執行之前仔細考慮它可能對您的數據庫和應用程序造成的影響。最好的做法是在執行之前進行備份，以防止意外情況的發生。
+
+-- 到出現錯誤的主機 node_1:3306
+RESET MASTER;
+```
 
 ## 修復 master slave 最快速方法
 
