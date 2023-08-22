@@ -13,18 +13,18 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
 ## 目錄
 
 - [Linux 工具 iptables(管理網路封包的處理和轉發)](#linux-工具-iptables管理網路封包的處理和轉發)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [安裝部分](#安裝部分)
-	- [安裝步驟 CentOS7](#安裝步驟-centos7)
+  - [安裝步驟 CentOS7](#安裝步驟-centos7)
 - [指令](#指令)
 - [防火牆規則](#防火牆規則)
 - [配置文檔](#配置文檔)
-	- [CentOS](#centos)
-	- [IPv6部分](#ipv6部分)
+  - [CentOS](#centos)
+  - [IPv6部分](#ipv6部分)
 - [範例](#範例)
 - [例外狀況](#例外狀況)
-	- [Failed to start IPv4 firewall with iptables](#failed-to-start-ipv4-firewall-with-iptables)
+  - [Failed to start IPv4 firewall with iptables](#failed-to-start-ipv4-firewall-with-iptables)
 - [範例](#範例-1)
 
 ## 參考資料
@@ -351,7 +351,7 @@ systemctl restart iptables.service
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -p icmp -j ACCEPT
 -A INPUT -i lo -j ACCEPT
--A INPUT -p tcp --dport 22 -s <指定的IP地址> -j ACCEPT # 允許特定 IP 連接到 22 端口
+-A INPUT -p tcp --dport 22,3306 -s <指定的IP地址> -j ACCEPT # 允許特定 IP 連接到 22,3306 端口
 -A INPUT -j REJECT --reject-with icmp-host-prohibited
 -A FORWARD -j REJECT --reject-with icmp-host-prohibited
 ```
