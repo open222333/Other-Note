@@ -32,15 +32,12 @@ RDBMS
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
     - [log文檔預設位置](#log文檔預設位置)
+  - [MacOS](#macos)
   - [CentOS7](#centos7)
     - [配置設定](#配置設定)
-    - [安装 MySQL Shell](#安装-mysql-shell)
-    - [安裝 NDB Cluster](#安裝-ndb-cluster)
-    - [安裝 MySQL Router](#安裝-mysql-router)
-  - [MacOS](#macos)
-    - [安装 MySQL Shell](#安装-mysql-shell-1)
-  - [Ubuntu](#ubuntu)
-    - [安装 MySQL Shell](#安装-mysql-shell-2)
+  - [安裝 NDB Cluster](#安裝-ndb-cluster)
+  - [安裝 MySQL Router](#安裝-mysql-router)
+  - [安装 MySQL Shell](#安装-mysql-shell)
 - [指令](#指令)
   - [MySQL Router](#mysql-router)
   - [MySQL Shell 指令](#mysql-shell-指令)
@@ -101,6 +98,8 @@ RDBMS
 
 [MySQL 教程](https://www.itread01.com/study/mysql-tutorial.html)
 
+[MySQL Community Downloads - MySQL 社區下載](https://dev.mysql.com/downloads/)
+
 ### MySQL Shell 相關
 
 [MySQL Shell 下載頁面](https://dev.mysql.com/downloads/shell/)
@@ -127,7 +126,11 @@ SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和
 
 [MySQL Router 8.0](https://dev.mysql.com/doc/mysql-router/8.0/en/)
 
+[MySQL Community Downloads - MySQL Router](https://dev.mysql.com/downloads/router/)
+
 [Chapter 2 Installing MySQL Router - 安裝](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-installation.html)
+
+[2.1 Installing MySQL Router on Linux](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-installation-linux.html)
 
 ### 使用者權限相關
 
@@ -179,6 +182,10 @@ MySQL Server 5.7 版本不支持 NDB Cluster
 [Galera Cluster for MySQL 详解（一）——基本原理](https://blog.csdn.net/wzy0623/article/details/102522268)
 
 [如何建置 MariaDb Galera Cluster](https://gary840227.medium.com/mariadb-cluster-f7220e9eaac8)
+
+[mysql-shell部署MGR](https://blog.51cto.com/u_15072912/4389165)
+
+[MYSQL innodb cluster 到底会不会因为网络影响性能](https://www.modb.pro/db/24595)
 
 #### InnoDB Cluster
 
@@ -436,6 +443,33 @@ query_cache_size=32M
 cat /var/log/mysqld.log
 ```
 
+## MacOS
+
+```bash
+# 安裝 wget
+brew install wget
+
+# mysql 5.7可以通過brew安裝
+brew install mysql@5.7
+
+# brew安裝
+# If you need to have mysql-client first in your PATH, run:
+#   echo 'export PATH="/usr/local/opt/mysql-client/bin:$PATH"' >> ~/.profile
+
+# For compilers to find mysql-client you may need to set:
+#   export LDFLAGS="-L/usr/local/opt/mysql-client/lib"
+#   export CPPFLAGS="-I/usr/local/opt/mysql-client/include"
+brew install mysql-client
+
+# 啟動
+brew services start mysql@5.7
+
+# 停止
+brew services stop mysql@5.7
+
+# 移除
+brew uninstall mysql@5.7
+```
 
 ## CentOS7
 
@@ -530,15 +564,7 @@ firewall-cmd --zone=public --add-port=3306/tcp --permanent
 firewall-cmd --reload
 ```
 
-### 安装 MySQL Shell
-
-```bash
-wget https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
-rpm -ivh mysql80-community-release-el7-3.noarch.rpm
-yum install mysql-shell
-```
-
-### 安裝 NDB Cluster
+## 安裝 NDB Cluster
 
 ```bash
 # 所有的 nodes 都需要安裝 mysql-cluster
@@ -557,7 +583,7 @@ mv mysql-cluster-gpl-7.5.31-linux-glibc2.12-x86_64/* /usr/local/mysql
 cp /usr/local/mysql/bin/ndb_mgm* /usr/local/bin/
 ```
 
-### 安裝 MySQL Router
+## 安裝 MySQL Router
 
 ```bash
 # 安裝 MySQL 軟件庫的配置文件
@@ -576,51 +602,49 @@ rpm -Uvh mysql80-community-release-el7-7.noarch.rpm
 
 # 安裝 MySQL Router
 yum install -y mysql-router-community
+
+# 查看系統架構
+uname -m
+
+# CentOS 7 系統 自己下載安裝
+# https://dev.mysql.com/downloads/router/
+yum update -y
+yum install -y wget tar
+wget https://dev.mysql.com/get/Downloads/MySQL-Router/mysql-router-8.1.0-linux-glibc2.28-x86_64.tar.xz
+tar -zxvf mysql-router-8.1.0-linux-glibc2.28-x86_64.tar.xz
+mkdir /usr/local/mysql-router
+mv /root/mysql-router-8.1.0-linux-glibc2.28-x86_64/* /usr/local/mysql-router
+export PATH=$PATH:/usr/local/mysql-router/bin
+echo "export PATH=$PATH:/usr/local/mysql-router/bin" >> /root/.bashrc
+source /root/.bashrc
 ```
 
-## MacOS
-
-```bash
-# 安裝 wget
-brew install wget
-
-# mysql 5.7可以通過brew安裝
-brew install mysql@5.7
-
-# brew安裝
-# If you need to have mysql-client first in your PATH, run:
-#   echo 'export PATH="/usr/local/opt/mysql-client/bin:$PATH"' >> ~/.profile
-
-# For compilers to find mysql-client you may need to set:
-#   export LDFLAGS="-L/usr/local/opt/mysql-client/lib"
-#   export CPPFLAGS="-I/usr/local/opt/mysql-client/include"
-brew install mysql-client
-
-# 啟動
-brew services start mysql@5.7
-
-# 停止
-brew services stop mysql@5.7
-
-# 移除
-brew uninstall mysql@5.7
-```
-
-### 安装 MySQL Shell
+## 安装 MySQL Shell
 
 ```bash
 brew install mysql-shell
-```
 
-## Ubuntu
-
-### 安装 MySQL Shell
-
-```bash
+# Ubuntu
 wget https://dev.mysql.com/get/mysql-apt-config_0.8.17-1_all.deb
 dpkg -i mysql-apt-config_0.8.17-1_all.deb
 apt update
 apt install mysql-shell
+
+# CentOS7
+yum update -y
+yum install -y wget tar
+wget https://dev.mysql.com/get/Downloads/MySQL-Shell/mysql-shell-8.1.1-linux-glibc2.28-x86-64bit.tar.gz
+tar -zxvf mysql-shell-8.1.1-linux-glibc2.28-x86-64bit.tar.gz
+mkdir /usr/local/mysql-shell
+mv /root/mysql-shell-8.1.1-linux-glibc2.28-x86-64bit/* /usr/local/mysql-shell
+export PATH=$PATH:/usr/local/mysql-shell/bin
+echo "export PATH=$PATH:/usr/local/mysql-shell/bin" >> /root/.bashrc
+source /root/.bashrc
+
+
+wget https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+rpm -ivh mysql80-community-release-el7-3.noarch.rpm
+yum install -y mysql-shell
 ```
 
 # 指令
@@ -628,6 +652,9 @@ apt install mysql-shell
 ## MySQL Router
 
 ```bash
+# 查看指令
+mysqlrouter --help
+
 # 啟動 MySQL Router
 mysqlrouter -c /path/to/router.conf
 ```
