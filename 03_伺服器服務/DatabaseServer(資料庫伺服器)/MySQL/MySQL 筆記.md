@@ -37,6 +37,7 @@ RDBMS
     - [配置設定](#配置設定)
   - [安裝 NDB Cluster](#安裝-ndb-cluster)
   - [安裝 MySQL Router](#安裝-mysql-router)
+    - [配置相關](#配置相關)
   - [安装 MySQL Shell](#安装-mysql-shell)
 - [指令](#指令)
   - [MySQL Router](#mysql-router)
@@ -46,6 +47,7 @@ RDBMS
     - [使用者相關](#使用者相關)
     - [密碼設定強度修改](#密碼設定強度修改)
     - [許可權 列表](#許可權-列表)
+    - [innodb cluster相關](#innodb-cluster相關)
   - [服務操作](#服務操作)
   - [匯出匯入](#匯出匯入)
     - [匯出 - mysqldump](#匯出---mysqldump)
@@ -124,13 +126,19 @@ SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和
 動態配置： MySQL Router 可以通過配置文件進行動態配置，您可以定義路由規則、服務器組和讀寫分離設置。
 ```
 
-[MySQL Router 8.0](https://dev.mysql.com/doc/mysql-router/8.0/en/)
+[MySQL Router 8.0 - 官方文件](https://dev.mysql.com/doc/mysql-router/8.0/en/)
 
 [MySQL Community Downloads - MySQL Router](https://dev.mysql.com/downloads/router/)
 
 [Chapter 2 Installing MySQL Router - 安裝](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-installation.html)
 
 [2.1 Installing MySQL Router on Linux](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-installation-linux.html)
+
+[4.1 Configuration File Syntax - 配置文件語法](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-syntax.html)
+
+[4.3.3 Configuration File Options - 配置文檔選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html)
+
+[4.3.4 Configuration File Example - 配置文檔範例](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html)
 
 ### 使用者權限相關
 
@@ -619,6 +627,89 @@ echo "export PATH=$PATH:/usr/local/mysql-router/bin" >> /root/.bashrc
 source /root/.bashrc
 ```
 
+### 配置相關
+
+```conf
+# https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html
+
+# MySQL Router sample configuration
+#
+# The following is a sample configuration file which shows
+# most of the plugins available and most of their options.
+#
+# The paths used are defaults and should be adapted based
+# on how MySQL Router was installed, for example, using the
+# CMake option CMAKE_INSTALL_PREFIX
+#
+# The logging_folder is kept empty so message go to the
+# console.
+#
+
+[DEFAULT]
+# 設定日誌文件的保存目錄
+logging_folder = /home/cluster/mysql-router-2.1.6/logs
+# 設定插件文件的目錄
+plugin_folder = /home/cluster/mysql-router-2.1.6/lib/mysqlrouter
+# 設定配置文件的目錄
+config_folder = /home/cluster/mysql-router-2.1.6
+# 設定運行時文件的目錄
+runtime_folder = /home/cluster/mysql-router-2.1.6/run
+# 設定資料文件的目錄
+data_folder = /var/lib
+# 設定金鑰環的路徑
+keyring_path = /var/lib/keyring-data
+# 設定主金鑰的路徑
+master_key_path = /var/lib/keyring-key
+
+[logger]
+# 設定日誌記錄的級別
+level = INFO
+
+[routing:basic_failover]
+# 綁定的 IP 地址，0.0.0.0 表示所有可用的 IP 地址
+bind_address = 0.0.0.0
+# 綁定的監聽端口
+bind_port = 23306
+# 設定模式，這裡設定為 read-write，表示這個路由器實例可以處理讀和寫的查詢
+mode = read-write
+# 設定目標資料庫實例的地址和端口，這裡設定兩個目標實例
+destinations = 192.168.62.37:3306,192.168.62.15:3306
+
+[routing:balancing]
+# 綁定的 IP 地址，0.0.0.0 表示所有可用的 IP 地址
+bind_address = 0.0.0.0
+# 綁定的監聽端口
+bind_port = 23307
+# 設定最大連接數
+max_connections = 1024
+# 設定模式，這裡設定為 read-only，表示這個路由器實例只處理讀取查詢
+mode = read-only
+# 設定目標資料庫實例的地址和端口
+destinations = 192.168.62.15:3306,192.168.62.37:3306
+
+[keepalive]
+# 設定心跳檢測的間隔時間，這裡設定為 60 秒
+interval = 60
+```
+
+```conf
+; router.conf
+[DEFAULT]
+user=mysqlrouter
+keyring_path=/var/lib/mysqlrouter/keyring
+
+[mysqlrouter]
+user=mysqlrouter
+password=routerpassword
+
+; 此處的 routing:primary 表示主要路由
+[routing:primary]
+bind_address=127.0.0.1
+bind_port=3306
+destinations=127.0.0.1:3306
+routing_strategy=first-available
+```
+
 ## 安装 MySQL Shell
 
 ```bash
@@ -657,24 +748,6 @@ mysqlrouter --help
 
 # 啟動 MySQL Router
 mysqlrouter -c /path/to/router.conf
-```
-
-```conf
-; router.conf
-[DEFAULT]
-user=mysqlrouter
-keyring_path=/var/lib/mysqlrouter/keyring
-
-[mysqlrouter]
-user=mysqlrouter
-password=routerpassword
-
-; 此處的 routing:primary 表示主要路由
-[routing:primary]
-bind_address=127.0.0.1
-bind_port=3306
-destinations=127.0.0.1:3306
-routing_strategy=first-available
 ```
 
 ## MySQL Shell 指令
@@ -716,6 +789,10 @@ cluster.addInstance('root@hostname:3307')
 // 重新將節點加入
 var cluster = dba.getCluster('ClusterName')
 cluster.rejoinInstance('root@hostname:3307')
+
+// 手動切換主節點
+var cluster = dba.getCluster('ClusterName')
+cluster.setPrimaryInstance('root@hostname:3307');
 
 // 移除節點
 // 普通移除
@@ -935,6 +1012,29 @@ SHOW VIEW
 SHUT DOWN （使用mysqladmin shutdown 來關閉mysql）
 SUPER
 USAGE (無訪問許可權)
+```
+
+### innodb cluster相關
+
+```sql
+-- replication_group_members 表是 MySQL InnoDB Cluster 中的一個特殊表，用於儲存集群中的複製組成員（Replication Group Members）的相關信息。
+-- 當建立一個 InnoDB Cluster 時，它將包含多個 MySQL 實例，這些實例相互之間進行複製以實現數據的同步和冗余。
+-- replication_group_members 表的作用是追蹤這些成員的相關數據。
+select * from replication_group_members;
+
+-- member_id: 每個集群成員都有一個唯一的 member_id。這是集群內部用於識別成員的唯一標識。
+-- member_host: 成員的主機名或 IP 地址。
+-- member_port: 成員的端口號。
+-- member_state: 成員的狀態，例如 'ONLINE' 表示成員在線，'OFFLINE' 表示成員離線，等等。
+-- member_role: 成員在集群中的角色，例如 'PRIMARY' 表示主成員，'SECONDARY' 表示次要成員。
+-- member_version: 成員的 MySQL 版本。
+-- member_weight: 成員的權重，用於決定成員在集群中的處理負載。
+-- member_metadata: 成員的元數據，用於描述成員的額外信息。
+-- member_mode: 成員的模式，通常是 'R/W'（讀寫模式）或 'R/O'（只讀模式）。
+-- member_status: 成員的狀態，例如 'OK' 表示正常，'ERROR' 表示出現錯誤。
+-- member_uuid: 成員的唯一標識符。
+-- member_primary_uuid: 主成員的唯一標識符。
+-- 通過查詢 replication_group_members 表，可以了解有關 InnoDB Cluster 中成員的詳細信息，包括狀態、角色、版本等。這對於集群的監控、故障排除和管理非常有用。
 ```
 
 ## 服務操作
