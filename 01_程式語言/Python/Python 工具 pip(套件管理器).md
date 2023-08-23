@@ -1,17 +1,17 @@
-# Python 工具 pip(安裝模組)
+# Python 工具 pip(套件管理器)
 
 ## 目錄
 
-- [Python 工具 pip(安裝模組)](#python-工具-pip安裝模組)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [指令心得相關](#指令心得相關)
-		- [狀況相關](#狀況相關)
+- [Python 工具 pip(套件管理器)](#python-工具-pip套件管理器)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [指令心得相關](#指令心得相關)
+    - [狀況相關](#狀況相關)
 - [安裝](#安裝)
 - [指令](#指令)
 - [狀況](#狀況)
-	- [無法連線pypi](#無法連線pypi)
-	- [錯誤訊息 It is a distutils installed project](#錯誤訊息-it-is-a-distutils-installed-project)
+  - [無法連線pypi](#無法連線pypi)
+  - [錯誤訊息 It is a distutils installed project](#錯誤訊息-it-is-a-distutils-installed-project)
 
 ## 參考資料
 
