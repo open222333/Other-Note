@@ -31,13 +31,12 @@ RDBMS
       - [InnoDB Cluster 錯誤](#innodb-cluster-錯誤)
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
-    - [log文檔預設位置](#log文檔預設位置)
   - [MacOS](#macos)
   - [CentOS7](#centos7)
     - [配置設定](#配置設定)
   - [安裝 NDB Cluster](#安裝-ndb-cluster)
   - [安裝 MySQL Router](#安裝-mysql-router)
-    - [配置相關](#配置相關)
+    - [MySQL Router 配置文檔](#mysql-router-配置文檔)
   - [安装 MySQL Shell](#安装-mysql-shell)
 - [指令](#指令)
   - [MySQL Router](#mysql-router)
@@ -69,10 +68,7 @@ RDBMS
       - [SQL node (原本的 MySQL Server) - 負責 SQL 的 Table schema 和 Client 連接的空間。](#sql-node-原本的-mysql-server---負責-sql-的-table-schema-和-client-連接的空間)
   - [InnoDB Cluster 實作](#innodb-cluster-實作)
     - [MySQL 5.7](#mysql-57)
-      - [安裝相關工具](#安裝相關工具)
-      - [配置](#配置)
         - [優化配置](#優化配置)
-      - [MySQL Shell 指令](#mysql-shell-指令-1)
     - [使用程式腳本建立 InnoDB Cluster](#使用程式腳本建立-innodb-cluster)
       - [JavaScript](#javascript)
       - [Python](#python)
@@ -139,6 +135,8 @@ SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和
 [4.3.3 Configuration File Options - 配置文檔選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html)
 
 [4.3.4 Configuration File Example - 配置文檔範例](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html)
+
+[Oracle官方轻量级中间件MySQL Router介绍与性能测试](https://www.modb.pro/db/77315)
 
 ### 使用者權限相關
 
@@ -218,6 +216,8 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 [Setting up an InnoDB Cluster With a Few Lines of Code - 用幾行代碼設置一個InnoDB集群](https://www.percona.com/blog/setting-up-an-innodb-cluster-with-a-few-lines-of-code/)
 
 [MySQL InnoDB Cluster环境搭建和简单测试](https://cloud.tencent.com/developer/article/1069016)
+
+[基于MySQL innodb cluster和MySQL router的高可用与读写分离](https://www.cnblogs.com/fander/p/10071357.html)
 
 #### NDB Cluster
 
@@ -342,13 +342,16 @@ innobackupex：是將xtrabackup進行封裝的perl腳本，可以備份和恢復
 
 ## 配置文檔
 
-設定檔位置:
-
 ```
+設定檔位置:
 全局配置(Global options)
 /etc/my.cnf
 /etc/mysql/my.cnf
 SYSCONFDIR/my.cnf
+
+log文檔預設位置
+# CentOS 7
+cat /var/log/mysqld.log
 
 服務器特定(Server-specific options)
 $MYSQL_HOME/my.cnf
@@ -365,90 +368,82 @@ defaults-extra-file
 ~/.mylogin.cnf
 ```
 
-全域變數說明：
-
 ```conf
+; 全域變數說明：
 [mysqld]
 port = 3306
 serverid = 1
 socket = /tmp/mysql.sock
 skip-locking
-	# 避免MySQL的外部鎖定，減少出錯幾率增強穩定性。
+# 避免MySQL的外部鎖定，減少出錯幾率增強穩定性。
 skip-name-resolve
-	# 禁止MySQL對外部連接進行DNS解析，使用這一選項可以消除MySQL進行DNS解析的時間。
-	# 但需要註意，如果開啟該選項，則所有遠程主機連接授權都要使用IP地址方式，否則MySQL將無法正常處理連接請求！
+# 禁止MySQL對外部連接進行DNS解析，使用這一選項可以消除MySQL進行DNS解析的時間。
+# 但需要註意，如果開啟該選項，則所有遠程主機連接授權都要使用IP地址方式，否則MySQL將無法正常處理連接請求！
 back_log = 384
-	# back_log參數的值指出在MySQL暫時停止響應新請求之前的短時間內多少個請求可以被存在堆棧中。
-	# 如果系統在一個短時間內有很多連接，則需要增大該參數的值，該參數值指定到來的TCP/IP連接的偵聽隊列的大小。
-	# 不同的操作系統在這個隊列大小上有它自己的限制。 試圖設定back_log高於你的操作系統的限制將是無效的。
-	# 默認值為50。
-	# 對於Linux系統推薦設置為小於512的整數。
+# back_log參數的值指出在MySQL暫時停止響應新請求之前的短時間內多少個請求可以被存在堆棧中。
+# 如果系統在一個短時間內有很多連接，則需要增大該參數的值，該參數值指定到來的TCP/IP連接的偵聽隊列的大小。
+# 不同的操作系統在這個隊列大小上有它自己的限制。 試圖設定back_log高於你的操作系統的限制將是無效的。
+# 默認值為50。
+# 對於Linux系統推薦設置為小於512的整數。
 key_buffer_size = 256M
-	# key_buffer_size指定用於索引的緩沖區大小，增加它可得到更好的索引處理性能。
-	# 對於內存在4GB左右的服務器該參數可設置為256M或384M。
-	# 註意：該參數值設置的過大反而會是服務器整體效率降低！
+# key_buffer_size指定用於索引的緩沖區大小，增加它可得到更好的索引處理性能。
+# 對於內存在4GB左右的服務器該參數可設置為256M或384M。
+# 註意：該參數值設置的過大反而會是服務器整體效率降低！
 max_allowed_packet = 4M
 thread_stack = 256K
 table_cache = 128K
 sort_buffer_size = 6M
-	# 查詢排序時所能使用的緩沖區大小。
-	# 註意：該參數對應的分配內存是每連接獨占，如果有100個連接，那麽實際分配的總共排序緩沖區大小為100 × 6 ＝ 600MB。
-	# 所以，對於內存在4GB左右的服務器推薦設置為6-8M。
+# 查詢排序時所能使用的緩沖區大小。
+# 註意：該參數對應的分配內存是每連接獨占，如果有100個連接，那麽實際分配的總共排序緩沖區大小為100 × 6 ＝ 600MB。
+# 所以，對於內存在4GB左右的服務器推薦設置為6-8M。
 read_buffer_size = 4M
-	# 讀查詢操作所能使用的緩沖區大小。
-	# 和sort_buffer_size一樣，該參數對應的分配內存也是每連接獨享。
+# 讀查詢操作所能使用的緩沖區大小。
+# 和sort_buffer_size一樣，該參數對應的分配內存也是每連接獨享。
 join_buffer_size = 8M
-	# 聯合查詢操作所能使用的緩沖區大小，和sort_buffer_size一樣，該參數對應的分配內存也是每連接獨享。
+# 聯合查詢操作所能使用的緩沖區大小，和sort_buffer_size一樣，該參數對應的分配內存也是每連接獨享。
 myisam_sort_buffer_size = 64M
 table_cache = 512
 thread_cache_size = 64
 query_cache_size = 64M
-	# 指定MySQL查詢緩沖區的大小。
-	# 可以通過在MySQL控制臺觀察，
-	# 如果Qcache_lowmem_prunes的值非常大，則表明經常出現緩沖不夠的情況
-	# 如果Qcache_hits的值非常大，則表明查詢緩沖使用非常頻繁，如果該值較小反而會影響效率，那麽可以考慮不用查詢緩沖
-	# Qcache_free_blocks，如果該值非常大，則表明緩沖區中碎片很多。
+# 指定MySQL查詢緩沖區的大小。
+# 可以通過在MySQL控制臺觀察，
+# 如果Qcache_lowmem_prunes的值非常大，則表明經常出現緩沖不夠的情況
+# 如果Qcache_hits的值非常大，則表明查詢緩沖使用非常頻繁，如果該值較小反而會影響效率，那麽可以考慮不用查詢緩沖
+# Qcache_free_blocks，如果該值非常大，則表明緩沖區中碎片很多。
 tmp_table_size = 256M
 max_connections = 768
-	# 指定MySQL允許的最大連接進程數。
-	# 如果在訪問時經常出現Too Many Connections的錯誤提示，則需要增大該參數值。
+# 指定MySQL允許的最大連接進程數。
+# 如果在訪問時經常出現Too Many Connections的錯誤提示，則需要增大該參數值。
 max_connect_errors = 10000000
 wait_timeout = 10
-	# 指定一個請求的最大連接時間，對於4GB左右內存的服務器可以設置為5-10。
+# 指定一個請求的最大連接時間，對於4GB左右內存的服務器可以設置為5-10。
 thread_concurrency = 8
-	# 該參數取值為服務器邏輯CPU數量*2，在本例中，服務器有2顆物理CPU，而每顆物理CPU又支持H.T超線程，所以實際取值為4*2=8
+# 該參數取值為服務器邏輯CPU數量*2，在本例中，服務器有2顆物理CPU，而每顆物理CPU又支持H.T超線程，所以實際取值為4*2=8
 skip-networking
-	# 開啟該選項可以徹底關閉MySQL的TCP/IP連接方式，如果WEB服務器是以遠程連接的方式訪問MySQL數據庫服務器則不要開啟該選項！否則將無法正常連接！
+# 開啟該選項可以徹底關閉MySQL的TCP/IP連接方式，如果WEB服務器是以遠程連接的方式訪問MySQL數據庫服務器則不要開啟該選項！否則將無法正常連接！
 table_cache=1024
-	# 物理內存越大,設置就越大.默認為2402,調到512-1024最佳
+# 物理內存越大,設置就越大.默認為2402,調到512-1024最佳
 innodb_additional_mem_pool_size=4M
-	# 默認為2M
+# 默認為2M
 innodb_flush_log_at_trx_commit=1
-	# 設置為0就是等到innodb_log_buffer_size列隊滿後再統一儲存,默認為1
+# 設置為0就是等到innodb_log_buffer_size列隊滿後再統一儲存,默認為1
 innodb_log_buffer_size=2M
-	# 默認為1M
+# 默認為1M
 innodb_thread_concurrency=8
-	# 你的服務器CPU有幾個就設置為幾,建議用默認一般為8
+# 你的服務器CPU有幾個就設置為幾,建議用默認一般為8
 key_buffer_size=256M
-	# 默認為218，調到128最佳
+# 默認為218，調到128最佳
 tmp_table_size=64M
-	# 默認為16M，調到64-256最掛
+# 默認為16M，調到64-256最掛
 read_buffer_size=4M
-	# 默認為64K
+# 默認為64K
 read_rnd_buffer_size=16M
-	# 默認為256K
+# 默認為256K
 sort_buffer_size=32M
-	# 默認為256K
+# 默認為256K
 thread_cache_size=120
-	# 默認為60
+# 默認為60
 query_cache_size=32M
-```
-
-### log文檔預設位置
-
-```bash
-# CentOS 7
-cat /var/log/mysqld.log
 ```
 
 ## MacOS
@@ -528,10 +523,52 @@ FLUSH PRIVILEGES;
 vi /etc/my.cnf
 ```
 
-5.7版本設置變量
-https://dev.mysql.com/doc/refman/5.7/en/program-variables.html
-
 ```conf
+; 5.7版本設置變量
+; https://dev.mysql.com/doc/refman/5.7/en/program-variables.html
+[mysqld]
+# MySQL預設3306 Port
+port = 2020
+# 設定查詢緩存的限制大小（單位：字節）
+query_cache_limit = 1024M
+# 設定查詢緩存的總大小（單位：字節）
+query_cache_size = 1024M
+# 允許的最大連接數
+max_connections = 10240
+
+### 產品 ###
+# 指定MySQL允許的最大連接進程數
+max_connections = 4096
+# MyISAM 存儲引擎的鍵緩衝區大小
+key_buffer_size = 1024M
+# 允許的最大封包大小
+max_allowed_packet = 2048M
+# 線程堆棧大小
+thread_stack = 512K
+# 線程緩衝區大小
+thread_cache_size = 3072
+# 查詢緩存限制大小
+query_cache_limit = 2048M
+# 查詢緩存總大小
+query_cache_size = 2048M
+# InnoDB 存儲引擎的緩衝池大小
+innodb_buffer_pool_size = 4G
+# InnoDB 存儲引擎的日誌文件大小
+innodb_log_file_size = 1024M
+# 連接緩衝區大小
+join_buffer_size = 2048M
+# 排序緩衝區大小
+sort_buffer_size = 1024M
+# 開啟慢查詢日誌
+slow_query_log = on
+# 慢查詢日誌文件
+slow-query-log-file = /var/log/mysql/mysql-slow.log
+# 慢查詢閾值（單位：秒）
+long_query_time = 2
+# 連接的等待超時時間（單位：秒）
+wait_timeout = 600
+
+
 [mysqld]
 # MySQL預設3306 Port
 port=2020
@@ -627,10 +664,12 @@ echo "export PATH=$PATH:/usr/local/mysql-router/bin" >> /root/.bashrc
 source /root/.bashrc
 ```
 
-### 配置相關
+### MySQL Router 配置文檔
 
 ```conf
-# https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html
+# [4.1 Configuration File Syntax - 配置文件語法](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-syntax.html)
+# [4.3.3 Configuration File Options - 配置文檔選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html)
+# [4.3.4 Configuration File Example - 配置文檔範例](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html)
 
 # MySQL Router sample configuration
 #
@@ -689,7 +728,69 @@ destinations = 192.168.62.15:3306,192.168.62.37:3306
 
 [keepalive]
 # 設定心跳檢測的間隔時間，這裡設定為 60 秒
+# 在設定的間隔時間內，MySQL Router 會定期向後端數據庫服務器發送心跳消息，以確保連接的有效性。
 interval = 60
+```
+
+```conf
+; https://www.cnblogs.com/fander/p/10071357.html
+; mysqlrouter.conf
+[DEFAULT]
+name=system
+user=root
+keyring_path=/opt/mysql-8.0-router/data/keyring
+master_key_path=/opt/mysql-8.0-router/bin/.././mysqlrouter.key
+connect_timeout=30
+read_timeout=30
+
+[logger]
+level = INFO
+
+[metadata_cache:fandercluster]
+router_id=1
+bootstrap_server_addresses=mysql://192-168-199-122:3306,mysql://192-168-199-123:3306,mysql://192-168-199-121:3306
+user=mysql_router1_klh7m3xmmru0
+metadata_cluster=fandercluster
+ttl=0.5
+
+[routing:fandercluster_default_rw]
+bind_address=0.0.0.0
+bind_port=6446
+# destinations: 這個參數指定了路由的目標，即要將查詢路由到哪些資料庫實例。
+# 在這個範例中，metadata-cache://fandercluster/default?role=PRIMARY 表示要將查詢路由到元數據緩存（metadata cache）中標記為 PRIMARY 角色的資料庫實例。
+# metadata-cache://: 這是一個指示 MySQL Router 使用元數據緩存的 URL 方案。
+# fandercluster/default: fandercluster 是元數據緩存的名稱，default 表示元數據緩存中的預設配置。
+# role=PRIMARY: 這是一個查詢參數，表示只選擇元數據緩存中標記為 PRIMARY 角色的資料庫實例作為目標。這通常用於路由讀取查詢到次要節點，以實現讀取的負載平衡和高可用性。
+destinations=metadata-cache://fandercluster/default?role=PRIMARY
+# 假設有三個目標資料庫實例，它們的地址分別是 A、B 和 C。如果路由策略設置為 routing_strategy=round-robin，則第一個查詢會被發送到實例 A，第二個查詢會被發送到實例 B，第三個查詢會被發送到實例 C，然後循環進行。
+# 配置將查詢請求按照順序依次分發給不同的目標資料庫實例，實現查詢負載均衡。
+# 這種策略適用於平均分配查詢請求的情況，但不考慮目標實例的當前負載或可用性。
+routing_strategy=round-robin
+# 這個參數設定了數據庫連接所使用的協議為“經典協議（Classic Protocol）”。
+# MySQL Router 支持多種協議，包括經典協議和 X Protocol。經典協議是傳統的 MySQL 連接協議，而 X Protocol 則是 MySQL 的新一代協議，提供更好的性能和功能支持。
+protocol=classic
+
+[routing:fandercluster_default_ro]
+bind_address=0.0.0.0
+bind_port=6447
+destinations=metadata-cache://fandercluster/default?role=SECONDARY
+#routing_strategy=round-robin
+routing_strategy=round-robin-with-fallback
+protocol=classic
+
+[routing:fandercluster_default_x_rw]
+bind_address=0.0.0.0
+bind_port=64460
+destinations=metadata-cache://fandercluster/default?role=PRIMARY
+routing_strategy=round-robin
+protocol=x
+
+[routing:fandercluster_default_x_ro]
+bind_address=0.0.0.0
+bind_port=64470
+destinations=metadata-cache://fandercluster/default?role=SECONDARY
+routing_strategy=round-robin
+protocol=x
 ```
 
 ```conf
@@ -1017,10 +1118,11 @@ USAGE (無訪問許可權)
 ### innodb cluster相關
 
 ```sql
+-- mysql 5.7
 -- replication_group_members 表是 MySQL InnoDB Cluster 中的一個特殊表，用於儲存集群中的複製組成員（Replication Group Members）的相關信息。
 -- 當建立一個 InnoDB Cluster 時，它將包含多個 MySQL 實例，這些實例相互之間進行複製以實現數據的同步和冗余。
 -- replication_group_members 表的作用是追蹤這些成員的相關數據。
-select * from replication_group_members;
+SELECT * FROM replication_group_members;
 
 -- member_id: 每個集群成員都有一個唯一的 member_id。這是集群內部用於識別成員的唯一標識。
 -- member_host: 成員的主機名或 IP 地址。
@@ -1035,6 +1137,20 @@ select * from replication_group_members;
 -- member_uuid: 成員的唯一標識符。
 -- member_primary_uuid: 主成員的唯一標識符。
 -- 通過查詢 replication_group_members 表，可以了解有關 InnoDB Cluster 中成員的詳細信息，包括狀態、角色、版本等。這對於集群的監控、故障排除和管理非常有用。
+
+
+-- mysql 8.0
+-- performance_schema.replication_group_members 是 MySQL 數據庫中的一個 Performance Schema 表，用於記錄和提供關於 MySQL 复制（Replication）集群成員的信息。
+-- 用於監控和查詢 MySQL 复制集群成員信息的表。
+-- 這個表包含了有關 MySQL 复制集群成員的各種指標和狀態信息，讓你可以更好地監控和管理 MySQL 复制集群的運行狀態。
+-- 通過查詢這個表，你可以了解到 MySQL 复制集群中每個成員的運行狀態、角色、主機名等信息，這對於進行故障排除、性能監控和管理操作非常有用。例如，你可以檢查成員是否正常運行、誰是主要成員，以及在需要進行故障切換或重建時可以提供有關成員的詳細信息。
+SELECT * FROM performance_schema.replication_group_members;
+-- MEMBER_ID: 這是每個 MySQL 复制成員的唯一識別 ID。
+-- MEMBER_HOST: 复制成員的主機名或 IP 地址。
+-- MEMBER_PORT: 复制成員的 MySQL 連接端口。
+-- MEMBER_STATE: 复制成員的狀態，例如 "ONLINE" 表示成員正常運行。
+-- MEMBER_ROLE: 复制成員的角色，可能是 "PRIMARY"（主要）或 "SECONDARY"（次要）。
+
 ```
 
 ## 服務操作
@@ -1690,24 +1806,9 @@ MySQL InnoDB Cluster 在 MySQL Community Edition 和 MySQL Enterprise Edition �
 
 ### MySQL 5.7
 
-#### 安裝相關工具
-
-```bash
-# 安裝 mysql router
-wget https://dev.mysql.com/get/Downloads/MySQL-Router/mysql-router-8.0.34-linux-glibc2.28-i686.tar.gz
-tar -zxvf mysql-router-8.0.34-linux-glibc2.28-i686.tar.gz
-
-# 安裝 mysql shell
-wget https://dev.mysql.com/get/Downloads/MySQL-Shell/mysql-shell-8.0.34-linux-glibc2.28-arm-64bit.tar.gz
-tar -zxvf mysql-shell-8.0.34-linux-glibc2.28-arm-64bit.tar.gz
-```
-
-#### 配置
-
 ```conf
 # 啟用二進制日誌
 log-bin = mysql-bin
-
 # 設定伺服器 ID
 server-id = <unique_id>
 
@@ -1725,19 +1826,14 @@ binlog_checksum=NONE
 enforce_gtid_consistency=ON
 # 啟用 GTID 模式
 gtid_mode=ON
-
 # 啟用日誌從伺服器更新
 log_slave_updates=ON
-
 # 將主伺服器資訊存儲庫設置為 TABLE
 master_info_repository=TABLE
-
 # 將中繼日誌資訊存儲庫設置為 TABLE
 relay_log_info_repository=TABLE
-
 # 將事務寫集提取設置為 XXHASH64
 transaction_write_set_extraction=XXHASH64
-
 # 配置 MySQL 服務器監聽的 IP 和端口
 bind-address=0.0.0.0
 # port=3306
@@ -1757,19 +1853,14 @@ bind-address=0.0.0.0
 
 # 設定 Group Replication 插件
 plugin-load = "group_replication.so"
-
 # 設定管理節點模式
 group_replication_single_primary_mode = ON
-
 # 啟用 Group Replication
 group_replication = FORCE_PLUS_PERMANENT
-
 # 設定 Group Replication 插件
 group_replication_group_name = "myCluster"  # Group Replication 集群的名稱
-
 # 指定 Group Replication 本地通信地址
 group_replication_local_address = "hostname:port"  # 本地節點的主機名和端口
-
 # 設定 Group Replication 群組種子節點
 group_replication_group_seeds = "seed1:port,seed2:port,..."  # 初始節點的主機名和端口列表
 
@@ -1789,15 +1880,167 @@ loose-group_replication_recovery_use_ssl = 1  # 是否在恢復過程中使用 S
 # traditional（預設值）：
 # 鎖定整個表，以確保同一時刻只有一個事務可以插入行。可能導致鎖定競爭和效能下降。
 innodb_autoinc_lock_mode = 0
-
 # consecutive：
 # 只鎖定自動遞增列的鎖定索引，允許不同的事務同時插入行，只要使用不同的 AUTO_INCREMENT 值。
 # 可以減少鎖定競爭，特別是對於並發插入操作。
 innodb_autoinc_lock_mode = 1
-
 # interleaved：
 # 鎖定 AUTO_INCREMENT 值的某個範圍，讓插入操作在自動遞增列上交叉執行，減少鎖定競爭。
 innodb_autoinc_lock_mode = 2
+```
+
+```sql
+-- 每台節點
+
+-- 停止將 SQL 語句寫入二進制日誌
+SET SQL_LOG_BIN=0;
+-- 創建用於複製的用戶
+-- CREATE USER rpl_user@'%': 這部分指定了要創建的使用者名稱和允許連接的主機或 IP 地址。
+-- rpl_user 是使用者名稱，'%' 表示允許從任何主機或 IP 地址連接。
+-- IDENTIFIED WITH 'mysql_native_password': 這是指定該使用者的身份驗證方法。在這種情況下，使用的是 MySQL 本地密碼（'mysql_native_password'）。
+-- 這是一種常見的身份驗證方法，用於使用使用者名稱和密碼進行身份驗證。
+-- BY 'password': 這是指定使用者的密碼。在這個示例中，密碼是 'password'。
+CREATE USER rpl_user@'%' IDENTIFIED WITH 'mysql_native_password' BY 'password';
+-- 為複製用戶授予 REPLICATION SLAVE 權限
+GRANT REPLICATION SLAVE ON *.* TO rpl_user@'%';
+
+-- 創建具有超級權限的用戶（可選）
+CREATE USER root@'%' IDENTIFIED BY 'root';
+-- 為超級用戶授予所有權限，包括授予權限的能力（可選）
+GRANT ALL on *.* to root@'%' with grant option;
+
+-- 刷新權限
+FLUSH PRIVILEGES;
+-- 恢復將 SQL 語句寫入二進制日誌
+SET SQL_LOG_BIN=1;
+
+-- 安裝 Group Replication 插件
+INSTALL PLUGIN group_replication SONAME 'group_replication.so';
+-- 查看已安裝的插件
+SHOW PLUGINS;
+-- 設置複製主機的使用者名稱和密碼
+CHANGE MASTER TO MASTER_USER='rpl_user', MASTER_PASSWORD='password' FOR CHANNEL 'group_replication_recovery';
+-- 刷新權限
+FLUSH PRIVILEGES;
+```
+
+```JavaScript
+// 使用 MySQL Shell
+
+// 檢查實例配置，此處根據報錯修改配置文件，修改後需要重啟 MySQL
+dba.checkInstanceConfiguration('root@manager_node:3306')
+dba.checkInstanceConfiguration('root@node_1:3306')
+dba.checkInstanceConfiguration('root@node_2:3306')
+dba.checkInstanceConfiguration('root@node_3:3306')
+
+// 分別登陸到每個節點的主機，再登陸 mysql-shell 進行持久化操作
+shell.connect('root@localhost:3306')
+
+shell.connect('root@manager_node:3306')
+shell.connect('root@node_1:3306')
+shell.connect('root@node_2:3306')
+shell.connect('root@node_3:3306')
+// 自動設置 Group Replication： 如果當前實例還沒有啟用 Group Replication，函數將自動執行必要的步驟來啟用 Group Replication。
+// 自動加入 InnoDB Cluster： 如果當前實例是 InnoDB Cluster 的一部分，函數將自動將實例加入到 InnoDB Cluster 中。
+// 配置和驗證參數： 函數將根據配置文件和集群設置來配置和驗證實例的參數，以確保其與其他實例保持一致。
+// 持久化到配置⽂件中 (此功能僅適用於本地實例)
+// 這個功能只能在本地的 MySQL 實例上使用，無法用於遠程的 MySQL 實例。
+// 在這個上下文中， "本地實例" 指的是執行 MySQL Shell 的計算機上的 MySQL 伺服器。
+dba.configureLocalInstance()
+// 根據下面提示輸入 my.cnf 到完整路徑
+// Please specify the path to the MySQL configuration file: /etc/my.cnf
+
+// 範例 在 manager_node 建立集群
+shell.connect('root@localhost:3306')
+
+// 創建集群 名稱:ClusterName
+dba.createCluster('ClusterName')
+
+// 加入集群
+var cluster = dba.getCluster('ClusterName')
+cluster.addInstance('rpl_user@node_1:3306')
+cluster.addInstance('rpl_user@node_2:3306')
+cluster.addInstance('rpl_user@node_3:3306')
+
+// 查看集群狀態
+// 方法一：
+var cluster = dba.getCluster('ClusterName')
+cluster.status()
+
+// 方法二：
+dba.getCluster('ClusterName').status()
+```
+
+```conf
+# [4.1 Configuration File Syntax - 配置文件語法](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-syntax.html)
+# [4.3.3 Configuration File Options - 配置文檔選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html)
+# [4.3.4 Configuration File Example - 配置文檔範例](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html)
+
+[DEFAULT]
+# 設定日誌文件的保存目錄
+logging_folder = /home/cluster/mysql-router-2.1.6/logs
+# 設定插件文件的目錄
+plugin_folder = /home/cluster/mysql-router-2.1.6/lib/mysqlrouter
+# 設定配置文件的目錄
+config_folder = /home/cluster/mysql-router-2.1.6
+# 設定運行時文件的目錄
+runtime_folder = /home/cluster/mysql-router-2.1.6/run
+
+[logger]
+# 設定日誌記錄的級別
+level = INFO
+
+[routing:master]
+# 綁定的 IP 地址，0.0.0.0 表示所有可用的 IP 地址
+bind_address = 0.0.0.0
+# 綁定的監聽端口
+bind_port = 23306
+# 設定模式，這裡設定為 read-write，表示這個路由器實例可以處理讀和寫的查詢
+mode = read-write
+# 設定目標資料庫實例的地址和端口，這裡設定兩個目標實例
+destinations = manager_node:3306
+
+[routing:secondary]
+# 綁定的 IP 地址，0.0.0.0 表示所有可用的 IP 地址
+bind_address = 0.0.0.0
+# 綁定的監聽端口
+bind_port = 23307
+# 設定最大連接數
+max_connections = 1024
+# 設定模式，這裡設定為 read-only，表示這個路由器實例只處理讀取查詢
+mode = read-only
+# 設定目標資料庫實例的地址和端口
+destinations = node_1:3306,node_2:3306,node_3:3306
+
+[keepalive]
+# 設定心跳檢測的間隔時間，這裡設定為 60 秒
+# 在設定的間隔時間內，MySQL Router 會定期向後端數據庫服務器發送心跳消息，以確保連接的有效性。
+interval = 60
+```
+
+```bash
+# 初始化mysql-router PRIMARY節點即可
+mysqlrouter --bootstrap root@manager_node:3306 --user=root
+    # Please enter MySQL password for root:
+
+    # Bootstrapping system MySQL Router instance...
+    # Checking for old Router accounts
+    # Creating account mysql_router1_klh7m3xmmru0@'%'
+    # MySQL Router  has now been configured for the InnoDB cluster 'fandercluster'.
+
+    # The following connection information can be used to connect to the cluster after MySQL Router has been started with generated configuration..
+
+    # Classic MySQL protocol connections to cluster 'fandercluster':
+    # - Read/Write Connections: localhost:6446
+    # - Read/Only Connections: localhost:6447
+    # X protocol connections to cluster 'fandercluster':
+    # - Read/Write Connections: localhost:64460
+    # - Read/Only Connections: localhost:64470
+
+# 初始化後mysql-router自動生成一個默認的配置文件 /usr/local/mysqlrouter/mysqlrouter.conf
+
+# 使用指定的配置文件來啟動啟動 MySQL Router
+mysqlrouter -c /path/to/router.conf
 ```
 
 ##### 優化配置
@@ -1877,81 +2120,24 @@ source /etc/profile
 
 # 設定用戶端口範圍，用於分配給客戶端的臨時端口
 net.ipv4.ip_local_port_range = 1024 65535
-
 # 設定 SYN 佇列的長度，這是等待三次握手完成的連線請求的佇列大小
 net.ipv4.tcp_max_syn_backlog = 65535
-
 # 設定系統最大檔案句柄的數量，這是同時打開的檔案和目錄的最大數量
 fs.file-max = 655350
-
 # 啟用 SYN cookies 來處理 SYN 等待佇列溢出的情況，這可以防止少量的 SYN 攻擊
 net.ipv4.tcp_syncookies = 1
-
 # 開啟 TCP 連接中 TIME-WAIT 狀態的快速回收，這可以減少 TIME-WAIT 狀態的持續時間
 net.ipv4.tcp_tw_recycle = 1
-
 # 設定每個連線的最大長度，這影響同時處理的連線數量
 net.core.somaxconn = 65535
-
 # 設定網絡接收佇列的最大長度，這是等待處理的網絡封包的佇列大小
 net.core.netdev_max_backlog = 65535
-
 # 控制 TCP 連線結束時等待的時間，這是確保結束的連線不會持續佔用資源
 net.ipv4.tcp_fin_timeout = 60
-
 # 設定單個共享記憶體段的最大值，這是共享內存的大小限制
 kernel.shmmax = 4294967285
-
 # 設定 Linux 系統的交換分區使用方式，0 表示儘可能不使用交換分區
 vm.swappiness = 0
-```
-
-#### MySQL Shell 指令
-
-```JavaScript
-// 使用 MySQL Shell
-
-// 檢查實例配置，此處根據報錯修改配置文件，修改後需要重啟 MySQL
-dba.checkInstanceConfiguration('root@node_1:3306')
-dba.checkInstanceConfiguration('root@node_2:3306')
-dba.checkInstanceConfiguration('root@node_3:3306')
-
-// 分別登陸到每個節點的主機，再登陸 mysql-shell 進行持久化操作
-shell.connect('root@localhost:3306')
-
-shell.connect('root@manager_node:3306')
-shell.connect('root@node_1:3306')
-shell.connect('root@node_2:3306')
-shell.connect('root@node_3:3306')
-// 自動設置 Group Replication： 如果當前實例還沒有啟用 Group Replication，函數將自動執行必要的步驟來啟用 Group Replication。
-// 自動加入 InnoDB Cluster： 如果當前實例是 InnoDB Cluster 的一部分，函數將自動將實例加入到 InnoDB Cluster 中。
-// 配置和驗證參數： 函數將根據配置文件和集群設置來配置和驗證實例的參數，以確保其與其他實例保持一致。
-// 持久化到配置⽂件中 (此功能僅適用於本地實例)
-// 這個功能只能在本地的 MySQL 實例上使用，無法用於遠程的 MySQL 實例。
-// 在這個上下文中， "本地實例" 指的是執行 MySQL Shell 的計算機上的 MySQL 伺服器。
-dba.configureLocalInstance()
-// 根據下面提示輸入 my.cnf 到完整路徑
-// Please specify the path to the MySQL configuration file: /etc/my.cnf
-
-// 範例 在 manager_node
-shell.connect('root@localhost:3306')
-
-// 創建集群
-dba.createCluster('ClusterName')
-
-// 加入集群
-var cluster = dba.getCluster('ClusterName')
-cluster.addInstance('root@node_1:3306')
-cluster.addInstance('root@node_2:3306')
-cluster.addInstance('root@node_3:3306')
-
-// 查看集群狀態
-// 方法一：
-var cluster = dba.getCluster('ClusterName')
-cluster.status()
-
-// 方法二：
-dba.getCluster('ClusterName').status()
 ```
 
 ### 使用程式腳本建立 InnoDB Cluster
