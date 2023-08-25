@@ -205,6 +205,10 @@ MySQL Server 5.7 版本不支持 NDB Cluster
 InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管理具有高可用性和自動故障恢復能力的 MySQL 數據庫集群。
 ```
 
+[Docker Compose Setup for InnoDB Cluster](https://dev.mysql.com/blog-archive/docker-compose-setup-for-innodb-cluster/)
+
+[neumayer/mysql-docker-compose-examples](https://github.com/neumayer/mysql-docker-compose-examples/tree/master)
+
 [centos7+mysql5.7集群安装](https://blog.csdn.net/onlycool_me/article/details/78614400?spm=1001.2101.3001.6650.5&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-5-78614400-blog-114349883.235%5Ev38%5Epc_relevant_anti_vip_base&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-5-78614400-blog-114349883.235%5Ev38%5Epc_relevant_anti_vip_base&utm_relevant_index=6)
 
 [Docker Compose Setup for InnoDB Cluster](https://dev.mysql.com/blog-archive/docker-compose-setup-for-innodb-cluster/)
