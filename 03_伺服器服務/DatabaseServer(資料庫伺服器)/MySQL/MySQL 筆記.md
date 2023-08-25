@@ -138,6 +138,8 @@ SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和
 
 [Oracle官方轻量级中间件MySQL Router介绍与性能测试](https://www.modb.pro/db/77315)
 
+[Ubuntu20.04安装MySQL Router](http://www.884358.com/ubuntu-install-mysql-router/)
+
 ### 使用者權限相關
 
 [MySQL / MariaDB 移除使用者帳號及權限](https://ithelp.ithome.com.tw/articles/10235980)
@@ -218,6 +220,8 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 [MySQL InnoDB Cluster环境搭建和简单测试](https://cloud.tencent.com/developer/article/1069016)
 
 [基于MySQL innodb cluster和MySQL router的高可用与读写分离](https://www.cnblogs.com/fander/p/10071357.html)
+
+[Ubuntu20.04搭建MySQL InnoDB 集群](http://www.884358.com/ubuntu-mysql-innodb-cluster/)
 
 #### NDB Cluster
 
@@ -915,6 +919,20 @@ cluster.dissolve({force:true})
 // 這個選項會刪除 Metadata schema，然後你可以重新建立一個新的 MySQL InnoDB Cluster。
 // 請注意，這會導致 Metadata 中的任何相關資訊都會丟失，包括以前建立的 Cluster 設定。
 dba.dropMetadataSchema()
+
+// 查看集群描述
+dba.getCluster('ClusterName').describe()
+
+// 切換到多主模式
+dba.getCluster('ClusterName').switchToMultiPrimaryMode()
+
+// 切換到單主模式
+dba.getCluster('ClusterName').switchToSinglePrimaryMode('root@hostname:3306')
+
+// 更改集群設置
+dba.getCluster('ClusterName').setOption('clusterName','newCluster')
+// 更改集群實例設置
+dba.getCluster('ClusterName').setInstanceOption('root@172.27.8.2:3306', 'exitStateAction', 'READ_ONLY')
 ```
 
 ## SQL 指令
