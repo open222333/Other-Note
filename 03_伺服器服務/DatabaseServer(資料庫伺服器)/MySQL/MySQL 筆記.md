@@ -33,13 +33,12 @@ RDBMS
   - [配置文檔](#配置文檔)
   - [MacOS](#macos)
   - [CentOS7](#centos7)
-    - [配置設定](#配置設定)
   - [安裝 NDB Cluster](#安裝-ndb-cluster)
   - [安裝 MySQL Router](#安裝-mysql-router)
     - [MySQL Router 配置文檔](#mysql-router-配置文檔)
   - [安装 MySQL Shell](#安装-mysql-shell)
 - [指令](#指令)
-  - [MySQL Router](#mysql-router)
+  - [MySQL Router 指令](#mysql-router-指令)
   - [MySQL Shell 指令](#mysql-shell-指令)
     - [innodb Cluster 相關](#innodb-cluster-相關)
   - [SQL 指令](#sql-指令)
@@ -81,6 +80,7 @@ RDBMS
   - [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
   - [升級為GTID模式](#升級為gtid模式)
   - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
+  - [ERROR 3009 (HY000): Column count of mysql.user is wrong. Expected 45, found 43. Created with MySQL 50739, now running 50742. Please use mysql\_upgrade to fix this error.](#error-3009-hy000-column-count-of-mysqluser-is-wrong-expected-45-found-43-created-with-mysql-50739-now-running-50742-please-use-mysql_upgrade-to-fix-this-error)
 
 ## 參考資料
 
@@ -227,6 +227,10 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 
 [Ubuntu20.04搭建MySQL InnoDB 集群](http://www.884358.com/ubuntu-mysql-innodb-cluster/)
 
+[MySQL InnoDB Cluster - 完整教學](https://blog.51cto.com/u_4223248/5594829#4-%E9%9B%86%E7%BE%A4%E5%A4%9A%E6%95%B0%E8%8A%82%E7%82%B9%E5%BC%82%E5%B8%B8%E6%81%A2%E5%A4%8D)
+
+[Mysql InnoDB Cluster集群 日常維護命令](https://www.cnblogs.com/wangjunjiehome/p/16267655.html)
+
 #### NDB Cluster
 
 ```
@@ -342,6 +346,8 @@ innobackupex：是將xtrabackup進行封裝的perl腳本，可以備份和恢復
 
 [MySQL崩潰-如何修復損壞的innodb：innodb_force_recovery](https://www.twblogs.net/a/5b8201762b71772165af295d)
 
+[解决 MySQL 报错 “ Column count of mysql.user is wrong...”](https://cloud.tencent.com/developer/article/1662598)
+
 #### InnoDB Cluster 錯誤
 
 [Multi Source Replication MySQL 5.6 to 5.7 GTID Auto Position Issues](https://stackoverflow.com/questions/30606345/multi-source-replication-mysql-5-6-to-5-7-gtid-auto-position-issues)
@@ -382,9 +388,14 @@ defaults-extra-file
 port = 3306
 serverid = 1
 socket = /tmp/mysql.sock
+# 告訴系統不要執行 SSL/TLS 驗證，而是允許非加密的通信。
+skip_ssl
+# 指示資料庫在執行某些查詢時是否應該跳過對數據行的鎖定操作。鎖定操作是用來確保多個同時執行的事務不會相互干擾，從而確保數據的完整性和一致性。
 skip-locking
 # 避免MySQL的外部鎖定，減少出錯幾率增強穩定性。
 skip-name-resolve
+# 登錄時跳過權限檢查
+skip-grant-tables
 # 禁止MySQL對外部連接進行DNS解析，使用這一選項可以消除MySQL進行DNS解析的時間。
 # 但需要註意，如果開啟該選項，則所有遠程主機連接授權都要使用IP地址方式，否則MySQL將無法正常處理連接請求！
 back_log = 384
@@ -452,6 +463,50 @@ sort_buffer_size=32M
 thread_cache_size=120
 # 默認為60
 query_cache_size=32M
+
+; 5.7版本設置變量
+; https://dev.mysql.com/doc/refman/5.7/en/program-variables.html
+[mysqld]
+# MySQL預設3306 Port
+port = 2020
+# 設定查詢緩存的限制大小（單位：字節）
+query_cache_limit = 1024M
+# 設定查詢緩存的總大小（單位：字節）
+query_cache_size = 1024M
+# 允許的最大連接數
+max_connections = 10240
+
+### 產品 ###
+# 指定MySQL允許的最大連接進程數
+max_connections = 4096
+# MyISAM 存儲引擎的鍵緩衝區大小
+key_buffer_size = 1024M
+# 允許的最大封包大小
+max_allowed_packet = 2048M
+# 線程堆棧大小
+thread_stack = 512K
+# 線程緩衝區大小
+thread_cache_size = 3072
+# 查詢緩存限制大小
+query_cache_limit = 2048M
+# 查詢緩存總大小
+query_cache_size = 2048M
+# InnoDB 存儲引擎的緩衝池大小
+innodb_buffer_pool_size = 4G
+# InnoDB 存儲引擎的日誌文件大小
+innodb_log_file_size = 1024M
+# 連接緩衝區大小
+join_buffer_size = 2048M
+# 排序緩衝區大小
+sort_buffer_size = 1024M
+# 開啟慢查詢日誌
+slow_query_log = on
+# 慢查詢日誌文件
+slow-query-log-file = /var/log/mysql/mysql-slow.log
+# 慢查詢閾值（單位：秒）
+long_query_time = 2
+# 連接的等待超時時間（單位：秒）
+wait_timeout = 600
 ```
 
 ## MacOS
@@ -522,88 +577,6 @@ UPDATE mysql.user SET host = '%' WHERE user = 'root';
 
 -- 刷新MySQL的系統權限相關表
 FLUSH PRIVILEGES;
-```
-
-### 配置設定
-
-```bash
-# 修改預設port(需重啟)
-vi /etc/my.cnf
-```
-
-```conf
-; 5.7版本設置變量
-; https://dev.mysql.com/doc/refman/5.7/en/program-variables.html
-[mysqld]
-# MySQL預設3306 Port
-port = 2020
-# 設定查詢緩存的限制大小（單位：字節）
-query_cache_limit = 1024M
-# 設定查詢緩存的總大小（單位：字節）
-query_cache_size = 1024M
-# 允許的最大連接數
-max_connections = 10240
-
-### 產品 ###
-# 指定MySQL允許的最大連接進程數
-max_connections = 4096
-# MyISAM 存儲引擎的鍵緩衝區大小
-key_buffer_size = 1024M
-# 允許的最大封包大小
-max_allowed_packet = 2048M
-# 線程堆棧大小
-thread_stack = 512K
-# 線程緩衝區大小
-thread_cache_size = 3072
-# 查詢緩存限制大小
-query_cache_limit = 2048M
-# 查詢緩存總大小
-query_cache_size = 2048M
-# InnoDB 存儲引擎的緩衝池大小
-innodb_buffer_pool_size = 4G
-# InnoDB 存儲引擎的日誌文件大小
-innodb_log_file_size = 1024M
-# 連接緩衝區大小
-join_buffer_size = 2048M
-# 排序緩衝區大小
-sort_buffer_size = 1024M
-# 開啟慢查詢日誌
-slow_query_log = on
-# 慢查詢日誌文件
-slow-query-log-file = /var/log/mysql/mysql-slow.log
-# 慢查詢閾值（單位：秒）
-long_query_time = 2
-# 連接的等待超時時間（單位：秒）
-wait_timeout = 600
-
-
-[mysqld]
-# MySQL預設3306 Port
-port=2020
-
-query_cache_limit=1024M
-query_cache_size=1024M
-max_connections=10240
-
-### 產品 ###
-# 指定MySQL允許的最大連接進程數。
-max_connections = 4096
-key_buffer_size = 1024M
-max_allowed_packet = 2048M
-thread_stack = 512K
-thread_cache_size = 3072
-query_cache_limit = 2048M
-query_cache_size = 2048M
-innodb_buffer_pool_size = 4G
-innodb_log_file_size = 1024M
-
-join_buffer_size = 2048M
-sort_buffer_size = 1024M
-slow_query_log = on
-wait_timeout=600
-
-slow-query-log-file = /var/log/mysql/mysql-slow.log
-long_query_time = 2
 ```
 
 ```bash
@@ -849,7 +822,7 @@ yum install -y mysql-shell
 
 # 指令
 
-## MySQL Router
+## MySQL Router 指令
 
 ```bash
 # 查看指令
@@ -2493,4 +2466,9 @@ mysql> change master to master_host='IP', master_port=3306, master_user='用户�
 
 mysql> start slave;
 Query OK, 0 rows affected (0.10 sec)
+```
+
+## ERROR 3009 (HY000): Column count of mysql.user is wrong. Expected 45, found 43. Created with MySQL 50739, now running 50742. Please use mysql_upgrade to fix this error.
+
+```
 ```
