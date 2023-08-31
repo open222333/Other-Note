@@ -231,6 +231,8 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 
 [Mysql InnoDB Cluster集群 日常維護命令](https://www.cnblogs.com/wangjunjiehome/p/16267655.html)
 
+[MySQL-innodb-cluster高可用 - 兩個router 測試](https://skyisfuck.gitee.io/docs/mysql/mysql-innodb-cluster/MySQL-innodb-cluster/)
+
 #### NDB Cluster
 
 ```
@@ -840,6 +842,9 @@ mysqlsh --version
 
 # 啟動 MySQL Shell，並連接到 MySQL 數據庫，執行各種管理和查詢任務
 mysqlsh -u username -h hostname -p
+
+# 重啟mgr集群
+mysqlsh --uri root@node_1:3306
 ```
 
 ```JavaScript
@@ -852,38 +857,77 @@ mysqlsh -u username -h hostname -p
 ### innodb Cluster 相關
 
 ```JavaScript
+// 通過 shell 連接 mysql
+shell.connect('root@localhost:3306')
+
+// 檢查實例配置，此處根據報錯修改配置文件，修改後需要重啟 MySQL(檢查正常會回傳 status:ok, 非必要)
+dba.checkInstanceConfiguration('root@node_1:3306')
+dba.checkInstanceConfiguration('root@node_2:3306')
+dba.checkInstanceConfiguration('root@node_3:3306')
+
+// 分別登陸到每個節點的主機，再登陸 mysql-shell 進行持久化操作
+shell.connect('root@node_1:3306')
+shell.connect('root@node_2:3306')
+shell.connect('root@node_3:3306')
+
+// \disconnect  //退出連接
+
+// 自動設置 Group Replication： 如果當前實例還沒有啟用 Group Replication，函數將自動執行必要的步驟來啟用 Group Replication。
+// 自動加入 InnoDB Cluster： 如果當前實例是 InnoDB Cluster 的一部分，函數將自動將實例加入到 InnoDB Cluster 中。
+// 配置和驗證參數： 函數將根據配置文件和集群設置來配置和驗證實例的參數，以確保其與其他實例保持一致。
+// 持久化到配置⽂件中 (此功能僅適用於本地實例)
+// 這個功能只能在本地的 MySQL 實例上使用，無法用於遠程的 MySQL 實例。
+// 在這個上下文中， "本地實例" 指的是執行 MySQL Shell 的計算機上的 MySQL 伺服器。
+dba.configureLocalInstance()
+
+
 // 查看集群狀態
 // 方法一：
 var cluster = dba.getCluster('ClusterName')
 cluster.status()
 
-// 方法二：
-dba.getCluster('ClusterName').cluster.status()
+dba.getCluster('ClusterName').status()
 
 // 獲取集群結構
 var cluster = dba.getCluster('ClusterName')
 cluster.describe()
 
+dba.getCluster('ClusterName').describe()
+
+
 // 添加新節點
 var cluster = dba.getCluster('ClusterName')
 cluster.addInstance('root@hostname:3307')
+
+dba.getCluster('ClusterName').addInstance('root@hostname:3307')
+
+//
+dba.getCluster('ClusterName').rescan()
 
 // 重新將節點加入
 var cluster = dba.getCluster('ClusterName')
 cluster.rejoinInstance('root@hostname:3307')
 
+dba.getCluster('ClusterName').rejoinInstance('root@hostname:3307')
+
 // 手動切換主節點
 var cluster = dba.getCluster('ClusterName')
 cluster.setPrimaryInstance('root@hostname:3307');
+
+dba.getCluster('ClusterName').setPrimaryInstance('root@hostname:3307');
 
 // 移除節點
 // 普通移除
 var cluster = dba.getCluster('ClusterName')
 cluster.removeInstance('root@hostname:3307')
 
+dba.getCluster('ClusterName').removeInstance('root@hostname:3307')
+
 // 強制移除
 var cluster = dba.getCluster('ClusterName')
 cluster.removeInstance('root@hostname:3307',{force: true})
+
+dba.getCluster('ClusterName').removeInstance('root@hostname:3307',{force: true})
 
 // 重新啟動集群
 dba.rebootClusterFromCompleteOutage('ClusterName');
@@ -891,6 +935,8 @@ dba.rebootClusterFromCompleteOutage('ClusterName');
 // 解散集群
 var cluster = dba.getCluster('ClusterName')
 cluster.dissolve({force:true})
+
+dba.getCluster('ClusterName').dissolve({force:true})
 
 // 刪除 Metadata schema
 // 這個選項會刪除 Metadata schema，然後你可以重新建立一個新的 MySQL InnoDB Cluster。
@@ -1145,7 +1191,6 @@ SELECT * FROM performance_schema.replication_group_members;
 -- MEMBER_PORT: 复制成員的 MySQL 連接端口。
 -- MEMBER_STATE: 复制成員的狀態，例如 "ONLINE" 表示成員正常運行。
 -- MEMBER_ROLE: 复制成員的角色，可能是 "PRIMARY"（主要）或 "SECONDARY"（次要）。
-
 ```
 
 ## 服務操作
