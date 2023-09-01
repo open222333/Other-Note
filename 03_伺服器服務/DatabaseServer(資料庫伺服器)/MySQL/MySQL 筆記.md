@@ -98,11 +98,17 @@ RDBMS
 
 [MySQL Community Downloads - MySQL 社區下載](https://dev.mysql.com/downloads/)
 
+[Connectors and APIs - MySQL 連接器和 API 是用於將不同編程語言的應用程序連接到 MySQL 數據庫服務器的驅動程序和庫](https://dev.mysql.com/doc/index-connectors.html)
+
 ### MySQL Shell 相關
 
 [MySQL Shell 下載頁面](https://dev.mysql.com/downloads/shell/)
 
 [mysql-shell 指令](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-commands.html)
+
+[MySQL AdminAPI - 管理 MySQL 實例，使用它們創建 InnoDB Cluster、InnoDB ClusterSet 和 InnoDB ReplicaSet 部署，以及集成 MySQL Router](https://dev.mysql.com/doc/mysql-shell/8.0/en/admin-api-userguide.html)
+
+[MySQL Shell API 8.0.33](https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/group___admin_a_p_i.html)
 
 ### MySQL Router 相關
 
@@ -884,7 +890,6 @@ dba.configureLocalInstance()
 dba.createCluster('ClusterName')
 
 // 查看集群狀態
-// 方法一：
 var cluster = dba.getCluster('ClusterName')
 cluster.status()
 
@@ -896,27 +901,37 @@ cluster.describe()
 
 dba.getCluster('ClusterName').describe()
 
+// 清除 GTID
+shell.openSession('root@hostname:3307').sql('RESET MASTER').execute()
+mysqlx.getSession('root@node_3:53306').sql('RESET MASTER')
 
 // 添加新節點
 var cluster = dba.getCluster('ClusterName')
 cluster.addInstance('root@hostname:3307')
 
 dba.getCluster('ClusterName').addInstance('root@hostname:3307')
+dba.getCluster('ClusterName').addInstance('root@node_3:53306')
 
-//
+// 重新掃描集群
+// https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/classmysqlsh_1_1dba_1_1_cluster.html#a96c63d07c753c4482d60fc6eea9a895f
 dba.getCluster('ClusterName').rescan()
 
 // 重新將節點加入
+// https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/classmysqlsh_1_1dba_1_1_cluster.html#abd828ca439e5dfe39b95f8670bc82155
 var cluster = dba.getCluster('ClusterName')
 cluster.rejoinInstance('root@hostname:3307')
 
 dba.getCluster('ClusterName').rejoinInstance('root@hostname:3307')
 
 // 手動切換主節點(5.7.43 沒有)
+// https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/classmysqlsh_1_1dba_1_1_replica_set.html#a03aaee3c962d3d3b35feafbc29fbbd2b
 var cluster = dba.getCluster('ClusterName')
 cluster.setPrimaryInstance('root@hostname:3307');
 
 dba.getCluster('ClusterName').setPrimaryInstance('root@hostname:3307');
+
+// https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/classmysqlsh_1_1dba_1_1_replica_set.html#a60ed4953b1b856c416a4836450680056
+dba.getCluster('ClusterName').forcePrimaryInstance('root@hostname:3307');
 
 // 移除節點
 // 普通移除
@@ -931,8 +946,9 @@ cluster.removeInstance('root@hostname:3307',{force: true})
 
 dba.getCluster('ClusterName').removeInstance('root@hostname:3307',{force: true})
 
-// 重新啟動集群
-dba.rebootClusterFromCompleteOutage('ClusterName');
+// 重新啟動集群(當所有成員都處於離線狀態時，使集群恢復在線狀態。)
+// https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/classmysqlsh_1_1dba_1_1_dba.html#ac68556e9a8e909423baa47dc3b42aadb
+dba.rebootClusterFromCompleteOutage('ClusterName')
 
 // 解散集群
 var cluster = dba.getCluster('ClusterName')
