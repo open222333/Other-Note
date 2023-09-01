@@ -880,6 +880,8 @@ shell.connect('root@node_3:3306')
 // 在這個上下文中， "本地實例" 指的是執行 MySQL Shell 的計算機上的 MySQL 伺服器。
 dba.configureLocalInstance()
 
+// 創建集群
+dba.createCluster('ClusterName')
 
 // 查看集群狀態
 // 方法一：
@@ -910,7 +912,7 @@ cluster.rejoinInstance('root@hostname:3307')
 
 dba.getCluster('ClusterName').rejoinInstance('root@hostname:3307')
 
-// 手動切換主節點
+// 手動切換主節點(5.7.43 沒有)
 var cluster = dba.getCluster('ClusterName')
 cluster.setPrimaryInstance('root@hostname:3307');
 
@@ -1334,6 +1336,8 @@ mysql>source path/$name.sql;
 `方法二`
 # mysql -u使用者名稱 -p密碼 資料庫名 < 資料庫名.sql
 mysql -u$username -p $dbname < $name.sql
+
+mysql -u$username -p < $name.sql
 # 恢復資料庫
 mysql -h(ip) -uroot -p(password) databasename< database.sql
 ```
