@@ -110,6 +110,8 @@ RDBMS
 
 [MySQL Shell API 8.0.33](https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/group___admin_a_p_i.html)
 
+[朝花夕拾16章MySQL Shell 使用 MySQL Shell 命令](https://www.modb.pro/db/638407)
+
 ### MySQL Router 相關
 
 ```
