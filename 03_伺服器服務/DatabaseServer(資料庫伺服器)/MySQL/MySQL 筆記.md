@@ -104,7 +104,7 @@ RDBMS
 
 [MySQL Shell 下載頁面](https://dev.mysql.com/downloads/shell/)
 
-[mysql-shell 指令](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-commands.html)
+[MySQL Shell 命令](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-commands.html)
 
 [MySQL AdminAPI - 管理 MySQL 實例，使用它們創建 InnoDB Cluster、InnoDB ClusterSet 和 InnoDB ReplicaSet 部署，以及集成 MySQL Router](https://dev.mysql.com/doc/mysql-shell/8.0/en/admin-api-userguide.html)
 
@@ -240,6 +240,8 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 [Mysql InnoDB Cluster集群 日常維護命令](https://www.cnblogs.com/wangjunjiehome/p/16267655.html)
 
 [MySQL-innodb-cluster高可用 - 兩個router 測試](https://skyisfuck.gitee.io/docs/mysql/mysql-innodb-cluster/MySQL-innodb-cluster/)
+
+[設置 InnoDB Cluster 和 MySQL Router - 說明 Incremental recovery,Clone](https://dev.mysql.com/doc/mysql-shell/8.0/en/setting-up-innodb-cluster-and-mysql-router.html)
 
 #### NDB Cluster
 
@@ -853,6 +855,32 @@ mysqlsh -u username -h hostname -p
 
 # 重啟mgr集群
 mysqlsh --uri root@node_1:3306
+```
+
+```
+\help（\h 或 \?）：打印有關 MySQL Shell 的幫助，或搜索在線幫助。
+\quit（\q 或 \exit）：退出 MySQL Shell。
+\：在 SQL 模式下，開始多行模式。當輸入空行時，代碼會被緩存並執行。
+\status（\s）：顯示當前 MySQL Shell 狀態。
+\js：將執行模式切換為 JavaScript。
+\py：將執行模式切換為 Python。
+\sql：將執行模式切換為 SQL。
+\connect（\c）：連接到 MySQL 實例。
+\reconnect：重新連接到同一個 MySQL 實例。
+\disconnect：斷開全局會話。
+\use（\u）：指定要使用的架構。
+\source（\. 或 source，無反斜杠）：使用活動語言執行腳本文件。
+\warnings（\W）：顯示語句生成的任何警告。
+\nowarnings（\w）：不顯示語句生成的任何警告。
+\history：查看和編輯命令行歷史記錄。
+\rehash：手動更新自動完成名稱緩存。
+\option：查詢和更改 MySQL Shell 配置選項。
+\show：使用提供的選項和參數運行指定的報告。
+\watch：使用提供的選項和參數運行指定的報告，並定期刷新結果。
+\edit（\e）：在默認系統編輯器中打開命令，然後將其顯示在 MySQL Shell 中。
+\pager（\P）：配置 MySQL Shell 用於顯示文本的分頁器。
+\nopager：禁用 MySQL Shell 配置使用的任何分頁器。
+\system（\!）：運行指定的操作系統命令並在 MySQL Shell 中顯示結果。
 ```
 
 ```JavaScript
