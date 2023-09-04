@@ -243,6 +243,10 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 
 [設置 InnoDB Cluster 和 MySQL Router - 說明 Incremental recovery,Clone](https://dev.mysql.com/doc/mysql-shell/8.0/en/setting-up-innodb-cluster-and-mysql-router.html)
 
+[MySQL InnoDB Cluster - 心得](https://www.cnblogs.com/zhenxing/p/15102381.html)
+
+[【InnoDB Cluster】修改已有集群实例名称及成员实例选项](https://blog.csdn.net/wudi53433927/article/details/128026314)
+
 #### NDB Cluster
 
 ```
@@ -931,9 +935,6 @@ cluster.describe()
 
 dba.getCluster('ClusterName').describe()
 
-// 清除 GTID
-shell.openSession('root@hostname:3307').sql('RESET MASTER').execute()
-mysqlx.getSession('root@node_3:53306').sql('RESET MASTER')
 
 // 添加新節點
 var cluster = dba.getCluster('ClusterName')
@@ -980,7 +981,7 @@ dba.getCluster('ClusterName').removeInstance('root@hostname:3307',{force: true})
 // https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/classmysqlsh_1_1dba_1_1_dba.html#ac68556e9a8e909423baa47dc3b42aadb
 dba.rebootClusterFromCompleteOutage('ClusterName')
 
-// 解散集群
+// 解散集群 (無法訪問集群成員)
 var cluster = dba.getCluster('ClusterName')
 cluster.dissolve({force:true})
 
@@ -1000,9 +1001,11 @@ dba.getCluster('ClusterName').switchToMultiPrimaryMode()
 // 切換到單主模式
 dba.getCluster('ClusterName').switchToSinglePrimaryMode('root@hostname:3306')
 
-// 更改集群設置
+// 查看當前集群的配置屬性
+dba.getCluster('ClusterName').options()
+// 更改集群設置(用來設置所有節點的參數)
 dba.getCluster('ClusterName').setOption('clusterName','newCluster')
-// 更改集群實例設置
+// 更改集群實例設置(用來對指定節點配置屬性)
 dba.getCluster('ClusterName').setInstanceOption('root@172.27.8.2:3306', 'exitStateAction', 'READ_ONLY')
 ```
 
