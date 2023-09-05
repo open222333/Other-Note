@@ -16,10 +16,10 @@
 ## 目錄
 
 - [Python 模組 selenium(爬蟲)](#python-模組-selenium爬蟲)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [範例相關](#範例相關)
-		- [下載器相關](#下載器相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [範例相關](#範例相關)
+    - [下載器相關](#下載器相關)
 - [指令](#指令)
 - [用法](#用法)
 
@@ -40,6 +40,8 @@
 [Selenium firefox headless](https://pythonbasics.org/selenium-firefox-headless/)
 
 [[Day 12] 動態爬蟲 - 4](https://ithelp.ithome.com.tw/articles/10243628)
+
+[Selenium3 自动化测试实战:基于Python 语言](https://yun.weicheng.men/Book/Selenium3%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E5%AE%9E%E6%88%98%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8EPython%E8%AF%AD%E8%A8%80.pdf)
 
 ### 下載器相關
 

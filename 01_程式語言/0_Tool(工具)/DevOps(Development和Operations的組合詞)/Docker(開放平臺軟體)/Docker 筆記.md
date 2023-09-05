@@ -3,50 +3,53 @@
 ## 目錄
 
 - [Docker 筆記](#docker-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [安裝相關](#安裝相關)
-		- [配置相關](#配置相關)
-			- [log配置](#log配置)
-		- [網路相關](#網路相關)
-		- [Docker Hub相關](#docker-hub相關)
-		- [範例相關](#範例相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [安裝相關](#安裝相關)
+    - [配置相關](#配置相關)
+      - [log配置](#log配置)
+    - [網路相關](#網路相關)
+      - [網路 心得相關](#網路-心得相關)
+    - [Docker Hub相關](#docker-hub相關)
+    - [範例相關](#範例相關)
 - [安裝](#安裝)
-	- [安裝步驟 CentOS7](#安裝步驟-centos7)
-	- [安裝步驟 Ubuntu](#安裝步驟-ubuntu)
+  - [安裝步驟 CentOS7](#安裝步驟-centos7)
+  - [安裝步驟 Ubuntu](#安裝步驟-ubuntu)
 - [配置文檔](#配置文檔)
-	- [log](#log)
-	- [ipv6](#ipv6)
-	- [常用配置(20230705)](#常用配置20230705)
+  - [log](#log)
+  - [ipv6](#ipv6)
+  - [設定網段](#設定網段)
+  - [常用配置(20230705)](#常用配置20230705)
 - [指令](#指令)
-	- [服務](#服務)
-	- [docker](#docker)
-		- [image](#image)
-		- [docker hub](#docker-hub)
-		- [network](#network)
-	- [docker-compose](#docker-compose)
-		- [排錯](#排錯)
+  - [服務](#服務)
+  - [docker](#docker)
+    - [image](#image)
+    - [docker hub](#docker-hub)
+    - [network](#network)
+  - [docker-compose](#docker-compose)
+    - [排錯](#排錯)
 - [範例](#範例)
-	- [Dockerfile](#dockerfile)
-	- [docker-compose](#docker-compose-1)
-		- [docker-compose.centos.yml](#docker-composecentosyml)
-		- [docker-compose.elasticsearch.yml](#docker-composeelasticsearchyml)
-		- [docker-compose.gitea.yml](#docker-composegiteayml)
-		- [docker-compose.mongodb\_clusters\_replica\_set.yml](#docker-composemongodb_clusters_replica_setyml)
-		- [docker-compose.mysql\_phpmyadmin.yml](#docker-composemysql_phpmyadminyml)
-		- [docker-compose.php.yml](#docker-composephpyml)
-		- [docker-compose.scrapy\_splash.yml](#docker-composescrapy_splashyml)
-		- [docker-compose.celery\_python.yml](#docker-composecelery_pythonyml)
-		- [docker-compose.mysql\_master\_slave.yml](#docker-composemysql_master_slaveyml)
-		- [docker-compose.nginx\_plus(centos)-php\_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
-		- [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
-		- [連線 主機別名](#連線-主機別名)
-		- [連接已存在的dokcer-compose網路](#連接已存在的dokcer-compose網路)
+  - [Dockerfile](#dockerfile)
+  - [docker-compose](#docker-compose-1)
+    - [docker-compose.centos.yml](#docker-composecentosyml)
+    - [docker-compose.elasticsearch.yml](#docker-composeelasticsearchyml)
+    - [docker-compose.gitea.yml](#docker-composegiteayml)
+    - [docker-compose.mongodb\_clusters\_replica\_set.yml](#docker-composemongodb_clusters_replica_setyml)
+    - [docker-compose.mysql\_phpmyadmin.yml](#docker-composemysql_phpmyadminyml)
+    - [docker-compose.php.yml](#docker-composephpyml)
+    - [docker-compose.scrapy\_splash.yml](#docker-composescrapy_splashyml)
+    - [docker-compose.celery\_python.yml](#docker-composecelery_pythonyml)
+    - [docker-compose.mysql\_master\_slave.yml](#docker-composemysql_master_slaveyml)
+    - [docker-compose.nginx\_plus(centos)-php\_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
+    - [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
+    - [連線 主機別名](#連線-主機別名)
+    - [連接已存在的dokcer-compose網路](#連接已存在的dokcer-compose網路)
+    - [設定網段](#設定網段-1)
 - [例外狀況](#例外狀況)
-	- [log造成硬碟沒有空間](#log造成硬碟沒有空間)
-		- [Container Log 預設路徑：](#container-log-預設路徑)
-		- [清理 Log](#清理-log)
-		- [清理 Log Script](#清理-log-script)
+  - [log造成硬碟沒有空間](#log造成硬碟沒有空間)
+    - [Container Log 預設路徑：](#container-log-預設路徑)
+    - [清理 Log](#清理-log)
+    - [清理 Log Script](#清理-log-script)
 
 ## 參考資料
 
@@ -83,6 +86,14 @@
 [Docker 网络模式详解及容器间网络通信](https://cloud.tencent.com/developer/news/687189)
 
 [Network drivers overview](https://docs.docker.com/network/drivers/)
+
+[Networking in Compose](https://docs.docker.com/compose/networking/)
+
+[Networks top-level element](https://docs.docker.com/compose/compose-file/06-networks/#networks-top-level-element)
+
+#### 網路 心得相關
+
+[Docker 設定避開衝突網段 ( 172.17.0.0/16 )](https://blog.jks.coffee/docker-escape-subnet/)
 
 ### Docker Hub相關
 
@@ -237,6 +248,30 @@ cat /dev/null > *-json.log
 {
   "ipv6": true,
   "fixed-cidr-v6": "2001:db8:1::/64"
+}
+```
+
+## 設定網段
+
+```json
+// 修改 bip 與 default-address-pools 的欄位，輸入一個新的不衝突的網段即可。
+// （範例是改成 172.7.0.1/16 與 172.6.0.0/16）
+
+// bip 欄位是 docker 預設會開啟的網段。
+// default-address-pools 欄位是 docker-compose 如果有設定 network 區段的話，預設會配給的網段區域。
+
+{
+  "log-driver": "journald",
+  "log-opts": {
+    "tag": "{{.Name}}"
+  },
+  "default-address-pools": [
+    {
+      "base": "172.6.0.0/16",
+      "size": 24
+    }
+  ],
+  "bip": "172.7.0.1/16"
 }
 ```
 
@@ -590,6 +625,7 @@ networks:
     driver: bridge
         # 官方說明
         # https://docs.docker.com/network/
+        # https://docs.docker.com/compose/networking/
 
         # bridge:默認網絡驅動程序。橋接網絡。
         host: Docker主機網路。
@@ -1097,6 +1133,54 @@ networks:
   default:
     external:
       name: existing_network
+```
+
+### 設定網段
+
+```yml
+version: '3.5'
+
+services:
+  web:
+    image: crccheck/hello-world
+    ports:
+      - '80:8000'
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
+    ipam:
+      config:
+        - subnet: '172.6.0.0/16'
+```
+
+```yml
+networks:
+  mynetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: '172.6.0.0/16'
+          gateway: '172.6.0.1'
+```
+
+```yml
+networks:
+  mynet1:
+    ipam:
+    driver: default
+    config:
+      - subnet: 172.28.0.0/16
+        ip_range: 172.28.5.0/24
+        gateway: 172.28.5.254
+        aux_addresses:
+          host1: 172.28.1.5
+          host2: 172.28.1.6
+          host3: 172.28.1.7
+    options:
+      foo: bar
+      baz: "0"
 ```
 
 # 例外狀況
