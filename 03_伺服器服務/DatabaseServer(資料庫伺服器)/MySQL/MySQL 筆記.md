@@ -993,7 +993,7 @@ dba.getCluster('ClusterName').dissolve({force:true})
 // 刪除 Metadata schema
 // 這個選項會刪除 Metadata schema，然後你可以重新建立一個新的 MySQL InnoDB Cluster。
 // 請注意，這會導致 Metadata 中的任何相關資訊都會丟失，包括以前建立的 Cluster 設定。
-dba.dropMetadataSchema()
+dba.dropMetadataSchema('ClusterName')
 
 // 查看集群描述
 dba.getCluster('ClusterName').describe()
