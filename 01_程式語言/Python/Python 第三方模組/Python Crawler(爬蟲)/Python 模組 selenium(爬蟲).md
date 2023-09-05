@@ -43,6 +43,10 @@
 
 [Selenium3 自动化测试实战:基于Python 语言](https://yun.weicheng.men/Book/Selenium3%E8%87%AA%E5%8A%A8%E5%8C%96%E6%B5%8B%E8%AF%95%E5%AE%9E%E6%88%98%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8EPython%E8%AF%AD%E8%A8%80.pdf)
 
+[Python 與自動化測試的敲門磚](https://ithelp.ithome.com.tw/users/20144024/ironman/5372)
+
+[nickchen1998/2022_ithelp_marathon](https://github.com/nickchen1998/2022_ithelp_marathon)
+
 ### 下載器相關
 
 [webdriver下載](https://www.selenium.dev/documentation/webdriver/capabilities/)
