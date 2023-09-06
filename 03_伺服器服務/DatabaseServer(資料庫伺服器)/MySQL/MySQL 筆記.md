@@ -81,6 +81,8 @@ RDBMS
   - [升級為GTID模式](#升級為gtid模式)
   - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
   - [ERROR 3009 (HY000): Column count of mysql.user is wrong. Expected 45, found 43. Created with MySQL 50739, now running 50742. Please use mysql\_upgrade to fix this error.](#error-3009-hy000-column-count-of-mysqluser-is-wrong-expected-45-found-43-created-with-mysql-50739-now-running-50742-please-use-mysql_upgrade-to-fix-this-error)
+  - [Dba.rebootClusterFromCompleteOutage: Unable to get an InnoDB cluster handle. The instance 'node\_1:3306' may belong to a different cluster from the one registered in the Metadata since the value of 'group\_replication\_group\_name' does not match the one registered in the Metadata: possible split-brain scenario. Please retry while connected to another member of the cluster. (RuntimeError)](#dbarebootclusterfromcompleteoutage-unable-to-get-an-innodb-cluster-handle-the-instance-node_13306-may-belong-to-a-different-cluster-from-the-one-registered-in-the-metadata-since-the-value-of-group_replication_group_name-does-not-match-the-one-registered-in-the-metadata-possible-split-brain-scenario-please-retry-while-connected-to-another-member-of-the-cluster-runtimeerror)
+    - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
 
 ## 參考資料
 
@@ -111,6 +113,8 @@ RDBMS
 [MySQL Shell API 8.0.33](https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/group___admin_a_p_i.html)
 
 [朝花夕拾16章MySQL Shell 使用 MySQL Shell 命令](https://www.modb.pro/db/638407)
+
+[技术分享 | mysqlsh 命令行模式 & 密码保存](https://cloud.tencent.com/developer/article/1782068)
 
 ### MySQL Router 相關
 
@@ -247,6 +251,20 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 
 [【InnoDB Cluster】修改已有集群实例名称及成员实例选项](https://blog.csdn.net/wudi53433927/article/details/128026314)
 
+[MySQL InnoDB Cluster - mysql shell 選項範例](https://www.twblogs.net/a/610b71acb2b95a05ecfbd5b3)
+
+[基于mysqlsh部署mysql8.0的MGR - 准备账号](https://www.cnblogs.com/bjx2020/p/15469530.html)
+
+[15.14 InnoDB Startup Options and System Variables - MySQL 8.0 InnoDB系統選項](https://dev.mysql.com/doc/refman/8.0/en/innodb-parameters.html)
+
+[14.15 InnoDB Startup Options and System Variables - MySQL 5.7 InnoDB系統選項](https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html)
+
+[17.3.1 Group Replication Requirements - 用組複製的服務器實例必須滿足要求](https://dev.mysql.com/doc/refman/5.7/en/group-replication-requirements.html)
+
+[MySQL InnoDB Cluster - Navigating the Cluster - Group or Replica Set 狀態說明](https://dev.mysql.com/blog-archive/mysql-innodb-cluster-navigating-the-cluster/)
+
+[17.1.3.3 Fault-tolerance - MySQL 5.7 容錯, 正常節點低於數量會出現 NO_Quorum 狀態](https://dev.mysql.com/doc/refman/8.0/en/group-replication-fault-tolerance.html)
+
 #### NDB Cluster
 
 ```
@@ -367,6 +385,16 @@ innobackupex：是將xtrabackup進行封裝的perl腳本，可以備份和恢復
 #### InnoDB Cluster 錯誤
 
 [Multi Source Replication MySQL 5.6 to 5.7 GTID Auto Position Issues](https://stackoverflow.com/questions/30606345/multi-source-replication-mysql-5-6-to-5-7-gtid-auto-position-issues)
+
+[Plugin group_replication reported: '[GCS] Connection attempt from IP address ::ffff:10.57.19.100 refused. Address is not in the IP whitelist.'](https://www.cnblogs.com/Miac/p/11990725.html)
+
+[MySQL Shell无法拉起MGR集群解决办法 - rebootClusterFromCompleteOutage失敗 因为MySQL 5.7中还不支持 SET PERSIST 功能](https://ost.51cto.com/posts/16247)
+
+[1114 (HY000): The table is full](https://stackoverflow.com/questions/730579/1114-hy000-the-table-is-full)
+
+[How can I troubleshoot the error "MySQL HA_ERR_RECORD_FILE_FULL" when I use Amazon RDS for MySQL? - 1114](https://repost.aws/knowledge-center/rds-error-mysql-record-file-full)
+
+[7.8.2 Restoring a Cluster from Quorum Loss](https://dev.mysql.com/doc/mysql-shell/8.0/en/restore-cluster-from-quorum-loss.html)
 
 # 安裝步驟
 
@@ -923,7 +951,7 @@ dba.configureLocalInstance()
 // 創建集群
 // https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/classmysqlsh_1_1dba_1_1_dba.html#a12f040129a2c4c301392dd69611da0c8
 dba.createCluster('ClusterName')
-dba.createCluster('ClusterName', {'localAddress':'172.104.191.195:33307'})
+dba.createCluster('ClusterName', {localAddress:'192.168.0.1:3307', ipAllowlist:'192.168.0.0/16,139.144.119.64'})
 
 // 查看集群狀態
 var cluster = dba.getCluster('ClusterName')
@@ -944,7 +972,7 @@ var cluster = dba.getCluster('ClusterName')
 cluster.addInstance('root@hostname:3307')
 
 dba.getCluster('ClusterName').addInstance('root@hostname:3307')
-dba.getCluster('ClusterName').addInstance('root@node_3:53306')
+dba.getCluster('ClusterName').addInstance('root@139.144.119.64:5306')
 
 // 重新掃描集群
 // https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/classmysqlsh_1_1dba_1_1_cluster.html#a96c63d07c753c4482d60fc6eea9a895f
@@ -1010,6 +1038,11 @@ dba.getCluster('ClusterName').options()
 dba.getCluster('ClusterName').setOption('clusterName','newCluster')
 // 更改集群實例設置(用來對指定節點配置屬性)
 dba.getCluster('ClusterName').setInstanceOption('root@172.27.8.2:3306', 'exitStateAction', 'READ_ONLY')
+
+// Loss of Quorum
+// 副本集的許多成員變得無法訪問，以至於它不再擁有多數，它將不再擁有法定人數，並且無法對任何更改做出決定。
+// 將其重新配置為僅考慮當前成員ONLINE並忽略所有其他成員。
+dba.getCluster('ClusterName').forceQuorumUsingPartitionOf("root@192.168.1.30")
 ```
 
 ## SQL 指令
@@ -2572,4 +2605,31 @@ Query OK, 0 rows affected (0.10 sec)
 ## ERROR 3009 (HY000): Column count of mysql.user is wrong. Expected 45, found 43. Created with MySQL 50739, now running 50742. Please use mysql_upgrade to fix this error.
 
 ```
+```
+
+## Dba.rebootClusterFromCompleteOutage: Unable to get an InnoDB cluster handle. The instance 'node_1:3306' may belong to a different cluster from the one registered in the Metadata since the value of 'group_replication_group_name' does not match the one registered in the Metadata: possible split-brain scenario. Please retry while connected to another member of the cluster. (RuntimeError)
+
+```sql
+-- https://ost.51cto.com/posts/16247
+
+-- 获取正确的 group_replication_group_name。实例重启完成后，
+-- 读取 mysql_innodb_cluster_metadata.clusters 这个元数据表，获取正确的 group name。
+select attributes->'$.group_replication_group_name' from mysql_innodb_cluster_metadata.clusters;
++----------------------------------------------+
+| attributes->'$.group_replication_group_name' |
++----------------------------------------------+
+| "bc664a9b-9b5b-11ec-8a73-525400c5601a"       |
++----------------------------------------------+
+
+-- 在每个节点上手动修改 group_replication_group_name 。
+set global group_replication_group_name = "bc664a9b-9b5b-11ec-8a73-525400c5601a";
+
+-- 再次执行 dba.rebootClusterFromCompleteOutage() 就行了。
+dba.rebootClusterFromCompleteOutage()
+```
+
+### Error in applier for group_replication_recovery: Could not execute Write_rows event on table iavnight_cpi.ad_process; The table 'ad_process' is full, Error_code: 1114
+
+```sql
+-- https://stackoverflow.com/questions/730579/1114-hy000-the-table-is-full
 ```
