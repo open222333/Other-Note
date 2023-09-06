@@ -39,6 +39,10 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
 
 [IPTables - 防火牆](https://wiki.centos.org/zh-tw/HowTos/Network/IPTables)
 
+[iptables系列教程（二）| iptables语法规则](https://bbs.huaweicloud.com/blogs/165033)
+
+[What is the correct way to open a range of ports in iptables](https://serverfault.com/questions/594835/what-is-the-correct-way-to-open-a-range-of-ports-in-iptables)
+
 # 安裝部分
 
 ## 安裝步驟 CentOS7
@@ -186,6 +190,7 @@ iptables [-AI 鏈] [-io 網路介面] [-p 協定] [-s 來源IP/網域] [--sport 
 		一些 iptables 的模組，主要常見的有：
 		state ：狀態模組
 		mac   ：網路卡硬體位址 (hardware address)
+        multiport : 該模塊匹配一組源或目標端口。最多可以指定 15 個端口。現在不支持範圍port:port。它只能與-p一起使用
 	--state
 		一些封包的狀態，主要有：
 		INVALID    ：無效的封包，例如資料破損的封包狀態
@@ -220,6 +225,10 @@ iptables -A INPUT -i eth0 -p tcp --dport 445 -j ACCEPT
 iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 iptables -A INPUT -m state --state INVALID -j DROP
 
+# 多端口 允許訪問本機TCP/22,53,80,443端口
+iptables -A INPUT -p tcp -m multiport --dports 22,53,80,443 -j ACCEPT
+iptables -A INPUT -p tcp -m multiport --dports 22,53,80,443 -s 192.168.1.10 -j ACCEPT
+
 # 列出 filter table 三條鏈的規則
 iptables -L -n
 iptables -L -nv
@@ -228,6 +237,7 @@ iptables -L -nv
 service iptables save
 
 # 重啟
+systemctl restart iptables.service
 service iptables restart
 
 # 防火牆的記錄
