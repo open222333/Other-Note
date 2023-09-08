@@ -6,13 +6,15 @@
 ## 目錄
 
 - [Git Github 筆記](#git-github-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [令牌的身份驗證](#令牌的身份驗證)
 
 ## 參考資料
 
 [Github 官方文檔](https://docs.github.com/en/developers)
+
+[gitignore範本](https://github.com/github/gitignore)
 
 # 令牌的身份驗證
 

@@ -17,6 +17,7 @@ RDBMS
     - [MySQL Router 相關](#mysql-router-相關)
     - [使用者權限相關](#使用者權限相關)
     - [安裝相關](#安裝相關)
+      - [Docker相關](#docker相關)
     - [Master-Slave(主從環境)相關](#master-slave主從環境相關)
     - [叢集(Cluster)相關](#叢集cluster相關)
       - [InnoDB Cluster](#innodb-cluster)
@@ -174,6 +175,12 @@ SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和
 
 [mysql 優化技巧心得一(key_buffer_size設定)](https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/410436/)
 
+#### Docker相關
+
+[使用docker-compose啟動服務時，初始化資料庫和資料(以Mysql為例)](https://www.tpisoftware.com/tpu/articleDetails/1826)
+
+[docker hub (mysql)](https://hub.docker.com/_/mysql)
+
 ### Master-Slave(主從環境)相關
 
 [MySQL如何不停机维护主从同步](https://zhuanlan.zhihu.com/p/472339202)
@@ -216,6 +223,8 @@ MySQL Server 5.7 版本不支持 NDB Cluster
 
 InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管理具有高可用性和自動故障恢復能力的 MySQL 數據庫集群。
 ```
+
+[17.2.1.3 User Credentials - 用戶權限](https://dev.mysql.com/doc/refman/5.7/en/group-replication-user-credentials.html)
 
 [Docker Compose Setup for InnoDB Cluster](https://dev.mysql.com/blog-archive/docker-compose-setup-for-innodb-cluster/)
 
@@ -264,6 +273,10 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 [MySQL InnoDB Cluster - Navigating the Cluster - Group or Replica Set 狀態說明](https://dev.mysql.com/blog-archive/mysql-innodb-cluster-navigating-the-cluster/)
 
 [17.1.3.3 Fault-tolerance - MySQL 5.7 容錯, 正常節點低於數量會出現 NO_Quorum 狀態](https://dev.mysql.com/doc/refman/8.0/en/group-replication-fault-tolerance.html)
+
+[MySQL InnoDB Cluster 8.0 – A Complete Deployment Walk-Through: Part One](https://severalnines.com/blog/mysql-innodb-cluster-80-complete-deployment-walk-through-part-one/)
+
+[MySQL InnoDB Cluster 8.0 – A Complete Operation Walk-through: Part Two](https://severalnines.com/blog/mysql-innodb-cluster-80-complete-operation-walk-through-part-two/)
 
 #### NDB Cluster
 
@@ -1381,6 +1394,8 @@ mysqldump -h 127.0.0.1 \
 # 	--port
 # 	連接MySQL服務器的用戶名。
 # 	--user -u
+#   不包含資料
+#   -d
 
 `只匯出表結構`
 mysqldump -u使用者名稱 -p密碼 -d 資料庫名 > 資料庫名.sql
@@ -2036,7 +2051,12 @@ GRANT REPLICATION SLAVE ON *.* TO rpl_user@'%';
 -- 創建具有超級權限的用戶（可選）
 CREATE USER root@'%' IDENTIFIED BY 'root';
 -- 為超級用戶授予所有權限，包括授予權限的能力（可選）
-GRANT ALL on *.* to root@'%' with grant option;
+GRANT ALL ON *.* TO root@'%' WITH GRANT OPTION;
+
+-- 創建給innodb使用的帳號 每個都建立
+CREATE USER 'innodbAdmin'@'%' identified by 'dWUYSCWpyx';
+GRANT ALL PRIVILEGES ON *.* TO  'innodbAdmin'@'%' WITH GRANT OPTION;
+
 
 -- 刷新權限
 FLUSH PRIVILEGES;
@@ -2623,6 +2643,7 @@ select attributes->'$.group_replication_group_name' from mysql_innodb_cluster_me
 
 -- 在每个节点上手动修改 group_replication_group_name 。
 set global group_replication_group_name = "bc664a9b-9b5b-11ec-8a73-525400c5601a";
+set global group_replication_group_name = "";
 
 -- 再次执行 dba.rebootClusterFromCompleteOutage() 就行了。
 dba.rebootClusterFromCompleteOutage()
