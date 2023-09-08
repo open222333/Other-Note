@@ -50,6 +50,7 @@
     - [Container Log 預設路徑：](#container-log-預設路徑)
     - [清理 Log](#清理-log)
     - [清理 Log Script](#清理-log-script)
+    - [使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)](#使用-網卡-讓-host-mode-可以連到內網的ip192168154112)
 
 ## 參考資料
 
@@ -92,6 +93,8 @@
 [Networks top-level element](https://docs.docker.com/compose/compose-file/06-networks/#networks-top-level-element)
 
 #### 網路 心得相關
+
+[Provide static IP to docker containers via docker-compose](https://stackoverflow.com/questions/39493490/provide-static-ip-to-docker-containers-via-docker-compose/67856292#67856292)
 
 [Docker 設定避開衝突網段 ( 172.17.0.0/16 )](https://blog.jks.coffee/docker-escape-subnet/)
 
@@ -1156,17 +1159,6 @@ networks:
 
 ```yml
 networks:
-  mynetwork:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: '172.6.0.0/16'
-          gateway: '172.6.0.1'
-```
-
-```yml
-networks:
   mynet1:
     ipam:
     driver: default
@@ -1227,4 +1219,324 @@ do
 done
 echo "========== Clean Docker Containers Log =========="
 echo ""
+```
+
+### 使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)
+
+```
+host mode 必須讓 container 可以取得 host 機器的 public ip、private ip 網卡
+```
+
+```yml
+version: "3"
+services:
+  manager_node_1:
+    image: mysql_innodb_cluster
+    build: .
+    container_name: manager_node_1
+    hostname: manager_node_1
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+    ports:
+      - "1306:3306"
+    volumes:
+      - ./conf/manager_node_1/conf.d:/etc/mysql/conf.d
+      - ./conf/manager_node_1/my.cnf:/etc/my.cnf
+      - ./conf/manager_node_1/router.conf:/etc/router.conf
+      - ./logs:/var/log
+      - ./data/manager_node_1:/var/lib/mysql
+      # - ./sqls:/docker-entrypoint-initdb.d
+  node_1:
+    image: mysql_innodb_cluster
+    container_name: node_1
+    hostname: node_1
+    # hostname: 172.104.191.195
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+    network_mode: "host"
+    # networks:
+    #   default:
+      # node1net:
+      #   ipv4_address: 192.168.154.112
+    # ports:
+    #   - "3306:3306"
+    #   - "33061:33061"
+    volumes:
+      - ./conf/node_1/conf.d:/etc/mysql/conf.d
+      - ./conf/node_1/my.cnf:/etc/my.cnf
+      - ./data/node_1:/var/lib/mysql
+      - ./logs:/var/log
+      # - ./sqls:/docker-entrypoint-initdb.d
+      - ./setup_innodb_cluster.js:/setup_innodb_cluster.js
+      - ./sql_backup:/sql_backup
+    # extra_hosts:
+    #   - "test-mysql-2 node_3 node_4 manager_node_23:139.144.119.64"
+  node_2:
+    image: mysql_innodb_cluster
+    container_name: node_2
+    hostname: node_2
+    # hostname: 172.104.191.195
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+    network_mode: "host"
+    # ports:
+    #   - "4306:3306"
+    volumes:
+      - ./conf/node_2/conf.d:/etc/mysql/conf.d
+      - ./conf/node_2/my.cnf:/etc/my.cnf
+      - ./data/node_2:/var/lib/mysql
+      - ./logs:/var/log
+      # - ./sqls:/docker-entrypoint-initdb.d
+    # extra_hosts:
+    #   - "test-mysql-2 node_3 node_4 manager_node_23:139.144.119.64"
+  phpmyadmin_1:
+    container_name: phpmyadmin_1
+    hostname: phpmyadmin-container
+    image: phpmyadmin/phpmyadmin
+    volumes:
+      - ./conf/phpmyadmin_1/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+      - ./data/phpmyadmin_1/:/srv/phpmyadmin/
+    network_mode: "host"
+    # networks:
+    #   - node1net
+    # ports:
+    #   - 31111:80
+    environment:
+      PMA_HOST: 127.0.0.1
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      UPLOAD_LIMIT: "100M"
+      APACHE_PORT: 31111
+    depends_on:
+      - node_1
+  phpmyadmin_2:
+    container_name: phpmyadmin_2
+    hostname: phpmyadmin-container
+    image: phpmyadmin/phpmyadmin
+    volumes:
+      - ./conf/phpmyadmin_2/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+      - ./data/phpmyadmin_2/:/srv/phpmyadmin/
+    network_mode: "host"
+    # networks:
+    #   - node1net
+    # ports:
+    #   - 31112:80
+    environment:
+      PMA_HOST: 127.0.0.1
+      PMA_PORT: 4306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      UPLOAD_LIMIT: "100M"
+      APACHE_PORT: 31112
+    depends_on:
+      - node_2
+# networks:
+#   node1net:
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 192.168.0.0/16
+#           ip_range: 192.168.154.0/24
+#           gateway: 192.168.154.1
+#           # aux_addresses:
+#           #   node_1: 192.168.154.112
+#       options:
+#         com.docker.network.bridge.default_bridge: "true"
+#         com.docker.network.bridge.enable_icc: "true"
+#         com.docker.network.bridge.enable_ip_masquerade: "true"
+#         com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
+#         com.docker.network.bridge.name: "eth0"
+#         com.docker.network.driver.mtu: "1500"
+```
+
+```
+br-754f470ea929: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.18.0.1  netmask 255.255.0.0  broadcast 172.18.255.255
+        inet6 fe80::42:49ff:fe52:4002  prefixlen 64  scopeid 0x20<link>
+        ether 02:42:49:52:40:02  txqueuelen 0  (Ethernet)
+        RX packets 15377124  bytes 30028955570 (27.9 GiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 7095245  bytes 7199659155 (6.7 GiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
+        inet 172.17.0.1  netmask 255.255.0.0  broadcast 172.17.255.255
+        inet6 fe80::42:15ff:fe66:dfae  prefixlen 64  scopeid 0x20<link>
+        ether 02:42:15:66:df:ae  txqueuelen 0  (Ethernet)
+        RX packets 21606  bytes 1181942 (1.1 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 34607  bytes 439123925 (418.7 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.104.191.195  netmask 255.255.255.0  broadcast 172.104.191.255
+        inet6 fe80::f03c:93ff:fec0:307a  prefixlen 64  scopeid 0x20<link>
+        inet6 2400:8901::f03c:93ff:fec0:307a  prefixlen 64  scopeid 0x0<global>
+        ether f2:3c:93:c0:30:7a  txqueuelen 1000  (Ethernet)
+        RX packets 15377124  bytes 30028955570 (27.9 GiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 7095245  bytes 7199659155 (6.7 GiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+eth0:1: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 192.168.154.112  netmask 255.255.128.0  broadcast 192.168.255.255
+        ether f2:3c:93:c0:30:7a  txqueuelen 1000  (Ethernet)
+```
+
+```conf
+/etc/sysconfig/network-scripts/ifcfg-eth0
+# Generated by Linode Network Helper
+# Fri Aug 25 02:21:01 2023 UTC
+#
+# This file is automatically generated on each boot with your Linode's
+# current network configuration. If you need to modify this file, please
+# first disable the 'Auto-configure networking' setting within your Linode's
+# configuration profile:
+#  - https://cloud.linode.com/linodes/48447169/configurations
+#
+# For more information on Network Helper:
+#  - https://www.linode.com/docs/guides/network-helper/
+#
+# A backup of the previous config is at /etc/sysconfig/network-scripts/.ifcfg-eth0.linode-last
+# A backup of the original config is at /etc/sysconfig/network-scripts/.ifcfg-eth0.linode-orig
+#
+# /etc/sysconfig/network-scripts/ifcfg-eth0
+
+# For full descriptions of what these switches do,
+# and what the interface's defaults are, see
+# /usr/share/doc/initscripts-*/sysconfig.txt
+
+
+DEVICE="eth0"
+NAME="eth0"
+ONBOOT="yes"
+
+# "bootp" and "dhcp" are for dhcp, anything else
+# is for a static configuration. "none" is given
+# by sysconfig.txt so we're using it.
+BOOTPROTO="none"
+
+
+
+# Use hardware-based IPv6 addresses, no privacy extensions.
+IPV6INIT="yes"
+IPV6_ADDR_GEN_MODE="eui64"
+IPV6_PRIVACY="no"
+
+
+# Since we want a static configuration, we're specifying DNS
+# addresses in this file for NetworkManager. "No" here tells
+# NM to use them when BOOTPROTO!=dhcp.
+# If NM is disabled the value will be yes
+PEERDNS="no"
+
+DOMAIN=members.linode.com
+
+GATEWAY0=172.104.191.1
+
+
+# resolvconf doesn't recognize more than 3 nameservers.
+
+DNS1=139.162.14.5
+DNS2=139.162.3.6
+DNS3=139.162.27.5
+
+
+
+# Sysconfig.txt says that PREFIX takes precedence over
+# NETMASK when both are present. Since both aren't needed,
+# we'll go with PREFIX since it seems to be preferred.
+
+
+# IP assignment for eth0
+IPADDR0=172.104.191.195
+PREFIX0=24
+
+#IPADDR1=192.168.154.112
+#PREFIX1=17
+```
+
+```conf
+# /etc/sysconfig/network-scripts/ifcfg-eth0:1
+# Generated by Linode Network Helper
+# Fri Aug 25 02:21:01 2023 UTC
+#
+# This file is automatically generated on each boot with your Linode's
+# current network configuration. If you need to modify this file, please
+# first disable the 'Auto-configure networking' setting within your Linode's
+# configuration profile:
+#  - https://cloud.linode.com/linodes/48447169/configurations
+#
+# For more information on Network Helper:
+#  - https://www.linode.com/docs/guides/network-helper/
+#
+# A backup of the previous config is at /etc/sysconfig/network-scripts/.ifcfg-eth0.linode-last
+# A backup of the original config is at /etc/sysconfig/network-scripts/.ifcfg-eth0.linode-orig
+#
+# /etc/sysconfig/network-scripts/ifcfg-eth0
+
+# For full descriptions of what these switches do,
+# and what the interface's defaults are, see
+# /usr/share/doc/initscripts-*/sysconfig.txt
+
+
+DEVICE="eth0:1"
+NAME="eth0:1"
+ONBOOT="yes"
+
+# "bootp" and "dhcp" are for dhcp, anything else
+# is for a static configuration. "none" is given
+# by sysconfig.txt so we're using it.
+#BOOTPROTO="none"
+BOOTPROTO="static"
+
+
+
+# Use hardware-based IPv6 addresses, no privacy extensions.
+#IPV6INIT="yes"
+#IPV6_ADDR_GEN_MODE="eui64"
+#IPV6_PRIVACY="no"
+
+
+# Since we want a static configuration, we're specifying DNS
+# addresses in this file for NetworkManager. "No" here tells
+# NM to use them when BOOTPROTO!=dhcp.
+# If NM is disabled the value will be yes
+#PEERDNS="no"
+
+#DOMAIN=members.linode.com
+
+#GATEWAY0=172.104.191.1
+
+
+# resolvconf doesn't recognize more than 3 nameservers.
+
+#DNS1=139.162.14.5
+#DNS2=139.162.3.6
+#DNS3=139.162.27.5
+
+
+
+# Sysconfig.txt says that PREFIX takes precedence over
+# NETMASK when both are present. Since both aren't needed,
+# we'll go with PREFIX since it seems to be preferred.
+
+
+# IP assignment for eth0
+#IPADDR0=172.104.191.195
+#PREFIX0=24
+
+IPADDR=192.168.154.112
+NETMASK=255.255.128.0
+#PREFIX0=17
 ```
