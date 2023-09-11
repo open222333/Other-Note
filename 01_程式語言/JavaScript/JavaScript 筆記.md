@@ -35,6 +35,8 @@
 	- [await運算式 async函式](#await運算式-async函式)
 		- [async 實作細節](#async-實作細節)
 	- [for/await迴圈](#forawait迴圈)
+		- [非同步迭代器](#非同步迭代器)
+		- [非同步產生器](#非同步產生器)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -1149,8 +1151,112 @@ for await ... of 是 JavaScript 中的一個特殊語法，用於遍歷異步可
 它主要用於處理異步操作，例如 Promise 或 AsyncFunction 返回的可迭代對象。
 ```
 
+### 非同步迭代器
+
+```
+非同步迭代器（Async Iterator）是一種用於處理非同步數據流或生成非同步序列的程式設計模式。這個概念通常與JavaScript中的異步編程和非同步操作一起使用，以便以非同步方式處理數據流或序列。
+
+以下是非同步迭代器的解釋和一些相關概念：
+
+迭代器（Iterator）：迭代器是一種對集合或序列的抽象，它允許你按照一定的方式遍歷這個集合，並在需要時取得其中的元素。迭代器通常具有next()方法，每次調用next()都會返回下一個元素。
+
+非同步（Asynchronous）：異步編程是一種編程模型，其中程式碼可以繼續執行而不必等待某些操作完成。這種方式非常適合處理需要等待時間較長的操作，例如網絡請求、文件讀寫或數據庫查詢。
+
+非同步迭代器（Async Iterator）：非同步迭代器是一種特殊類型的迭代器，它允許你以非同步的方式遍歷集合或序列，並處理非同步操作。這意味著你可以在取得每個元素的過程中等待非同步操作的完成，而不必阻塞整個程序。
+
+在JavaScript中，非同步迭代器通常與Symbol.asyncIterator一起使用，它是一個用於定義對象的特殊符號，以支持非同步迭代操作。
+```
+
 ```JavaScript
-const fs
+// 簡單的示例，展示了如何使用非同步迭代器處理非同步序列
+// asyncDataGenerator是一個非同步迭代器，它可以使用for await...of迴圈來遍歷並處理非同步生成的值。
+// 每次迭代都會等待await的非同步操作完成，然後返回值。
+
+// 非同步迭代器是處理非同步數據流和序列的強大工具，特別是在異步環境中，它可以使程式碼更加可讀和易於維護。
+
+// 假設有一個非同步數據源，返回一個非同步序列
+async function* asyncDataGenerator() {
+  yield await someAsyncValue1();
+  yield await someAsyncValue2();
+  yield await someAsyncValue3();
+}
+
+(async () => {
+  const asyncIterable = asyncDataGenerator();
+
+  for await (const value of asyncIterable) {
+    console.log(value);
+  }
+})();
+```
+
+```JavaScript
+```
+
+### 非同步產生器
+
+```
+非同步產生器是一種用於生成非同步程式碼的概念和技術。
+它們通常與JavaScript中的Promise、async/await等異步編程模型一起使用，以更有效地處理異步操作和事件。
+
+以下是非同步產生器的解釋和一些相關概念：
+
+產生器 (Generator)：產生器是一種特殊的函數，它能夠暫停並在稍後恢復執行。
+當一個函數被調用為產生器時，它不會立即執行，而是返回一個可迭代的物件，可以通過調用next()方法來逐個生成值。
+每次調用next()方法時，函數將執行直到遇到yield表達式，然後將yield後的值返回，並在下一次調用next()時從上次暫停的地方繼續執行。
+
+非同步 (Asynchronous)：在異步編程中，程式碼可以繼續執行而不必等待某些操作完成。
+這是為了避免阻塞（blocking）整個程序，特別是當需要執行時間較長的操作時，如網絡請求或文件讀寫。
+
+非同步產生器 (Asynchronous Generator)：非同步產生器是一種特殊類型的產生器，它允許在生成值的過程中執行非同步操作。
+這意味著你可以在產生器函數中使用await關鍵字來等待異步操作完成，而不會阻塞整個程式。
+```
+
+```JavaScript
+// 非同步產生器的簡單示例
+// asyncGenerator是一個非同步產生器函數，它使用await來等待someAsyncFunction完成。
+// 當我們使用await generator.next()來獲取每個生成的值時，函數的執行會暫停，
+// 直到相應的非同步操作完成，然後再繼續執行。這使得處理異步操作變得更加簡單和可讀。
+async function* asyncGenerator() {
+  yield 1;
+  await someAsyncFunction(); // 等待異步操作完成
+  yield 2;
+  yield 3;
+}
+
+const generator = asyncGenerator();
+(async () => {
+  console.log(await generator.next()); // { value: 1, done: false }
+  console.log(await generator.next()); // { value: 2, done: false }
+  console.log(await generator.next()); // { value: 3, done: false }
+  console.log(await generator.next()); // { value: undefined, done: true }
+})();
+```
+
+```JavaScript
+// 非同步產生器
+// 一個基於 Promise 的包裹器, 包住 setTimeout() 使能把他與 await 並用
+// 回傳會在指定的毫秒數經過後旅行的一個 Promise
+function elapsedTime(ms) {
+  return new Promise((reslove) => setTimeout(reslove, ms));
+}
+
+// 一個 async 產生器函式, 它會遞增一個計數器冰尖閣固定時間產出他指定的次數那麼多次(或無限次)
+async function* clock(interval, max = Infinity) {
+  for (let count = 1; count <= max; count++) {
+    await elapsedTime(interval); // 等候時間經過
+    yield count; // 產出計數器
+  }
+}
+
+// 測試函式: 將這個 async 產生器與 for/await 並用
+async function test() {
+  // async的 如此才能使用 for/await
+  for await (let tick of clock(300, 100)) {
+    // 每300毫秒迴圈100次
+    console.log(tick);
+  }
+}
 ```
 
 # 全域函式
