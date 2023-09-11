@@ -7,8 +7,8 @@ ifconfig 指令是Interface Configuration 的縮寫，為Linux/Unix 系統中用
 ## 目錄
 
 - [Linux 工具 ifconfig(查詢和設定網路介面卡)](#linux-工具-ifconfig查詢和設定網路介面卡)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [安裝](#安裝)
 - [指令](#指令)
 
@@ -35,4 +35,10 @@ dnf install net-tools
 ```bash
 # 查看目前啟用的網路介面
 ifconfig
+
+# 修改網卡設定
+# /etc/network/interfaces：在 Debian 和 Ubuntu 等基於 Debian 的發行版中使用。
+# /etc/sysconfig/network-scripts/ifcfg-<interface>：在 CentOS 和 Fedora 等基於 Red Hat 的發行版中使用。
+# 重啟後 使用新設定
+systemctl restart network
 ```
