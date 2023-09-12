@@ -37,6 +37,7 @@ RDBMS
   - [安裝 NDB Cluster](#安裝-ndb-cluster)
   - [安裝 MySQL Router](#安裝-mysql-router)
     - [MySQL Router 配置文檔](#mysql-router-配置文檔)
+    - [MySQL Router Docker Compose 配置](#mysql-router-docker-compose-配置)
   - [安装 MySQL Shell](#安装-mysql-shell)
 - [指令](#指令)
   - [MySQL Router 指令](#mysql-router-指令)
@@ -149,9 +150,13 @@ SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和
 
 [4.3.4 Configuration File Example - 配置文檔範例](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html)
 
+[4.3.2.1 mysqlrouter — 命令行選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysqlrouter.html#option_mysqlrouter_force-password-validation)
+
 [Oracle官方轻量级中间件MySQL Router介绍与性能测试](https://www.modb.pro/db/77315)
 
 [Ubuntu20.04安装MySQL Router](http://www.884358.com/ubuntu-install-mysql-router/)
+
+[Docker image - mysql/mysql-router](https://hub.docker.com/r/mysql/mysql-router)
 
 ### 使用者權限相關
 
@@ -164,6 +169,8 @@ SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和
 [只談MySQL (第四天) 帳號與權限](https://ithelp.ithome.com.tw/articles/10029835)
 
 [6.2.2 Privileges Provided by MySQL](https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html#priv_all)
+
+[如何在Docker中以bootstrap模式使用compose文件运行mysql路由器](https://cloud.tencent.com/developer/ask/sof/338443)
 
 ### 安裝相關
 
@@ -771,6 +778,84 @@ interval = 60
 ```
 
 ```conf
+# [4.1 Configuration File Syntax - 配置文件語法](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-syntax.html)
+# [4.3.3 Configuration File Options - 配置文檔選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html)
+# [4.3.4 Configuration File Example - 配置文檔範例](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html)
+
+[DEFAULT]
+# 設定日誌文件的保存目錄
+# logging_folder = /home/cluster/mysql-router-2.1.6/logs
+# 設定插件文件的目錄
+# plugin_folder = /home/cluster/mysql-router-2.1.6/lib/mysqlrouter
+# 設定配置文件的目錄
+# config_folder = /home/cluster/mysql-router-2.1.6
+# 設定運行時文件的目錄
+# runtime_folder = /home/cluster/mysql-router-2.1.6/run
+
+[logger]
+# 設定日誌記錄的級別
+level = INFO
+
+[metadata_cache:avnight]
+# 元數據緩存的名稱，可根據需要命名
+router_id=1
+# 啟動元數據緩存時要連接的目標 MySQL 服務器地址和端口，多個地址使用逗號分隔
+bootstrap_server_addresses=node_1:3306,node_2:4306,node_3:5306,node_4:6306,node_5:7306,node_6:8306,node_7:9306
+# 連接 MySQL 服務器時要使用的用戶名
+user=root
+# 元數據緩存所屬的集群名稱，用於識別元數據緩存屬於哪個集群
+metadata_cluster=avnight
+# 元數據的存活時間（Time-To-Live），單位是秒。這裡設置為 0.5 秒，表示元數據在緩存中的存活時間很短。
+ttl=0.5
+
+[routing:primary]
+# 綁定的 IP 地址，0.0.0.0 表示所有可用的 IP 地址
+bind_address=0.0.0.0
+# 綁定的監聽端口
+bind_port=6446
+# 設定最大連接數
+max_connections = 1024
+# 設定模式，這裡設定為 read-write，表示這個路由器實例可以處理讀和寫的查詢
+mode=read-write
+# 設定目標資料庫實例的地址和端口
+destinations=metadata-cache://avnight/default?role=PRIMARY
+# 假設有三個目標資料庫實例，它們的地址分別是 A、B 和 C。如果路由策略設置為 routing_strategy=round-robin，則第一個查詢會被發送到實例 A，第二個查詢會被發送到實例 B，第三個查詢會被發送到實例 C，然後循環進行。
+# 配置將查詢請求按照順序依次分發給不同的目標資料庫實例，實現查詢負載均衡。
+# 這種策略適用於平均分配查詢請求的情況，但不考慮目標實例的當前負載或可用性。
+routing_strategy=round-robin
+protocol=classic
+
+[routing:secondary]
+# 綁定的 IP 地址，0.0.0.0 表示所有可用的 IP 地址
+bind_address=0.0.0.0
+# 綁定的監聽端口
+bind_port=6447
+# 設定最大連接數
+max_connections = 1024
+# 設定模式，這裡設定為 read-only，表示這個路由器實例只處理讀取查詢
+mode = read-only
+# 設定目標資料庫實例的地址和端口
+# destinations: 這個參數指定了路由的目標，即要將查詢路由到哪些資料庫實例。
+# 在這個範例中，metadata-cache://ClusterName/default?role=SECONDARY 表示要將查詢路由到元數據緩存（metadata cache）中標記為 SECONDARY 角色的資料庫實例。
+# metadata-cache://: 這是一個指示 MySQL Router 使用元數據緩存的 URL 方案。
+# ClusterName/default: ClusterName 是元數據緩存的名稱，default 表示元數據緩存中的預設配置。
+# role=SECONDARY: 這是一個查詢參數，表示只選擇元數據緩存中標記為 SECONDARY 角色的資料庫實例作為目標。這通常用於路由讀取查詢到次要節點，以實現讀取的負載平衡和高可用性。
+destinations=metadata-cache://avnight/default?role=SECONDARY
+# 這個參數設定了路由策略為“循環分發（Round Robin）加備用（Fallback）”。
+# 這意味著 MySQL Router 會按照設定的順序將查詢請求依次分發給目標資料庫實例，如果其中某個實例無法正常響應或處於不可用狀態，Router 會自動將查詢轉發給下一個可用的實例。
+# 這樣可以在一定程度上實現高可用性和負載均衡。
+routing_strategy=round-robin-with-fallback
+# 這個參數設定了數據庫連接所使用的協議為“經典協議（Classic Protocol）”。
+# MySQL Router 支持多種協議，包括經典協議和 X Protocol。經典協議是傳統的 MySQL 連接協議，而 X Protocol 則是 MySQL 的新一代協議，提供更好的性能和功能支持。
+protocol=classic
+
+[keepalive]
+# 設定心跳檢測的間隔時間，這裡設定為 60 秒
+# 在設定的間隔時間內，MySQL Router 會定期向後端數據庫服務器發送心跳消息，以確保連接的有效性。
+interval = 60
+```
+
+```conf
 ; https://www.cnblogs.com/fander/p/10071357.html
 ; mysqlrouter.conf
 [DEFAULT]
@@ -849,6 +934,45 @@ destinations=127.0.0.1:3306
 routing_strategy=first-available
 ```
 
+### MySQL Router Docker Compose 配置
+
+```yml
+version: '2'
+services:
+
+common: &baseDefine
+    environment:
+        MYSQL_HOST: "192.168.213.6"
+        MYSQL_PORT: 3306
+        MYSQL_USER: 'root'
+        MYSQL_PASSWORD: 'urpwd.root'
+        MYSQL_INNODB_CLUSTER_MEMBERS: 3
+        MYSQL_CREATE_ROUTER_USER: 0
+    image: "docker.io/mysql/mysql-router:latest"
+
+    volumes:
+        - "./conf:/tmp/myrouter"
+
+    network_mode: "host"
+
+boot:
+    container_name: "mysql_router_boot"
+
+    command: ["mysqlrouter","--bootstrap","root@192.168.213.7:3306","--directory","/tmp/myrouter","--conf-use-sockets","--conf-skip-tcp",
+                    "--force","--strict","--user","mysqlrouter","--account","sqlrouter","--account-create","if-not-exists"]
+
+    <<: *baseDefine
+
+
+run:
+    container_name: "mysql_router"
+    restart: always
+
+    command: ["mysqlrouter","--config","/tmp/myrouter/mysqlrouter.conf"]
+
+    <<: *baseDefine
+```
+
 ## 安装 MySQL Shell
 
 ```bash
@@ -882,6 +1006,7 @@ yum install -y mysql-shell
 ## MySQL Router 指令
 
 ```bash
+# https://dev.mysql.com/doc/mysql-router/8.0/en/mysqlrouter.html#option_mysqlrouter_force-password-validation
 # 查看指令
 mysqlrouter --help
 
