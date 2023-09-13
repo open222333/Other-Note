@@ -285,7 +285,7 @@ InnoDB Cluster 提供了一組工具和功能，使可以輕鬆地設置和管�
 
 [MySQL InnoDB Cluster 8.0 – A Complete Operation Walk-through: Part Two](https://severalnines.com/blog/mysql-innodb-cluster-80-complete-operation-walk-through-part-two/)
 
-[MySQL8.0 高可用叢集化 · mysql-shell · mysql-router · docker · 單主多從](https://tw511.com/a/01/53756.html)
+[MySQL8.0 高可用叢集化 · mysql-shell · mysql-router · docker · 單主多從 - mysql router docker image 範例](https://tw511.com/a/01/53756.html)
 
 #### NDB Cluster
 
