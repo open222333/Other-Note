@@ -1287,6 +1287,10 @@ dba.getCluster('ClusterName').setInstanceOption('root@172.27.8.2:3306', 'exitSta
 // 副本集的許多成員變得無法訪問，以至於它不再擁有多數，它將不再擁有法定人數，並且無法對任何更改做出決定。
 // 將其重新配置為僅考慮當前成員ONLINE並忽略所有其他成員。
 dba.getCluster('ClusterName').forceQuorumUsingPartitionOf("root@192.168.1.30")
+
+
+// 檢視路由資訊：listRouters()
+dba.getCluster('ClusterName').listRouters()
 ```
 
 ## SQL 指令
