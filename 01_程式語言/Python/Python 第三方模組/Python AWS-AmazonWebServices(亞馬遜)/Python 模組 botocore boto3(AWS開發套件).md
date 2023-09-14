@@ -7,12 +7,15 @@
 	- [參考資料](#參考資料)
 		- [boto3相關](#boto3相關)
 		- [botocore相關](#botocore相關)
+- [安裝](#安裝)
 - [用法](#用法)
 	- [S3範例](#s3範例)
 
 ## 參考資料
 
 ### boto3相關
+
+[boto3 pypi](https://pypi.org/project/boto3/)
 
 [適用於 Python 的 AWS 開發套件 (Boto3)](https://aws.amazon.com/tw/sdk-for-python/)
 
@@ -21,6 +24,12 @@
 ### botocore相關
 
 [botocore 文檔](https://botocore.amazonaws.com/v1/documentation/api/latest/index.html)
+
+# 安裝
+
+```bash
+pip install boto3
+```
 
 # 用法
 
