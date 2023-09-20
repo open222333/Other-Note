@@ -17,6 +17,7 @@
 		- [模擬真實用戶登入授權](#模擬真實用戶登入授權)
 		- [加入驗證碼機制](#加入驗證碼機制)
 		- [封鎖代理伺服器與第三方 IP](#封鎖代理伺服器與第三方-ip)
+		- [設置網址格式](#設置網址格式)
 
 ## 參考資料
 
@@ -234,4 +235,26 @@ for ip in proxy_ips:
         print(result.text)
     except:
         print(f"{ip} invalid")
+```
+
+### 設置網址格式
+
+```
+; 需爬取資訊 目標網址
+URL=https://www.example.com/
+
+; 設置 其他頁面網址格式 $URL$PAGE_FORMAT {}
+; 範例:
+; URL = https://www.example.com/
+; PAGE_FORMAT = page/{}/
+; 結果為 https://www.example.com/page/{num}/
+PAGE_FORMAT=
+```
+
+```Python
+import re
+
+if re.search(r'monsnode.com', URL):
+    mc = MonsnodeCrawler(URL, DIR)
+    mc.parse()
 ```
