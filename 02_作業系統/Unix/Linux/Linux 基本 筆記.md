@@ -3,11 +3,12 @@
 ## 目錄
 
 - [Linux 基本 筆記](#linux-基本-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [各檔案夾的結構說明及用途介紹](#各檔案夾的結構說明及用途介紹)
-- [linux 設定檔位置](#linux-設定檔位置)
-- [linux 基本 軟體組合 LAMP](#linux-基本-軟體組合-lamp)
+- [指令](#指令)
+  - [常用指令 用於取得系統資訊和狀態](#常用指令-用於取得系統資訊和狀態)
+- [軟體組合 LAMP](#軟體組合-lamp)
 
 ## 參考資料
 
@@ -18,6 +19,19 @@
 [指令查詢](https://www.commandlinux.com/)
 
 [Linux 命令大全](https://www.runoob.com/linux/linux-command-manual.html)
+
+[LAMP - wiki](https://zh.wikipedia.org/wiki/LAMP)
+
+[手動設定網址與 IP 對應的 hosts 檔教學，適用 Windows、Mac OS X 與 Linux 系統](https://blog.gtwang.org/windows/windows-linux-hosts-file-configuration/)
+
+```
+LAMP是指一組通常一起使用來執行動態網站或者伺服器的自由軟體名稱首字母縮寫：
+
+	Linux，作業系統
+	Apache，網頁伺服器
+	MariaDB或MySQL，資料庫管理系統（或者資料庫伺服器）
+	PHP、Perl或Python，手稿語言
+```
 
 # 各檔案夾的結構說明及用途介紹
 
@@ -46,27 +60,81 @@
 /usr/src：原始碼，linux核心的原始碼就放在/usr/src/linux 裡。
 /usr/local/bin：本地增加的命令。
 /usr/local/lib：本地增加的庫根檔案系統。
+/etc/hosts: hosts設定檔：手動設定主機名稱與IP位址
 ```
 
-# linux 設定檔位置
+# 指令
 
-hosts設定檔：手動設定主機名稱與IP位址
-`/etc/hosts`
-(https://blog.gtwang.org/windows/windows-linux-hosts-file-configuration/)
+## 常用指令 用於取得系統資訊和狀態
 
+```bash
+# 查看系统信息
+# uname -a：顯示系統的核心版本和其他基本信息。
+uname -a
 
-# linux 基本 軟體組合 LAMP
+# lsb_release -a：顯示Linux發行版的信息。
+lsb_release -a
 
-https://zh.wikipedia.org/wiki/LAMP
+# 查看系統負載和資源使用情況
+# top：即時顯示系統的資源使用情況，包括CPU、記憶體、進程等。
+top
 
+# htop：類似於top，但提供更多互動式功能。
+htop
+
+# free -h：顯示系統記憶體使用情況。
+free -h
+
+# df -h：顯示磁碟空間使用情況。
+df -h
+
+# 查看網絡信息
+# ifconfig或ip addr：顯示網絡接口的配置信息。
+ifconfig
+
+# netstat -tuln：顯示當前正在監聽的網絡端口。
+netstat -tuln
+
+# ss：另一個用於查看網絡連接和套接字的工具。
+ss
+
+# 查看系統日誌
+# /var/log 目錄下包含了各種系統日誌文件，例如/var/log/syslog、/var/log/auth.log等。
+# 可以使用cat或less命令來查看這些文件的內容。
+cat /var/log/syslog
+cat /var/log/auth.log
+
+# 查看硬件信息
+# lscpu：顯示CPU信息。
+lscpu
+
+# lshw：顯示硬件信息，包括CPU、記憶體、磁碟、網絡適配器等。
+lshw
+
+# 查看進程信息
+# ps aux：顯示當前運行的所有進程。
+ps aux
+
+# pgrep process_name：查找特定進程的PID。
+pgrep process_name
+
+# 查看用戶信息
+# who：顯示當前登錄系統的用戶。
+who
+
+# w：顯示當前登錄用戶的詳細信息。
+w
+
+# 查看系統時間
+# date：顯示當前系統時間和日期。
+date
+
+# 查看啟動信息
+# systemctl list-units --type=service：列出所有系統服務的狀態。
+systemctl list-units --type=service
 ```
-LAMP是指一組通常一起使用來執行動態網站或者伺服器的自由軟體名稱首字母縮寫：
 
-	Linux，作業系統
-	Apache，網頁伺服器
-	MariaDB或MySQL，資料庫管理系統（或者資料庫伺服器）
-	PHP、Perl或Python，手稿語言
-```
+# 軟體組合 LAMP
 
 ```bash
 # 安裝必要軟體
