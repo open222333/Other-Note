@@ -6,9 +6,9 @@
 ## 目錄
 
 - [Python 模組 cloudscraper(解決CLOUD FLARE反爬蟲)](#python-模組-cloudscraper解決cloud-flare反爬蟲)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [教學相關](#教學相關)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [教學相關](#教學相關)
 - [指令](#指令)
 - [用法](#用法)
 
@@ -32,5 +32,19 @@ pip install cloudscraper
 # 用法
 
 ```Python
+import cloudscraper
 
+
+scraper = cloudscraper.create_scraper(
+	browser={
+		'browser': 'chrome',
+		'platform': 'android',
+		'desktop': False
+	}
+)
+
+response = scraper.get(url)
+
+# 打印网页内容
+print(response.text)
 ```
