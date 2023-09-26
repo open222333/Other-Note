@@ -157,3 +157,10 @@ li_tag = soup.select_one('li')
 # 打印第一個 <li> 標籤的文本內容
 print(li_tag.text)
 ```
+
+```Python
+# 取得屬性 href
+page_url = block.select_one('a').attrs['href']
+# 取得屬性 src
+img_url = block.select_one('a > img').attrs['src']
+```
