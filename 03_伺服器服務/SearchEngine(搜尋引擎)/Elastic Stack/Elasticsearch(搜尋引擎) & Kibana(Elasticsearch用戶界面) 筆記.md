@@ -5,82 +5,178 @@ Elasticsearch是一個基於Lucene庫的搜尋引擎。
 它提供了一個分散式、支援多租戶的全文搜尋引擎，具有HTTP Web介面和無模式JSON文件。
 Elasticsearch是用Java開發的，並在Apache授權條款下作為開源軟體釋出。
 官方客戶端在Java、.NET（C#）、PHP、Python、Apache Groovy、Ruby和許多其他語言中都是可用的。
-```
 
-```
+ELK包含三個東西 Elasticsearch、Logstash、Kibana
+
+LogStash 是 Indexer & Shipper
+Elasticsearch 是 Search & Storage
+Kibana 是 Web Interface
+
+Logstash蒐集Log，透過Broker(透過Redis，也可以透過Kafka或是message queue工具，主要負責多手去蒐集以及暫存log)接著傳遞給予Logstash運作進行Index的動作
+最後儲存在Elasticsearch中，可以供查詢以及其他應用
+Kibana在進行web介面上的串接，前端視覺化
+
 Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch 數據進行可視化，並讓您在Elastic Stack 中進行導航。
+
+索引(index)
+index 在 ES 中是個邏輯空間的概念，用來儲存 document 的容器，而這些 document 內容都是相似的 (跟其他領域的 index 用法不太一樣)
+shard 在 ES 中則是個物理空間的的概念，index 中的資料會分散放在不同的 shard 中
+index 由以下幾個部份組成：
+    - data：由 document + metadata 所組成
+    - mapping：用來定義每個欄位名稱 & 類型
+    - setting：定義資料是如何存放(例如：replication 數量, 使用的 shard 數量)
+在 ES 7.0 的版本後，index 在 type 部份只能設定為 _doc (在以前的版本是可以設定不同的 type)
+
+集群(cluster)
+可以水平擴展儲存空間，支援 PB 等級的資料儲存
+
+	可以根據 request & data 增加的需求進行 scale out；資料分散儲存，因此在 storage 的部份同樣也是可以 scale out 的
+
+提供系統高可用性(HA)，當某些節點停止服務時，整個 cluster 的服務不會受影響
+
+	Service HA：若有 node 停止服務，整個 cluster 還是可以提供服務
+	Data HA：若有 node 掛掉，資料不會遺失
+
+cluster name 可以透過設定檔修改，也可以在啟動指令中指定 -E cluster.name=[CLUSTER_NAME] 進行設定
+
+節點(node)
+Node 就是一個 Elasticsearch 的 Java process；
+基本上一台機器上可以同時運行多個 Elasticsearch process，但 production 使用建議還是只要一個就好
+每個 node 都有名稱，可透過設定檔配置，也可以在啟動時透過 -E node.name=[NODE_NAME] 進行設定
+每個 node 啟動之後都會分配一個 UID，並儲存在 /usr/share/elasticsearch/data 目錄下
+
+節點類型(Node Type)
+
+Master Eligible Node
+node.roles: [ master ]
+node.roles: [ data, master, voting_only ] 僅投票
+具有主節點角色的節點，這使得它有資格被選為主節點，控制集群。
+
+Data Node
+具有數據角色的節點。
+數據節點保存數據並執行數據相關操作，例如 CRUD、搜索和聚合。
+具有數據角色的節點可以填充任何專門的數據節點角色。
+
+Ingest Node
+具有攝取角色的節點。
+攝取節點能夠將攝取管道應用到文檔，以便在索引之前轉換和豐富文檔。
+在攝取負載很重的情況下，使用專用攝取節點並且不包括來自具有主角色或數據角色的節點的攝取角色是有意義的。
+
+Machine Learning Node
+node.roles: [ ml, remote_cluster_client]
+專門用來跑 machine learning 的相關工作，可用來搭配異常自動偵測之用
+
+Transform Node
+node.roles: [ transform, remote_cluster_client ]
+轉換節點運行轉換並處理轉換 API 請求。
+
+Shard & Cluster 的故障轉移
+
+Primary Shard (提昇系統儲存容量)
+shard 是 Elasticsearch 分散式儲存的基礎，包含 primary shard & replica shard
+每一個 shard 就是一個 Lucene instance
+primary shard 功能是將一份被索引後的資料，分散到多個 data node 上存放，實現儲存方面的水平擴展
+primary shard 的數量在建立 index 時就會指定，後續是無法修改的，若要修改就必須要進行 reindex
+
+Replica Shard (提高資料可用性)
+replica shard 用來提供資料高可用性，當 primary shard 遺失時，replica shard 就可以被 promote 成 primary shard 來保持資料完整性
+replica shard 數量可以動態調整，讓每個 data node 上都有完整的資料
+replica shard 可以一定程度的提高讀取(查詢)的效能
+若不設定 replica shard，一旦有 data node 故障導致 primary shard 遺失，資料可能就無法恢復了
+ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 ```
 
 ## 目錄
 
 - [Elasticsearch(搜尋引擎) \& Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [設定檔相關](#設定檔相關)
-		- [REST APIs 相關](#rest-apis-相關)
-		- [執行緒相關](#執行緒相關)
-		- [搜尋相關](#搜尋相關)
-		- [集群相關](#集群相關)
-		- [分詞器相關](#分詞器相關)
-		- [映射(mappings)相關](#映射mappings相關)
-		- [\_score評分相關](#_score評分相關)
-		- [索引模板(index template)相關](#索引模板index-template相關)
-		- [資料類型(data type)相關](#資料類型data-type相關)
-- [觀念](#觀念)
-	- [索引(index)](#索引index)
-	- [集群(cluster)](#集群cluster)
-		- [節點(node)](#節點node)
-		- [節點類型(Node Type)](#節點類型node-type)
-			- [Master Eligible Node](#master-eligible-node)
-			- [Data Node](#data-node)
-			- [Ingest Node](#ingest-node)
-			- [Machine Learning Node](#machine-learning-node)
-			- [Transform Node](#transform-node)
-		- [Shard \& Cluster 的故障轉移](#shard--cluster-的故障轉移)
-			- [Primary Shard (提昇系統儲存容量)](#primary-shard-提昇系統儲存容量)
-			- [Replica Shard (提高資料可用性)](#replica-shard-提高資料可用性)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [教學心得相關](#教學心得相關)
+    - [執行緒相關](#執行緒相關)
+    - [搜尋相關](#搜尋相關)
+    - [集群相關](#集群相關)
+    - [分詞器相關](#分詞器相關)
+    - [\_score評分相關](#_score評分相關)
+    - [mongo資料同步相關](#mongo資料同步相關)
+      - [mongo資料同步工具](#mongo資料同步工具)
+      - [Python - mongo-connector](#python---mongo-connector)
+      - [Golang - monstache](#golang---monstache)
+    - [例外狀況](#例外狀況)
+      - [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit)
 - [指令 API](#指令-api)
-	- [alias(別名)](#alias別名)
-		- [新增 刪除 別名至索引](#新增-刪除-別名至索引)
-	- [創建索引模板(index temple)](#創建索引模板index-temple)
-	- [搜尋API(Search API)](#搜尋apisearch-api)
+  - [alias(別名)](#alias別名)
+    - [新增 刪除 別名至索引](#新增-刪除-別名至索引)
+  - [創建索引模板(index temple)](#創建索引模板index-temple)
+  - [搜尋API(Search API)](#搜尋apisearch-api)
 - [安裝方式](#安裝方式)
-	- [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
-		- [官方](#官方)
-		- [自行架設](#自行架設)
-	- [安裝步驟 docker-compose](#安裝步驟-docker-compose)
-	- [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
-	- [安裝步驟 CentOS7](#安裝步驟-centos7)
-	- [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
-		- [docker 安裝 ik分詞器](#docker-安裝-ik分詞器)
-		- [自定義 ik 的啟用詞和停用詞](#自定義-ik-的啟用詞和停用詞)
+  - [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
+    - [官方](#官方)
+    - [自行架設](#自行架設)
+  - [安裝步驟 docker-compose](#安裝步驟-docker-compose)
+  - [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
+  - [安裝步驟 CentOS7](#安裝步驟-centos7)
+  - [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
+    - [docker 安裝 ik分詞器](#docker-安裝-ik分詞器)
+    - [自定義 ik 的啟用詞和停用詞](#自定義-ik-的啟用詞和停用詞)
 - [設定檔](#設定檔)
-	- [配置文檔 elasticsearch.yml (主要)](#配置文檔-elasticsearchyml-主要)
-	- [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
-	- [配置文檔 override.conf](#配置文檔-overrideconf)
-	- [生產環境 建議設定](#生產環境-建議設定)
+  - [配置文檔 elasticsearch.yml (主要)](#配置文檔-elasticsearchyml-主要)
+  - [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
+  - [配置文檔 override.conf](#配置文檔-overrideconf)
+  - [生產環境 建議設定](#生產環境-建議設定)
 - [集群 Cluster](#集群-cluster)
 - [同步資料 Mongodb](#同步資料-mongodb)
-	- [Python - mongo-connector](#python---mongo-connector)
-		- [config.json](#configjson)
-	- [Golang - monstache](#golang---monstache)
-		- [安裝步驟 CentOS7](#安裝步驟-centos7-1)
-- [例外狀況](#例外狀況)
-	- [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit)
-	- [Validation Failed: 1: this action would add \[5\] shards, but this cluster currently has \[5000\]/\[5000\] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
-	- [kibana 發生 search\_phase\_execution\_exception 錯誤](#kibana-發生-search_phase_execution_exception-錯誤)
+  - [Python - mongo-connector](#python---mongo-connector-1)
+    - [配置文檔 config.json](#配置文檔-configjson)
+  - [Golang - monstache](#golang---monstache-1)
+    - [安裝步驟 CentOS7](#安裝步驟-centos7-1)
+- [例外狀況](#例外狀況-1)
+  - [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit-1)
+  - [Validation Failed: 1: this action would add \[5\] shards, but this cluster currently has \[5000\]/\[5000\] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
+  - [kibana 發生 search\_phase\_execution\_exception 錯誤](#kibana-發生-search_phase_execution_exception-錯誤)
 
 ## 參考資料
 
 [Elasticsearch Guide - 官方教學文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
 
+[Kibana 介紹 - 官方](https://www.elastic.co/cn/kibana/)
+
+[REST APIs - 官方 API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
+
+[Important Elasticsearch configuration - 官方 設定檔說明](https://www.elastic.co/guide/en/elasticsearch/reference/current/important-settings.html)
+
+[自定义分析器 - 2.x 官方分詞器](https://www.elastic.co/guide/cn/elasticsearch/guide/current/custom-analyzers.html)
+
+[分析与分析器 - 2.x 官方分詞器](https://www.elastic.co/guide/cn/elasticsearch/guide/current/analysis-intro.html)
+
+[Mapping parameters - 官方映射 映射參數](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html)
+
+[Dynamic templates - 官方映射 索引模板 動態映射](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/dynamic-templates.html#dynamic-templates)
+
+[Bootstrapping a cluster - 官方集群 引導集群編輯](https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-discovery-bootstrap-cluster.html)
+
+[Discovery and cluster formation setting - 官方集群 發現和集群形成設置](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery-settings.html)
+
+[Index templates - 官方 索引模板(index template)相關](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html#index-templates)
+
+[Create or update index template API - 官方 創建或更新索引模板 API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-template.html)
+
+[Field data types - 官方 資料類型(data type)相關](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html)
+
+[Machine learning settings in Elasticsearchedit- 官方 機器學習節點說明](https://www.elastic.co/guide/en/elasticsearch/reference/current/ml-settings.html)
+
+[Transforms settings in Elasticsearchedit- 官方 節點說明](https://www.elastic.co/guide/en/elasticsearch/reference/current/transform-settings.html)
+
 [Elasticsearch WIKI](https://zh.wikipedia.org/zh-tw/Elasticsearch)
+
+[elasticsearch-analysis-ik - ik分詞器 github專案](https://github.com/medcl/elasticsearch-analysis-ik)
+
+[elasticsearch-analysis-ik - ik分詞器 所有版本 手動下載](https://github.com/medcl/elasticsearch-analysis-ik/releases)
+
+### 教學心得相關
 
 [[Elasticsearch] 基本概念 & 搜尋入門](https://godleon.github.io/blog/Elasticsearch/Elasticsearch-getting-started/)
 
 [全文搜索引擎 Elasticsearch 入门教程](http://www.ruanyifeng.com/blog/2017/08/elasticsearch.html)
-
-[Kibana 介紹](https://www.elastic.co/cn/kibana/)
 
 [docker-compose安裝elasticsearch及kibana](https://www.cnblogs.com/chenyuanbo/p/16183304.html)
 
@@ -94,10 +190,6 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [理解ElasticSearch工作原理](https://www.jianshu.com/p/52b92f1a9c47)
 
-[elasticsearch-analysis-ik - ik分詞器 github專案](https://github.com/medcl/elasticsearch-analysis-ik)
-
-[elasticsearch-analysis-ik - ik分詞器 所有版本 手動下載](https://github.com/medcl/elasticsearch-analysis-ik/releases)
-
 [Using Elasticsearch to Offload Real-Time Analytics from MongoDB](https://rockset.com/blog/using-elasticsearch-to-offload-real-time-analytics-from-mongodb/)
 
 [Elasticsearch 高手之路](https://xiaoxiami.gitbook.io/elasticsearch/)
@@ -109,14 +201,6 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 [Elastic Kibana 快速入門](https://linyencheng.github.io/2020/09/10/elastic-kibana-quick-start/)
 
 [Elastic Kibana Quick Start: 第一次使用 Kibana 就上手 (11)](https://ithelp.ithome.com.tw/articles/10236315)
-
-### 設定檔相關
-
-[Important Elasticsearch configuration](https://www.elastic.co/guide/en/elasticsearch/reference/current/important-settings.html)
-
-### REST APIs 相關
-
-[REST APIs - 官方API文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/rest-apis.html)
 
 ### 執行緒相關
 
@@ -142,15 +226,7 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [[Elasticsearch] 分散式特性 & 分散式搜尋的機制](https://godleon.github.io/blog/Elasticsearch/Elasticsearch-distributed-mechanism/)
 
-[Bootstrapping a cluster - 引導集群編輯](https://www.elastic.co/guide/en/elasticsearch/reference/master/modules-discovery-bootstrap-cluster.html)
-
-[Discovery and cluster formation setting - 發現和集群形成設置](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery-settings.html)
-
 ### 分詞器相關
-
-[自定义分析器 - 2.x 官方中文文檔](https://www.elastic.co/guide/cn/elasticsearch/guide/current/custom-analyzers.html)
-
-[分析与分析器 - 2.x 官方中文文檔](https://www.elastic.co/guide/cn/elasticsearch/guide/current/analysis-intro.html)
 
 [IK 分詞器配置文件和自定義詞庫](https://zq99299.github.io/note-book/elasticsearch-senior/ik/31-config.html#%E4%B8%BB%E8%A6%81%E9%85%8D%E7%BD%AE%E8%A7%A3%E8%AF%B4)
 
@@ -172,12 +248,6 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [為Elasticsarch添增ik分析器優化中文搜索 - 熱更新](https://tomme.me/elasticsearch-ik-analyzer-optimize/)
 
-### 映射(mappings)相關
-
-[Mapping parameters - 映射參數](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html)
-
-[Dynamic templates - 索引模板 動態映射](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/dynamic-templates.html#dynamic-templates)
-
 ### _score評分相關
 
 [相关度评分背后的理论](https://www.elastic.co/guide/cn/elasticsearch/guide/2.x/scoring-theory.html)
@@ -186,136 +256,51 @@ Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch �
 
 [实战 | Elasticsearch自定义评分的N种方法](https://cloud.tencent.com/developer/article/1600163)
 
-### 索引模板(index template)相關
+### mongo資料同步相關
 
-[Index templates](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-templates.html#index-templates)
+#### mongo資料同步工具
 
-[Create or update index template API - 創建或更新索引模板 API](https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-put-template.html)
+`可使用工具`
 
-### 資料類型(data type)相關
+  * [monstache - Golang](https://github.com/rwynn/monstache)
 
-[Field data types](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html)
+  * [mongo-connector - Python](https://github.com/yougov/mongo-connector)
 
-# 觀念
+  * [Mongoosastic - NodeJS](https://github.com/mongoosastic/mongoosastic)
 
-```
-ELK包含三個東西 Elasticsearch、Logstash、Kibana
+#### Python - mongo-connector
 
-LogStash 是 Indexer & Shipper
-Elasticsearch 是 Search & Storage
-Kibana 是 Web Interface
+[mongo-connector实现MongoDB与elasticsearch实时同步](https://blog.csdn.net/jerrism/article/details/110318159)
 
-Logstash蒐集Log，透過Broker(透過Redis，也可以透過Kafka或是message queue工具，主要負責多手去蒐集以及暫存log)接著傳遞給予Logstash運作進行Index的動作
-最後儲存在Elasticsearch中，可以供查詢以及其他應用
-Kibana在進行web介面上的串接，前端視覺化
-```
+[Python 模組 mongo-connector(MongoDB and Elasticsearch)](../../01_程式語言/Python/Python%20Elasticsearch(搜尋引擎)/Python%20模組%20mongo-connector(MongoDB%20and%20Elasticsearch).md)
 
-## 索引(index)
+[mongo-connector实现MongoDB与elasticsearch实时同步深入详解](https://blog.csdn.net/laoyang360/article/details/51842822)
 
-* index 在 ES 中是個邏輯空間的概念，用來儲存 document 的容器，而這些 document 內容都是相似的 (跟其他領域的 index 用法不太一樣)
+[29.mongo-connector實現MongoDB與elasticsearch實時同步(ES與非關係型資料庫同步)](https://www.796t.com/content/1549085781.html)
 
-* shard 在 ES 中則是個物理空間的的概念，index 中的資料會分散放在不同的 shard 中
+[https://www.796t.com/content/1549137781.html](mongo-connector實現MongoDB與elasticsearch實時同步深入詳解)
 
-* index 由以下幾個部份組成：
+[利用mongo-connector將mongodb數據同步到elasticsearch的流程以及會遇到的坑](https://www.twblogs.net/a/5b8c06592b717718832fe1d2)
 
-	- data：由 document + metadata 所組成
+[Configuration Options](https://github.com/yougov/mongo-connector/wiki/Configuration-Options#configure-authentication)
 
-	- mapping：用來定義每個欄位名稱 & 類型
+#### Golang - monstache
 
-	- setting：定義資料是如何存放(例如：replication 數量, 使用的 shard 數量)
+[monstache-showcase/docker-compose.sc.yml](https://github.com/rwynn/monstache-showcase/blob/a25cddeedc9e8f1481aa7de19cd634158792b28c/docker-compose.sc.yml#L53)
 
-* 在 ES 7.0 的版本後，index 在 type 部份只能設定為 _doc (在以前的版本是可以設定不同的 type)
+[monstache Configuration](https://rwynn.github.io/monstache-site/config/)
 
-## 集群(cluster)
+[Monstache](https://rwynn.github.io/monstache-site/start/)
 
-```
-可以水平擴展儲存空間，支援 PB 等級的資料儲存
+[從mongodb到elasticsearch的實時同步 - 包含分詞器](https://www.cxyzjd.com/article/zhangyonguu/80914496)
 
-	可以根據 request & data 增加的需求進行 scale out；資料分散儲存，因此在 storage 的部份同樣也是可以 scale out 的
+### 例外狀況
 
-提供系統高可用性(HA)，當某些節點停止服務時，整個 cluster 的服務不會受影響
+#### Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit
 
-	Service HA：若有 node 停止服務，整個 cluster 還是可以提供服務
-	Data HA：若有 node 掛掉，資料不會遺失
+[官方解決方案](https://www.elastic.co/guide/en/elasticsearch/reference/master/disk-usage-exceeded.html)
 
-cluster name 可以透過設定檔修改，也可以在啟動指令中指定 -E cluster.name=[CLUSTER_NAME] 進行設定
-```
-
-### 節點(node)
-
-```
-Node 就是一個 Elasticsearch 的 Java process；
-基本上一台機器上可以同時運行多個 Elasticsearch process，但 production 使用建議還是只要一個就好
-
-每個 node 都有名稱，可透過設定檔配置，也可以在啟動時透過 -E node.name=[NODE_NAME] 進行設定
-
-每個 node 啟動之後都會分配一個 UID，並儲存在 /usr/share/elasticsearch/data 目錄下
-```
-
-### 節點類型(Node Type)
-
-#### Master Eligible Node
-
-```
-node.roles: [ master ]
-node.roles: [ data, master, voting_only ] 僅投票
-具有主節點角色的節點，這使得它有資格被選為主節點，控制集群。
-```
-
-#### Data Node
-
-```
-具有數據角色的節點。
-數據節點保存數據並執行數據相關操作，例如 CRUD、搜索和聚合。
-具有數據角色的節點可以填充任何專門的數據節點角色。
-```
-
-#### Ingest Node
-
-```
-具有攝取角色的節點。
-攝取節點能夠將攝取管道應用到文檔，以便在索引之前轉換和豐富文檔。
-在攝取負載很重的情況下，使用專用攝取節點並且不包括來自具有主角色或數據角色的節點的攝取角色是有意義的。
-```
-
-#### Machine Learning Node
-
-[Machine learning settings in Elasticsearchedit](https://www.elastic.co/guide/en/elasticsearch/reference/current/ml-settings.html)
-
-```
-node.roles: [ ml, remote_cluster_client]
-專門用來跑 machine learning 的相關工作，可用來搭配異常自動偵測之用
-```
-
-#### Transform Node
-
-[Transforms settings in Elasticsearchedit](https://www.elastic.co/guide/en/elasticsearch/reference/current/transform-settings.html)
-
-```
-node.roles: [ transform, remote_cluster_client ]
-轉換節點運行轉換並處理轉換 API 請求。
-```
-
-### Shard & Cluster 的故障轉移
-
-#### Primary Shard (提昇系統儲存容量)
-
-```
-shard 是 Elasticsearch 分散式儲存的基礎，包含 primary shard & replica shard
-每一個 shard 就是一個 Lucene instance
-primary shard 功能是將一份被索引後的資料，分散到多個 data node 上存放，實現儲存方面的水平擴展
-primary shard 的數量在建立 index 時就會指定，後續是無法修改的，若要修改就必須要進行 reindex
-```
-
-#### Replica Shard (提高資料可用性)
-
-```
-replica shard 用來提供資料高可用性，當 primary shard 遺失時，replica shard 就可以被 promote 成 primary shard 來保持資料完整性
-replica shard 數量可以動態調整，讓每個 data node 上都有完整的資料
-replica shard 可以一定程度的提高讀取(查詢)的效能
-若不設定 replica shard，一旦有 data node 故障導致 primary shard 遺失，資料可能就無法恢復了
-ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
-```
+[集群級分片分配和路由設置(Cluster-level shard allocation and routing settings)](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-cluster.html)
 
 # 指令 API
 
@@ -1769,31 +1754,9 @@ thread_pool.get.queue_size: 1000
 
 # 同步資料 Mongodb
 
-`可使用工具`
-
-  * [monstache - Golang](https://github.com/rwynn/monstache)
-
-  * [mongo-connector - Python](https://github.com/yougov/mongo-connector)
-
-  * [Mongoosastic - NodeJS](https://github.com/mongoosastic/mongoosastic)
-
 ## Python - mongo-connector
 
-[mongo-connector实现MongoDB与elasticsearch实时同步](https://blog.csdn.net/jerrism/article/details/110318159)
-
-[Python 模組 mongo-connector(MongoDB and Elasticsearch)](../../01_程式語言/Python/Python%20Elasticsearch(搜尋引擎)/Python%20模組%20mongo-connector(MongoDB%20and%20Elasticsearch).md)
-
-[mongo-connector实现MongoDB与elasticsearch实时同步深入详解](https://blog.csdn.net/laoyang360/article/details/51842822)
-
-[29.mongo-connector實現MongoDB與elasticsearch實時同步(ES與非關係型資料庫同步)](https://www.796t.com/content/1549085781.html)
-
-[https://www.796t.com/content/1549137781.html](mongo-connector實現MongoDB與elasticsearch實時同步深入詳解)
-
-[利用mongo-connector將mongodb數據同步到elasticsearch的流程以及會遇到的坑](https://www.twblogs.net/a/5b8c06592b717718832fe1d2)
-
-[Configuration Options](https://github.com/yougov/mongo-connector/wiki/Configuration-Options#configure-authentication)
-
-`配置文檔 config.json`
+### 配置文檔 config.json
 
 ```json
 {
@@ -1883,8 +1846,6 @@ thread_pool.get.queue_size: 1000
 }
 ```
 
-### config.json
-
 ```json
 {
     "__comment__": "Configuration options starting with '__' are disabled",
@@ -1927,14 +1888,6 @@ thread_pool.get.queue_size: 1000
 ```
 
 ## Golang - monstache
-
-[monstache-showcase/docker-compose.sc.yml](https://github.com/rwynn/monstache-showcase/blob/a25cddeedc9e8f1481aa7de19cd634158792b28c/docker-compose.sc.yml#L53)
-
-[monstache Configuration](https://rwynn.github.io/monstache-site/config/)
-
-[Monstache](https://rwynn.github.io/monstache-site/start/)
-
-[從mongodb到elasticsearch的實時同步 - 包含分詞器](https://www.cxyzjd.com/article/zhangyonguu/80914496)
 
 ### 安裝步驟 CentOS7
 
@@ -2086,10 +2039,6 @@ exit-after-direct-reads = false
 # 例外狀況
 
 ## Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit
-
-[官方解決方案](https://www.elastic.co/guide/en/elasticsearch/reference/master/disk-usage-exceeded.html)
-
-[集群級分片分配和路由設置(Cluster-level shard allocation and routing settings)](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-cluster.html)
 
 ```
 此錯誤表明數據節點的磁盤空間嚴重不足，並且已達到洪水階段磁盤使用水位線。
