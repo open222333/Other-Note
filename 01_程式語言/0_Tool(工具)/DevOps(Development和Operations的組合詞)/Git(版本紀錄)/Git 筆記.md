@@ -501,7 +501,7 @@ git branch -a
 
 ## Git checkout 切換 branch
 
-```
+```bash
 ### Git checkout 切換 branch
 # 本地修改沒有提交的 都捨棄
 git checkout .

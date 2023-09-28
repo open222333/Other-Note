@@ -32,37 +32,39 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 ## 目錄
 
 - [MongoDB 筆記](#mongodb-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [安裝相關](#安裝相關)
-		- [查詢相關](#查詢相關)
-		- [操作相關](#操作相關)
-		- [備份腳本相關](#備份腳本相關)
-		- [例外相關](#例外相關)
-		- [指令相關](#指令相關)
-		- [replica set,Clusters(集群)相關](#replica-setclusters集群相關)
-		- [mongosh工具相關](#mongosh工具相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [安裝相關](#安裝相關)
+    - [查詢相關](#查詢相關)
+    - [操作相關](#操作相關)
+    - [備份腳本相關](#備份腳本相關)
+    - [例外相關](#例外相關)
+    - [指令相關](#指令相關)
+    - [replica set,Clusters(集群)相關](#replica-setclusters集群相關)
+    - [mongosh工具相關](#mongosh工具相關)
 - [安裝](#安裝)
-	- [CentOS7](#centos7)
-	- [配置檔案設定](#配置檔案設定)
-	- [防火牆設定](#防火牆設定)
-		- [CentOS Database tool](#centos-database-tool)
-	- [MacOS](#macos)
-	- [mongosh工具](#mongosh工具)
+  - [CentOS7](#centos7)
+  - [配置檔案設定](#配置檔案設定)
+  - [防火牆設定](#防火牆設定)
+    - [CentOS Database tool](#centos-database-tool)
+  - [MacOS](#macos)
+  - [mongosh工具](#mongosh工具)
 - [指令](#指令)
-	- [匯入匯出](#匯入匯出)
-	- [Replica-Set(副本集)](#replica-set副本集)
-	- [mongosh 工具](#mongosh-工具)
+  - [匯入匯出](#匯入匯出)
+  - [Replica-Set(副本集)](#replica-set副本集)
+  - [mongosh 工具](#mongosh-工具)
 - [資料庫指令](#資料庫指令)
-	- [刪除](#刪除)
-	- [查詢](#查詢)
-	- [使用者](#使用者)
-		- [mongodb 使用者許可權角色說明](#mongodb-使用者許可權角色說明)
-	- [連接字符串URI格式](#連接字符串uri格式)
+  - [刪除](#刪除)
+  - [查詢](#查詢)
+  - [使用者](#使用者)
+    - [mongodb 使用者許可權角色說明](#mongodb-使用者許可權角色說明)
+  - [特殊用法範例](#特殊用法範例)
+    - [監視和診斷資料庫效能 db.currentOp()](#監視和診斷資料庫效能-dbcurrentop)
+  - [連接字符串URI格式](#連接字符串uri格式)
 - [Replica-Set 實作](#replica-set-實作)
-	- [CentOS7](#centos7-1)
-	- [Docker-Compose](#docker-compose)
-	- [設置 主-讀寫 從-只讀不寫(主掛了不會升為主)](#設置-主-讀寫-從-只讀不寫主掛了不會升為主)
+  - [CentOS7](#centos7-1)
+  - [Docker-Compose](#docker-compose)
+  - [設置 主-讀寫 從-只讀不寫(主掛了不會升為主)](#設置-主-讀寫-從-只讀不寫主掛了不會升為主)
 
 ## 參考資料
 
@@ -718,13 +720,29 @@ dbAdminAnyDatabase
 只在admin資料庫中可用，賦予使用者所有資料庫的dbAdmin許可權
 ```
 
+## 特殊用法範例
+
+### 監視和診斷資料庫效能 db.currentOp()
+
+```JavaScript
+// https://www.mongodb.com/docs/v7.0/reference/method/db.currentOp/
+db.currentOp({
+    active: true,
+    //waitingForLock : true,
+    //secs_running : { $gt : 3 }, //longer than 3 seconds
+    //$ownOps:true, //returns information on the current user’s operations only.
+    //$all:true, //including operations on idle connections and system operations
+    //ns : /^db\.collection/
+})?.inprog
+```
+
 ## 連接字符串URI格式
 
 ```
 mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
 ```
 
-# Replica-Set 實作 
+# Replica-Set 實作
 
 ## CentOS7
 
