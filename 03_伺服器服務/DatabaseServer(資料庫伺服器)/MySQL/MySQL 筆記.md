@@ -1384,6 +1384,10 @@ SELECT * FROM user WHERE user='username'\G
 -- 創建新使用者
 CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'newpassword';
 
+-- 指定 該使用者能夠操作的數據庫
+GRANT ALL PRIVILEGES ON your_database.* TO 'newuser'@'localhost';
+
+
 -- 修改用戶可任意IP登入
 UPDATE mysql.user SET host = '%' WHERE user = 'user';
 
