@@ -6,12 +6,13 @@
 ## 目錄
 
 - [Python 模組 GoogleAPI Auth(驗證)](#python-模組-googleapi-auth驗證)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [指令](#指令)
 - [用法](#用法)
-	- [快速開始官方範例](#快速開始官方範例)
-	- [google drive 下載範例](#google-drive-下載範例)
+  - [使用 Google API 客戶端程式庫 驗證身分權限](#使用-google-api-客戶端程式庫-驗證身分權限)
+  - [快速開始官方範例](#快速開始官方範例)
+  - [google drive 下載範例](#google-drive-下載範例)
 
 ## 參考資料
 
@@ -39,6 +40,35 @@ pip install
 ```
 
 # 用法
+
+## 使用 Google API 客戶端程式庫 驗證身分權限
+
+```Python
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
+# (Receive token by HTTPS POST)
+# ...
+
+try:
+    # Specify the CLIENT_ID of the app that accesses the backend:
+    idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+
+    # Or, if multiple clients access the backend server:
+    # idinfo = id_token.verify_oauth2_token(token, requests.Request())
+    # if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
+    #     raise ValueError('Could not verify audience.')
+
+    # If auth request is from a G Suite domain:
+    # if idinfo['hd'] != GSUITE_DOMAIN_NAME:
+    #     raise ValueError('Wrong hosted domain.')
+
+    # ID token is valid. Get the user's Google Account ID from the decoded token.
+    userid = idinfo['sub']
+except ValueError:
+    # Invalid token
+    pass
+```
 
 ## 快速開始官方範例
 
