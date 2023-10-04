@@ -18,6 +18,7 @@
 		- [加入驗證碼機制](#加入驗證碼機制)
 		- [封鎖代理伺服器與第三方 IP](#封鎖代理伺服器與第三方-ip)
 		- [設置網址格式](#設置網址格式)
+		- [cf\_clearance cookie](#cf_clearance-cookie)
 
 ## 參考資料
 
@@ -44,6 +45,14 @@
 [用 2Captcha 通過 CAPTCHA 人機驗證](https://editor.leonh.space/2022/2captcha/)
 
 [免費的 Proxy IP](https://free-proxy-list.net/)
+
+[Python爬虫突破反爬之JavaScript](https://zhuanlan.zhihu.com/p/60627685)
+
+[了解SameSite Cookie 与Cloudflare 的交互 - cf_clearance cookie](https://developers.cloudflare.com/support/other-languages/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87/%E4%BA%86%E8%A7%A3-samesite-cookie-%E4%B8%8E-cloudflare-%E7%9A%84%E4%BA%A4%E4%BA%92/)
+
+[Bypass Cloudflare Challenge - 繞過 Cloudflare 挑戰](https://www.capsolver.com/blog/Cloudflare/how-to-solve-cloudflare-challenge)
+
+[Bypass Cloudflare Turnstile - 繞過 Cloudflare Turnstile](https://docs.capsolver.com/guide/antibots/cloudflare_turnstile)
 
 ### 特殊案例相關
 
@@ -258,3 +267,5 @@ if re.search(r'monsnode.com', URL):
     mc = MonsnodeCrawler(URL, DIR)
     mc.parse()
 ```
+
+### cf_clearance cookie
