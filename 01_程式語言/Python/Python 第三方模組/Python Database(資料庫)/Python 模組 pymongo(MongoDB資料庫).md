@@ -23,20 +23,20 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 ## 目錄
 
 - [Python 模組 pymongo(MongoDB資料庫)](#python-模組-pymongomongodb資料庫)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [查詢相關](#查詢相關)
-		- [指令相關](#指令相關)
-		- [教學相關](#教學相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [查詢相關](#查詢相關)
+    - [指令相關](#指令相關)
+    - [教學相關](#教學相關)
 - [指令](#指令)
 - [用法](#用法)
-	- [Insert](#insert)
-	- [index](#index)
-	- [Query](#query)
-	- [Update](#update)
-	- [聚合aggregate](#聚合aggregate)
-	- [使用ObjectID搜尋資料](#使用objectid搜尋資料)
-	- [slaveOk 更換寫法](#slaveok-更換寫法)
+  - [Insert](#insert)
+  - [index](#index)
+  - [Query](#query)
+  - [Update](#update)
+  - [聚合aggregate](#聚合aggregate)
+  - [使用ObjectID搜尋資料](#使用objectid搜尋資料)
+  - [slaveOk 更換寫法](#slaveok-更換寫法)
 
 ## 參考資料
 
@@ -95,6 +95,36 @@ dbs = client.list_database_names()
 client[db].list_collection_names()
 ```
 
+```Python
+from pymongo.collation import Collation
+from pprint import pformat
+
+def save_to_mongo(data: dict, col_client: Collection, unset: list = None, **query):
+    """儲存資料至mongo
+
+    Args:
+        data (dict): 新增或更新資料 ex: {'code': '1', 'name':'2'}
+        unset (list, optional): 移除欄位 名稱. Defaults to None. ex: ['code']
+        query (optional): 更新資料時需輸入查詢條件. Defaults to None. ex: comic_id=1
+    """
+    if len(query) > 0 and col_client.find_one(query):
+        update_query = {}
+        if unset:
+            unset_data = {}
+            for filed in unset:
+                unset_data[filed] = 1
+            update_query['$unset'] = unset_data
+        data['modified_date'] = datetime.now()
+        update_query['$set'] = data
+        col_client.update_one(query, update_query)
+        print(f'更新資料 mongodb {collection}\n查詢條件: {query}\n內容: {pformat(update_query)}\n')
+    else:
+        data['creation_date'] = datetime.now()
+        data['modified_date'] = datetime.now()
+        print(f'新增資料 mongodb {collection}\n內容: {pformat(data)}\n')
+        col_client.insert_one(data)
+```
+
 ## Insert
 
 ```Python
@@ -123,6 +153,30 @@ db.inventory.insert_many(
         },
     ]
 )
+```
+
+```Python
+from pymongo import MongoClient
+
+# 連接到 MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['your_database_name']
+collection = db['your_collection_name']
+
+# 要更新的文檔條件
+query = {'_id': 1}
+
+# 要移除的欄位
+field_to_remove = 'field_name_to_remove'
+
+# 使用 $unset 運算子來移除欄位
+update_query = {'$unset': {field_to_remove: 1}}
+
+# 執行更新操作
+collection.update_one(query, update_query)
+
+# 關閉連接
+client.close()
 ```
 
 ## index
@@ -154,6 +208,13 @@ collection.create_index("唯一欄位", unique=True)
 
 # 建立具有過期時間的索引（TTL 索引）
 collection.create_index("過期時間欄位", expireAfterSeconds=3600)
+
+# 創建索引
+index_names = ["code"]
+existing_indexes = collection.index_information()
+for index_name in index_names:
+    if index_name not in existing_indexes:
+        collection.create_index(index_name)
 ```
 
 ## Query
