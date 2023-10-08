@@ -5,6 +5,7 @@
 - [Algorithm 筆記](#algorithm-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [教學](#教學)
 - [時間複雜度](#時間複雜度)
 - [空間複雜度](#空間複雜度)
 - [陣列(Array)](#陣列array)
@@ -18,6 +19,22 @@
 - [搜尋(Search)](#搜尋search)
 
 ## 參考資料
+
+### 教學
+
+[演算法學習路線圖](https://bit.ly/3atN2bW)
+
+[一次搞懂「資料結構」與「演算法」到底是什麼？](https://bit.ly/3mvItRb)
+
+[不單純的二元樹遍歷(Traversal)](https://bit.ly/3mjkiVD)
+
+[還在用古老的二元搜尋法？](https://bit.ly/390ykJ6)
+
+[紅黑樹十講・參 - 紅黑樹・新增・四大規則介紹](https://bit.ly/3xg62U3)
+
+[Java版 Graph 圖系列 內容摘要：DAG、Union Find、Dijkstra、Bellman-Ford、Floyd Warshall](https://learncodebypicture.com/algo/java/graph)
+
+[Python版 三大主題 入門篇、樹系列、Hash系列](https://learncodebypicture.com/algo/python/all)
 
 # 時間複雜度
 
