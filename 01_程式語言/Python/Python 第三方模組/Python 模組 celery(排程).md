@@ -112,4 +112,61 @@ docker run -v examples:/data -p 5555:5555 mher/flower celery --app=tasks.app flo
 # 用法
 
 ```Python
+# celery_config.py
+
+from kombu import Exchange, Queue
+
+CELERY_BROKER_URL = 'pyamqp://guest:guest@localhost//'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # 使用 Redis 作為結果儲存
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+
+CELERY_DEFAULT_QUEUE = 'default'
+CELERY_QUEUES = (
+    Queue('default', Exchange('default'), routing_key='default'),
+    Queue('queue1', Exchange('queue1'), routing_key='queue1'),
+    Queue('queue2', Exchange('queue2'), routing_key='queue2'),
+    # 其他佇列...
+)
+
+CELERY_ROUTES = {
+    'your_task_for_queue1': {'queue': 'queue1'},
+    'your_task_for_queue2': {'queue': 'queue2'},
+    # 其他任務...
+}
+
+CELERYBEAT_SCHEDULE = {
+    'task1': {
+        'task': 'your_task_for_queue1',
+        'schedule': crontab(minute=0, hour=0),  # 每天午夜執行
+    },
+    'task2': {
+        'task': 'your_task_for_queue2',
+        'schedule': crontab(minute=0, hour=1),  # 每天凌晨1點執行
+    },
+    # 其他計劃...
+}
+```
+
+```Python
+# celery_app/tasks.py
+
+from celery import Celery
+
+app = Celery('celery_app')
+app.config_from_object('celery_config')
+
+@app.task
+def your_task_for_queue1():
+    return "Task result for queue1"
+
+@app.task
+def your_task_for_queue2():
+    return "Task result for queue2"
+
+# 使用 result 參數來獲取任務的結果：
+result = your_task_for_queue1.apply_async()
+print(result.get())
 ```
