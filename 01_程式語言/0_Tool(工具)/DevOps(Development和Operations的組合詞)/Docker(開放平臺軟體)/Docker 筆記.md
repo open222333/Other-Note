@@ -23,6 +23,7 @@
 - [指令](#指令)
   - [服務](#服務)
   - [docker](#docker)
+    - [docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小](#docker-slim-容量優化工具-一些工具可以分析和優化-docker-映像的大小)
     - [image](#image)
     - [docker hub](#docker-hub)
     - [network](#network)
@@ -50,7 +51,8 @@
     - [Container Log 預設路徑：](#container-log-預設路徑)
     - [清理 Log](#清理-log)
     - [清理 Log Script](#清理-log-script)
-    - [使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)](#使用-網卡-讓-host-mode-可以連到內網的ip192168154112)
+  - [使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)](#使用-網卡-讓-host-mode-可以連到內網的ip192168154112)
+  - [查看 /var/lib/docker/overlay2 的容量使用情況](#查看-varlibdockeroverlay2-的容量使用情況)
 
 ## 參考資料
 
@@ -344,6 +346,9 @@ docker restart [OPTIONS] CONTAINER [CONTAINER...]
 docker system prune
 	-a 額外刪除任何已停止的容器和所有未使用的image
 
+# 清理不再使用的映像、容器和其他資源，以釋放磁碟空間
+docker system prune -a
+
 # 透過 iamge 執行並產生一個新的 container
 docker run [OPTIONS] [Image 名稱]:[Image 版本] [執行指令]
 	-i, --interactive 互動模式
@@ -368,6 +373,23 @@ docker exec [OPTIONS] [Container ID] [執行指令]
 docker exec -ti [Container ID] bash
 	-i, --interactive 互動模式
 	-t, --tty         配置一個終端機
+```
+
+### docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小
+
+```bash
+# 安裝 docker-slim
+curl -sL https://github.com/docker-slim/docker-slim/releases/download/1.26.1/dist_linux.tar.gz | tar -xvz
+sudo mv dist_linux/docker-slim /usr/local/bin/docker-slim
+
+# 分析 Docker 映像並生成優化的映像
+docker-slim build <your-image-name>
+
+# 優化 Docker 映像，啟用 HTTP 控制臺探測
+docker-slim build --http-probe <your-image-name>
+
+# 生成最終的 Dockerfile，用於進一步的調整和自定義
+docker-slim build --show-copies <your-image-name>
 ```
 
 ### image
@@ -1221,7 +1243,7 @@ echo "========== Clean Docker Containers Log =========="
 echo ""
 ```
 
-### 使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)
+## 使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)
 
 ```
 host mode 必須讓 container 可以取得 host 機器的 public ip、private ip 網卡
@@ -1540,4 +1562,22 @@ BOOTPROTO="static"
 IPADDR=192.168.154.112
 NETMASK=255.255.128.0
 #PREFIX0=17
+```
+
+## 查看 /var/lib/docker/overlay2 的容量使用情況
+
+```bash
+# 查看 /var/lib/docker/overlay2 的容量使用情況
+du -h /var/lib/docker/overlay2
+
+# 列出各子目錄的大小
+du -h --max-depth=1 /var/lib/docker/overlay2
+
+# 按大小排序，並顯示最大的文件或目錄在列表的頂部
+du -h --max-depth=1 /var/lib/docker/overlay2 | sort -rh
+
+# sort -rh 是 sort 命令的參數，它用於排序文本文件的行。這裡的參數的意義如下：
+
+# -r 或 --reverse：以相反的順序排序（即降序）。
+# -h 或 --human-numeric-sort：比較版本號的數字部分（即包含 K、M、G 的數字，以及十進制小數）。
 ```
