@@ -16,12 +16,13 @@
 ## 目錄
 
 - [Python 模組 selenium(爬蟲)](#python-模組-selenium爬蟲)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [範例相關](#範例相關)
-    - [下載器相關](#下載器相關)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [範例相關](#範例相關)
+		- [下載器相關](#下載器相關)
 - [指令](#指令)
 - [用法](#用法)
+	- [各種瀏覽器 背景執行](#各種瀏覽器-背景執行)
 
 ## 參考資料
 
@@ -66,5 +67,56 @@ pip install selenium
 
 # 用法
 
+## 各種瀏覽器 背景執行
+
 ```Python
+from selenium import webdriver
+from msedge.selenium_tools import Edge, EdgeOptions
+
+# 設置 Edge 選項
+options = EdgeOptions()
+options.use_chromium = True  # 使用 Chromium 版本的 Edge
+options.add_argument('--headless')  # 啟用無頭模式
+
+# 啟動 Edge 瀏覽器
+driver = Edge(options=options)
+
+# 在這裡進行你的自動化任務
+
+# 關閉瀏覽器
+driver.quit()
+```
+
+```Python
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+
+# 設置 Firefox 選項
+options = Options()
+options.headless = True
+
+# 啟動 Firefox 瀏覽器
+driver = webdriver.Firefox(options=options)
+
+# 在這裡進行你的自動化任務
+
+# 關閉瀏覽器
+driver.quit()
+```
+
+```Python
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
+# 設置 Chrome 選項
+chrome_options = Options()
+chrome_options.add_argument('--headless')  # 啟用無頭模式
+
+# 啟動 Chrome 瀏覽器
+driver = webdriver.Chrome(options=chrome_options)
+
+# 在這裡進行你的自動化任務
+
+# 關閉瀏覽器
+driver.quit()
 ```
