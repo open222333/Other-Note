@@ -102,6 +102,8 @@ nvm alias $name $version
 
 # 設定預設開啟的 node 版本
 nvm alias default $version
+nvm alias default 16.16.0
+
 
 # 查看 nvm 版本
 nvm --version

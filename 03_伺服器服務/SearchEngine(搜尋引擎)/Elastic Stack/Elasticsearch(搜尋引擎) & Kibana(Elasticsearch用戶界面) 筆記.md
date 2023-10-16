@@ -1086,6 +1086,7 @@ services:
 	  - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
 	  # chmod -R 777 ./es/data  若出現權限問題
       - ./es/data:/usr/share/elasticsearch/data:rw # 數據文件掛載
+      # chmod -R 777 ./es/logs  若出現權限問題
       - ./es/logs:/usr/share/elasticsearch/logs:rw
 	  - ./es/config:/usr/share/elasticsearch/config_default # 複製設定文檔到這資料夾
     ports:
@@ -1895,8 +1896,16 @@ thread_pool.get.queue_size: 1000
 # 安裝gcc
 yum install gcc -y
 
+# 在 CentOS 上安裝 Go
+wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
+tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+export GOPATH=$HOME/go
+source ~/.bashrc
+go version
+
 # somewhere outside your $GOPATH(golang 第三方套件安裝路徑)
-cd ~/build
+# cd ~/build
 
 # clone 專案
 git clone https://github.com/rwynn/monstache.git
@@ -2034,6 +2043,18 @@ cluster-name = 'apollo'
 
 # do not exit after full-sync, rather continue tailing the oplog
 exit-after-direct-reads = false
+
+# 排除
+direct-read-dynamic-exclude-regex = ".*(dbname1|dbname2).*\\.(m3_u8|m3u8|.*log.*).*"
+
+[[script]]
+script="""
+module.exports = function (doc, ns) {
+  var index = "{名稱}-{日期}." + ns.split(".")[1];
+  doc._meta_monstache = { index: index };
+  return doc;
+}
+"""
 ```
 
 # 例外狀況
