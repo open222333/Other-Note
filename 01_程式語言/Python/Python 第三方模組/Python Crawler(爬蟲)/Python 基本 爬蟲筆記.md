@@ -5,8 +5,10 @@
 - [Python 基本 爬蟲筆記](#python-基本-爬蟲筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [基本相關](#基本相關)
 		- [反爬蟲相關](#反爬蟲相關)
 		- [特殊案例相關](#特殊案例相關)
+- [Session、Cookie與Web Storage API](#sessioncookie與web-storage-api)
 - [範例](#範例)
 	- [blob video 下載](#blob-video-下載)
 	- [反爬蟲](#反爬蟲)
@@ -33,6 +35,10 @@
 [XPath教程](https://www.runoob.com/xpath/xpath-tutorial.html)
 
 [CSS 基本](https://developer.mozilla.org/zh-TW/docs/Learn/Getting_started_with_the_web/CSS_basics)
+
+### 基本相關
+
+[Session與Cookie的差異為何?](https://jianline.com/cookie-and-session/)
 
 ### 反爬蟲相關
 
@@ -61,6 +67,43 @@
 [[C#/Java] 针对 QINIU-PROTECTION-10 的m3u8视频文件解密](https://www.cnblogs.com/mq0036/p/14962044.html)
 
 [m3u8加密文件原理及下载脚本](https://blog.csdn.net/devil8123665/article/details/124719006)
+
+# Session、Cookie與Web Storage API
+
+```
+Session
+解決HTTP無狀態的特性
+保存在Server
+開始到結束的一段期間內的狀態
+每個Session都有開始與結束
+每個Session都是相對短暫的
+瀏覽器或Server任一方都可以終止Session
+Session隱含在狀態資訊的交換當中
+```
+
+```
+Cookie
+保存在瀏覽器
+一小段的資料(4KB)
+常用於記住使用者的登入狀態或是記住一些使用者的行為資訊
+```
+
+```
+SessionStorage
+容量為5MB
+保存在Client端
+不參與請求
+資料存在於單一瀏覽器分頁，瀏覽器關閉後即失效
+每個分頁的SessionStorage都是新的
+```
+
+```
+LocalStorage
+容量為10MB
+保存在Client端
+不參與請求
+資料除非被清除，否則永久保存
+```
 
 # 範例
 
