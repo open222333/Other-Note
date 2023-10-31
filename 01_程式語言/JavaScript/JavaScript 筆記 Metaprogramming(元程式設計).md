@@ -32,9 +32,11 @@ Metaprogramming通常需要謹慎使用，因為它可能使程式碼更難理�
 - [JavaScript 筆記 Metaprogramming(元程式設計)](#javascript-筆記-metaprogramming元程式設計)
 	- [目錄](#目錄)
 - [特性的屬性](#特性的屬性)
-	- [getOwnPropertyDescriptor](#getownpropertydescriptor)
-	- [defineProperty](#defineproperty)
-	- [defineProperties](#defineproperties)
+	- [Object.getOwnPropertyDescriptor()](#objectgetownpropertydescriptor)
+	- [Object.defineProperty()](#objectdefineproperty)
+	- [Object.defineProperties()](#objectdefineproperties)
+	- [Object.isExtensible() 以及 Object.preventExtensions()](#objectisextensible-以及-objectpreventextensions)
+	- [Object.seal(), Object.freeze(), Object.isFrozen()](#objectseal-objectfreeze-objectisfrozen)
 
 # 特性的屬性
 
@@ -48,6 +50,10 @@ enumerable（可枚舉）：
 writable（可寫入）：
 表示該屬性是否可以被賦值。如果設置為false，則無法修改該屬性的值。
 
+extensible（可擴充）：
+新的特性是否可被新增到那個物件。
+一旦使一個物件變為不可擴充，將無法再次使它變成可擴充。
+
 get（getter）：
 一個用於獲取屬性值的函式。當訪問屬性時調用。
 
@@ -55,7 +61,7 @@ set（setter）：
 一個用於設置屬性值的函式。當修改屬性時調用。
 ```
 
-## getOwnPropertyDescriptor
+## Object.getOwnPropertyDescriptor()
 
 ```JavaScript
 // Object.getOwnPropertyDescriptor()
@@ -78,7 +84,7 @@ Object.getOwnPropertyDescriptor({}, "x"); // => undefined 沒有這個特秀
 Object.getOwnPropertyDescriptor({}, "toString"); // => 繼承的
 ```
 
-## defineProperty
+## Object.defineProperty()
 
 ```JavaScript
 // Object.defineProperty()
@@ -109,7 +115,7 @@ Object.defineProperty(o, "x", {
 console.log(o.x); // => 0
 ```
 
-## defineProperties
+## Object.defineProperties()
 
 ```JavaScript
 // Object.defineProperties()
@@ -130,4 +136,67 @@ let p = Object.defineProperties(
 );
 
 console.log(`Object.defineProperties() p.r => ${p.r}`);
+```
+
+## Object.isExtensible() 以及 Object.preventExtensions()
+
+```JavaScript
+// 用來限制對象的修改，提高程式的穩定性和可靠性。
+
+// Object.isExtensible()
+// 檢查對象是否是可擴展的（extensible）
+
+// Object.preventExtensions()
+// 防止對象擴展，即禁止向其添加新屬性，現有的特性也無法配置或刪除。
+
+const obj = { property: "value" };
+
+console.log(Object.isExtensible(obj)); // true
+
+// 防止對象擴展，即禁止向其添加新屬性
+Object.preventExtensions(obj);
+
+console.log(Object.isExtensible(obj)); // false
+```
+
+## Object.seal(), Object.freeze(), Object.isFrozen()
+
+```JavaScript
+// Object.seal() 方法將對象密封，防止向其添加新屬性並將現有屬性設為不可配置。
+// 密封的對象仍然可以修改現有屬性的值。
+// Object.isSealed(obj) 可以用於檢查對象是否被密封。
+
+const obj = { property: "value" };
+console.log(Object.isSealed(obj)); // false
+
+Object.seal(obj);
+
+// 無法添加新屬性
+obj.newProperty = "new value";
+console.log(obj.newProperty); // undefined
+
+// 可以修改現有屬性的值
+obj.property = "new value";
+console.log(obj.property); // "new value"
+
+console.log(Object.isSealed(obj)); // true
+
+// Object.freeze() 方法凍結對象，防止向其添加新屬性，將現有屬性設為不可配置和不可寫。
+// 凍結的對象的屬性值不能被修改。
+// Object.isFrozen(obj) 可以用於檢查對象是否被凍結。
+
+const obj = { property: "value" };
+console.log(Object.isFrozen(obj)); // false
+
+Object.freeze(obj);
+
+// 無法添加新屬性
+obj.newProperty = "new value";
+console.log(obj.newProperty); // undefined
+
+// 不能修改現有屬性的值
+obj.property = "new value";
+console.log(obj.property); // "value"
+
+console.log(Object.isFrozen(obj)); // true
 ```
