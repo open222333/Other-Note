@@ -749,16 +749,25 @@ mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][
 ```bash
 # 修改 mongod.conf
 vim /etc/mongod.conf
-	# net:
-	# 	port: 27017
-	# 	bindIp: 0.0.0.0
 
-	# replication:
-	# 	replSetName: replicaSet_name
+# net:
+# 	port: 27017
+# 	bindIp: 0.0.0.0
 
-	# // 加入 key驗證 功能(參考 指令 key驗證 生成key)
-	# security:
-	# 	keyFile: /var/lib/mongodb/mongodb-keyfile
+# replication:
+# 	replSetName: replicaSet_name
+
+# // 加入 key驗證 功能(參考 指令 key驗證 生成key)
+# security:
+# 	keyFile: /var/lib/mongodb/mongodb-keyfile
+
+# 生成 MongoDB keyfile
+openssl rand -base64 741 > /path/to/mongodb-keyfile
+
+# 設置 keyfile 文件的權限，只允許擁有者讀取和寫入
+# -rw-------   1 mongod mongod      1004 10月 31 09:25 mongodb-keyfile
+chown mongod:mongod /path/to/mongodb-keyfile
+chmod 600 /path/to/mongodb-keyfile
 
 # 在 /etc/hosts 定義這三台要安裝的 hostname 與 IP Address
 vim /etc/hosts
@@ -793,6 +802,7 @@ cfg = {
 
 // 建立 Replica_Set 啟用副本模式
 rs.initiate(cfg);
+rs.initiate()
 
 // 透過 rs.status() 查看 Replica Set 設定狀態
 rs.status()
