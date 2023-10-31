@@ -37,6 +37,7 @@ Metaprogramming通常需要謹慎使用，因為它可能使程式碼更難理�
 	- [Object.defineProperties()](#objectdefineproperties)
 	- [Object.isExtensible() 以及 Object.preventExtensions()](#objectisextensible-以及-objectpreventextensions)
 	- [Object.seal(), Object.freeze(), Object.isFrozen()](#objectseal-objectfreeze-objectisfrozen)
+	- [Object.getPrototypeOf(), Object.isPrototypeOf(), Object.setPrototypeOf()](#objectgetprototypeof-objectisprototypeof-objectsetprototypeof)
 
 # 特性的屬性
 
@@ -50,15 +51,19 @@ enumerable（可枚舉）：
 writable（可寫入）：
 表示該屬性是否可以被賦值。如果設置為false，則無法修改該屬性的值。
 
-extensible（可擴充）：
-新的特性是否可被新增到那個物件。
-一旦使一個物件變為不可擴充，將無法再次使它變成可擴充。
-
 get（getter）：
 一個用於獲取屬性值的函式。當訪問屬性時調用。
 
 set（setter）：
 一個用於設置屬性值的函式。當修改屬性時調用。
+
+extensible（可擴充）：
+新的特性是否可被新增到那個物件。
+一旦使一個物件變為不可擴充，將無法再次使它變成可擴充。
+
+prototype（原型）：
+prototype 屬性的使用使得 JavaScript 可以實現基於原型的繼承，並且可以共享方法和屬性。
+這在建立構造函式和定義可重用行為時很有用。
 ```
 
 ## Object.getOwnPropertyDescriptor()
@@ -199,4 +204,40 @@ obj.property = "new value";
 console.log(obj.property); // "value"
 
 console.log(Object.isFrozen(obj)); // true
+```
+
+## Object.getPrototypeOf(), Object.isPrototypeOf(), Object.setPrototypeOf()
+
+```JavaScript
+// Object.getPrototypeOf() 查詢物件的原型
+Object.getPrototypeOf({}); // => Object.prototype
+Object.getPrototypeOf([]); // => Array.prototype
+Object.getPrototypeOf(() => {}); // => Function.prototype
+
+// Object.isPrototypeOf() 判斷物件是否另一個物件的原型
+let p = { x: 1 };
+let o = Object.create(p);
+p.isPrototypeOf(o); // => true, o 繼承自 p
+Object.prototype.isPrototypeOf(p); // => true, p 繼承自 prototype
+Object.prototype.isPrototypeOf(o); // => true, o 繼承自 prototype
+
+// Object.setPrototypeOf() 改變物件的原型
+let o1 = { x: 1 };
+let p1 = { y: 2 };
+Object.setPrototypeOf(o1, p1); // 將 o1 的原型設為 p1
+console.log(`o1.y => ${o1.y}`); // o1 現在繼承特性 ｙ1
+let a1 = [1, 2, 3];
+Object.setPrototypeOf(a1, p1); // 把陣列 a1 的原型設為 p1
+console.log(`a1.join => ${a1.join}`); // => undefined: a1 不再有一個join方法
+
+// 早期的 JavaScript 會透過 __proto__ 特性對外提供物件的 prototype 屬性
+// __proto__ 一個特別用途：定義一個物件字面值的原型
+let p2 = { z: 3 };
+let o2 = {
+  x: 1,
+  y: 2,
+  __proto__: p2,
+};
+
+console.log(`o2.z => ${o2.z}`); // => 3: o2 繼承自 p2
 ```
