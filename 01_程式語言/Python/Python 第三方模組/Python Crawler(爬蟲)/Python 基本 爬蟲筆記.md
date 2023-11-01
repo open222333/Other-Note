@@ -21,6 +21,7 @@
 		- [封鎖代理伺服器與第三方 IP](#封鎖代理伺服器與第三方-ip)
 		- [設置網址格式](#設置網址格式)
 		- [cf\_clearance cookie](#cf_clearance-cookie)
+		- [登入機制範例 (2020 新光證卷)](#登入機制範例-2020-新光證卷)
 
 ## 參考資料
 
@@ -67,6 +68,8 @@
 [[C#/Java] 针对 QINIU-PROTECTION-10 的m3u8视频文件解密](https://www.cnblogs.com/mq0036/p/14962044.html)
 
 [m3u8加密文件原理及下载脚本](https://blog.csdn.net/devil8123665/article/details/124719006)
+
+[自動下單(Part 1)：用Python爬取交易記錄](https://www.finlab.tw/%E7%94%A8python%E7%8D%B2%E5%8F%96%E6%8C%81%E8%82%A1%E6%90%8D%E7%9B%8A%E8%A1%A8/#da_kai_quan_shang_kan_pan_ruan_ti_wang_zhan)
 
 # Session、Cookie與Web Storage API
 
@@ -312,3 +315,111 @@ if re.search(r'monsnode.com', URL):
 ```
 
 ### cf_clearance cookie
+
+```Python
+# 取得 cf_clearance Cookie 的方式通常是透過一個 HTTP 請求，例如使用 Python 的 requests 模組。以下是一個簡單的範例：
+import requests
+
+url = 'https://example.com'  # 替換成你想要訪問的網站 URL
+
+# 發送 HTTP 請求
+response = requests.get(url)
+
+# 從回應中取得 cf_clearance Cookie
+cf_clearance_cookie = response.cookies.get('cf_clearance')
+
+if cf_clearance_cookie:
+    print(f'cf_clearance Cookie: {cf_clearance_cookie}')
+else:
+    print('未找到 cf_clearance Cookie')
+# 這個範例使用 requests 模組向指定的 URL 發送 GET 請求，然後從回應的 Cookies 中擷取 cf_clearance Cookie。
+# 請注意，這僅是一個簡單的範例，實際情況可能涉及到更複雜的網站存取邏輯，例如處理 JavaScript 渲染、處理驗證機制等。
+```
+
+### 登入機制範例 (2020 新光證卷)
+
+```Python
+# 打開網頁，監控network
+# 查看登入機制是如何運作的，知道了內部的機制，才能用python來模擬登入的動作
+# 用無痕視窗登入頁面
+# 對著網頁任何一處按右鍵，選擇inspect
+# 選擇network
+
+# network這個列表，最主要就是會紀錄網頁所用到的 get 跟 post 的請求
+# 輸入帳號密碼按下登入，點選其中的 Login.aspx，裡面紀錄著用來登入的通訊過程。
+# 查看 form data 內容：
+
+# __EVENTTARGET: 欄位為空
+# __EVENTARGUMENT: 欄位為空
+# __VIEWSTATE: 亂碼
+# __VIEWSTATEGENERATOR: 亂碼
+# __EVENTVALIDATION: 亂碼
+# TxtIDNo: 你的身份證字號,
+# TxtPass: 你的密碼,
+# HiddenIDNo: 你的生份正字號,
+# Button1: 登入,
+# 得找到這些欄位的正確內容，登入才會生效。
+
+# 到原本的登入網頁找：
+# 回到登入頁面（inspect依然開啟）
+# 點選 inspect 中的 Element，打開網站的原始碼，並搜尋（Ctrl-F 或 Cmd-F），’__VIEWSTATE’，就可以找到它的value
+# 其它如「__EVENTARGUMENT」、「__VIEWSTATE」、「__VIEWSTATEGENERATOR」、「__EVENTVALIDATION」也是用一樣的方式找
+
+```
+
+```Python
+# find_value 的函式，找出網頁中的怪碼
+import re
+import requests
+import pandas as pd
+from io import StringIO
+
+# 開啟瀏覽器
+ses = requests.Session()
+
+# 打開登入網頁
+d = ses.get('https://w.sk88.com.tw/Cross/Pc/Login.aspx')
+
+# 此函式會找特定的value，如「__VIEWSTATE」等
+def find_value(name, web):
+    reg = 'name="' + name + '".+value="(.*)" />'
+    pattern = re.compile(reg)
+    result  = pattern.findall(web.text)
+    try:
+        return result[0]
+    except:
+        return ""
+
+# 使用方式
+# find_value('__VIEWSTATE', d)
+
+
+data = {
+    '__EVENTTARGET': find_value('__EVENTTARGET', d),
+    '__EVENTARGUMENT': find_value('__EVENTARGUMENT', d),
+    '__VIEWSTATE': find_value('__VIEWSTATE', d),
+    '__VIEWSTATEGENERATOR': find_value('__VIEWSTATEGENERATOR', d),
+    '__EVENTVALIDATION': find_value('__EVENTVALIDATION', d),
+    'TxtIDNo':'你的身份證字號（帳號）',
+    'TxtPass':'密碼',
+    'HiddenIDNo':'你的身份證字號（帳號）',
+    'Button1':'登入',
+}
+
+# 登入
+login = ses.post('https://w.sk88.com.tw/Cross/Pc/Login.aspx', data=data)
+# 下載持股
+data = ses.get('https://w.sk88.com.tw/Cross/Pc/QueryPositionRealTime.aspx')
+data.encoding = 'utf-8'
+
+# 用 pandas 整理
+df = pd.read_html(StringIO(data.text))[0]
+
+# 設定第一行row 為 欄位名稱
+df.columns = df.iloc[0]
+
+# 刪除第一行row
+df = df.iloc[1:]
+
+df
+```
