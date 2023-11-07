@@ -35,6 +35,8 @@ amd64=x86_64=x64!=IA64
 
 [快速安装 FFmpeg 静态构建版本](https://anlan.cc/191)
 
+[Win 10 安裝 FFmpeg](https://annkuoq.github.io/blog/2019-12-17-install-ffmpeg/)
+
 ### HLS參數相關
 
 [文檔 有關ffmpeg的HLS 參數說明：](https://ffmpeg.org/ffmpeg-formats.html)
