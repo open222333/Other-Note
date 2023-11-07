@@ -40,6 +40,21 @@ bash Anaconda3-5.3.1-Linux-x86_64.sh
 source ~/.bashrc
 ```
 
+## Windows PowerShell 設定 環境變數路徑
+
+```PowerShell
+# 獲取 Conda 的安裝路徑
+$condaPath = (Get-Command conda.exe).Source
+
+# 將 Conda 的安裝路徑添加到 PATH
+$env:PATH += ";$condaPath"
+
+# 設定路徑
+$env:PATH += ";C://path/to/Script"
+# 確認變更
+echo $env:PATH
+```
+
 ## 安裝步驟 CentOS7 Miniconda(輕量化)
 
 ```bash
