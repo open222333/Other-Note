@@ -43,16 +43,24 @@ source ~/.bashrc
 ## Windows PowerShell 設定 環境變數路徑
 
 ```PowerShell
-# 獲取 Conda 的安裝路徑
-$condaPath = (Get-Command conda.exe).Source
+# https://learn.microsoft.com/zh-tw/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.3#the-profile-variable
+# 只能在當前 PowerShell 生效
+$env:PATH += ";C:\Path\to\Anaconda3"
+$env:PATH += ";C:\Path\to\Anaconda3\Scripts"
+$env:PATH += ";C:\Path\to\Anaconda3\Library\bin"
 
-# 將 Conda 的安裝路徑添加到 PATH
-$env:PATH += ";$condaPath"
+# 建立 PowerShell 設定檔
+if (!(Test-Path -Path <profile-name>)) {
+  New-Item -ItemType File -Path <profile-name> -Force
+}
 
-# 設定路徑
-$env:PATH += ";C://path/to/Script"
-# 確認變更
-echo $env:PATH
+# 在目前的 PowerShell 主應用程式中建立目前使用者的設定檔
+if (!(Test-Path -Path $PROFILE)) {
+  New-Item -ItemType File -Path $PROFILE -Force
+}
+
+# 開啟目前 PowerShell 主應用程式中目前使用者的設定檔
+notepad $PROFILE
 ```
 
 ## 安裝步驟 CentOS7 Miniconda(輕量化)

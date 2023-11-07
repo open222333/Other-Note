@@ -29,4 +29,34 @@ $env:PATH += ";$condaPath"
 
 # 確認變更
 echo $env:PATH
+
+
+# 設定 Anaconda3 路徑到系統環境變數 PATH
+$env:PATH += ";C:\Path\to\Anaconda3"
+$env:PATH += ";C:\Path\to\Anaconda3\Scripts"
+$env:PATH += ";C:\Path\to\Anaconda3\Library\bin"
+
+# 安裝 Python 套件
+pip install requests
+
+# 啟動 Anaconda Navigator
+start anaconda-navigator
+
+# 列出當前目錄下的文件
+Get-ChildItem
+
+# 創建一個新資料夾
+New-Item -ItemType Directory -Path C:\NewFolder
+
+# 下載文件
+Invoke-WebRequest -Uri "https://example.com/file.zip" -OutFile "C:\Path\to\file.zip"
+
+# 切換目錄
+Set-Location -Path C:\Path\to\Your\Directory
+
+# 啟動 Visual Studio Code
+code
+
+# 顯示系統日期和時間
+Get-Date
 ```
