@@ -43,6 +43,12 @@ source ~/.bashrc
 ## Windows PowerShell 設定 環境變數路徑
 
 ```PowerShell
+# 開啟檔案總管
+# 對 本機 按右鍵 > 內容 > 進階系統設定 > 進階 > 環境變數 >點擊系統變數的 Path > 編輯 > 新增 > 
+# C:\Path\to\Anaconda3
+# C:\Path\to\Anaconda3\Scripts
+# C:\Path\to\Anaconda3\Library\bin
+
 # https://learn.microsoft.com/zh-tw/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.3#the-profile-variable
 # 只能在當前 PowerShell 生效
 $env:PATH += ";C:\Path\to\Anaconda3"
