@@ -3,8 +3,10 @@
 ## 目錄
 
 - [Windows PowerShell 筆記](#windows-powershell-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+- [用法](#用法)
+  - [設定 安裝路徑(以Conda為例)](#設定-安裝路徑以conda為例)
 
 ## 參考資料
 
@@ -13,3 +15,18 @@
 [PowerShell - 官方文檔](https://learn.microsoft.com/zh-tw/powershell/)
 
 [指令查詢](https://ss64.com/ps/)
+
+# 用法
+
+## 設定 安裝路徑(以Conda為例)
+
+```PowerShell
+# 獲取 Conda 的安裝路徑
+$condaPath = (Get-Command conda.exe).Source
+
+# 將 Conda 的安裝路徑添加到 PATH
+$env:PATH += ";$condaPath"
+
+# 確認變更
+echo $env:PATH
+```
