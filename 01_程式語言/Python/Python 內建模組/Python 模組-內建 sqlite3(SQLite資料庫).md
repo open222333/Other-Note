@@ -55,3 +55,110 @@ c.execute('insert into stocks values (?,?,?,?,?)', t)
 #     語法：DELETE from 表單 where 標明那一筆紀錄
 #     需用commit()更新資料庫
 ```
+
+```Python
+import sqlite3
+
+# 連接到 SQLite 資料庫（如果不存在，會自動建立）
+conn = sqlite3.connect('example.db')
+
+# 創建一個游標物件，用於執行 SQL 查詢
+cursor = conn.cursor()
+
+# 創建一個表格
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        age INTEGER
+    )
+''')
+
+# 插入一些資料
+cursor.execute("INSERT INTO users (name, age) VALUES (?, ?)", ('Alice', 25))
+cursor.execute("INSERT INTO users (name, age) VALUES (?, ?)", ('Bob', 30))
+
+# 提交更改
+conn.commit()
+
+# 查詢資料
+cursor.execute("SELECT * FROM users")
+rows = cursor.fetchall()
+
+# 印出結果
+for row in rows:
+    print(row)
+
+# 關閉連接
+conn.close()
+```
+
+```Python
+import sqlite3
+
+class SQLiteDatabase:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        self.conn = None
+        self.cursor = None
+
+    def connect(self):
+        self.conn = sqlite3.connect(self.db_path)
+        self.cursor = self.conn.cursor()
+
+    def disconnect(self):
+        if self.conn:
+            self.conn.close()
+
+    def execute_query(self, query, params=None):
+        if not self.conn:
+            self.connect()
+
+        if params:
+            self.cursor.execute(query, params)
+        else:
+            self.cursor.execute(query)
+
+    def fetch_all(self):
+        return self.cursor.fetchall()
+
+    def commit(self):
+        if self.conn:
+            self.conn.commit()
+
+    def close(self):
+        if self.conn:
+            self.conn.close()
+
+# 使用範例
+db_path = "example.db"
+db = SQLiteDatabase(db_path)
+
+# 創建表格
+create_table_query = """
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    email TEXT
+);
+"""
+db.execute_query(create_table_query)
+db.commit()
+
+# 插入資料
+insert_data_query = "INSERT INTO users (username, email) VALUES (?, ?);"
+user_data = ("john_doe", "john@example.com")
+db.execute_query(insert_data_query, user_data)
+db.commit()
+
+# 查詢資料
+select_data_query = "SELECT * FROM users;"
+db.execute_query(select_data_query)
+results = db.fetch_all()
+
+for result in results:
+    print(result)
+
+# 關閉資料庫連接
+db.close()
+```
