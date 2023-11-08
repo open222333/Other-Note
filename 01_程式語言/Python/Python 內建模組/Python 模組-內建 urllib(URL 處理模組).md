@@ -11,6 +11,7 @@ urllib 是一個蒐集了許多處理 URLs 的 module（模組）的 package（�
   - [參考資料](#參考資料)
 - [用法](#用法)
   - [urllib.parse 用來剖析 URLs](#urllibparse-用來剖析-urls)
+  - [解析 域名](#解析-域名)
 
 ## 參考資料
 
@@ -78,4 +79,25 @@ dir_path, file_name = os.path.split(path)
 print("Original URL:", url_string)
 print("Directory Path:", dir_path)
 print("File Name:", file_name)
+```
+
+## 解析 域名
+
+```Python
+import re
+from urllib.parse import urlsplit
+
+def split_subdomains_with_re(domain):
+    match = re.match(r'^(?P<subdomain>[^.]+)\.(?P<main_domain>.+\..+)$', domain)
+    if match:
+        return match.group('subdomain'), match.group('main_domain')
+    else:
+        return None, None
+
+url = "http://example.com/path/to/page"
+split_url = urlsplit(url)
+first_subdomain, main_domain = split_subdomains_with_re(split_url.netloc)
+
+print("第一級子域名:", first_subdomain)
+print("主域名:", main_domain)
 ```
