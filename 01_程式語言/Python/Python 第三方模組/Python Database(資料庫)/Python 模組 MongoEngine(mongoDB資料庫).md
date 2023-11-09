@@ -11,6 +11,7 @@
 - [指令](#指令)
 - [用法](#用法)
   - [mongoengine 與 flask\_mongoengine 差別](#mongoengine-與-flask_mongoengine-差別)
+  - [如何在 MongoEngine 中使用 EmbeddedDocumentField](#如何在-mongoengine-中使用-embeddeddocumentfield)
 
 ## 參考資料
 
@@ -95,4 +96,26 @@ db = MongoEngine(app)
 class User(db.Document):
     username = db.StringField()
     email = db.StringField()
+```
+
+## 如何在 MongoEngine 中使用 EmbeddedDocumentField
+
+```Python
+# https://docs.mongoengine.org/guide/defining-documents.html#embedded-documents
+from mongoengine import Document, EmbeddedDocument
+
+class Address(EmbeddedDocument):
+    street = StringField(required=True)
+    city = StringField(required=True)
+    state = StringField(required=True)
+
+class Person(Document):
+    name = StringField(required=True)
+    address = EmbeddedDocumentField(Address, required=True)
+
+# 創建一個人物對象
+person = Person(name="John Doe", address={"street": "123 Main St", "city": "City", "state": "State"})
+
+# 保存到數據庫
+person.save()
 ```
