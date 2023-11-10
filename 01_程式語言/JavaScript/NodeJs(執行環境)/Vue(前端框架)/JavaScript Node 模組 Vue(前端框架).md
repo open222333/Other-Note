@@ -1,4 +1,4 @@
-# JavaScript Node 模組 vue(前端框架)
+# JavaScript Node 模組 Vue(前端框架)
 
 ```
 Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前端JavaScript框架，也是一個建立單頁應用的Web應用框架。
@@ -6,27 +6,27 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 
 ## 目錄
 
-- [JavaScript Node 模組 vue(前端框架)](#javascript-node-模組-vue前端框架)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [Vue3相關](#vue3相關)
-		- [Vite網站](#vite網站)
-		- [教學相關](#教學相關)
-		- [UI元素](#ui元素)
-		- [VSCode相關](#vscode相關)
-		- [瀏覽器開發者插件](#瀏覽器開發者插件)
+- [JavaScript Node 模組 Vue(前端框架)](#javascript-node-模組-vue前端框架)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [Vue3相關](#vue3相關)
+    - [Vite網站](#vite網站)
+    - [教學相關](#教學相關)
+    - [UI元素](#ui元素)
+    - [VSCode相關](#vscode相關)
+    - [瀏覽器開發者插件](#瀏覽器開發者插件)
 - [安裝](#安裝)
-	- [Vue CLI](#vue-cli)
-	- [Vite](#vite)
+  - [Vue CLI](#vue-cli)
+  - [Vite](#vite)
 - [指令](#指令)
-	- [Vue CLI](#vue-cli-1)
-	- [Vite](#vite-1)
+  - [Vue CLI](#vue-cli-1)
+  - [Vite](#vite-1)
 - [專案結構](#專案結構)
 - [用法](#用法)
-	- [Vue3 指令](#vue3-指令)
+  - [Vue3 指令](#vue3-指令)
 - [VSCode套件](#vscode套件)
-	- [Vetur](#vetur)
-	- [Volar](#volar)
+  - [Vetur](#vetur)
+  - [Volar](#volar)
 - [.gitignore範本](#gitignore範本)
 
 ## 參考資料
@@ -48,6 +48,8 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 [Vue3 組件](https://vuejs.org/guide/essentials/component-basics.html)
 
 [Vue3 組件(中文)](https://cn.vuejs.org/guide/essentials/component-basics.html)
+
+[Vue3 教程 - 菜鳥教程](https://www.runoob.com/vue3/vue3-tutorial.html)
 
 ### Vite網站
 

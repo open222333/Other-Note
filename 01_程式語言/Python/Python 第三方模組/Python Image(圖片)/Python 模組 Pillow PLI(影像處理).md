@@ -12,6 +12,7 @@
 - [指令](#指令)
 - [用法](#用法)
   - [判斷圖片是否正常](#判斷圖片是否正常)
+  - [取得 圖片資訊](#取得-圖片資訊)
 
 ## 參考資料
 
@@ -97,4 +98,56 @@ if __name__ == '__main__':
         print('The image from the URL is valid.')
     else:
         print('The image from the URL is not valid.')
+```
+
+## 取得 圖片資訊
+
+```Python
+import requests
+from PIL import Image
+from io import BytesIO
+
+
+def get_image_dimensions(url: str):
+    """取得圖片網址的圖片寬度高度
+
+    Args:
+        url (str): 圖片網址
+    """
+    try:
+        response = requests.get(url)
+        image_data = BytesIO(response.content)
+        image = Image.open(image_data)
+        width, height = image.size
+
+        return {
+            'width': width,
+            'height': height
+        }
+    except Exception as err:
+        print(f'取得圖片網址的圖片寬度高度 發生錯誤: {err}', exc_info=True)
+        return {
+            'width': None,
+            'height': None
+        }
+
+def get_local_image_dimensions(file_path: str):
+    """取得本地圖片的圖片寬度高度
+
+    Args:
+        file_path (str): 圖片路徑
+    """
+    try:
+        image = Image.open(file_path)
+        width, height = image.size
+        return {
+            'width': width,
+            'height': height
+        }
+    except Exception as err:
+        print(f'取得本地圖片的圖片寬度高度 發生錯誤: {err}', exc_info=True)
+        return {
+            'width': None,
+            'height': None
+        }
 ```
