@@ -38,3 +38,23 @@ pip install SQLAlchemy
 ## ImportError: No module named MySQLdb
 
 [ImportError: No module named MySQLdb](https://stackoverflow.com/questions/22252397/importerror-no-module-named-mysqldb)
+
+# 用法
+
+## 動態生成條件
+
+```Python
+from sqlalchemy import and_, or_
+
+# 構建 AND 條件
+condition_and = and_(table.c.column1 == 'value1', table.c.column2 == 'value2')
+
+# 構建 OR 條件
+condition_or = or_(table.c.column1 == 'value1', table.c.column2 == 'value2')
+
+
+conditions_dict = {'column1': 'value1', 'column2': 'value2'}
+
+# 動態生成 AND 條件
+condition_and_dynamic = and_(*[table.c[column] == value for column, value in conditions_dict.items()])
+```
