@@ -37,6 +37,7 @@
 	- [for/await迴圈](#forawait迴圈)
 		- [非同步迭代器](#非同步迭代器)
 		- [非同步產生器](#非同步產生器)
+			- [Symbol.hasInstance](#symbolhasinstance)
 - [全域函式](#全域函式)
 	- [計時器](#計時器)
 		- [setTimeout()](#settimeout)
@@ -1258,6 +1259,10 @@ async function test() {
   }
 }
 ```
+
+#### Symbol.hasInstance
+
+
 
 # 全域函式
 
