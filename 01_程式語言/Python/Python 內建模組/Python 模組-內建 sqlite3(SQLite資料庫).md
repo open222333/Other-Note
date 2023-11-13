@@ -18,11 +18,34 @@ SQLite資料類型：
 - [Python 模組-內建 sqlite3(SQLite資料庫)](#python-模組-內建-sqlite3sqlite資料庫)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [教學相關](#教學相關)
+		- [SQLAlchemy 相關](#sqlalchemy-相關)
 - [用法](#用法)
+	- [使用 SQLAlchemy 操作 SQLite3 資料庫](#使用-sqlalchemy-操作-sqlite3-資料庫)
 
 ## 參考資料
 
 [sqlite3 官方文檔](https://docs.python.org/zh-tw/3/library/sqlite3.html)
+
+[SQLite 官網](https://www.sqlite.org/index.html)
+
+[SQL Tutorial](https://www.w3schools.com/sql/)
+
+[PEP 249 – Python Database API Specification v2.0](https://peps.python.org/pep-0249/)
+
+### 教學相關
+
+[Python3+SQLAlchemy+Sqlite3实现ORM教程](https://www.cnblogs.com/lsdb/p/9835894.html)
+
+### SQLAlchemy 相關
+
+[SQLite](https://docs.sqlalchemy.org/en/20/dialects/sqlite.html)
+
+[SQLAlchemy 2.0 Documentation - Using INSERT Statements](https://docs.sqlalchemy.org/en/20/tutorial/data_insert.html)
+
+[SQLAlchemy 2.0 Documentation - Using SELECT Statements](https://docs.sqlalchemy.org/en/20/tutorial/data_select.html)
+
+[SQLAlchemy 2.0 Documentation - Using UPDATE and DELETE Statements¶](https://docs.sqlalchemy.org/en/20/tutorial/data_update.html)
 
 # 用法
 
@@ -161,4 +184,190 @@ for result in results:
 
 # 關閉資料庫連接
 db.close()
+```
+
+## 使用 SQLAlchemy 操作 SQLite3 資料庫
+
+```bash
+# 使用 SQLAlchemy 操作 SQLite3 資料庫時，你需要先安裝 SQLAlchemy
+pip install sqlalchemy
+```
+
+```Python
+# 使用 SQLAlchemy 連接 SQLite3 資料庫
+from sqlalchemy import create_engine, Column, Integer, String, MetaData, Table
+
+# 連接 SQLite3 資料庫
+engine = create_engine('sqlite:///example.db', echo=True)  # echo=True 可以顯示 SQL 語句
+
+# 獲取元數據對象
+metadata = MetaData()
+
+# 定義表結構
+users = Table('users', metadata,
+              Column('id', Integer, primary_key=True),
+              Column('name', String),
+              Column('age', Integer)
+              )
+
+# 創建表
+metadata.create_all(engine)
+```
+
+```Python
+# 插入資料
+from sqlalchemy import insert
+
+# 獲取資料庫連接
+conn = engine.connect()
+
+# 插入資料
+conn.execute(insert(users).values(name='John Doe', age=30))
+conn.execute(insert(users).values(name='Jane Doe', age=25))
+```
+
+```Python
+# 查詢資料
+from sqlalchemy import select
+
+# 查詢資料
+result = conn.execute(select(users))
+
+# 顯示查詢結果
+for row in result:
+    print(row)
+```
+
+```Python
+from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData
+
+class SQLiteDatabase:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        self.engine = None
+        self.metadata = MetaData()
+
+    def connect(self):
+        self.engine = create_engine(f'sqlite:///{self.db_path}')
+        self.metadata.create_all(self.engine)
+
+    def disconnect(self):
+        if self.engine:
+            self.engine.dispose()
+
+    def insert(self, table_name, values):
+        table = Table(table_name, self.metadata, autoload_with=self.engine)
+        ins = table.insert().values(values)
+        with self.engine.connect() as connection:
+            connection.execute(ins)
+
+    def select(self, table_name, condition=None):
+        table = Table(table_name, self.metadata, autoload_with=self.engine)
+        sel = table.select().where(condition) if condition else table.select()
+        with self.engine.connect() as connection:
+            result = connection.execute(sel)
+            return result.fetchall()
+
+    def delete(self, table_name, condition):
+        table = Table(table_name, self.metadata, autoload_with=self.engine)
+        delete_stmt = table.delete().where(condition)
+        with self.engine.connect() as connection:
+            connection.execute(delete_stmt)
+
+    def update(self, table_name, values, condition):
+        table = Table(table_name, self.metadata, autoload_with=self.engine)
+        update_stmt = table.update().values(values).where(condition)
+        with self.engine.connect() as connection:
+            connection.execute(update_stmt)
+
+# 示例用法
+db = SQLiteDatabase("example.db")
+
+# 插入數據
+db.insert('users', {'name': 'John Doe', 'age': 25})
+
+# 查詢數據
+result = db.select('users')
+print(result)
+
+# 更新數據
+db.update('users', {'age': 26}, condition='name = "John Doe"')
+
+# 再次查詢數據
+result = db.select('users')
+print(result)
+
+# 刪除數據
+db.delete('users', condition='name = "John Doe"')
+
+# 最終查詢
+result = db.select('users')
+print(result)
+
+# 關閉數據庫連接
+db.disconnect()
+```
+
+```Python
+# 動態生成條件
+from sqlalchemy import and_, or_
+
+# 構建 AND 條件
+condition_and = and_(table.c.column1 == 'value1', table.c.column2 == 'value2')
+
+# 構建 OR 條件
+condition_or = or_(table.c.column1 == 'value1', table.c.column2 == 'value2')
+
+conditions_dict = {'column1': 'value1', 'column2': 'value2'}
+
+# 動態生成 AND 條件
+condition_and_dynamic = and_(*[table.c[column] == value for column, value in conditions_dict.items()])
+```
+
+```Python
+from sqlalchemy import create_engine, Table, MetaData, Column, Integer, and_, or_
+
+def build_condition(table, conditions_dict):
+    conditions = []
+
+    for column, value in conditions_dict.items():
+        if isinstance(value, dict):
+            # 如果值是字典，遞迴處理
+            sub_condition = build_condition(table, value)
+            conditions.append(sub_condition)
+        elif '>' in value:
+            condition = table.c[column] > int(value.split('>')[1])
+        elif '<' in value:
+            condition = table.c[column] < int(value.split('<')[1])
+        # 可以添加其他比較條件的判斷
+
+        conditions.append(condition)
+
+    # 檢查是否包含 AND 或 OR 條件
+    if 'AND' in conditions_dict:
+        conditions.append(and_(*conditions_dict['AND']))
+    if 'OR' in conditions_dict:
+        conditions.append(or_(*conditions_dict['OR']))
+
+    return and_(*conditions)
+
+# 假設有一個名為 'mytable' 的表格，包含 'column1' 和 'column2' 兩個欄位
+engine = create_engine('sqlite:///:memory:')
+metadata = MetaData()
+mytable = Table('mytable', metadata,
+    Column('column1', Integer),
+    Column('column2', Integer)
+)
+metadata.create_all(engine)
+
+# 使用包含 AND 和 OR 條件的字典動態生成條件
+conditions_dict = {
+    'column1': '> 10',
+    'column2': {'< 5', 'AND': ['> 2', '< 8']},
+    'OR': ['column1 > 15', 'column2 < 3']
+}
+condition = build_condition(mytable, conditions_dict)
+
+# 列印生成的條件
+print(condition)
 ```
