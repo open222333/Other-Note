@@ -63,3 +63,25 @@ salt = hashlib.sha256()
 salt.update(path.encode('utf-8'))
 salt.hexdigest()
 ```
+
+```Python
+# 哈希函數 (Hash Functions)
+import hashlib
+
+# 使用 MD5 哈希函數
+def md5_hash(text):
+    md5 = hashlib.md5()
+    md5.update(text.encode('utf-8'))
+    return md5.hexdigest()
+
+# 使用 SHA-256 哈希函數
+def sha256_hash(text):
+    sha256 = hashlib.sha256()
+    sha256.update(text.encode('utf-8'))
+    return sha256.hexdigest()
+
+# 測試
+text_to_hash = "Hello, World!"
+print("MD5 Hash:", md5_hash(text_to_hash))
+print("SHA-256 Hash:", sha256_hash(text_to_hash))
+```

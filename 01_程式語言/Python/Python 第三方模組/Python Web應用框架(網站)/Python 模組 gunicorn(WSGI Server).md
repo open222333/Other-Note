@@ -13,12 +13,14 @@ Python Web Server Gateway Interface，縮寫為WSGI）是為Python語言定義�
 	- [參考資料](#參考資料)
 - [規範](#規範)
 - [指令](#指令)
+- [用法](#用法)
+	- [設定檔](#設定檔)
 
 ## 參考資料
 
 [官方文檔](https://docs.gunicorn.org/en/stable/run.html)
 
-[配置文件](https://docs.gunicorn.org/en/stable/settings.html)
+[Settings - 配置 詳細說明](https://docs.gunicorn.org/en/stable/settings.html)
 
 [Web伺服器閘道器介面 - wiki](https://zh.wikipedia.org/zh-tw/Web%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%BD%91%E5%85%B3%E6%8E%A5%E5%8F%A3)
 
@@ -121,3 +123,40 @@ gunicorn -w 4 -b 0.0.0.0:8000 檔名:Flask()實例
 		設置環境變量
 ```
 
+# 用法
+
+## 設定檔
+
+```Python
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return 'Hello, Gunicorn!'
+
+if __name__ == '__main__':
+    app.run()
+```
+
+```Python
+# gunicorn_config.py
+
+bind = '127.0.0.1:8000'  # 監聽的 IP 和 Port
+workers = 4              # Worker 的數量
+timeout = 120            # 超時時間，單位為秒
+loglevel = 'info'        # 設定日誌級別，可選值：debug, info, warning, error, critical
+accesslog = '-'          # 設定存放訪問日誌的文件路徑，'-' 表示輸出到標準輸出
+errorlog = '-'           # 設定存放錯誤日誌的文件路徑，'-' 表示輸出到標準輸出
+```
+
+```bash
+# 運行 Gunicorn：
+# 使用 Gunicorn 運行 Flask 應用。在終端機中執行以下指令：
+gunicorn -c gunicorn_config.py app:app
+
+# 訪問應用：
+# 開啟瀏覽器並前往 http://127.0.0.1:8000 或使用 curl 測試：
+curl http://127.0.0.1:8000
+```
