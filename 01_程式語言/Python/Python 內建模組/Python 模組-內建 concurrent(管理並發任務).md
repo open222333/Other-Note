@@ -7,9 +7,12 @@ concurrent.futures -- 啟動平行任務
 ## 目錄
 
 - [Python 模組-內建 concurrent(管理並發任務)](#python-模組-內建-concurrent管理並發任務)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [用法](#用法)
+  - [多線程執行時，要取得每個線程的返回值](#多線程執行時要取得每個線程的返回值)
+  - [強制結束目前執行緒池的所有執行緒](#強制結束目前執行緒池的所有執行緒)
+    - [使用 concurrent.futures.as\_completed 或 concurrent.futures.wait 來實現在等待任務完成的同時繼續進行其他操作。](#使用-concurrentfuturesas_completed-或-concurrentfutureswait-來實現在等待任務完成的同時繼續進行其他操作)
 
 ## 參考資料
 
@@ -73,4 +76,131 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+## 多線程執行時，要取得每個線程的返回值
+
+```Python
+import concurrent.futures
+
+def worker_function(thread_id):
+    # 在這裡進行耗時的操作
+    result = f"Hello from Thread {thread_id}"
+    return result
+
+# 創建 ThreadPoolExecutor
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    # 提交任務給線程池，每個線程的ID作為參數
+    results = executor.map(worker_function, range(5))
+
+# 獲取所有線程的返回值
+for result in results:
+    print(result)
+```
+
+```Python
+import concurrent.futures
+
+def worker_function(arg1, arg2):
+    # 模擬一些耗時的工作
+    result = arg1 + arg2
+    return result
+
+def main():
+    # 設置最大執行緒數量為 3
+    max_workers=3
+
+    # 使用 ThreadPoolExecutor 創建一個執行緒池
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # 提交任務到執行緒池，得到一個 Future 物件
+        future = executor.submit(worker_function, 10, 20)
+
+        # 可以繼續執行其他工作
+
+        # 等待 Future 完成並取得結果，timeout 是最多等待的秒數
+        # 當前執行緒會被阻塞
+        result = future.result(timeout=2)
+
+        if future.done():
+            # 如果 Future 完成，處理結果
+            print(f"結果為: {result}")
+        else:
+            # 如果 Future 沒有完成，可能是因為超時
+            print("工作尚未完成")
+
+if __name__ == "__main__":
+    main()
+```
+
+## 強制結束目前執行緒池的所有執行緒
+
+```Python
+import concurrent.futures
+import time
+
+def my_task(index):
+    print(f"Task {index} started")
+    time.sleep(5)  # 模擬執行時間
+    print(f"Task {index} completed")
+
+def main():
+    # 建立執行緒池
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # 提交一些任務
+        futures = [executor.submit(my_task, i) for i in range(5)]
+
+        # 等待所有任務完成，或者直到執行緒池被 shutdown
+        concurrent.futures.wait(futures)
+
+        # 強制結束執行緒池的所有執行緒
+        executor.shutdown(wait=False)  # wait=False 表示不等待執行緒完成
+
+    print("All tasks completed")
+
+if __name__ == "__main__":
+    main()
+```
+
+### 使用 concurrent.futures.as_completed 或 concurrent.futures.wait 來實現在等待任務完成的同時繼續進行其他操作。
+
+```Python
+import concurrent.futures
+
+def download_image(img_url, comic_path):
+    # 下載圖片的邏輯
+
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = [executor.submit(download_image, img_url, comic_path) for img_url in data['img_download_urls'].values()]
+
+    for future in concurrent.futures.as_completed(futures):
+        try:
+            result = future.result(timeout=2)
+            # 在這裡處理已完成的任務的結果(result)
+        except concurrent.futures.TimeoutError:
+            # 在這裡處理超時的情況
+            print("Task timed out")
+
+# 這裡的程式碼會在所有任務完成之後執行
+```
+
+```Python
+import concurrent.futures
+
+def download_image(img_url, comic_path):
+    # 下載圖片的邏輯
+
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    futures = [executor.submit(download_image, img_url, comic_path) for img_url in data['img_download_urls'].values()]
+
+    done, not_done = concurrent.futures.wait(futures, timeout=2)
+
+    # 在這裡處理已完成的任務的結果
+    for future in done:
+        result = future.result()
+
+    # 在這裡處理未完成的任務
+    for future in not_done:
+        future.cancel()
+
+# 這裡的程式碼會在所有任務完成之後執行
 ```
