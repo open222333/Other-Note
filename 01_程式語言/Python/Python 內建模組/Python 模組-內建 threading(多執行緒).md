@@ -10,11 +10,12 @@
 ## 目錄
 
 - [Python 模組-內建 threading(多執行緒)](#python-模組-內建-threading多執行緒)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [教學範例](#教學範例)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [教學範例](#教學範例)
 - [用法](#用法)
-	- [物件導向](#物件導向)
+  - [物件導向](#物件導向)
+  - [使用隊列來獲取線程返回值](#使用隊列來獲取線程返回值)
 
 ## 參考資料
 
@@ -73,4 +74,53 @@ for i in range(5):
   threads[i].join()
 
 print("Done.")
+```
+
+## 使用隊列來獲取線程返回值
+
+```Python
+import threading
+import queue
+
+def worker_function(queue, result):
+    # 在這裡進行耗時的操作
+    # 將結果放入隊列
+    queue.put(result)
+
+# 創建隊列
+result_queue = queue.Queue()
+
+# 創建並啟動線程
+thread = threading.Thread(target=worker_function, args=(result_queue, "Hello, Thread!"))
+thread.start()
+
+# 等待線程結束
+thread.join()
+
+# 從隊列中獲取線程的返回值
+thread_result = result_queue.get()
+
+# 打印結果
+print("Thread Result:", thread_result)
+```
+
+```Python
+import threading
+
+def worker_function():
+    # 在這裡進行耗時的操作
+    return "Hello, Thread!"
+
+# 創建並啟動線程
+thread = threading.Thread(target=worker_function)
+thread.start()
+
+# 等待線程結束
+thread.join()
+
+# 在主線程中獲取返回值
+thread_result = thread._target()
+
+# 打印結果
+print("Thread Result:", thread_result)
 ```
