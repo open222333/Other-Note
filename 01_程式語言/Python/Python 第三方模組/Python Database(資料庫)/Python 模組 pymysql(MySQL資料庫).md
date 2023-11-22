@@ -14,6 +14,11 @@
   - [基本2](#基本2)
   - [基本2](#基本2-1)
   - [與flask current\_app](#與flask-current_app)
+  - [創建表格](#創建表格)
+  - [插入數據](#插入數據)
+  - [查詢數據](#查詢數據)
+  - [更新數據](#更新數據)
+  - [刪除數據](#刪除數據)
 
 ## 參考資料
 
@@ -218,4 +223,149 @@ class FlaskMySQL(object):
         ctx = _app_ctx_stack.top
         if hasattr(ctx, 'pymysql_db'):
             ctx.pymysql_db.close()
+```
+
+## 創建表格
+
+```Python
+import pymysql
+
+# 創建連接
+connection = pymysql.connect(host='your_host', user='your_user', password='your_password', database='your_database')
+cursor = connection.cursor()
+
+# 創建表格
+create_table_query = """
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL
+)
+"""
+cursor.execute(create_table_query)
+
+# 提交並關閉連接
+connection.commit()
+connection.close()
+```
+
+## 插入數據
+
+```Python
+import pymysql
+
+# 創建連接
+connection = pymysql.connect(host='your_host', user='your_user', password='your_password', database='your_database')
+cursor = connection.cursor()
+
+# 插入數據
+insert_data_query = "INSERT INTO users (username, email) VALUES (%s, %s)"
+data = [("user1", "user1@example.com"), ("user2", "user2@example.com")]
+
+cursor.executemany(insert_data_query, data)
+
+# 提交並關閉連接
+connection.commit()
+connection.close()
+```
+
+## 查詢數據
+
+```Python
+import pymysql
+
+# 創建連接
+connection = pymysql.connect(host='your_host', user='your_user', password='your_password', database='your_database')
+cursor = connection.cursor()
+
+# 查詢數據
+select_data_query = "SELECT * FROM users"
+cursor.execute(select_data_query)
+
+# 選擇特定欄位
+select_columns_query = "SELECT username, email FROM users"
+cursor.execute(select_columns_query)
+
+# 單一條件查詢
+select_data_query = "SELECT * FROM users WHERE username=%s"
+username_to_select = "user1"
+cursor.execute(select_data_query, (username_to_select,))
+
+# 多個條件 (AND) 查詢
+select_data_query = "SELECT * FROM users WHERE username=%s AND email=%s"
+username_to_select = "user1"
+email_to_select = "user1@example.com"
+cursor.execute(select_data_query, (username_to_select, email_to_select))
+
+# 多個條件 (OR) 查詢
+select_data_query = "SELECT * FROM users WHERE username=%s OR email=%s"
+value_to_select = "user1"
+cursor.execute(select_data_query, (value_to_select, value_to_select))
+
+# 組合條件查詢
+select_data_query = "SELECT * FROM users WHERE (username=%s OR email=%s) AND id>%s"
+value_to_select = "user1"
+id_threshold = 5
+cursor.execute(select_data_query, (value_to_select, value_to_select, id_threshold))
+
+
+# 獲取查詢結果
+result = cursor.fetchall()
+
+# 處理查詢結果
+for row in result:
+    print(row)
+
+# 關閉連接
+connection.close()
+```
+
+## 更新數據
+
+```Python
+import pymysql
+
+# 創建連接
+connection = pymysql.connect(host='your_host', user='your_user', password='your_password', database='your_database')
+cursor = connection.cursor()
+
+# 更新數據
+update_data_query = "UPDATE users SET email=%s WHERE username=%s"
+new_email = "new_email@example.com"
+username_to_update = "user1"
+
+cursor.execute(update_data_query, (new_email, username_to_update))
+
+# 更新多個數據
+update_data_query = "UPDATE users SET email=%s, status=%s WHERE username=%s"
+new_email = "new_email@example.com"
+new_status = "active"
+username_to_update = "user1"
+
+cursor.execute(update_data_query, (new_email, new_status, username_to_update))
+
+
+# 提交並關閉連接
+connection.commit()
+connection.close()
+```
+
+## 刪除數據
+
+```Python
+import pymysql
+
+# 創建連接
+connection = pymysql.connect(host='your_host', user='your_user', password='your_password', database='your_database')
+cursor = connection.cursor()
+
+# 刪除數據
+delete_data_query = "DELETE FROM users WHERE username=%s"
+username_to_delete = "user2"
+
+cursor.execute(delete_data_query, (username_to_delete,))
+
+# 提交並關閉連接
+connection.commit()
+connection.close()
 ```
