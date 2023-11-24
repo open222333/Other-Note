@@ -13,6 +13,7 @@ concurrent.futures -- 啟動平行任務
   - [多線程執行時，要取得每個線程的返回值](#多線程執行時要取得每個線程的返回值)
   - [強制結束目前執行緒池的所有執行緒](#強制結束目前執行緒池的所有執行緒)
     - [使用 concurrent.futures.as\_completed 或 concurrent.futures.wait 來實現在等待任務完成的同時繼續進行其他操作。](#使用-concurrentfuturesas_completed-或-concurrentfutureswait-來實現在等待任務完成的同時繼續進行其他操作)
+  - [處理大量 MongoDB 數據時 範例](#處理大量-mongodb-數據時-範例)
 
 ## 參考資料
 
@@ -203,4 +204,70 @@ with concurrent.futures.ThreadPoolExecutor() as executor:
         future.cancel()
 
 # 這裡的程式碼會在所有任務完成之後執行
+```
+
+## 處理大量 MongoDB 數據時 範例
+
+```
+可以使用 concurrent.futures.ThreadPoolExecutor 或 concurrent.futures.ProcessPoolExecutor 來啟動多個線程或進程。
+
+由於 Python 中的全局解釋器鎖（GIL）的存在，ThreadPoolExecutor 主要用於 I/O 密集型任務。
+如果你的處理邏輯主要是 CPU 密集型的，你可能需要考慮使用 ProcessPoolExecutor 來利用多個進程。
+```
+
+```Python
+from concurrent.futures import ThreadPoolExecutor
+import pymongo
+
+class YourClass:
+    def __init__(self, mongo_client):
+        self.mongo_client = mongo_client
+
+    def process_data(self, data):
+        # Actual logic to process the data
+        # 實際處理數據的邏輯
+        print(data)
+
+    def process_mongo_data_parallel(self, collection_name, query=None, num_threads=2):
+        col = self.mongo_client.your_database[collection_name]
+        total = col.count_documents(query) if query else col.count_documents({})
+
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            # Calculate the data chunk each thread will process
+            # 計算每個線程處理的數據量
+            chunk_size = total // num_threads
+
+            # Use map function to apply the processing function to different data chunks
+            # 使用 map 函數將處理函數應用到不同的數據塊
+            futures = []
+            for i in range(num_threads):
+                start = i * chunk_size
+                end = (i + 1) * chunk_size if i != num_threads - 1 else total
+                chunk_query = query if query else {}
+                future = executor.submit(self.__process_data_chunk, col, chunk_query, start, end)
+                futures.append(future)
+
+            # Wait for all threads to complete
+            # 等待所有線程完成
+            for future in futures:
+                future.result()
+
+    def __process_mongo_data_chunk(self, col, query, start, end):
+        data_chunk = col.find(query).skip(start).limit(end - start)
+        for data in data_chunk:
+            self.process_data(data)
+
+    def __process_mysql_data_chunk(self, cursor, query, start, end):
+        sql = f"SELECT * FROM your_table WHERE your_condition LIMIT {start}, {end - start}"
+
+        cursor.execute(sql)
+        data_chunk = cursor.fetchall()
+
+        for data in data_chunk:
+            self.process_data(data)
+
+# Example usage
+mongo_client = pymongo.MongoClient('your_mongo_uri')
+your_instance = YourClass(mongo_client)
+your_instance.process_mongo_data_parallel(collection_name='your_collection', num_threads=4)
 ```

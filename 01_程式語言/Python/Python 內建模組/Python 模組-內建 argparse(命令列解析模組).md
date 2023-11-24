@@ -6,12 +6,12 @@
 ## 目錄
 
 - [Python 模組-內建 argparse(命令列解析模組)](#python-模組-內建-argparse命令列解析模組)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [用法](#用法)
-	- [限制](#限制)
-	- [分組](#分組)
-	- [一個參數要求前置參數](#一個參數要求前置參數)
+  - [限制](#限制)
+  - [分組](#分組)
+  - [一個參數要求前置參數](#一個參數要求前置參數)
 
 ## 參考資料
 
@@ -50,7 +50,15 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--required_param', required=True, help='必需參數')
 
 # 添加可以接受多個值的參數
+# 可以接受零個或多個值。
+# 使用者可以透過提供多個參數值，例如 --multi_param value1 value2，也可以不提供任何參數值。
 parser.add_argument('--multi_param', nargs='*', help='多值參數')
+
+# 需要至少一個參數值，並且多個參數值應該由空格分隔。
+# 使用者必須提供至少一個參數值，例如 --multi_param value1 value2。
+# action='append' 的作用是將每個符合的參數值追加到清單中。
+# default=[] 指定瞭如果沒有提供參數值時的預設值為空列表。
+parser.add_argument('--multi_param', action='append', nargs='+', type=str, help='多值參數', default=[])
 
 # 添加只能選擇特定值的參數
 parser.add_argument('--choice_param', choices=['option1', 'option2'], help='可選值參數')
