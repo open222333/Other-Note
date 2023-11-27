@@ -58,6 +58,8 @@
 - [範例](#範例)
   - [Python 更改資料夾內所有專案設定](#python-更改資料夾內所有專案設定)
   - [Git pull 錯誤操作](#git-pull-錯誤操作)
+  - [Git submodule 子模組](#git-submodule-子模組)
+  - [Git subtree 子樹](#git-subtree-子樹)
 
 ## 參考資料
 
@@ -1029,4 +1031,34 @@ for file in files:
 git reflog (分支名)
 
 git reset --hard 分支名(HEAD 或 branch)@{n}
+```
+
+## Git submodule 子模組
+
+```bash
+# 添加子模組
+git submodule add <repository_url> <path_to_submodule>
+
+# 初始化和更新子模組
+git submodule init
+git submodule update
+
+# 克隆包含子模組的儲存庫
+git clone --recursive <repository_url>
+```
+
+## Git subtree 子樹
+
+```bash
+# 添加子樹
+git remote add -f <remote_name> <repository_url>
+git merge -s ours --no-commit <remote_name>/<branch_name>
+git read-tree --prefix=<path_to_subtree>/ -u <remote_name>/<branch_name>
+git commit -m "Merge <remote_name> subtree into <path_to_subtree>"
+
+# 更新子樹
+git pull -s subtree <remote_name> <branch_name>
+
+# 推送變更到遠端儲存庫
+git push <remote_name> master
 ```
