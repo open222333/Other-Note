@@ -6,8 +6,8 @@
 ## 目錄
 
 - [Python 模組-內建 traceback(例外追蹤)](#python-模組-內建-traceback例外追蹤)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [用法](#用法)
 
 ## 參考資料
@@ -34,5 +34,30 @@ except Exception as e:
     funcName = lastCallStack[2]  # 取得發生的函數名稱
     errMsg = "File \"{}\", line {}, in {}: [{}] {}".format(fileName, lineNum, funcName, error_class, detail)
     print(errMsg)
+```
+
+```Python
+import traceback
+
+def divide(x, y):
+    try:
+        result = x / y
+    except ZeroDivisionError:
+        raise ValueError("Cannot divide by zero")
+    return result
+
+def main():
+    try:
+        result = divide(10, 0)
+        print("Result:", result)
+    except Exception as e:
+        # 获取详细的异常信息并打印
+        traceback_str = traceback.format_exc()
+        print(f"An error occurred: {e}")
+        print("Traceback:")
+        print(traceback_str)
+
+if __name__ == "__main__":
+    main()
 
 ```
