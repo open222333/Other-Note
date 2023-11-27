@@ -85,6 +85,8 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 
 [database-tools rpm](https://www.mongodb.com/try/download/database-tools)
 
+[Installing the Database Tools on macOS - 在 macOS 上安裝資料庫工具](https://www.mongodb.com/docs/database-tools/installation/installation-macos/)
+
 ### 查詢相關
 
 [Mondb 邏輯運算子](https://www.mongodb.com/docs/manual/reference/operator/query/)
@@ -280,6 +282,13 @@ yum install -y mongodb-database-tools-*-100.6.0.rpm
 ## MacOS
 
 ```bash
+# 安裝 Database Tools
+# https://www.mongodb.com/docs/database-tools/installation/installation-macos/
+brew tap mongodb/brew
+brew install mongodb-database-tools
+# 更新
+brew upgrade mongodb-database-tools
+
 # 安裝
 brew install mongodb
 
