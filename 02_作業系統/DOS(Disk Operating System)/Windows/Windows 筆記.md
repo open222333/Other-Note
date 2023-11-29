@@ -10,6 +10,7 @@
 - [Windows 10 因為您組織的安全性原則已封鎖未經驗證的來賓資料](#windows-10-因為您組織的安全性原則已封鎖未經驗證的來賓資料)
 - [需求 Windows 製作支援UEFI的NTFS格式Windows 10 USB安裝碟](#需求-windows-製作支援uefi的ntfs格式windows-10-usb安裝碟)
 - [需求 Windows 如何分辨硬碟的分割表是MBR還是GPT](#需求-windows-如何分辨硬碟的分割表是mbr還是gpt)
+- [啟用 Hyper-V](#啟用-hyper-v)
 
 ## 參考資料
 
@@ -366,3 +367,22 @@ Bootx64.efi 最初在 Windows 10 作業系統中發行於 09/11/2014，包括於
 # 需求 Windows 如何分辨硬碟的分割表是MBR還是GPT
 
 [如何分辨硬碟的分割表是MBR還是GPT](https://blog.xuite.net/yh96301/blog/585117486)
+
+# 啟用 Hyper-V
+
+```
+透過設定啟用 Hyper-V 角色
+以滑鼠右鍵按一下 Windows 鍵，然後選取 \[應用程式與功能\]。
+
+選取相關設定下方右側的 [程式和功能 ]。
+
+選取 [開啟或關閉 Windows 功能]。
+
+選取 [Hyper-V]，然後按一下 [確定]。
+```
+
+```PowerShell
+# 使用管理者 admin 權限開啟 powershell
+# 啟用 Hyper-V (重開機)
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+```

@@ -9,12 +9,24 @@ Windows 子系統 Linux 版 (WSL) 可讓開發人員執行 GNU/Linux 環境，�
 - [Windows 工具 wsl(Windows 子系統 Linux 版 (WSL) )](#windows-工具-wslwindows-子系統-linux-版-wsl-)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [](#)
 - [安裝](#安裝)
+	- [在 Windows Terminal 使用 Bash.exe](#在-windows-terminal-使用-bashexe)
 - [指令](#指令)
 
 ## 參考資料
 
+[Microsoft Store - Windows Terminal(Windows 終端機)](https://apps.microsoft.com/detail/9N0DX20HK701?rtc=1&hl=zh-tw&gl=TW)
+
+[Microsoft Store - Ubuntu](https://apps.microsoft.com/detail/9PDXGNCFSCZV?hl=zh-tw&gl=TW)
+
+[Microsoft Store - Windows Subsystem for Linux](https://apps.microsoft.com/detail/9P9TQF7MRM4R?hl=zh-tw&gl=TW)
+
 [適用於 Linux 的 Windows 子系統文件](https://learn.microsoft.com/zh-tw/windows/wsl/)
+
+###
+
+[[Windows] 在 Windows Terminal 新增 Linux Bash Commnadline](https://marcus116.blogspot.com/2019/07/how-to-add-linux-bash-windows-terminal.html)
 
 # 安裝
 
@@ -34,6 +46,30 @@ wsl --install
 	# --inbox：使用 Windows 元件安裝 WSL，而不是使用Microsoft市集。(WSL 更新會透過 Windows 更新接收，而不是透過市集) 依可用方式推送。
 	# --enable-wsl1：在安裝 Microsoft Store 版本的 WSL 期間啟用 WSL 1，同時啟用 「Windows 子系統 Linux 版」 選擇性元件。
 	# --no-distribution：安裝 WSL 時請勿安裝散發套件。
+```
+
+## 在 Windows Terminal 使用 Bash.exe
+
+```PowerShell
+# 使用管理者 admin 權限開啟 powershell
+# 啟用 Linux Bash Shell (重開機)
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+# 啟用 Hyper-V (重開機)
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
+
+# 到 Windows 商店下載 Linux 子系統
+# 在 Microsoft Store 提供多個 Linux 子系統像是 Ubuntu、OpenSUSE、SLES 可以下載
+
+# 新增 Command Line
+# 在 Windows Terminal 中的設定可以透過  ⬇  中的 settings 來進行設定
+
+# 在 Windows Terminal 設定檔名為 Profiles.json，要調整可以到下列路徑進行調整
+# userName\AppData\Local\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\RoamingState
+
+# 重要的項目為 name、guid、commandline 等設定，說明如下
+# guid : 每組 commandline 定義屬於自己專用且不能重複的 guid
+# name : 顯示在 Windows Terminal  +  中顯示的名字
+# commandline  : 執行的 commandline
 ```
 
 # 指令
