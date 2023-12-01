@@ -47,6 +47,7 @@
     - [連接已存在的dokcer-compose網路](#連接已存在的dokcer-compose網路)
     - [設定網段](#設定網段-1)
 - [例外狀況](#例外狀況)
+  - [ERROR: Service 'api' failed to build : Error processing tar file(exit status 1)](#error-service-api-failed-to-build--error-processing-tar-fileexit-status-1)
   - [log造成硬碟沒有空間](#log造成硬碟沒有空間)
     - [Container Log 預設路徑：](#container-log-預設路徑)
     - [清理 Log](#清理-log)
@@ -373,6 +374,16 @@ docker exec [OPTIONS] [Container ID] [執行指令]
 docker exec -ti [Container ID] bash
 	-i, --interactive 互動模式
 	-t, --tty         配置一個終端機
+
+# 刪除 Docker 映像列表中標記為 <none> 的映像。這些映像通常是因為建置失敗或是被標記為無效的映像。
+docker images --no-trunc | grep '<none>' | awk '{ print $3 }' | xargs -r docker rmi
+
+docker images -a --no-trunc | grep '<none>' | awk '{ print $3 }' | xargs -r docker rmi
+
+# docker images --no-trunc: 顯示 Docker 映像列表，--no-trunc 選項用於顯示完整的映像 ID。
+# grep '<none>': 選擇那些標籤為 <none> 的映像。
+# awk '{ print $3 }': 提取每行的第三個欄位，即映像 ID。
+# xargs -r docker rmi: 使用 xargs 將取得的映像 ID 傳遞給 docker rmi 命令，以刪除這些映像。
 ```
 
 ### docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小
@@ -1198,6 +1209,39 @@ networks:
 ```
 
 # 例外狀況
+
+## ERROR: Service 'api' failed to build : Error processing tar file(exit status 1)
+
+```
+這個錯誤訊息表明在建置 Docker 映像的過程中，Docker 容器的裝置空間已經滿了。這可能是由於暫存檔案或中繼資料的增加導致的。
+
+清理不需要的映像和容器： 使用以下命令清理不需要的 Docker 映像和容器，釋放空間。
+
+
+這會刪除所有未使用的映像、停用的容器和其他不必要的資源。
+
+增加裝置空間：
+如果你的 Docker 主機運行在虛擬機或雲端主機上，考慮擴充虛擬機的磁碟空間。
+
+調整 Docker 配置：
+有時你可以透過調整 Docker 的配置，例如修改 Docker 的儲存驅動程序或設定 Docker 預設的映像存放位置，來釋放更多空間。
+
+清理容器內的暫存檔案：
+如果你有控制容器內的建置過程，確保在容器內清理暫存檔案和不必要的中繼資料。
+
+請注意，在執行 docker system prune -a 命令時，這會清理所有未使用的資源，包括停用的容器和映像。
+請確保你不再需要這些資源，以免誤刪重要資料。
+
+如果以上方法無法解決問題，可能需要進一步檢查 Docker 主機的磁碟空間使用情況，以找出哪些資源佔據了大量的空間。
+```
+
+```bash
+# 檢查 Docker 主機的磁碟空間使用情況
+docker system df
+# 詳細地檢查各種 Docker 相關資源的空間使用情況
+docker system df -v
+
+```
 
 ## log造成硬碟沒有空間
 
