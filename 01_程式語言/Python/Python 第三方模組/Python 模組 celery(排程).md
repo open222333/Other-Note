@@ -6,14 +6,15 @@
 ## 目錄
 
 - [Python 模組 celery(排程)](#python-模組-celery排程)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [flower相關](#flower相關)
-		- [範例相關](#範例相關)
-		- [筆記連結](#筆記連結)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [flower相關](#flower相關)
+    - [範例相關](#範例相關)
+    - [筆記連結](#筆記連結)
 - [安裝](#安裝)
 - [指令](#指令)
 - [用法](#用法)
+  - [@app.task(bind=True) 用法](#apptaskbindtrue-用法)
 
 ## 參考資料
 
@@ -169,4 +170,22 @@ def your_task_for_queue2():
 # 使用 result 參數來獲取任務的結果：
 result = your_task_for_queue1.apply_async()
 print(result.get())
+```
+
+## @app.task(bind=True) 用法
+
+```Python
+from celery import Celery
+
+app = Celery('myapp', broker='pyamqp://guest@localhost//')
+
+@app.task(bind=True)
+def my_task(self, arg1, arg2):
+    # 使用 self 可以訪問當前任務的上下文，例如 task ID、任務名稱等
+    task_id = self.request.id
+    task_name = self.name
+
+    # 其他任務邏輯
+    result = arg1 + arg2
+    return result
 ```
