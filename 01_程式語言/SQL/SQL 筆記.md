@@ -3,12 +3,14 @@
 ## 目錄
 
 - [SQL 筆記](#sql-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [用法](#用法)
-	- [範例](#範例)
-		- [鎖定](#鎖定)
-		- [解除鎖定](#解除鎖定)
+  - [範例](#範例)
+    - [鎖定](#鎖定)
+    - [解除鎖定](#解除鎖定)
+    - [模糊匹配(可能導致性能問題，特別是當數據量龐大時)](#模糊匹配可能導致性能問題特別是當數據量龐大時)
+    - [重複出現統計 COUNT](#重複出現統計-count)
 
 ## 參考資料
 
@@ -76,4 +78,26 @@ UNLOCK TABLES;
 -- RELEASE SAVEPOINT
 -- 如果在事務中使用了 SAVEPOINT 來劃分子事務，可以使用 RELEASE SAVEPOINT 來釋放子事務的鎖定。
 RELEASE SAVEPOINT savepoint_name;
+```
+
+### 模糊匹配(可能導致性能問題，特別是當數據量龐大時)
+
+```sql
+-- 用於從名為 table 的表中選擇所有列（*），並按照 col 列的值進行降序排序，同時只檢索 col 列中包含字串 '1111' 的行。
+SELECT * FROM `table` WHERE `col` LIKE '%1111%' ORDER BY `col` DESC
+
+-- SELECT *: 選擇表中的所有列。
+-- FROM table: 從名為 table 的表中進行查詢。
+-- WHERE col LIKE '%1111%': 條件篩選，只返回 col 列中包含字串 '1111' 的行。LIKE 是用於模糊匹配的運算符，% 表示匹配任意字符（包括零個字符）。
+-- ORDER BY col DESC: 按 col 列的值進行降序排序。
+```
+
+### 重複出現統計 COUNT
+
+```sql
+-- 統計某個列中值的重複出現次數，可以使用 SQL 的 COUNT 函數
+SELECT col, COUNT(col) AS count
+FROM `table`
+GROUP BY col
+ORDER BY count DESC;
 ```
