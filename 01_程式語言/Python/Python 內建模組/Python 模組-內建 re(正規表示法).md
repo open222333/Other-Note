@@ -8,9 +8,9 @@
 ## 目錄
 
 - [Python 模組-內建 re(正規表示法)](#python-模組-內建-re正規表示法)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [驗證除錯工具相關](#驗證除錯工具相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [驗證除錯工具相關](#驗證除錯工具相關)
 - [用法](#用法)
 - [正則表達式](#正則表達式)
 
@@ -45,7 +45,7 @@ re.search(pattern,string,flags)
 re.findall(pattern,string,flags)
     # 參數:re.I(re.IGNORECASE)：搜尋時忽略大小寫
     # 參數:re.VERBOSE：在正則表達式內增加註解
-	
+
 # 將搜尋結果回傳
 group()
 m = re.match(r"(?P<first_name>\w+) (?P<last_name>\w+)", "Isaac Newton")
@@ -70,6 +70,48 @@ start()
 span()
 # 使用新的字串取代原本字串的內容
 sub(pattern,newstr,msg)
+```
+
+```Python
+import re
+
+# 使用 re.match 進行匹配開頭
+pattern_match = re.compile(r'\d+')
+result_match = pattern_match.match('123abc')
+
+if result_match:
+    print("Match found (re.match):", result_match.group())
+else:
+    print("No match (re.match)")
+
+# 使用 re.search 進行全局匹配
+pattern_search = re.compile(r'\d+')
+result_search = pattern_search.search('abc123xyz456')
+
+if result_search:
+    print("Match found (re.search):", result_search.group())
+else:
+    print("No match (re.search)")
+
+# 使用 re.findall 找到所有匹配
+pattern_findall = re.compile(r'\d+')
+result_findall = pattern_findall.findall('abc123xyz456')
+
+if result_findall:
+    print("Matches found (re.findall):", result_findall)
+else:
+    print("No matches (re.findall)")
+
+# 使用分組捕獲
+pattern_groups = re.compile(r'(\d+)-(\d+)-(\d+)')
+result_groups = pattern_groups.match('2023-12-04')
+
+if result_groups:
+    print("Year:", result_groups.group(1))
+    print("Month:", result_groups.group(2))
+    print("Day:", result_groups.group(3))
+else:
+    print("No match (groups)")
 ```
 
 # 正則表達式
