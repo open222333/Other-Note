@@ -11,6 +11,7 @@
     - [解除鎖定](#解除鎖定)
     - [模糊匹配(可能導致性能問題，特別是當數據量龐大時)](#模糊匹配可能導致性能問題特別是當數據量龐大時)
     - [重複出現統計 COUNT](#重複出現統計-count)
+    - [合併 JOIN](#合併-join)
 
 ## 參考資料
 
@@ -100,4 +101,52 @@ SELECT col, COUNT(col) AS count
 FROM `table`
 GROUP BY col
 ORDER BY count DESC;
+```
+
+### 合併 JOIN
+
+```sql
+-- 創建兩個表格 table1 和 table2 用於示例
+CREATE TABLE table1 (
+    id INT PRIMARY KEY,
+    common_key INT,
+    value1 VARCHAR(50)
+);
+
+CREATE TABLE table2 (
+    id INT PRIMARY KEY,
+    common_key INT,
+    value2 VARCHAR(50)
+);
+
+-- 插入數據到 table1
+INSERT INTO table1 (id, common_key, value1) VALUES
+    (1, 1, 'A'),
+    (2, 2, 'B'),
+    (3, 3, 'C');
+
+-- 插入數據到 table2
+INSERT INTO table2 (id, common_key, value2) VALUES
+    (1, 2, 'X'),
+    (2, 3, 'Y'),
+    (3, 4, 'Z');
+
+-- 顯示原始數據
+SELECT * FROM table1;
+SELECT * FROM table2;
+
+-- INNER JOIN 查詢，返回共同匹配的行
+SELECT *
+FROM table1
+INNER JOIN table2 ON table1.common_key = table2.common_key;
+
+-- LEFT JOIN 查詢，返回 table1 的所有行以及與之匹配的 table2 行
+SELECT *
+FROM table1
+LEFT JOIN table2 ON table1.common_key = table2.common_key;
+
+-- RIGHT JOIN 查詢，返回 table2 的所有行以及與之匹配的 table1 行
+SELECT *
+FROM table1
+RIGHT JOIN table2 ON table1.common_key = table2.common_key;
 ```
