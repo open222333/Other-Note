@@ -1,0 +1,140 @@
+DSW1#sh run
+Building configuration...
+
+Current configuration : 3092 bytes
+!
+version 12.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname DSW1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+!
+no aaa new-model
+switch 1 provision ws-c3750-24ts
+system mtu routing 1500
+!
+!
+ipv6 unicast-routing
+!
+!
+crypto pki trustpoint TP-self-signed-2512001152
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-2512001152
+ revocation-check none
+ rsakeypair TP-self-signed-2512001152
+!
+!
+crypto pki certificate chain TP-self-signed-2512001152
+ certificate self-signed 01
+  3082023D 308201A6 A0030201 02020101 300D0609 2A864886 F70D0101 04050030
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274
+  69666963 6174652D 32353132 30303131 3532301E 170D3933 30333031 30303031
+  33375A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D32 35313230
+  30313135 3230819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281
+  8100DB01 03353BA5 367E6ADC 02826193 5E0A070B 931339FA A9E0AF36 A84DEAD4
+  4E1B8A97 7120DD13 0E5D4B25 39121BB1 80BFF543 57C63B9E 8E0BBF2E 208081BA
+  CF5C8B49 4DF0ACE4 5599AD29 FD1629AD 429D5D2C 4DD5919C 2D5A52F3 D5C4982D
+  88162705 25537A40 21AC5DCF 762BA4ED B028BFDF 751E2537 ADE38E86 DFC5E1F2
+  D0050203 010001A3 65306330 0F060355 1D130101 FF040530 030101FF 30100603
+  551D1104 09300782 05445357 312E301F 0603551D 23041830 16801491 EB69667F
+  FF2B82DF 5644B19D F8CF4103 CE9A7D30 1D060355 1D0E0416 041491EB 69667FFF
+  2B82DF56 44B19DF8 CF4103CE 9A7D300D 06092A86 4886F70D 01010405 00038181
+  007A4A0B 3C42F5BF B54D674C DA790845 69C68636 93EBFCF2 9F2FDFB0 50DC36CA
+  4A852BFF CD31C673 D41FB6C5 5578D29B 17D3B9FE 380D54ED 09C12E10 92D54A30
+  4FD0F6D8 1889C7A8 CA3EBAAE 18C2AAE7 534740AA 78756281 F023FA40 0A32CC47
+  50303236 0E5D4EA3 47144907 F78AE98C 7C5A893A 1203650A 9F02F3DA 8302A556 B2
+  quit
+!
+!
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+lldp run
+!
+!
+!
+!
+interface FastEthernet1/0/1
+!
+interface FastEthernet1/0/2
+!
+interface FastEthernet1/0/3
+!
+interface FastEthernet1/0/4
+!
+interface FastEthernet1/0/5
+!
+interface FastEthernet1/0/6
+!
+interface FastEthernet1/0/7
+!
+interface FastEthernet1/0/8
+!
+interface FastEthernet1/0/9
+!
+interface FastEthernet1/0/10
+!
+interface FastEthernet1/0/11
+!
+interface FastEthernet1/0/12
+!
+interface FastEthernet1/0/13
+!
+interface FastEthernet1/0/14
+!
+interface FastEthernet1/0/15
+!
+interface FastEthernet1/0/16
+!
+interface FastEthernet1/0/17
+!
+interface FastEthernet1/0/18
+!
+interface FastEthernet1/0/19
+!
+interface FastEthernet1/0/20
+!
+interface FastEthernet1/0/21
+!
+interface FastEthernet1/0/22
+!
+interface FastEthernet1/0/23
+!
+interface FastEthernet1/0/24
+!
+interface GigabitEthernet1/0/1
+!
+interface GigabitEthernet1/0/2
+!
+interface Vlan1
+ ip address 10.100.4.251 255.255.255.0
+ ipv6 address 2018:10:100:4::1/64
+!
+ip classless
+ip http server
+ip http secure-server
+!
+!
+!
+!
+!
+!
+line con 0
+line vty 0 4
+ privilege level 15
+ no login
+line vty 5 15
+ login
+!
+end
