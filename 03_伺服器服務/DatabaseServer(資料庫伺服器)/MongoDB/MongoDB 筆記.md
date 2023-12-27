@@ -66,6 +66,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 - [Replica-Set 實作](#replica-set-實作)
   - [CentOS7](#centos7-1)
   - [Docker-Compose](#docker-compose)
+    - [MongoDB 實例配置為使用複製集 (replica set)](#mongodb-實例配置為使用複製集-replica-set)
   - [設置 主-讀寫 從-只讀不寫(主掛了不會升為主)](#設置-主-讀寫-從-只讀不寫主掛了不會升為主)
 
 ## 參考資料
@@ -954,7 +955,7 @@ rs.status()
 
 ```yml
 # docker-compose.yml
-version: "3.7"
+version: "3"
 services:
 	mongo1:
 		container_name: mongo1
@@ -993,6 +994,48 @@ echo "127.0.0.1 mongo1\n127.0.0.1 mongo2\n127.0.0.1 mongo3" >> /etc/hosts
 
 # 啟動 MongoDB Replica Set
 docker-compose up -d
+```
+
+```bash
+# 初始化複製集： 使用 MongoDB 的 shell 連接到容器並執行 rs.initiate() 來初始化複製集。
+docker exec -it mongo mongo
+```
+
+```javascript
+// 在 MongoDB shell 中執行
+rs.initiate()
+// 在 MongoDB shell 中確認複製集配置
+rs.conf()
+```
+
+### MongoDB 實例配置為使用複製集 (replica set)
+
+```yml
+version: "3"
+services:
+    mongo:
+        container_name: mongo
+        image: mongo:4.2
+        restart: always
+        ports:
+            - 27017:27017
+        volumes:
+            - ./data/mongo:/data/db
+        mem_limit: 4g
+        mem_reservation: 4g
+        command: ["--replSet", "rs0"]  # 新增這一行
+```
+
+```bash
+# 初始化複製集： 使用 MongoDB 的 shell 連接到容器並執行 rs.initiate() 來初始化複製集。
+docker exec -it mongo mongo
+```
+
+```javascript
+// 在 MongoDB shell 中執行
+rs.initiate()
+// 在 MongoDB shell 中確認複製集配置
+rs.conf()
 ```
 
 ## 設置 主-讀寫 從-只讀不寫(主掛了不會升為主)
