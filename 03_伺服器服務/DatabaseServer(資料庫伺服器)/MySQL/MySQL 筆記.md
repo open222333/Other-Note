@@ -68,11 +68,18 @@ RDBMS
       - [Data node - 負責所有 SQL Data 的 Nodes，單純儲存資料，將資料寫在 RAM \& Disk。](#data-node---負責所有-sql-data-的-nodes單純儲存資料將資料寫在-ram--disk)
       - [SQL node (原本的 MySQL Server) - 負責 SQL 的 Table schema 和 Client 連接的空間。](#sql-node-原本的-mysql-server---負責-sql-的-table-schema-和-client-連接的空間)
   - [InnoDB Cluster 實作](#innodb-cluster-實作)
-    - [MySQL 5.7](#mysql-57)
+    - [說明](#說明-1)
+    - [MySQL 5.7 設定檔](#mysql-57-設定檔)
+    - [MySQL 5.7 SQL指令](#mysql-57-sql指令)
+    - [MySQL 5.7 mysqlsh指令](#mysql-57-mysqlsh指令)
+    - [MySQL 5.7 router 設定檔](#mysql-57-router-設定檔)
+    - [MySQL 5.7 router 指令](#mysql-57-router-指令)
+    - [初始化 Group Replication (全部成員掛掉,但設定還在)](#初始化-group-replication-全部成員掛掉但設定還在)
         - [優化配置](#優化配置)
     - [使用程式腳本建立 InnoDB Cluster](#使用程式腳本建立-innodb-cluster)
       - [JavaScript](#javascript)
       - [Python](#python)
+- [重大備份](#重大備份)
 - [例外狀況](#例外狀況)
   - [has the following errant GTIDs that do not exist in the cluster](#has-the-following-errant-gtids-that-do-not-exist-in-the-cluster)
   - [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
@@ -2130,6 +2137,8 @@ socket=/usr/local/mysql/data/mysql.sock
 
 ## InnoDB Cluster 實作
 
+### 說明
+
 ```
 InnoDB Cluster 架構主要由以下三個主要組件組成：
 
@@ -2187,7 +2196,7 @@ MySQL InnoDB Cluster 在 MySQL Community Edition 和 MySQL Enterprise Edition �
 支援和服務：購買 MySQL Enterprise Edition 可能會包括 MySQL 的商業支援，這包括技術支援、更新和补丁、安全性修復等。
 ```
 
-### MySQL 5.7
+### MySQL 5.7 設定檔
 
 ```conf
 # 啟用二進制日誌
@@ -2272,6 +2281,8 @@ innodb_autoinc_lock_mode = 1
 innodb_autoinc_lock_mode = 2
 ```
 
+### MySQL 5.7 SQL指令
+
 ```sql
 -- 每台節點
 
@@ -2311,6 +2322,8 @@ CHANGE MASTER TO MASTER_USER='rpl_user', MASTER_PASSWORD='password' FOR CHANNEL 
 -- 刷新權限
 FLUSH PRIVILEGES;
 ```
+
+### MySQL 5.7 mysqlsh指令
 
 ```JavaScript
 // 使用 MySQL Shell
@@ -2359,6 +2372,8 @@ cluster.status()
 dba.getCluster('ClusterName').status()
 ```
 
+### MySQL 5.7 router 設定檔
+
 ```conf
 # [4.1 Configuration File Syntax - 配置文件語法](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-syntax.html)
 # [4.3.3 Configuration File Options - 配置文檔選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html)
@@ -2406,6 +2421,8 @@ destinations = node_1:3306,node_2:3306,node_3:3306
 interval = 60
 ```
 
+### MySQL 5.7 router 指令
+
 ```bash
 # 初始化mysql-router PRIMARY節點即可
 mysqlrouter --bootstrap root@manager_node:3306 --user=root
@@ -2430,6 +2447,35 @@ mysqlrouter --bootstrap root@manager_node:3306 --user=root
 # 使用指定的配置文件來啟動啟動 MySQL Router
 mysqlrouter -c /path/to/router.conf
 ```
+
+### 初始化 Group Replication (全部成員掛掉,但設定還在)
+
+```
+MySQL 實例正在使用 Group Replication，但目前它還未指定主要成員（primary member）。
+
+在正常的 Group Replication 部署中，一個成員會被選為主要成員，其他成員將與之同步。
+group_replication_primary_member 變數是空的，這可能表示 Group Replication 尚未完全初始化或者存在一些配置問題。
+```
+
+`檢查 Group Replication 的狀態`
+
+```sql
+SHOW GLOBAL STATUS LIKE 'group_replication%';
+```
+
+`初始化 Group Replication`
+
+```sql
+SET GLOBAL group_replication_bootstrap_group = ON;
+SET GLOBAL group_replication_bootstrap_group = OFF;
+```
+
+`檢查其他 Group Replication 變數`
+
+```sql
+SHOW VARIABLES LIKE 'group_replication%';
+```
+
 
 ##### 優化配置
 
@@ -2650,6 +2696,30 @@ except Exception as e:
     print('\nThe InnoDB cluster could not be created.\n')
     print(str(e) + '\n')
 ```
+
+# 重大備份
+
+執行數據庫操作之前進行備份是一個良好的實踐，以確保在出現問題時能夠復原數據。要進行備份，你應該包括以下內容：
+
+- 數據庫： 對你要進行操作的數據庫進行備份。
+  使用 mysqldump、MySQL Shell、MySQL Workbench 或其他備份工具，創建數據庫的備份文件（通常是 .sql 文件）。
+
+```bash
+mysqldump -u username -p dbname > backup.sql
+```
+
+- 配置文件： 對 MySQL 配置文件（通常是 my.cnf 或 my.ini）進行備份。
+  這對於你更改了配置，並希望返回原始配置時很有用。
+
+- 日誌文件： 如果你對 MySQL 的二進制日誌（binary logs）進行了配置，你可能希望對這些日誌進行備份。
+  這些日誌記錄了數據庫的更改，可用於數據庫的還原。
+
+```bash
+cp /path/to/mysql/data/mysql-bin.* /path/to/backup/
+```
+其他設定文件： 如果你進行了其他系統配置，例如 MySQL Socket 文件位置、SSL 憑證等，也應該對這些文件進行備份。
+
+確保備份文件存儲在一個安全的位置，最好是離數據庫伺服器足夠遠的地方。使用日期或描述性的標籤命名備份文件，以便在需要時能夠方便地識別和還原。
 
 # 例外狀況
 
