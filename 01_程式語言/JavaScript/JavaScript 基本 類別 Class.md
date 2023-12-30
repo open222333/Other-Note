@@ -23,6 +23,7 @@
 	- [使用extends和super衍生子類別](#使用extends和super衍生子類別)
 	- [委任(Delegation)而非繼承](#委任delegation而非繼承)
 	- [類別階層架構(Class Hierarchies)與抽象類別(Abstract Classes)](#類別階層架構class-hierarchies與抽象類別abstract-classes)
+	- [Symbol.species](#symbolspecies)
 
 ## 參考資料
 
@@ -722,4 +723,76 @@ class BitSet extends AbstractWritableSet {
 
 BitSet.bits = new Uint8Array([1, 2, 4, 8, 16, 32, 64, 128]);
 BitSet.masks = new Uint8Array([~1, ~2, ~4, ~8, ~16, ~32, ~64, ~128]);
+```
+
+## Symbol.species
+
+```
+Symbol.species 是 JavaScript 中的一個內建符號（Symbol），它用於定義在衍生（derivative）對象中，用於創建新實例的建構函數。
+
+在 JavaScript 中，有些內建對象（例如 Array、Map、Set 等）具有衍生機制，這允許你創建一個新對象，該對象與原始對象共享某些特性，但也有一些不同。
+例如，使用 Array 的 map 方法創建一個新數組時，新數組的構造函數是 Array，因此可以確保它具有相同的行為。
+
+Symbol.species 的作用是為衍生對象指定一個建構函數，該建構函數用於創建衍生對象的實例。
+如果衍生對象沒有自己的 Symbol.species 屬性，則將使用其父對象的 Symbol.species。
+```
+
+```Javascript
+class MyArray extends Array {
+  // 使用 Symbol.species 定義衍生對象的建構函數
+  static get [Symbol.species]() {
+    return Array;
+  }
+}
+
+const myArray = new MyArray(1, 2, 3);
+const mappedArray = myArray.map(x => x * 2);
+
+console.log(mappedArray instanceof MyArray); // false
+console.log(mappedArray instanceof Array);   // true
+在這個例子中，Symbol.species 被用來指定 MyArray 的衍生對象的建構函數為 Array。因此，mappedArray 是由 Array 創建的新數組，而不是 MyArray。
+```
+
+```JavaScript
+// Symbol.species
+// 一個簡單的Array子類別
+// 會為第一和最後一個元素新增取值器
+class EZArray extends Array {
+  get first() {
+    return this[0];
+  }
+  get last() {
+    return this[this.length - 1];
+  }
+}
+
+let e = new EZArray(1, 2, 3);
+let f = e.map((x) => x * x);
+console.log(e.last); // 3: EZArray 的最後一個元素 e
+console.log(f.last); // 9: f 也是一個擁有 last 特性的 EZArray
+
+// Symbol.species 是唯讀的
+// 預設情況下 子類別建構器會繼承取值器函式
+// 不希望子類別建構器使用自己的物種
+
+// 方法一
+// 使用 defineProperty
+Object.defineProperty(EZArray, Symbol.species, { value: Array });
+
+// 方法二
+class EZArray2 extends Array {
+  static get [Symbol.species]() {
+    return Array;
+  }
+  get first() {
+    return this[0];
+  }
+  get last() {
+    return this[this.length - 1];
+  }
+}
+let e2 = new EZArray2(1, 2, 3);
+let f2 = e2.map((x) => x * x);
+console.log(e2.last); // 3: EZArray 的最後一個元素 e
+console.log(f2.last); // undefined: f 是 Array, 沒有 last 取值器
 ```
