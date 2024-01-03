@@ -1,0 +1,9 @@
+[submodule "01_程式語言/PHP/PHP-Code"]
+	path = 01_程式語言/PHP/PHP-Code
+	url = https://github.com/open222333/PHP-Code.git
+[submodule "01_程式語言/JavaScript/JavaScript_Book_Code"]
+	path = 01_程式語言/JavaScript/JavaScript_Book_Code
+	url = https://github.com/open222333/JavaScript-Code.git
+[submodule "01_程式語言/Python/Python_Book_Code"]
+	path = 01_程式語言/Python/Python_Book_Code
+	url = https://github.com/open222333/Python-Code.git

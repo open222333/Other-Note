@@ -1,0 +1,193 @@
+{% comment %} http://jdev.tw/blog2/1640/jqgrid-data-manipulation {% endcomment %}
+
+< %@ page contentType="text/html;charset=UTF-8" %>
+  <html>
+
+  <head>
+    < %@ include file="/jqgrid/jq_inc.jspf" %>
+      <style type="text/css">
+      .altClass {
+        background: lightYellow;
+        color: red;
+      }
+
+      </style>
+  </head>
+  <table id="list1"></table>
+  <div id="pager1"></div>
+  <input type="button" id="btnGetRowData" value="選取列的資料(getRowData)" />
+  <input type="button" id="btnDelRowData" value="刪除選取列(delRowData)" />
+  <input type="button" id="btnSetRowData" value="設定選取列(setRowData)" />
+  <input type="button" id="btnAddRowData" value="複製資料列(addRowData)" />
+  <input type="button" id="btnGetArrayRow" value="多選資料列(selarrrow)" /><br />
+  <select id="selParam">
+    <option value='url'>url</option>
+    <option value='sortname'>sortname</option>
+    <option value='sortorder'>sortorder</option>
+    <option value='selrow'>selrow</option>
+    <option value='page'>page</option>
+    <option value='rowNum'>rowNum</option>
+    <option value='records'>records</option>
+    <option value='datatype'>datatype</option>
+    <option value='caption'>caption</option>
+  </select>
+  <input type="button" id="btnGetParam" value="getGridParam" /><br />
+  <input id="newValue" />
+  <input type="button" id="btnSortGrid" value="排序" />
+  <hr />
+  <span id="spaMsg"></span>
+  <br />
+  <br />
+
+  </html>
+
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+    $.jgrid.defaults.altclass = "altClass"; // 奇偶列使用不同的樣式形成斑馬紋
+
+    jQuery("#list1").jqGrid({
+      url: 'test1_xml.jsp', // 主機端提供資料的網址
+      datatype: "xml",
+      colNames: ['<font color="red">使用者代碼</font>', '姓名', '密碼'],
+      colModel: [{
+          name: 'userid',
+          index: 'userid',
+          width: 75
+        },
+        {
+          name: 'username',
+          index: 'username',
+          width: 90,
+          sortable: true
+        },
+        {
+          name: 'passwd',
+          index: 'passwd',
+          width: 100,
+          align: 'center'
+        }
+      ],
+      rowNum: 10, // 由Server取回10筆
+      rowList: [10, 20, 30], // 每頁顯示筆數
+      pager: jQuery('#pager1'),
+      sortname: 'userid',
+      sortorder: "desc",
+      height: "auto", // Grid高度
+      autowidth: true, // 自動欄寬
+      viewrecords: true,
+      altRows: true,
+      //footerrow: true,
+      gridview: true, // 設定成true以快速大量資料集之載入
+      loadonce: true, // 只由Server讀一次資料
+      rownumbers: true,
+      multiselect: true, // 顯示勾選框
+      caption: "jqGrid測試3"
+    });
+    // 要顯示編輯與新增按鈕時使用下列指令
+    jQuery("#list1").jqGrid('navGrid', '#pager1', {
+      edit: false,
+      add: false,
+      del: false
+    });
+
+    $("#btnGetRowData").click(function() {
+      var id = $("#list1").jqGrid('getGridParam', 'selrow');
+      if (id) {
+        var row = $("#list1").jqGrid('getRowData', id);
+        $("#spaMsg").text("被選取列：userid=" + row.userid +
+          " username=" + row.username +
+          " passwd=" + row.passwd);
+      } else {
+        $("#spaMsg").text("請先選取一列資料列。");
+      }
+    }); // getRowData
+
+    $("#btnDelRowData").click(function() {
+      var id = $("#list1").jqGrid('getGridParam', 'selrow');
+      if (id) {
+        var row = $("#list1").jqGrid('delRowData', id);
+        $("#spaMsg").html("刪除被選取列：id=" + id + "<br />要叫用Server程式才會真的刪除");
+      } else {
+        $("#spaMsg").text("請先選取一列資料列。");
+      }
+    }); // delRowData
+
+    $("#btnSetRowData").click(function() {
+      var id = $("#list1").jqGrid('getGridParam', 'selrow');
+      if (id) {
+        var row = $("#list1").jqGrid('getRowData', id);
+        var _sNewUserid = row.userid.toLowerCase();
+        var row = $("#list1").jqGrid('setRowData', id, {
+          userid: _sNewUserid
+        });
+        $("#spaMsg").html("userid改成小寫<br />要叫用Server程式才會真的修改");
+      } else {
+        $("#spaMsg").text("請先選取一列資料列。");
+      }
+    }); // setRowData
+
+    $("#btnAddRowData").click(function() {
+      var id = $("#list1").jqGrid('getGridParam', 'selrow');
+      if (id) {
+        var _iCount = $("#list1").jqGrid('getGridParam', 'records');
+        var row = $("#list1").jqGrid('getRowData', id);
+        $("#list1").jqGrid('addRowData', _iCount + 1, row);
+        $("#spaMsg").html("複製被選取列的資料");
+      } else {
+        $("#spaMsg").text("請先選取一列資料列。");
+      }
+    }); // addRowData
+
+    $("#btnGetArrayRow").click(function() {
+      var _aIDs = $("#list1").jqGrid('getGridParam', 'selarrrow');
+      if (_aIDs.length > 0) {
+        for (var i = 0; i < _aIDs.length; i++) {
+          var id = _aIDs[i];
+          var row = $("#list1").jqGrid('getRowData', id);
+          alert("勾選[" + (i + 1) + "]=" + row.userid + "," + row.username);
+        }
+      } else {
+        $("#spaMsg").text("請先勾選資料列。");
+      }
+    }); // getArrayrow
+
+    $("#btnGetParam").click(function() {
+      var _sParam = $("#selParam").val();
+      $("#spaMsg").html(_sParam + '=' + $("#list1").jqGrid('getGridParam', _sParam));
+    }); // addRowData
+
+    $("#btnSortGrid").click(function() {
+      var _sNewValue = $("#newValue").val();
+      if ("userid,username,passwd".indexOf(_sNewValue) >= 0) {
+        $("#list1").jqGrid('sortGrid', _sNewValue, false);
+      }
+    }); // sortGrid
+
+    $("#getSelecteds").click(function() {
+      //獲取多選到的id集合  
+      var ids = $("#jqGrid").jqGrid("getGridParam", "selarrrow");
+
+      var rows = []
+      //遍歷訪問這個集合  
+      $(ids).each(function(index, id) {
+        //由id獲得對應資料行  
+        var row = $("#jqGrid").jqGrid('getRowData', id);
+        rows.push(row.sid);
+      })
+
+      // 傳遞選取的資料
+      $.ajax({
+        type: "GET",
+        url: '{{ url_for('
+        avnight.backend.api_list_tagv2 ') }}',
+        data: {
+          '_merge': true,
+          // js陣列傳遞 stringify格式化陣列，得到一個json的陣列
+          'merge_sid': JSON.stringify(rows),
+        }
+      })
+    });
+
+  }); // ready()
+
+  </script>
