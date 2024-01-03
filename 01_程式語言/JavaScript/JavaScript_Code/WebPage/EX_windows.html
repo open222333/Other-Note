@@ -1,0 +1,26 @@
+<h1>測試 視窗</h1>
+<input class="test" type="button" value="Alert Box" onclick="alertBox()">
+<input class="test" type="button" value="Confirm Box" onclick="confirmBox()">
+<input class="test" type="button" value="Prompt Box" onclick="promptBox()">
+<p class="show"></p>
+<script>
+  let showtxt = document.querySelector('.show');
+
+  function alertBox() {
+    alert("Alert Box");
+  };
+
+  function confirmBox() {
+    if (confirm("Confirm Box") == true) {
+      showtxt.innerHTML = "true";
+    } else {
+      showtxt.innerHTML = "false";
+    }
+  };
+
+  function promptBox() {
+    let text = prompt("Prompt Box");
+    showtxt.innerHTML = text;
+  };
+
+</script>
