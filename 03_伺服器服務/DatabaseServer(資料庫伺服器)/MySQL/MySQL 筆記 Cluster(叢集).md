@@ -98,57 +98,11 @@ InnoDB: 也支援事務，是一個關係型資料庫引擎，適用於需要強
 
 ### MySQL Shell 相關
 
-[MySQL Shell 下載頁面](https://dev.mysql.com/downloads/shell/)
-
-[MySQL Shell 命令](https://dev.mysql.com/doc/mysql-shell/8.0/en/mysql-shell-commands.html)
-
-[MySQL AdminAPI - 管理 MySQL 實例，使用它們創建 InnoDB Cluster、InnoDB ClusterSet 和 InnoDB ReplicaSet 部署，以及集成 MySQL Router](https://dev.mysql.com/doc/mysql-shell/8.0/en/admin-api-userguide.html)
-
-[MySQL Shell API 8.0.33](https://dev.mysql.com/doc/dev/mysqlsh-api-javascript/8.0/group___admin_a_p_i.html)
-
-[朝花夕拾16章MySQL Shell 使用 MySQL Shell 命令](https://www.modb.pro/db/638407)
-
-[技术分享 | mysqlsh 命令行模式 & 密码保存](https://cloud.tencent.com/developer/article/1782068)
+[MySQL 工具 MySQL Shell(交互式的命令行工具)](../MySQL/MySQL%20工具%20MySQL%20Shell(交互式的命令行工具).md)
 
 ### MySQL Router 相關
 
-```
-MySQL Router 的一些主要用法和特點：
-
-高可用性： MySQL Router 可以在數個 MySQL 服務器之間進行負載均衡和數據路由，以實現高可用性。它可以檢測到服務器的可用性並自動將流量重定向到可用的服務器。
-
-負載均衡： MySQL Router 可以根據配置的負載均衡策略將流量分發到多個 MySQL 服務器上，以確保各個服務器的負載分配均衡。
-
-讀寫分離： MySQL Router 支持讀寫分離，可以將讀取請求路由到一個或多個讀取實例，同時將寫入請求路由到主要寫入實例。這有助於提高讀取效能和分擔主要寫入實例的負擔。
-
-自動故障切換： MySQL Router 可以自動檢測數據庫服務器的故障，並將流量重定向到可用的服務器，以確保應用程序的連接不受影響。
-
-SSL 支持： MySQL Router 支持 SSL 加密，可以保護數據在客戶端和服務器之間的傳輸。
-
-動態配置： MySQL Router 可以通過配置文件進行動態配置，您可以定義路由規則、服務器組和讀寫分離設置。
-```
-
-[MySQL Router 8.0 - 官方文件](https://dev.mysql.com/doc/mysql-router/8.0/en/)
-
-[MySQL Community Downloads - MySQL Router](https://dev.mysql.com/downloads/router/)
-
-[Chapter 2 Installing MySQL Router - 安裝](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-installation.html)
-
-[2.1 Installing MySQL Router on Linux](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-installation-linux.html)
-
-[4.1 Configuration File Syntax - 配置文件語法](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-syntax.html)
-
-[4.3.3 Configuration File Options - 配置文檔選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-conf-options.html)
-
-[4.3.4 Configuration File Example - 配置文檔範例](https://dev.mysql.com/doc/mysql-router/8.0/en/mysql-router-configuration-file-example.html)
-
-[4.3.2.1 mysqlrouter — 命令行選項](https://dev.mysql.com/doc/mysql-router/8.0/en/mysqlrouter.html#option_mysqlrouter_force-password-validation)
-
-[Oracle官方轻量级中间件MySQL Router介绍与性能测试](https://www.modb.pro/db/77315)
-
-[Ubuntu20.04安装MySQL Router](http://www.884358.com/ubuntu-install-mysql-router/)
-
-[Docker image - mysql/mysql-router](https://hub.docker.com/r/mysql/mysql-router)
+[MySQL 工具 Mysql Router(輕量級的路由器)](../MySQL/MySQL%20工具%20MySQL%20Router(輕量級的路由器).md)
 
 ### 叢集(Cluster)相關
 

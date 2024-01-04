@@ -45,6 +45,8 @@ Orchestrator 是一個用於 MySQL 高可用性和自動故障恢復的開源工
 
 [Orchestrator 設定範例文件](https://github.com/github/orchestrator/blob/master/docs/configuration-sample.md)
 
+[Orchestrator 使用 docker 部署 便捷腳本](https://github.com/openark/orchestrator/blob/master/docs/docker.md)
+
 ### 心得相關
 
 [【DB宝40】MySQL高可用管理工具Orchestrator简介及测试](https://cloud.tencent.com/developer/article/1820553)
@@ -68,6 +70,10 @@ go get -u github.com/openark/orchestrator/...
 ```
 
 ## Docker 部署
+
+```bash
+git clone https://github.com/openark/orchestrator.git
+```
 
 ```yml
 version: '3'
