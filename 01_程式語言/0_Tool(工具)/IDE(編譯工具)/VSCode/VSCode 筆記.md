@@ -28,6 +28,9 @@
 	- [20230315 - python](#20230315---python)
 	- [20230531](#20230531)
 	- [20230802](#20230802)
+- [例外狀況](#例外狀況)
+	- [Python](#python)
+		- [from import 語句自動折疊的問題](#from-import-語句自動折疊的問題)
 
 ## 參考資料
 
@@ -2125,4 +2128,14 @@ MacOS: cmd + shift + p
     "notebook.formatOnSave.enabled": false,
     "eslint.codeActionsOnSave.rules": null
   }
+```
+
+# 例外狀況
+
+## Python
+
+### from import 語句自動折疊的問題
+
+```json
+"editor.folding": false
 ```
