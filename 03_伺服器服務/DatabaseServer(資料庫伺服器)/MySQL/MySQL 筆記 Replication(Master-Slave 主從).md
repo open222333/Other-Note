@@ -88,6 +88,8 @@
 
 [一个月后，我们又从 MySQL 双主切换成了主-从！](https://www.51cto.com/article/713751.html)
 
+[keepalived+MySQL实现高可用(雙主)](https://www.cnblogs.com/lijiaman/p/13430668.html)
+
 ### 錯誤處理相關
 
 [MySQL主从复制，启动slave时报错Slave failed to initialize relay log info structure from the repository](https://blog.csdn.net/weixin_37998647/article/details/79950133)
