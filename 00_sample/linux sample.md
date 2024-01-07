@@ -1,24 +1,26 @@
-# Linux 工具 sample()
+# Linux 工具 sample(num)()
 
 ```
 ```
 
 ## 目錄
 
-- [Linux 工具 sample()](#linux-工具-sample)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
+- [Linux 工具 sample(num)()](#linux-工具-samplenum)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
+	- [Debian (Ubuntu)](#debian-ubuntu)
+	- [RedHat (CentOS)](#redhat-centos)
+	- [配置文檔](#配置文檔)
+		- [基本範例](#基本範例)
 - [指令](#指令)
-  - [服務操作](#服務操作)
+	- [服務操作](#服務操作)
 
 ## 參考資料
 
-[]()
+[sample(num) — Linux man page](https://linux.die.net/man/num/sample)
+
+[sample(num) — Linux manual page](https://www.man7.org/linux/man-pages/man1/sample.num.html)
 
 # 安裝
 

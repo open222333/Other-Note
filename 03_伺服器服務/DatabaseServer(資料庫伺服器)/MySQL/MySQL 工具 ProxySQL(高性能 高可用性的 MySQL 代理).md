@@ -19,17 +19,17 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [心得相關](#心得相關)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [心得相關](#心得相關)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Docker 部署](#docker-部署)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
+	- [Debian (Ubuntu)](#debian-ubuntu)
+	- [RedHat (CentOS)](#redhat-centos)
+	- [Docker 部署](#docker-部署)
+	- [配置文檔](#配置文檔)
+		- [基本範例](#基本範例)
 - [指令](#指令)
-  - [服務操作](#服務操作)
+	- [服務操作](#服務操作)
 
 ## 參考資料
 
@@ -38,6 +38,12 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 [官方網站 Initial Configuration](https://proxysql.com/documentation/ProxySQL-Configuration/)
 
 [官方 ProxySQL Docker Image](https://hub.docker.com/r/proxysql/proxysql)
+
+[Admin Variables](https://proxysql.com/Documentation/global-variables/admin-variables/)
+
+[MySQL Variables](https://proxysql.com/Documentation/global-variables/mysql-variables/)
+
+[MySQL Monitor Variables](https://proxysql.com/Documentation/global-variables/mysql-monitor-variables/)
 
 ### 心得相關
 
@@ -100,55 +106,83 @@ services:
 
 ```ini
 # 基本設定
-datadir="/var/lib/proxysql"
-logfile="/var/log/proxysql.log"
-pidfile="/var/run/proxysql/proxysql.pid"
-admin_variables=
-{
-    admin_credentials="admin:adminadmin"
-    mysql_ifaces="0.0.0.0:6032"
-    refresh_interval=2000
-    web_enabled=true
-    web_port=6080
-    web_user=admin
-    web_passwd=admin
+datadir="/var/lib/proxysql"  # ProxySQL 數據目錄
+logfile="/var/log/proxysql.log"  # ProxySQL 日誌文件
+pidfile="/var/run/proxysql/proxysql.pid"  # ProxySQL PID 文件
+admin_variables= {
+    admin_credentials="admin:adminadmin"  # 管理員憑據
+    mysql_ifaces="0.0.0.0:6032"  # MySQL 接口地址和端口
+    refresh_interval=2000  # 管理器刷新間隔（毫秒）
+    web_enabled=true  # 啟用 Web 界面
+    web_port=6080  # Web 界面端口
+    web_user=admin  # Web 界面用戶名
+    web_passwd=admin  # Web 界面密碼
 }
 
 # MySQL 伺服器組配置
-mysql_servers =
-(
-    { address="mysql_server1_ip", port=3306, hostgroup=10, max_connections=100 },
-    { address="mysql_server2_ip", port=3306, hostgroup=10, max_connections=100 },
-    # 添加更多 MySQL 伺服器...
+mysql_servers = (
+    {
+        address="mysql_server1_ip",  # MySQL 伺服器1的 IP 地址
+        port=3306,  # MySQL 伺服器1的端口
+        hostgroup=10,  # MySQL 伺服器1所屬的 Hostgroup
+        max_connections=100  # 最大連接數
+    },
+    {
+        address="mysql_server2_ip",  # MySQL 伺服器2的 IP 地址
+        port=3306,  # MySQL 伺服器2的端口
+        hostgroup=10,  # MySQL 伺服器2所屬的 Hostgroup
+        max_connections=100  # 最大連接數
+    },
 )
 
 # MySQL 伺服器組配置
-mysql_groups =
-(
-    { writer_hostgroup=10, backup_hostgroup=20, reader_hostgroup=30, offline_hostgroup=9999, max_writers=1, writer_is_also_reader=1 },
-    # 添加更多 MySQL 伺服器組...
+mysql_groups = (
+    {
+        writer_hostgroup=10,  # 寫入操作的 Hostgroup
+        backup_hostgroup=20,  # 備份操作的 Hostgroup
+        reader_hostgroup=30,  # 讀取操作的 Hostgroup
+        offline_hostgroup=9999,  # 下線操作的 Hostgroup
+        max_writers=1,  # 最大寫入數
+        writer_is_also_reader=1  # 寫入操作是否同時是讀取操作
+    },
 )
 
 # 監聽端口配置
-mysql_variables =
-(
-    { variable_name="admin_variables.admin_credentials", variable_value="admin:adminadmin" },
-    # 添加更多 MySQL 變數...
+mysql_variables = (
+    {
+        variable_name="admin_variables.admin_credentials",  # 參數名稱
+        variable_value="admin:adminadmin"  # 參數值
+    },
 )
 
 # 查詢攔截和重寫配置
-mysql_query_rules =
-(
-    { rule_id=1, match_digest="^SELECT.*FOR UPDATE$", destination_hostgroup=20, apply=1 },
-    # 添加更多查詢規則...
+; 這個查詢規則的作用是，當有 SQL 查詢匹配正則表達式 ^SELECT.*FOR UPDATE$ 時，將該查詢發送到 Hostgroup 20。
+; 這可能用於特定類型的查詢進行路由或處理。
+mysql_query_rules = (
+    {
+        rule_id=1,  # 規則 ID
+        match_digest="^SELECT.*FOR UPDATE$",  # 匹配的 SQL 語句
+        destination_hostgroup=20,  # 目標 Hostgroup
+        apply=1  # 是否應用此規則
+    },
 )
 
 # 默認連接池配置
-mysql_servers =
-(
-    { hostgroup_id=10, hostname="mysql_server1_ip", port=3306, max_connections=100, weight=100 },
-    { hostgroup_id=20, hostname="mysql_server2_ip", port=3306, max_connections=100, weight=100 },
-    # 添加更多默認連接池配置...
+mysql_servers = (
+    {
+        hostgroup_id=10,  # 默認 Hostgroup ID
+        hostname="mysql_server1_ip",  # 默認連接的 MySQL 伺服器 IP 地址
+        port=3306,  # 默認連接的 MySQL 伺服器端口
+        max_connections=100,  # 最大連接數
+        weight=100  # 默認權重
+    },
+    {
+        hostgroup_id=20,  # 默認 Hostgroup ID
+        hostname="mysql_server2_ip",  # 默認連接的 MySQL 伺服器 IP 地址
+        port=3306,  # 默認連接的 MySQL 伺服器端口
+        max_connections=100,  # 最大連接數
+        weight=100  # 默認權重
+    },
 )
 ```
 
