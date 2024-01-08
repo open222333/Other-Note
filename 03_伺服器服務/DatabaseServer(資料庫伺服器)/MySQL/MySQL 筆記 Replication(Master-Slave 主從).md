@@ -68,6 +68,8 @@
 
 [Connectors and APIs - MySQL 連接器和 API 是用於將不同編程語言的應用程序連接到 MySQL 數據庫服務器的驅動程序和庫](https://dev.mysql.com/doc/index-connectors.html)
 
+[Other-MySQLReplication 範例](https://github.com/open222333/Other-MySQLReplication.git)
+
 ### Master-Slave(主從環境)相關
 
 [MySQL如何不停机维护主从同步](https://zhuanlan.zhihu.com/p/472339202)

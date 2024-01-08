@@ -3,57 +3,55 @@
 ## 目錄
 
 - [Docker 筆記](#docker-筆記)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [安裝相關](#安裝相關)
-    - [配置相關](#配置相關)
-      - [log配置](#log配置)
-    - [網路相關](#網路相關)
-      - [網路 心得相關](#網路-心得相關)
-    - [Docker Hub相關](#docker-hub相關)
-    - [範例相關](#範例相關)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [安裝相關](#安裝相關)
+		- [配置相關](#配置相關)
+			- [log配置](#log配置)
+		- [網路相關](#網路相關)
+			- [網路 心得相關](#網路-心得相關)
+		- [Docker Hub相關](#docker-hub相關)
+		- [範例相關](#範例相關)
 - [安裝](#安裝)
-  - [安裝步驟 CentOS7](#安裝步驟-centos7)
-  - [安裝步驟 Ubuntu](#安裝步驟-ubuntu)
+	- [RedHat (CentOS)](#redhat-centos)
+	- [Debian (Ubuntu)](#debian-ubuntu)
 - [配置文檔](#配置文檔)
-  - [log](#log)
-  - [ipv6](#ipv6)
-  - [設定網段](#設定網段)
-  - [常用配置(20230705)](#常用配置20230705)
+	- [log](#log)
+	- [ipv6](#ipv6)
+	- [設定網段](#設定網段)
+	- [常用配置(20230705)](#常用配置20230705)
 - [指令](#指令)
-  - [服務](#服務)
-  - [docker](#docker)
-    - [docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小](#docker-slim-容量優化工具-一些工具可以分析和優化-docker-映像的大小)
-    - [image](#image)
-    - [docker hub](#docker-hub)
-    - [network](#network)
-  - [docker-compose](#docker-compose)
-    - [排錯](#排錯)
+	- [服務](#服務)
+	- [docker](#docker)
+		- [docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小](#docker-slim-容量優化工具-一些工具可以分析和優化-docker-映像的大小)
+		- [image](#image)
+		- [docker hub](#docker-hub)
+		- [network](#network)
+	- [docker-compose](#docker-compose)
+		- [排錯](#排錯)
 - [範例](#範例)
-  - [Dockerfile](#dockerfile)
-  - [docker-compose](#docker-compose-1)
-    - [docker-compose.centos.yml](#docker-composecentosyml)
-    - [docker-compose.elasticsearch.yml](#docker-composeelasticsearchyml)
-    - [docker-compose.gitea.yml](#docker-composegiteayml)
-    - [docker-compose.mongodb\_clusters\_replica\_set.yml](#docker-composemongodb_clusters_replica_setyml)
-    - [docker-compose.mysql\_phpmyadmin.yml](#docker-composemysql_phpmyadminyml)
-    - [docker-compose.php.yml](#docker-composephpyml)
-    - [docker-compose.scrapy\_splash.yml](#docker-composescrapy_splashyml)
-    - [docker-compose.celery\_python.yml](#docker-composecelery_pythonyml)
-    - [docker-compose.mysql\_master\_slave.yml](#docker-composemysql_master_slaveyml)
-    - [docker-compose.nginx\_plus(centos)-php\_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
-    - [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
-    - [連線 主機別名](#連線-主機別名)
-    - [連接已存在的dokcer-compose網路](#連接已存在的dokcer-compose網路)
-    - [設定網段](#設定網段-1)
+	- [Dockerfile](#dockerfile)
+	- [docker-compose](#docker-compose-1)
+		- [docker-compose.centos.yml](#docker-composecentosyml)
+		- [docker-compose.elasticsearch.yml](#docker-composeelasticsearchyml)
+		- [docker-compose.gitea.yml](#docker-composegiteayml)
+		- [docker-compose.mongodb\_clusters\_replica\_set.yml](#docker-composemongodb_clusters_replica_setyml)
+		- [docker-compose.mysql\_phpmyadmin.yml](#docker-composemysql_phpmyadminyml)
+		- [docker-compose.php.yml](#docker-composephpyml)
+		- [docker-compose.scrapy\_splash.yml](#docker-composescrapy_splashyml)
+		- [docker-compose.celery\_python.yml](#docker-composecelery_pythonyml)
+		- [docker-compose.mysql\_master\_slave.yml](#docker-composemysql_master_slaveyml)
+		- [docker-compose.nginx\_plus(centos)-php\_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
+		- [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
+		- [連線 主機別名](#連線-主機別名)
 - [例外狀況](#例外狀況)
-  - [ERROR: Service 'api' failed to build : Error processing tar file(exit status 1)](#error-service-api-failed-to-build--error-processing-tar-fileexit-status-1)
-  - [log造成硬碟沒有空間](#log造成硬碟沒有空間)
-    - [Container Log 預設路徑：](#container-log-預設路徑)
-    - [清理 Log](#清理-log)
-    - [清理 Log Script](#清理-log-script)
-  - [使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)](#使用-網卡-讓-host-mode-可以連到內網的ip192168154112)
-  - [查看 /var/lib/docker/overlay2 的容量使用情況](#查看-varlibdockeroverlay2-的容量使用情況)
+	- [ERROR: Service 'api' failed to build : Error processing tar file(exit status 1)](#error-service-api-failed-to-build--error-processing-tar-fileexit-status-1)
+	- [log造成硬碟沒有空間](#log造成硬碟沒有空間)
+		- [Container Log 預設路徑：](#container-log-預設路徑)
+		- [清理 Log](#清理-log)
+		- [清理 Log Script](#清理-log-script)
+	- [使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)](#使用-網卡-讓-host-mode-可以連到內網的ip192168154112)
+	- [查看 /var/lib/docker/overlay2 的容量使用情況](#查看-varlibdockeroverlay2-的容量使用情況)
 
 ## 參考資料
 
@@ -121,7 +119,7 @@
 
 # 安裝
 
-## 安裝步驟 CentOS7
+## RedHat (CentOS)
 
 ```bash
 # 設置存儲庫
@@ -169,7 +167,7 @@ ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
 docker-compose --version
 ```
 
-## 安裝步驟 Ubuntu
+## Debian (Ubuntu)
 
 ```bash
 # 更新APT軟體包索引
@@ -522,28 +520,23 @@ docker-compose config
 
 `檔名要是Dockerfile`
 
+`Dockerfile.sample`
+
 ```dockerfile
 # 使用官方的 Python 執行環境作為基本的 Docker 影像
 FROM python:2.7-slim
-
 # 設定工作目錄為 /app
 WORKDIR /app
-
 # 複製目前目錄下的內容，放進 Docker 容器中的 /app
 ADD . /app
-
 # 安裝 requirements.txt 中所列的必要套件
 RUN pip install -r requirements.txt
-
 # 讓 80 連接埠可以從 Docker 容器外部存取
 EXPOSE 80
-
 # 定義環境變數
 ENV NAME World
-
 # 當 Docker 容器啟動時，自動執行 app.py
 CMD ["python", "app.py"]
-
 
 FROM pytorch/pytorch:latest
 RUN pip install Pillow
@@ -585,107 +578,89 @@ ENTRYPOINT      ["/entrypoint.sh"]
 ## docker-compose
 
 ```yml
-# 設定Container重新啟動的規則
-# 目前支援no、always、on-failure、unless-stopped等四個選項
-# 一般會設為「always」，即當Container停止或開機時可以自動啟動Container
-restart: always
-
-# 指定服務的映像檔名稱或映像檔ID
-image: mysql:5.7
-
-# 掛載目錄
-volumes:
-    # 使用絕對路徑
-  - /opt/cache:/tmp/cache
-
-    # 以 Compose 配置文件為中心的相對路徑
-  - ./cache:/tmp/cache
-
-    # ~/ 表示的是目錄
-  - ~/cache://tmp/cache
-
+version: "3"
 # 容器
 services:
     backend:
-    image: awesome/database
-    volumes:
-        - db-data:/etc/data # 設定volume
-
-    backup:
-    image: backup-service
-    volumes:
-        - db-data:/var/lib/backup/data # 設定volume
-
-volumes:
-    db-data: # 共用db-data這個volume
-
-
-# 定義容器內的環境變數，類似docker run -e的效果
-environment:
-  - MYSQL_USER=wordpress
-
-# 設定容器間的依賴關係，即決定容器啟動的先後順序
-depends_on: # 依賴 db 服務
-    - db
-
-# 用來定義本機與容器間Port的對映關係，基本的格式也是HOST:CONTAINER
-ports:
-    - "3000" # 不指定本機Port，本機會隨機自動產生
-    - "45678:22" # 本機的45678 Port對映到容器的Port 22
-
-# 開放port
-expose:
-    - 1234
-
-
-# 容器設定networks
-services:
-  frontend: # 服務一
-    image: awesome/webapp
-    networks:
-      - front-tier
-      - back-tier
-
-  backend: # 服務二
-    image: awesome/backapp
-    networks:
-      - back-tier
+		# 指定服務的映像檔名稱或映像檔ID
+		image: awesome/database
+		volumes:
+			- db-data:/etc/data # 設定volume
+		backup:
+		image: backup-service
+		# 定義容器內的環境變數，類似docker run -e的效果
+		environment:
+			- MYSQL_USER=wordpress
+		# 設定容器間的依賴關係，即決定容器啟動的先後順序
+		depends_on: # 依賴 db 服務
+			- db
+		# 用來定義本機與容器間Port的對映關係，基本的格式也是HOST:CONTAINER
+		ports:
+			- "3000" # 不指定本機Port，本機會隨機自動產生
+			- "45678:22" # 本機的45678 Port對映到容器的Port 22
+		# 開放port
+		expose:
+			- 1234
+		# 設定Container重新啟動的規則
+		# 目前支援no、always、on-failure、unless-stopped等四個選項
+		# 一般會設為「always」，即當Container停止或開機時可以自動啟動Container
+		restart: always
+		# 容器設定networks
+		networks:
+			- front-tier
+			- back-tier
 
 # 定義網路
 networks:
-    front-tier:
-    back-tier:
+	front-tier:
+	back-tier:
+	app-network:
+		driver: bridge
+		# 官方說明
+		# https://docs.docker.com/network/
+		# https://docs.docker.com/compose/networking/
 
-networks:
-  app-network:
-    driver: bridge
-        # 官方說明
-        # https://docs.docker.com/network/
-        # https://docs.docker.com/compose/networking/
+		# bridge:默認網絡驅動程序。橋接網絡。
+		host: Docker主機網路。
 
-        # bridge:默認網絡驅動程序。橋接網絡。
-        host: Docker主機網路。
+		# # 錯誤 解決方案
+		# Docker ERROR: only one instance of "host" network is allowed
+		# https://stackoverflow.com/questions/63777655/docker-error-only-one-instance-of-host-network-is-allowed
+		# network_mode: host
 
-        # # 錯誤 解決方案
-        # Docker ERROR: only one instance of "host" network is allowed
-        # https://stackoverflow.com/questions/63777655/docker-error-only-one-instance-of-host-network-is-allowed
-        # network_mode: host
+	# 使用預先存在的網絡
+	# 如果希望容器加入預先存在的網絡，請使用以下external選項：
+	default:
+		external:
+			name: my-pre-existing-network
 
-# 使用預先存在的網絡
-# 如果希望容器加入預先存在的網絡，請使用以下external選項：
-services:
-  # ...
-networks:
-  default:
-    external:
-      name: my-pre-existing-network
+		# overlay:將多個Docker守護進程連接在一起，使swarm服務能夠相互通信。
+		# ipvlan:完全控制IPv4和IPv6尋址。
+		# macvlan:將MAC地址分配給容器，網絡上顯示為物理設備。
 
-# overlay:將多個Docker守護進程連接在一起，使swarm服務能夠相互通信。
-# ipvlan:完全控制IPv4和IPv6尋址。
-# macvlan:將MAC地址分配給容器，網絡上顯示為物理設備。
+		# 預設Docker Compose會自動建立default network，其名稱為「目錄名稱_default」
+		# 換言之，networks是可以省略的
 
-# 預設Docker Compose會自動建立default network，其名稱為「目錄名稱_default」
-# 換言之，networks是可以省略的
+	# 設定網段
+	mynetwork:
+		ipam:
+			config:
+				- subnet: '172.6.0.0/16'
+
+	mynet1:
+		ipam:
+			driver: default
+			config:
+				- subnet: 172.28.0.0/16
+					ip_range: 172.28.5.0/24
+					gateway: 172.28.5.254
+					aux_addresses:
+					host1: 172.28.1.5
+					host2: 172.28.1.6
+					host3: 172.28.1.7
+		options:
+			foo: bar
+			baz: "0"
 ```
 
 ### docker-compose.centos.yml
@@ -1145,67 +1120,6 @@ services:
     image: postgres
     ports:
       - "8001:5432"
-```
-
-### 連接已存在的dokcer-compose網路
-
-```bash
-# 確認已存在的 Docker Compose 網路：
-# 使用以下命令檢視現有的 Docker Compose 網路：
-docker network ls
-```
-
-```yml
-version: '3'
-
-services:
-  service1:
-    # 服務1的設定
-
-  service2:
-    # 服務2的設定
-
-networks:
-  default:
-    external:
-      name: existing_network
-```
-
-### 設定網段
-
-```yml
-version: '3.5'
-
-services:
-  web:
-    image: crccheck/hello-world
-    ports:
-      - '80:8000'
-    networks:
-      - mynetwork
-networks:
-  mynetwork:
-    ipam:
-      config:
-        - subnet: '172.6.0.0/16'
-```
-
-```yml
-networks:
-  mynet1:
-    ipam:
-    driver: default
-    config:
-      - subnet: 172.28.0.0/16
-        ip_range: 172.28.5.0/24
-        gateway: 172.28.5.254
-        aux_addresses:
-          host1: 172.28.1.5
-          host2: 172.28.1.6
-          host3: 172.28.1.7
-    options:
-      foo: bar
-      baz: "0"
 ```
 
 # 例外狀況
