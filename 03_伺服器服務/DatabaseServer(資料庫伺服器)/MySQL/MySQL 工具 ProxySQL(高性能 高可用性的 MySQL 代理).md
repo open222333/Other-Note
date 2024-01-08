@@ -19,17 +19,17 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [心得相關](#心得相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [心得相關](#心得相關)
 - [安裝](#安裝)
-	- [Debian (Ubuntu)](#debian-ubuntu)
-	- [RedHat (CentOS)](#redhat-centos)
-	- [Docker 部署](#docker-部署)
-	- [配置文檔](#配置文檔)
-		- [基本範例](#基本範例)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+  - [RedHat (CentOS)](#redhat-centos)
+  - [Docker 部署](#docker-部署)
+  - [配置文檔](#配置文檔)
+    - [基本範例](#基本範例)
 - [指令](#指令)
-	- [服務操作](#服務操作)
+  - [服務操作](#服務操作)
 
 ## 參考資料
 
@@ -115,25 +115,9 @@ admin_variables= {
     refresh_interval=2000  # 管理器刷新間隔（毫秒）
     web_enabled=true  # 啟用 Web 界面
     web_port=6080  # Web 界面端口
-    web_user=admin  # Web 界面用戶名
-    web_passwd=admin  # Web 界面密碼
+    web_user="admin"  # Web 界面用戶名
+    web_passwd="admin"  # Web 界面密碼
 }
-
-# MySQL 伺服器組配置
-mysql_servers = (
-    {
-        address="mysql_server1_ip",  # MySQL 伺服器1的 IP 地址
-        port=3306,  # MySQL 伺服器1的端口
-        hostgroup=10,  # MySQL 伺服器1所屬的 Hostgroup
-        max_connections=100  # 最大連接數
-    },
-    {
-        address="mysql_server2_ip",  # MySQL 伺服器2的 IP 地址
-        port=3306,  # MySQL 伺服器2的端口
-        hostgroup=10,  # MySQL 伺服器2所屬的 Hostgroup
-        max_connections=100  # 最大連接數
-    },
-)
 
 # MySQL 伺服器組配置
 mysql_groups = (
@@ -187,6 +171,18 @@ mysql_servers = (
 ```
 
 # 指令
+
+`使用 MySQL 客戶端連接到 ProxySQL`
+
+```bash
+mysql -h <proxySQL_host> -P <proxySQL_port> -u <mysql_username> -p
+```
+
+<proxySQL_host>: 你的 ProxySQL 主機的 IP 地址或主機名。
+
+<proxySQL_port>: ProxySQL 監聽的端口，通常是 6033，但根據你的配置可能有所不同。
+
+<mysql_username>: MySQL 用戶名。
 
 ## 服務操作
 

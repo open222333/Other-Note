@@ -1,4 +1,4 @@
-# MySQL phpMyAdmin(MySQL資料庫管理工具)
+# MySQL 工具 phpMyAdmin(MySQL資料庫管理工具)
 
 ```
 phpMyAdmin 是一個以PHP為基礎，以Web-Base方式架構在網站主機上的MySQL的資料庫管理工具
@@ -6,9 +6,9 @@ phpMyAdmin 是一個以PHP為基礎，以Web-Base方式架構在網站主機上�
 
 ## 目錄
 
-- [MySQL phpMyAdmin(MySQL資料庫管理工具)](#mysql-phpmyadminmysql資料庫管理工具)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+- [MySQL 工具 phpMyAdmin(MySQL資料庫管理工具)](#mysql-工具-phpmyadminmysql資料庫管理工具)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [安裝步驟 CentOS7 phpMyAdmin安裝(Apache)](#安裝步驟-centos7-phpmyadmin安裝apache)
 - [安裝步驟 CentOS7 phpMyAdmin安裝(Apache)](#安裝步驟-centos7-phpmyadmin安裝apache-1)
 

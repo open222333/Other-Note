@@ -20,10 +20,7 @@ RDBMS
     - [備份相關](#備份相關)
       - [備份指令相關](#備份指令相關)
       - [解說相關](#解說相關)
-      - [Percona XtraBackup(備份工具)相關](#percona-xtrabackup備份工具相關)
-        - [XtraBackup 心得相關](#xtrabackup-心得相關)
     - [錯誤處理相關](#錯誤處理相關)
-      - [InnoDB Cluster 錯誤](#innodb-cluster-錯誤)
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
   - [MacOS](#macos)
@@ -114,51 +111,6 @@ RDBMS
 
 [恢复mysql数据结构（.frm）和数据（.ibd）](https://cloud.tencent.com/developer/article/2069047?from=15425&areaSource=102001.3&traceId=tgUxumfIzi91Zj2x4aECD)
 
-#### Percona XtraBackup(備份工具)相關
-
-[percona 官網](https://www.percona.com/software/documentation)
-
-[xtrabackup 選項參考](https://docs.percona.com/percona-xtrabackup/2.4/xtrabackup_bin/xbk_option_reference.html)
-
-[innobackupex 選項參考](https://docs.percona.com/percona-xtrabackup/2.4/innobackupex/innobackupex_option_reference.html)
-
-##### XtraBackup 心得相關
-
-[mysql数据库备份：Xtrabackup - ](https://zhuanlan.zhihu.com/p/503948465)
-
-```
-xtrabackup：是用於熱備份innodb, xtradb表中數據的工具，不能備份其他類型的表，也不能備份數據表結構
-innobackupex：是將xtrabackup進行封裝的perl腳本，可以備份和恢復MyISAM表以及數據表結構
-```
-
-[xtrabackup backup and restore mysql database](https://pankajconnect.medium.com/xtrabackup-backup-and-restore-mysql-database-221300bd8fef)
-
-[在 Red Hat Enterprise Linux 和 CentOS 上安裝 Percona XtraBackup](https://docs.percona.com/percona-xtrabackup/2.4/installation/yum_repo.html#whats-in-each-rpm-package)
-
-[Running Percona XtraBackup in a Docker container](https://www.percona.com/doc/percona-xtrabackup/2.4/installation/docker.html)
-
-[bitnami/percona-xtrabackup](https://hub.docker.com/r/bitnami/percona-xtrabackup/)
-
-[Xtrabackup介紹](https://www.itread01.com/content/1547450246.html)
-
-[xtrabackup - 手冊頁](https://www.mankier.com/1/xtrabackup#)
-
-[innobackupex參數說明](https://www.cnblogs.com/weiyiming007/p/10282593.html)
-
-[xtrabackup 使用說明](https://www.cnblogs.com/linhaifeng/articles/15021166.html)
-
-[【MYSQL】Percona XtraBackup 備份指令與還原](https://rosalie1211.blogspot.com/2019/04/mysqlpercona-xtrabackup.html)
-
-[MySQL Percona innobackupex 和 XtraBackup 有何不同？](https://blog.longwin.com.tw/2022/09/mysql-percona-innobackupex-xtrabackup-different-2022/)
-
-[Can I backup remote databases from my local server - 我可以從本地服務器備份遠程數據庫嗎](https://forums.percona.com/t/can-i-backup-remote-databases-from-my-local-server/2334/3)
-
-[dijeesh-mysql_remote_xtrabackup Github](https://github.com/dijeesh/mysql_remote_xtrabackup/blob/master/mysql_remote_stream_backup.sh)
-
-[如何將 mysql xtrabackup 帶到遠程服務器](https://stackoverflow.com/questions/71567854/how-to-take-mysql-xtrabackup-to-a-remote-server)
-
-[MySQL8.0 使用Xtrabackup对数据库进行部分备份恢复](https://www.modb.pro/db/448714)
-
 ### 錯誤處理相關
 
 [[MySQL] SQL_ERROR 1032解决办法](https://www.cnblogs.com/langdashu/p/5920436.html)
@@ -170,20 +122,6 @@ innobackupex：是將xtrabackup進行封裝的perl腳本，可以備份和恢復
 [MySQL崩潰-如何修復損壞的innodb：innodb_force_recovery](https://www.twblogs.net/a/5b8201762b71772165af295d)
 
 [解决 MySQL 报错 “ Column count of mysql.user is wrong...”](https://cloud.tencent.com/developer/article/1662598)
-
-#### InnoDB Cluster 錯誤
-
-[Multi Source Replication MySQL 5.6 to 5.7 GTID Auto Position Issues](https://stackoverflow.com/questions/30606345/multi-source-replication-mysql-5-6-to-5-7-gtid-auto-position-issues)
-
-[Plugin group_replication reported: '[GCS] Connection attempt from IP address ::ffff:10.57.19.100 refused. Address is not in the IP whitelist.'](https://www.cnblogs.com/Miac/p/11990725.html)
-
-[MySQL Shell无法拉起MGR集群解决办法 - rebootClusterFromCompleteOutage失敗 因为MySQL 5.7中还不支持 SET PERSIST 功能](https://ost.51cto.com/posts/16247)
-
-[1114 (HY000): The table is full](https://stackoverflow.com/questions/730579/1114-hy000-the-table-is-full)
-
-[How can I troubleshoot the error "MySQL HA_ERR_RECORD_FILE_FULL" when I use Amazon RDS for MySQL? - 1114](https://repost.aws/knowledge-center/rds-error-mysql-record-file-full)
-
-[7.8.2 Restoring a Cluster from Quorum Loss](https://dev.mysql.com/doc/mysql-shell/8.0/en/restore-cluster-from-quorum-loss.html)
 
 # 安裝步驟
 
