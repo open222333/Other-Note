@@ -1,4 +1,4 @@
-# MySQL Percona XtraBackup(資料備份的工具)
+# MySQL 工具 Percona XtraBackup(資料備份的工具)
 
 ```
 Xtrabackup是一個對InnoDB做資料備份的工具，支援線上熱備份(備份時不影響資料讀寫)，是商業備份工具InnoDB Hotbackup的一個很好的替代品。
