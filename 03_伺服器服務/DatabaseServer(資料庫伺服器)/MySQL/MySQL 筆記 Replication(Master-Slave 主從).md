@@ -36,19 +36,19 @@
 ## 目錄
 
 - [MySQL 筆記 Replication(Master-Slave 主從)](#mysql-筆記-replicationmaster-slave-主從)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [Master-Slave(主從環境)相關](#master-slave主從環境相關)
-    - [keepalived(實現高可用性的工具) 相關](#keepalived實現高可用性的工具-相關)
-    - [錯誤處理相關](#錯誤處理相關)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [Master-Slave(主從環境)相關](#master-slave主從環境相關)
+		- [keepalived(實現高可用性的工具) 相關](#keepalived實現高可用性的工具-相關)
+		- [錯誤處理相關](#錯誤處理相關)
 - [指令](#指令)
-  - [基本用法](#基本用法)
-  - [keepalived (實作高可用)](#keepalived-實作高可用)
+	- [基本用法](#基本用法)
+	- [keepalived (實作高可用)](#keepalived-實作高可用)
 - [例外狀況](#例外狀況)
-  - [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
-  - [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
-  - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
-    - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
+	- [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
+	- [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
+	- [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
+		- [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
 
 ## 參考資料
 
@@ -155,6 +155,8 @@ show variables like 'log_bin%';
 -- 例如，要設置一個repl可以從example.com域內的任何主機連接以進行複制 的新用戶
 CREATE USER 'replication'@'192.168%' IDENTIFIED BY '.wFb9A?$9*WN';
 GRANT REPLICATION SLAVE ON *.* TO 'replication'@'192.168%';
+
+FLUSH PRIVILEGES;
 
 -- 檢查使用者 列出所有使用者帳號
 select User, Host From mysql.user;
