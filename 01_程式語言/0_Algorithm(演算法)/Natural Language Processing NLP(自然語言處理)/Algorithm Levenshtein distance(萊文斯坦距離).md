@@ -21,7 +21,7 @@ Levenshtein distance 是一種用於衡量兩個字串之間相似度的算法�
 
 ### Python 相關
 
-[]()
+[Python 模組 python-Levenshtein(萊文斯坦距離)](https://github.com/open222333/Other-Note/blob/main/01_%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/Python/Python%20%E7%AC%AC%E4%B8%89%E6%96%B9%E6%A8%A1%E7%B5%84/Python%20Algorithm(%E6%BC%94%E7%AE%97%E6%B3%95)/%E8%87%AA%E7%84%B6%E8%AA%9E%E8%A8%80%E8%99%95%E7%90%86(Natural%20Language%20Processing%20NLP)/Python%20%E6%A8%A1%E7%B5%84%20python-Levenshtein(%E8%90%8A%E6%96%87%E6%96%AF%E5%9D%A6%E8%B7%9D%E9%9B%A2).md)
 
 # 實作
 
