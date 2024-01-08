@@ -69,6 +69,10 @@
 
 [官方文檔](https://docs.docker.com/compose/samples-for-compose/)
 
+[Docker 官方 GitHub 組織](https://github.com/docker-library)
+
+[Docker 官方 GitHub 組織 - healthcheck](https://github.com/docker-library/healthcheck)
+
 ### 安裝相關
 
 [安裝官方文檔 右邊列表有其他系統的安裝步驟](https://docs.docker.com/engine/install/)
@@ -581,13 +585,11 @@ ENTRYPOINT      ["/entrypoint.sh"]
 version: "3"
 # 容器
 services:
-    backend:
+    sample:
 		# 指定服務的映像檔名稱或映像檔ID
-		image: awesome/database
+		image: dockerhub/sample
 		volumes:
 			- db-data:/etc/data # 設定volume
-		backup:
-		image: backup-service
 		# 定義容器內的環境變數，類似docker run -e的效果
 		environment:
 			- MYSQL_USER=wordpress
@@ -609,6 +611,16 @@ services:
 		networks:
 			- front-tier
 			- back-tier
+		healthcheck:
+			# 指定了健康檢查的命令
+			test: ['CMD', 'mysql/healthcheck.sh']
+			test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+			# 健康檢查的間隔時間
+			interval: 30s
+			# 設定了每次健康檢查的超時時間，即每次健康檢查最多執行 10 秒，超過這個時間將視為失敗。
+			timeout: 10s
+			# 設定了容器允許的最大重試次數，即如果連續 3 次健康檢查都失敗，則容器被標記為不健康。
+			retries: 3
 
 # 定義網路
 networks:
