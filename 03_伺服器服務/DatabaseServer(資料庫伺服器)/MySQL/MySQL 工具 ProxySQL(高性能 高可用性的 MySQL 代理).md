@@ -19,17 +19,17 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [心得相關](#心得相關)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [心得相關](#心得相關)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Docker 部署](#docker-部署)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
+	- [Debian (Ubuntu)](#debian-ubuntu)
+	- [RedHat (CentOS)](#redhat-centos)
+	- [Docker 部署](#docker-部署)
+	- [配置文檔](#配置文檔)
+		- [基本範例](#基本範例)
 - [指令](#指令)
-  - [服務操作](#服務操作)
+	- [服務操作](#服務操作)
 
 ## 參考資料
 
@@ -54,6 +54,8 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 ```
 
 [用Docker实现MySQL ProxySQL读写分离](https://blog.breezelin.cn/practice-mysql-proxysql-docker-compose.html)
+
+[ProxySQL 基础篇](https://www.cnblogs.com/keme/p/12290977.html)
 
 # 安裝
 
