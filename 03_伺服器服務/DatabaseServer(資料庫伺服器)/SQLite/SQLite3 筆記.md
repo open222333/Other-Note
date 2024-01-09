@@ -8,6 +8,7 @@
 - [SQLite3 筆記](#sqlite3-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [圖形化介面相關](#圖形化介面相關)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
@@ -20,6 +21,10 @@
 [sqlite3(num) — Linux man page](https://linux.die.net/man/num/sqlite3)
 
 [sqlite3(num) — Linux manual page](https://www.man7.org/linux/man-pages/man1/sqlite3.num.html)
+
+### 圖形化介面相關
+
+[SQLite 圖形化介面 軟體 下載和使用教學](https://www.ruyut.com/2021/12/sqlite-tool.html)
 
 # 安裝
 
