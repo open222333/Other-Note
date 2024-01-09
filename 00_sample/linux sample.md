@@ -11,6 +11,7 @@
 - [安裝](#安裝)
 	- [Debian (Ubuntu)](#debian-ubuntu)
 	- [RedHat (CentOS)](#redhat-centos)
+	- [Homebrew (MacOS)](#homebrew-macos)
 	- [配置文檔](#配置文檔)
 		- [基本範例](#基本範例)
 - [指令](#指令)
@@ -30,6 +31,11 @@
 ```
 
 ## RedHat (CentOS)
+
+```bash
+```
+
+## Homebrew (MacOS)
 
 ```bash
 ```

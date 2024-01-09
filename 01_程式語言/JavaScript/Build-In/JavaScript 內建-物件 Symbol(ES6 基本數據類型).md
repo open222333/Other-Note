@@ -16,6 +16,7 @@ Symbol 是 ECMAScript 6（ES6）引入的一個新的基本數據類型。
 	- [Symbol.toStringTag](#symboltostringtag)
 	- [Symbol.species](#symbolspecies)
 	- [Symbol.isConcatSpreadable](#symbolisconcatspreadable)
+	- [Symbol.toPrimitive](#symboltoprimitive)
 
 ## 參考資料
 
@@ -267,4 +268,34 @@ class NonSpreadableArray extends Array {
 
 let a = new NonSpreadableArray(1, 2, 3);
 [].concat(a).length; // => 1, 若 a 被分散(spreadable), 長度就會是三個元素
+```
+
+## Symbol.toPrimitive
+
+```
+Symbol.toPrimitive 是 JavaScript 中的一個特殊 symbol，它用於定義對象轉換為原始值的行為。當一個對象出現在一個需要原始值的上下文中（例如數學運算、字符串拼接等），JavaScript 引擎會嘗試調用該對象上的 Symbol.toPrimitive 方法。
+
+Symbol.toPrimitive 是一個接受一個參數 hint 的方法，hint 可以是以下三種值之一：
+
+"number"：表示引擎需要一個數字。
+"string"：表示引擎需要一個字符串。
+"default"：表示引擎需要根據上下文的默認行為（通常是數字）。
+```
+
+```JavaScript
+const myObject = {
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'number') {
+      return 42;
+    }
+    if (hint === 'string') {
+      return 'Hello, world!';
+    }
+    return 'default';
+  }
+};
+
+console.log(myObject + 10);  // 52 (因為 hint 是 'number'，返回數字)
+console.log(String(myObject));  // 'Hello, world!' (因為 hint 是 'string'，返回字符串)
+console.log(myObject);  // 'default'（因為 hint 是 'default'，返回默認值）
 ```
