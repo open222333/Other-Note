@@ -19,17 +19,17 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [心得相關](#心得相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [心得相關](#心得相關)
 - [安裝](#安裝)
-	- [Debian (Ubuntu)](#debian-ubuntu)
-	- [RedHat (CentOS)](#redhat-centos)
-	- [Docker 部署](#docker-部署)
-	- [配置文檔](#配置文檔)
-		- [基本範例](#基本範例)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+  - [RedHat (CentOS)](#redhat-centos)
+  - [Docker 部署](#docker-部署)
+  - [配置文檔](#配置文檔)
+    - [基本範例](#基本範例)
 - [指令](#指令)
-	- [服務操作](#服務操作)
+  - [服務操作](#服務操作)
 
 ## 參考資料
 
@@ -103,6 +103,45 @@ services:
 ## 配置文檔
 
 通常在 `/etc/proxysql/proxysql.cnf`
+
+`官方 dockerhub 範例`
+
+```ini
+datadir="/var/lib/proxysql"
+
+admin_variables=
+{
+	admin_credentials="admin:admin;radmin:radmin"
+	mysql_ifaces="0.0.0.0:6032"
+}
+
+mysql_variables=
+{
+	threads=4
+	max_connections=2048
+	default_query_delay=0
+	default_query_timeout=36000000
+	have_compress=true
+	poll_timeout=2000
+	interfaces="0.0.0.0:6033"
+	default_schema="information_schema"
+	stacksize=1048576
+	server_version="5.5.30"
+	connect_timeout_server=3000
+	monitor_username="monitor"
+	monitor_password="monitor"
+	monitor_history=600000
+	monitor_connect_interval=60000
+	monitor_ping_interval=10000
+	monitor_read_only_interval=1500
+	monitor_read_only_timeout=500
+	ping_interval_server_msec=120000
+	ping_timeout_server=500
+	commands_stats=true
+	sessions_sort=true
+	connect_retries_on_failure=10
+}
+```
 
 ### 基本範例
 
