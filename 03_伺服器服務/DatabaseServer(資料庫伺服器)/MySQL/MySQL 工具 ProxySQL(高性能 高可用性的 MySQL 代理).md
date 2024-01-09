@@ -22,6 +22,8 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [心得相關](#心得相關)
+    - [percona 相關](#percona-相關)
+    - [例外狀況相關](#例外狀況相關)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
@@ -30,6 +32,8 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
     - [基本範例](#基本範例)
 - [指令](#指令)
   - [服務操作](#服務操作)
+- [例外狀況](#例外狀況)
+  - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 
 ## 參考資料
 
@@ -38,6 +42,8 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 [官方網站 Initial Configuration](https://proxysql.com/documentation/ProxySQL-Configuration/)
 
 [官方 ProxySQL Docker Image](https://hub.docker.com/r/proxysql/proxysql)
+
+[Download and Install ProxySQL](https://proxysql.com/documentation/installing-proxysql/)
 
 [Admin Variables](https://proxysql.com/Documentation/global-variables/admin-variables/)
 
@@ -56,6 +62,24 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 [用Docker实现MySQL ProxySQL读写分离](https://blog.breezelin.cn/practice-mysql-proxysql-docker-compose.html)
 
 [ProxySQL 基础篇](https://www.cnblogs.com/keme/p/12290977.html)
+
+[Setting Up ProxySQL and MySQL Replication using Docker](https://medium.com/technology-hits/setting-up-proxysql-and-mysql-replication-using-docker-35afe395b4e7)
+
+[wagnerjfr/docker-proxysql-mysql](https://github.com/wagnerjfr/docker-proxysql-mysql)
+
+[【MySql】ProxySQL指南](https://blog.csdn.net/weixin_44231544/article/details/129155140)
+
+[ProxySQL+Mysql实现数据库读写分离实战](https://segmentfault.com/a/1190000022074101)
+
+### percona 相關
+
+[ProxySQL、proxysql-admin 和 percona-scheduler-admin 文檔](https://docs.percona.com/proxysql/index.html)
+
+### 例外狀況相關
+
+[Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](https://github.com/xinity/pxc_swarm/issues/2)
+
+[Ubuntu 18.04 - Fresh ProxySQL install - no mysqld.sock port found](https://github.com/sysown/proxysql/issues/2135)
 
 # 安裝
 
@@ -211,6 +235,83 @@ mysql_servers = (
 )
 ```
 
+```ini
+datadir="/var/lib/proxysql"
+
+admin_variables=
+{
+    admin_credentials="admin:admin;radmin:radmin"
+    mysql_ifaces="0.0.0.0:6032"
+    refresh_interval=2000
+}
+
+mysql_variables=
+{
+    threads=4
+    max_connections=2048
+    default_query_delay=0
+    default_query_timeout=36000000
+    have_compress=true
+    poll_timeout=2000
+    interfaces="0.0.0.0:6033;/tmp/proxysql.sock"
+    default_schema="information_schema"
+    stacksize=1048576
+    server_version="5.1.30"
+    connect_timeout_server=10000
+    monitor_history=60000
+    monitor_connect_interval=200000
+    monitor_ping_interval=200000
+    ping_interval_server_msec=10000
+    ping_timeout_server=200
+    commands_stats=true
+    sessions_sort=true
+    monitor_username="monitor"
+    monitor_password="monitor"
+}
+
+mysql_replication_hostgroups =
+(
+    { writer_hostgroup=10 , reader_hostgroup=20 , comment="host groups" }
+)
+
+mysql_servers =
+(
+    { address="source" , port=3306 , hostgroup=10, max_connections=100 , max_replication_lag = 5 },
+    { address="replica1" , port=3306 , hostgroup=20, max_connections=100 , max_replication_lag = 5 },
+    { address="replica2" , port=3306 , hostgroup=20, max_connections=100 , max_replication_lag = 5 }
+)
+
+mysql_query_rules =
+(
+    {
+        rule_id=100
+        active=1
+        match_pattern="^SELECT .* FOR UPDATE"
+        destination_hostgroup=10
+        apply=1
+    },
+    {
+        rule_id=200
+        active=1
+        match_pattern="^SELECT .*"
+        destination_hostgroup=20
+        apply=1
+    },
+    {
+        rule_id=300
+        active=1
+        match_pattern=".*"
+        destination_hostgroup=10
+        apply=1
+    }
+)
+
+mysql_users =
+(
+    { username = "root" , password = "mypass" , default_hostgroup = 10 , active = 1 }
+)
+```
+
 # 指令
 
 `使用 MySQL 客戶端連接到 ProxySQL`
@@ -250,4 +351,12 @@ systemctl disable proxysql
 # (start, stop, restart, try-restart, reload, force-reload, status)
 # 重新載入
 service proxysql reload
+```
+
+# 例外狀況
+
+## Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)
+
+```bash
+mysql -h127.0.0.1 -P6032 -uadmin -p
 ```
