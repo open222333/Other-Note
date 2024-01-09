@@ -25,6 +25,10 @@ RDBMS
 	- [配置文檔](#配置文檔)
 	- [MacOS](#macos)
 	- [CentOS7](#centos7)
+	- [安裝 MySQL 工具](#安裝-mysql-工具)
+		- [Debian (Ubuntu)](#debian-ubuntu)
+		- [RedHat (CentOS)](#redhat-centos)
+		- [Homebrew (MacOS)](#homebrew-macos)
 - [指令](#指令)
 	- [服務操作](#服務操作)
 	- [SQL 指令](#sql-指令)
@@ -291,6 +295,9 @@ brew install wget
 # mysql 5.7可以通過brew安裝
 brew install mysql@5.7
 
+
+brew install -y mysql
+
 # brew安裝
 # If you need to have mysql-client first in your PATH, run:
 #   echo 'export PATH="/usr/local/opt/mysql-client/bin:$PATH"' >> ~/.profile
@@ -361,6 +368,27 @@ firewall-cmd --zone=public --add-port=3306/tcp --permanent
 
 # 重啟防火牆
 firewall-cmd --reload
+```
+
+## 安裝 MySQL 工具
+
+### Debian (Ubuntu)
+
+```bash
+apt-get update
+apt-get install mysql-client mysql-server
+```
+
+### RedHat (CentOS)
+
+```bash
+yum install mysql
+```
+
+### Homebrew (MacOS)
+
+```bash
+brew install mysql
 ```
 
 # 指令

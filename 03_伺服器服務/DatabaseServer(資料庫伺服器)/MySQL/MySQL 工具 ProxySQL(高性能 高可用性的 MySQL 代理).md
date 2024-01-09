@@ -19,21 +19,22 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [心得相關](#心得相關)
-    - [percona 相關](#percona-相關)
-    - [例外狀況相關](#例外狀況相關)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [心得相關](#心得相關)
+		- [percona 相關](#percona-相關)
+		- [例外狀況相關](#例外狀況相關)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Docker 部署](#docker-部署)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
+	- [Debian (Ubuntu)](#debian-ubuntu)
+	- [RedHat (CentOS)](#redhat-centos)
+	- [Docker 部署](#docker-部署)
+	- [配置文檔](#配置文檔)
+		- [基本範例](#基本範例)
 - [指令](#指令)
-  - [服務操作](#服務操作)
+	- [進行基本設定](#進行基本設定)
+	- [服務操作](#服務操作)
 - [例外狀況](#例外狀況)
-  - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
+	- [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 
 ## 參考資料
 
@@ -91,6 +92,9 @@ apt-get update
 
 # 安裝 ProxySQL
 apt-get install -y proxysql
+
+# 安裝 mysql 工具
+apt-get install -y mysql-client mysql-server
 ```
 
 ## RedHat (CentOS)
@@ -104,6 +108,9 @@ yum update
 
 # 安裝 ProxySQL
 yum install -y proxysql
+
+# 安裝 mysql 工具
+yum install -y mysql
 ```
 
 ## Docker 部署
@@ -325,6 +332,38 @@ mysql -h <proxySQL_host> -P <proxySQL_port> -u <mysql_username> -p
 <proxySQL_port>: ProxySQL 監聽的端口，通常是 6033，但根據你的配置可能有所不同。
 
 <mysql_username>: MySQL 用戶名。
+
+## 進行基本設定
+
+`連接到 ProxySQL 管理`
+
+```bash
+mysql -h127.0.0.1 -P6032 -uadmin -p
+```
+
+`查看 databases`
+
+```sql
+SHOW DATABASES;
+```
+
+```
++-----+---------------+-------------------------------------+
+| seq | name          | file                                |
++-----+---------------+-------------------------------------+
+| 0   | main          |                                     |
+| 2   | disk          | /var/lib/proxysql/proxysql.db       |
+| 3   | stats         |                                     |
+| 4   | monitor       |                                     |
+| 5   | stats_history | /var/lib/proxysql/proxysql_stats.db |
++-----+---------------+-------------------------------------+
+
+main：記憶體設定資料庫，表裡存放後端db實例、使用者驗證、路由規則等資訊。
+表名以runtime_開頭的表示proxysql目前運行的配置內容，不能透過dml語句修改，只能修改對應的不以runtime_ 開頭的（在記憶體）裡的表，然後LOAD 使其生效， SAVE 使其存到硬碟以供下次重啟加載。
+disk：是持久化到硬碟的配置，sqlite資料檔。
+stats：是proxysql運行抓取的統計信息，包括到後端各指令的執行次數、流量、processlist、查詢種類匯總/執行時間等等。
+monitor：庫儲存 monitor 模組收集的信息，主要是對後端db的健康/延遲檢查。
+```
 
 ## 服務操作
 
