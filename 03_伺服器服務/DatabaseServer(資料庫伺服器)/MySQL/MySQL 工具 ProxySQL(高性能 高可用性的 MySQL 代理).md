@@ -33,6 +33,8 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 - [指令](#指令)
 	- [進行基本設定](#進行基本設定)
 	- [服務操作](#服務操作)
+	- [ProxySQL 操作](#proxysql-操作)
+	- [手動添加步驟](#手動添加步驟)
 - [例外狀況](#例外狀況)
 	- [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 
@@ -390,6 +392,148 @@ systemctl disable proxysql
 # (start, stop, restart, try-restart, reload, force-reload, status)
 # 重新載入
 service proxysql reload
+```
+
+## ProxySQL 操作
+
+```sql
+-- 將 MySQL 伺服器加入 master 群組
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (1, 'master_server', 3306);
+
+-- 將 MySQL 伺服器加入 slave 群組
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (2, 'slave_server', 3306);
+
+-- 更新現有的 MySQL 伺服器配置
+UPDATE mysql_servers
+SET hostname = '新的主機名稱', port = 新的端口
+WHERE hostgroup_id = 你的主機群組ID AND hostname = '舊的主機名稱' AND port = 舊的端口;
+
+-- 設定路由規則，將 SELECT 查詢導向到 slave 群組
+INSERT INTO mysql_query_rules (rule_id, active, match_digest, destination_hostgroup)
+VALUES (1, 1, '^SELECT.*', 2);
+```
+
+`查看 設定的 mysql servers`
+
+```sql
+SELECT * FROM mysql_servers;
+```
+
+`查看 設定的 mysql users`
+
+```sql
+SELECT * FROM mysql_users;
+```
+
+`設定路由`
+
+```sql
+-- 將 SELECT 查詢導向到 slave 群組
+INSERT INTO mysql_query_rules (rule_id, active, match_digest, destination_hostgroup)
+VALUES (1, 1, '^SELECT.*', 2);
+
+-- 將所有其他查詢導向到 master 群組
+INSERT INTO mysql_query_rules (rule_id, active, destination_hostgroup)
+VALUES (2, 1, 1);
+```
+
+`檢視 ProxySQL 中的路由規則`
+
+```sql
+SELECT * FROM mysql_query_rules;
+```
+
+## 手動添加步驟
+
+`使用 insert into 語句來動態配置`
+
+```sql
+INSERT INTO mysql_servers(hostgroup_id,hostname,port,weight,comment)
+VALUES(1,'db1','3306',1,'Write Group');
+INSERT intomysql_servers(hostgroup_id,hostname,port,weight,comment)
+VALUES(2,'db2','3307',1,'Read Group');
+```
+
+`查看 設定的 mysql servers`
+
+```sql
+SELECT * FROM mysql_servers;
+```
+
+`查看 設定的 mysql users`
+
+```sql
+SELECT * FROM mysql_users;
+```
+
+`在 mysql 上新增監控的用戶`
+
+```sql
+GRANT SELECT ON *.* TO 'monitor'@'192.168.22.%' IDENTIFIED BY 'monitor';
+FLUSH PRIVILEGES;
+```
+
+`在proxysql主機端設定監控用戶`
+
+```sql
+SET mysql-monitor_username='monitor';
+SET mysql-monitor_password='monitor';
+```
+
+`配置 proxysql 的轉送規則`
+
+```sql
+INSERT INTO mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)
+VALUES(1,1,'^SELECT.*FOR UPDATE$',1,1);
+INSERT INTO mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)
+VALUES(2,1,'^SELECT',2,1);
+
+-- 修改 ProxySQL 中的路由規則
+UPDATE mysql_query_rules
+SET rule_definition = '新的規則'
+WHERE rule_id = 你的規則ID;
+```
+
+```sql
+SELECT rule_id,active,match_digest,destination_hostgroup,apply
+FROM mysql_query_rules;
+```
+
+```
++---------+--------+----------------------+-----------------------+-------+
+| rule_id | active | match_digest         | destination_hostgroup | apply |
++---------+--------+----------------------+-----------------------+-------+
+| 1       | 1      | ^SELECT.*FOR UPDATE$ | 1                     | 1     |
+| 2       | 1      | ^SELECT              | 2                     | 1     |
++---------+--------+----------------------+-----------------------+-------+
+
+設定查詢select的請求轉送到hostgroup_id=2群組上（讀群組）
+針對 select * from table_name  for update 這樣的修改語句，我們是需要將請求轉到寫群組，也就是hostgroup_id=1#對於其它沒有被規則匹配的請求全部轉送到預設的群組（mysql_users表中default_hostgroup）
+```
+
+`更新配置到RUNTIME中`
+
+```sql
+LOAD mysql users TO runtime;
+LOAD mysql servers TO runtime;
+LOAD mysql query rules TO runtime;
+LOAD mysql variables TO runtime;
+LOAD admin variables TO runtime;
+```
+
+`將所有配置儲存至磁碟上`
+
+所有設定資料都保存到磁碟上，永久寫入/var/lib/proxysql/proxysql.db這個檔案中
+
+```sql
+SAVE mysql users TO disk;
+SAVE mysql servers TO disk;
+SAVE mysql query rules TO disk;
+SAVE mysql variables TO disk;
+SAVE admin variables TO disk;
+LOAD mysql users TO runtime;
 ```
 
 # 例外狀況
