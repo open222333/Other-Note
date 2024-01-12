@@ -19,24 +19,24 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [心得相關](#心得相關)
-		- [percona 相關](#percona-相關)
-		- [例外狀況相關](#例外狀況相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [心得相關](#心得相關)
+    - [percona 相關](#percona-相關)
+    - [例外狀況相關](#例外狀況相關)
 - [安裝](#安裝)
-	- [Debian (Ubuntu)](#debian-ubuntu)
-	- [RedHat (CentOS)](#redhat-centos)
-	- [Docker 部署](#docker-部署)
-	- [配置文檔](#配置文檔)
-		- [基本範例](#基本範例)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+  - [RedHat (CentOS)](#redhat-centos)
+  - [Docker 部署](#docker-部署)
+  - [配置文檔](#配置文檔)
+    - [基本範例](#基本範例)
 - [指令](#指令)
-	- [進行基本設定](#進行基本設定)
-	- [服務操作](#服務操作)
-	- [ProxySQL 操作](#proxysql-操作)
-	- [手動添加步驟](#手動添加步驟)
+  - [進行基本設定](#進行基本設定)
+  - [服務操作](#服務操作)
+  - [ProxySQL 操作](#proxysql-操作)
+  - [手動添加步驟](#手動添加步驟)
 - [例外狀況](#例外狀況)
-	- [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
+  - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 
 ## 參考資料
 
@@ -443,6 +443,29 @@ VALUES (2, 1, 1);
 
 ```sql
 SELECT * FROM mysql_query_rules;
+```
+
+`更新配置到RUNTIME中`
+
+```sql
+LOAD mysql users TO runtime;
+LOAD mysql servers TO runtime;
+LOAD mysql query rules TO runtime;
+LOAD mysql variables TO runtime;
+LOAD admin variables TO runtime;
+```
+
+`將所有配置儲存至磁碟上`
+
+所有設定資料都保存到磁碟上，永久寫入/var/lib/proxysql/proxysql.db這個檔案中
+
+```sql
+SAVE mysql users TO disk;
+SAVE mysql servers TO disk;
+SAVE mysql query rules TO disk;
+SAVE mysql variables TO disk;
+SAVE admin variables TO disk;
+LOAD mysql users TO runtime;
 ```
 
 ## 手動添加步驟
