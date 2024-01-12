@@ -11,37 +11,37 @@ RDBMS
 ## 目錄
 
 - [MySQL 筆記](#mysql-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [使用者權限相關](#使用者權限相關)
-		- [安裝相關](#安裝相關)
-			- [Docker相關](#docker相關)
-		- [操作相關](#操作相關)
-		- [備份相關](#備份相關)
-			- [備份指令相關](#備份指令相關)
-			- [解說相關](#解說相關)
-		- [錯誤處理相關](#錯誤處理相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [使用者權限相關](#使用者權限相關)
+    - [安裝相關](#安裝相關)
+      - [Docker相關](#docker相關)
+    - [操作相關](#操作相關)
+    - [備份相關](#備份相關)
+      - [備份指令相關](#備份指令相關)
+      - [解說相關](#解說相關)
+    - [錯誤處理相關](#錯誤處理相關)
 - [安裝步驟](#安裝步驟)
-	- [配置文檔](#配置文檔)
-	- [MacOS](#macos)
-	- [CentOS7](#centos7)
-	- [安裝 MySQL 工具](#安裝-mysql-工具)
-		- [Debian (Ubuntu)](#debian-ubuntu)
-		- [RedHat (CentOS)](#redhat-centos)
-		- [Homebrew (MacOS)](#homebrew-macos)
+  - [配置文檔](#配置文檔)
+  - [MacOS](#macos)
+  - [CentOS7](#centos7)
+  - [安裝 MySQL 工具](#安裝-mysql-工具)
+    - [Debian (Ubuntu)](#debian-ubuntu)
+    - [RedHat (CentOS)](#redhat-centos)
+    - [Homebrew (MacOS)](#homebrew-macos)
 - [指令](#指令)
-	- [服務操作](#服務操作)
-	- [SQL 指令](#sql-指令)
-		- [使用者相關](#使用者相關)
-		- [密碼設定強度修改](#密碼設定強度修改)
-		- [許可權 列表](#許可權-列表)
-	- [匯出匯入](#匯出匯入)
-		- [匯出 - mysqldump](#匯出---mysqldump)
-		- [匯入](#匯入)
+  - [服務操作](#服務操作)
+  - [SQL 指令](#sql-指令)
+    - [使用者相關](#使用者相關)
+    - [密碼設定強度修改](#密碼設定強度修改)
+    - [許可權 列表](#許可權-列表)
+  - [匯出匯入](#匯出匯入)
+    - [匯出 - mysqldump](#匯出---mysqldump)
+    - [匯入](#匯入)
 - [重大備份](#重大備份)
 - [例外狀況](#例外狀況)
-	- [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
-	- [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
+  - [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
+  - [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
 
 ## 參考資料
 
@@ -447,12 +447,45 @@ show tables;
 -- 顯示錶結構
 describe 表名;
 
+-- 顯示資料庫 細節
+-- https://dev.mysql.com/doc/refman/8.0/en/show-create-database.html
+SHOW CREATE DATABASE db_name\G
+
+-- 顯示資料庫 字符集和排序規則
+SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME
+FROM INFORMATION_SCHEMA.SCHEMATA
+WHERE SCHEMA_NAME = 'your_database_name';
+
+-- 顯示表 字符集和排序規則
+SELECT TABLE_NAME, TABLE_COLLATION
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_SCHEMA = 'your_database_name';
+
+-- 查看表的結構（列信息等）
+DESCRIBE your_table_name;
+
+-- 修改整個數據庫的字符集和排序規則
+ALTER DATABASE your_database_name
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+-- 修改表字符集和排序規則
+ALTER TABLE your_table_name
+CONVERT TO CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
 -- 建立庫
-create database [數據庫名];
+CREATE DATABASE [數據庫名];
+
+-- 建立庫 指定字符集和排序規則
+CREATE DATABASE your_database_name
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
 -- 刪除庫
-drop database 庫名;
+DROP DATABASE 庫名;
 -- 使用庫
-use 庫名;
+USE 庫名;
 
 -- 建立表
 create table 表名 (欄位設定列表);
@@ -632,7 +665,7 @@ USAGE (無訪問許可權)
 ### 匯出 - mysqldump
 
 ```bash
-`匯出資料和表結構`
+# 匯出資料和表結構
 mysqldump -h source_MySQL_DB_instance_endpoint \
     -u user \
     -ppassword \
@@ -659,47 +692,50 @@ mysqldump -h 127.0.0.1 \
     --databases  avnight \
     --compress
 
-# mysqldump -h hostname -u使用者名稱 -p密碼 資料庫名 > 資料庫名.sql
-# 	由於在 mysqldump 8 中默認啟用了一個新標誌。您可以通過添加 --column-statistics=0 來禁用它。
-# 	--column-statistics=0
-# 	多個資料庫
-# 	--databases db1 db2
-# 	在每個創建數據庫表語句前添加刪除數據庫表的語句
-# 	--add-drop-table
-# 	備份數據庫表時鎖定數據庫表
-# 	--add-locks
-# 	備份MySQL服務器上的所有數據庫
-# 	--all-databases
-# 	添加註釋信息
-# 	--comments
-# 	壓縮模式，產生更少的輸出
-# 	--compact
-# 	輸出完成的插入語句
-# 	--complete-insert
-# 	指定要備份的數據庫
-# 	--databases -d
-# 	指定默認字符集
-# 	--default-character-set
-# 	當出現錯誤時仍然繼續備份操作
-# 	--force
-# 	指定要備份數據庫的服務器
-# 	--host -h
-# 	備份前，鎖定所有數據庫表
-# 	--lock-tables
-# 	禁止生成創建數據庫語句
-# 	--no-create-db
-# 	禁止生成創建數據庫庫表語句
-# 	--no-create-info
-# 	連接MySQL服務器的密碼
-# 	--password -p
-# 	MySQL服務器的端口號
-# 	--port
-# 	連接MySQL服務器的用戶名。
-# 	--user -u
-#   不包含資料
-#   -d
+mysqldump -h hostname -u使用者名稱 -p密碼 資料庫名 > 資料庫名.sql
 
-`只匯出表結構`
+	由於在 mysqldump 8 中默認啟用了一個新標誌。您可以通過添加 --column-statistics=0 來禁用它。
+	--column-statistics=0
+	多個資料庫
+	--databases db1 db2
+	在每個創建數據庫表語句前添加刪除數據庫表的語句
+	--add-drop-table
+	備份數據庫表時鎖定數據庫表
+	--add-locks
+	備份MySQL服務器上的所有數據庫
+	--all-databases
+	添加註釋信息
+	--comments
+	壓縮模式，產生更少的輸出
+	--compact
+	輸出完成的插入語句
+	--complete-insert
+	指定要備份的數據庫
+	--databases -d
+	指定默認字符集
+	--default-character-set
+	當出現錯誤時仍然繼續備份操作
+	--force
+	指定要備份數據庫的服務器
+	--host -h
+	備份前，鎖定所有數據庫表
+	--lock-tables
+	禁止生成創建數據庫語句
+	--no-create-db
+	禁止生成創建數據庫庫表語句
+	--no-create-info
+	連接MySQL服務器的密碼
+	--password -p
+	MySQL服務器的端口號
+	--port
+	連接MySQL服務器的用戶名。
+	--user -u
+    不包含資料
+    -d
+    是 MySQL 的參數，用於在備份過程中處理 GTID（全域事務識別碼）。 GTID 用於在主從複製環境中追蹤事務。
+    --set-gtid-purged
+
+# 只匯出表結構
 mysqldump -u使用者名稱 -p密碼 -d 資料庫名 > 資料庫名.sql
 # 注：/usr/local/mysql/bin/  —>  mysql的data目錄
 

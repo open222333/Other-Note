@@ -6,10 +6,10 @@
 ## 目錄
 
 - [Linux 工具 rsync(同步鏡像備份)](#linux-工具-rsync同步鏡像備份)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [深入學習相關](#深入學習相關)
-		- [排錯相關](#排錯相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [深入學習相關](#深入學習相關)
+    - [排錯相關](#排錯相關)
 - [安裝](#安裝)
 - [指令](#指令)
 - [rsync 與 scp 區別](#rsync-與-scp-區別)
@@ -70,8 +70,10 @@ rsync [-avrlptgoD] [-e ssh] [user@host:/dir] [/local/path]
 	--temp-dir=/tmp :指定暫存檔位置
 	--remove-source-files :同步完成刪除原檔
 
+rsync -av --progress [user@host:/dir] [/local/path]
+
 # 利用 student 的身份登入 clientlinux.centos.vbird 將家目錄複製到本機 /tmp
-rsync v student@192.168.100.10:~ /tmp
+rsync -v student@192.168.100.10:~ /tmp
 
 # 排除特定文件/目錄的複制
 # 使用rysnc命令複製文件或文件夾，請使用–exclude標誌
