@@ -5,7 +5,8 @@
 - [C++ 筆記](#c-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-	- [編譯與連結C程式](#編譯與連結c程式)
+- [C++包管理工具](#c包管理工具)
+- [編譯與連結C程式](#編譯與連結c程式)
 - [基本語法 關鍵字](#基本語法-關鍵字)
 - [基本語法 運算子](#基本語法-運算子)
 - [基本語法 if else , switch case](#基本語法-if-else--switch-case)
@@ -15,10 +16,33 @@
 
 ## 參考資料
 
+[C++ 語言標準委員會（C++ Standard Committee）官方網站](https://isocpp.org/)
+
 [GCC 編譯器基本使用教學與範例](https://blog.gtwang.org/programming/gcc-comipler-basic-tutorial-examples/)
 
+[C++ Wiki](https://zh.wikipedia.org/wiki/C%2B%2B)
 
-## 編譯與連結C程式
+[cppreference.com - 非官方但非常受歡迎的 C++ 參考網站(C++ 標準函式庫的文檔)](https://en.cppreference.com/w/)
+
+# C++包管理工具
+
+- Conan:
+
+	Conan 是一個C++的分發和包管理工具，類似於Python的pip或Node.js的npm。
+
+	你可以使用Conan來安裝和管理C++庫的依賴關係。
+
+- vcpkg:
+
+  	vcpkg 是由Microsoft維護的開源C++庫包管理工具，它支援Windows、macOS和Linux。
+
+	你可以使用vcpkg來輕鬆安裝和管理C++庫。
+
+- Hunter:
+
+  	Hunter 是另一個C++包管理工具，它設計簡單，用於管理C++庫的依賴關係。
+
+# 編譯與連結C程式
 
 ```bash
 # 編譯 C 程式 預設輸出檔名 a.out
