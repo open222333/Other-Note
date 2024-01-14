@@ -239,3 +239,41 @@ def human_readable_size(size: int, decimal_places: int = 2) -> str:
             break
         size /= 1024.0
     return f"{size:.{decimal_places}f} {unit}"
+
+
+def get_all_files_2024(dir_path: str, extensions: str = None, add_abspath: str = False):
+    """取得所有檔案
+
+    Args:
+        dir_path (str): 檔案資料夾
+        extensions (str, optional): 指定副檔名,若無指定則全部列出. Defaults to None.
+        add_abspath (str, optional): 列出 絕對路徑. Defaults to False.
+
+    Returns:
+        _type_: _description_
+    """
+    target_file_path = []
+    path = os.path.abspath(dir_path)
+
+    for file in os.listdir(path):
+
+        if add_abspath:
+            target_path = f'{path}/{file}'
+        else:
+            target_path = f'{file}'
+
+        _, file_extension = os.path.splitext(file)
+        if extensions:
+            allow_extension = [f'.{e}' for e in extensions]
+            if file_extension in allow_extension:
+                target_file_path.append(target_path)
+        else:
+            target_file_path.append(target_path)
+
+        # 遞迴
+        if os.path.isdir(f'{dir_path}/{file}'):
+            files = get_all_files_2024(f'{dir_path}/{file}', extensions, add_abspath)
+            for file in files:
+                target_file_path.append(file)
+    target_file_path.sort()
+    return target_file_path
