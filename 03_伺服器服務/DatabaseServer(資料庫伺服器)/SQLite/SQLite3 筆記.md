@@ -12,9 +12,12 @@
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
+- [DB Browser for SQLite (視圖化工具)](#db-browser-for-sqlite-視圖化工具)
+  - [MacOS](#macos)
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
 - [指令](#指令)
+- [docker 設置 sqlitez視圖化網站](#docker-設置-sqlitez視圖化網站)
 
 ## 參考資料
 
@@ -25,6 +28,10 @@
 ### 圖形化介面相關
 
 [SQLite 圖形化介面 軟體 下載和使用教學](https://www.ruyut.com/2021/12/sqlite-tool.html)
+
+[DB Browser for SQLite 下載地址](https://sqlitebrowser.org/dl/)
+
+[coleifer/sqlite-web](https://github.com/coleifer/sqlite-web)
 
 # 安裝
 
@@ -38,6 +45,14 @@ apt-get install -y sqlite3
 
 ```bash
 yum install -y sqlite
+```
+
+# DB Browser for SQLite (視圖化工具)
+
+## MacOS
+
+```bash
+brew install --cask db-browser-for-sqlite
 ```
 
 ## 配置文檔
@@ -101,4 +116,19 @@ yum install -y sqlite
 
 ```bash
 .exit
+```
+
+# docker 設置 sqlitez視圖化網站
+
+```yml
+sqlite-web:
+    # https://github.com/coleifer/sqlite-web
+    image: coleifer/sqlite-web
+    container_name: sqlite-web
+    hostname: sqlite-web
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/sqlite:/data
+    command: ["sqlite_web", "/data/sqlite.db", "--host", "0.0.0.0"]
 ```

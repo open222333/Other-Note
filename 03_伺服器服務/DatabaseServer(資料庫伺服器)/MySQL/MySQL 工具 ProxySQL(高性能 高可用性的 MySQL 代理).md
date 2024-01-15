@@ -34,6 +34,7 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
   - [進行基本設定](#進行基本設定)
   - [服務操作](#服務操作)
   - [ProxySQL 操作](#proxysql-操作)
+  - [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
   - [手動添加步驟](#手動添加步驟)
 - [例外狀況](#例外狀況)
   - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
@@ -448,11 +449,11 @@ SELECT * FROM mysql_query_rules;
 `更新配置到RUNTIME中`
 
 ```sql
-LOAD mysql users TO runtime;
-LOAD mysql servers TO runtime;
-LOAD mysql query rules TO runtime;
-LOAD mysql variables TO runtime;
-LOAD admin variables TO runtime;
+LOAD MYSQL USERS TO RUNTIME;
+LOAD MYSQL SERVERS TO RUNTIME;
+LOAD MYSQL QUERY RULES TO RUNTIME;
+LOAD MYSQL VARIABLES TO RUNTIME;
+LOAD ADMIN VARIABLES TO RUNTIME;
 ```
 
 `將所有配置儲存至磁碟上`
@@ -460,12 +461,49 @@ LOAD admin variables TO runtime;
 所有設定資料都保存到磁碟上，永久寫入/var/lib/proxysql/proxysql.db這個檔案中
 
 ```sql
-SAVE mysql users TO disk;
-SAVE mysql servers TO disk;
-SAVE mysql query rules TO disk;
-SAVE mysql variables TO disk;
-SAVE admin variables TO disk;
-LOAD mysql users TO runtime;
+SAVE MYSQL USERS TO DISK;
+SAVE MYSQL SERVERS TO DISK;
+SAVE MYSQL QUERY RULES TO DISK;
+SAVE MYSQL VARIABLES TO DISK;
+SAVE ADMIN VARIABLES TO DISK;
+```
+
+`新增使用者`
+
+```sql
+INSERT INTO mysql_users (username, password, active, default_hostgroup)
+VALUES ('your_username', 'your_password', 1, 1);
+LOAD MYSQL USERS TO RUNTIME;
+SAVE MYSQL USERS TO DISK;
+```
+
+`修改使用者`
+
+```sql
+UPDATE mysql_users
+SET username = 'new_username', password = 'new_password'
+WHERE username = 'old_username';
+
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+```
+
+`調整 mysql-connections_max_connect_timeout 參數來增加連接超時的時間`
+
+```sql
+UPDATE global_variables SET variable_value = 20000 WHERE variable_name = 'mysql-connections_max_connect_timeout';
+LOAD MYSQL VARIABLES TO RUNTIME;
+SAVE MYSQL VARIABLES TO DISK;
+```
+
+## 透過 ProxySQL 連接到已設定的 MySQL 伺服器
+
+ProxySQL 的管理端口（6032）
+
+ProxySQL 的 MySQL 連接端口（通常是 6033）
+
+```bash
+mysql -u your_username -pyour_password -h 127.0.0.1 -P 6033 --prompt='MySQL> '
 ```
 
 ## 手動添加步驟
@@ -518,6 +556,8 @@ UPDATE mysql_query_rules
 SET rule_definition = '新的規則'
 WHERE rule_id = 你的規則ID;
 ```
+
+`查看 proxysql 的轉送規則`
 
 ```sql
 SELECT rule_id,active,match_digest,destination_hostgroup,apply
