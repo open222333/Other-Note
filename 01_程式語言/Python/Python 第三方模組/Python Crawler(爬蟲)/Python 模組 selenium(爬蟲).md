@@ -48,6 +48,8 @@
 
 [nickchen1998/2022_ithelp_marathon](https://github.com/nickchen1998/2022_ithelp_marathon)
 
+[[Python] 使用 Selenium 爬蟲下載當前頁面驗證碼圖片](https://weirenxue.github.io/2021/07/04/python_selenium_captcha/?fbclid=IwAR0pAZ_UR9CjeyhAQb8SsgW6jnazYfkdWOtQEsJ2LPSMgGbtpfKFddqQZVg)
+
 ### 下載器相關
 
 [webdriver下載](https://www.selenium.dev/documentation/webdriver/capabilities/)
