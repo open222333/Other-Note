@@ -29,6 +29,7 @@ RDBMS
     - [Debian (Ubuntu)](#debian-ubuntu)
     - [RedHat (CentOS)](#redhat-centos)
     - [Homebrew (MacOS)](#homebrew-macos)
+- [資料型態](#資料型態)
 - [指令](#指令)
   - [服務操作](#服務操作)
   - [SQL 指令](#sql-指令)
@@ -391,6 +392,105 @@ yum install mysql
 brew install mysql
 ```
 
+# 資料型態
+
+`數值型態`
+
+```
+TINYINT
+SMALLINT
+MEDIUMINT
+INT 或 INTEGER
+BIGINT
+```
+
+`浮點數型態`
+
+```
+FLOAT
+DOUBLE
+DECIMAL 或 NUMERIC
+```
+
+`日期型態`
+
+```
+DATE
+```
+
+`時間型態`
+
+```
+TIME
+```
+
+`日期和時間型態`
+
+```
+DATETIME
+TIMESTAMP
+YEAR
+```
+
+`定長字串型態`
+
+```
+CHAR
+```
+
+`可變長字串型態`
+
+```
+VARCHAR
+```
+
+`文本型態`
+
+```
+TINYTEXT
+TEXT
+MEDIUMTEXT
+LONGTEXT
+```
+
+`二進制型態`
+
+```
+BINARY
+VARBINARY
+TINYBLOB
+BLOB
+MEDIUMBLOB
+LONGBLOB
+```
+
+`枚舉型態`
+
+```
+ENUM
+```
+
+`集合型態`
+
+```
+SET
+```
+
+`JSON 型態`
+
+```
+JSON
+```
+
+`幾何型態`
+
+```
+GEOMETRY
+POINT
+LINESTRING
+POLYGON
+```
+
 # 指令
 
 ## 服務操作
@@ -484,12 +584,72 @@ COLLATE utf8mb4_unicode_ci;
 
 -- 刪除庫
 DROP DATABASE 庫名;
+
 -- 使用庫
 USE 庫名;
 
 -- 建立表
 create table 表名 (欄位設定列表);
 CREATE TABLE test (First_Name char(50),Last_Name char(50));
+
+CREATE TABLE table_name (
+    column1 datatype1,
+    column2 datatype2,
+    ...
+);
+
+-- 指定主鍵（Primary Key）
+CREATE TABLE table_name (
+    column1 datatype1 PRIMARY KEY,
+    column2 datatype2,
+    ...
+);
+
+-- 指定自動遞增的列（Auto-increment）
+CREATE TABLE table_name (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    column1 datatype1,
+    column2 datatype2,
+    ...
+);
+
+-- 設定默認值（Default Value）
+CREATE TABLE table_name (
+    column1 datatype1 DEFAULT default_value,
+    column2 datatype2 DEFAULT default_value,
+    ...
+);
+
+-- 指定外鍵（Foreign Key）
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+-- 設定索引（Index）
+CREATE TABLE table_name (
+    column1 datatype1,
+    column2 datatype2,
+    ...
+    INDEX index_name (column1, column2, ...);
+);
+
+-- 指定表格引擎（Table Engine）
+CREATE TABLE table_name (
+    column1 datatype1,
+    column2 datatype2,
+    ...
+) ENGINE=InnoDB;
+
+-- 設定字符集（Character Set）和校對規則（Collation）
+CREATE TABLE table_name (
+    column1 datatype1,
+    column2 datatype2,
+    ...
+) CHARACTER SET utf8 COLLATE utf8_general_ci;
+
 -- 刪除表
 drop table 表名;
 -- 修改表
