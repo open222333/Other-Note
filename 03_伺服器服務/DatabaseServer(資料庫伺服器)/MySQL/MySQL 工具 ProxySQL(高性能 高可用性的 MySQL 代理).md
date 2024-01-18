@@ -16,6 +16,25 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 自動配置： ProxySQL 允許通過 MySQL 配置文件和 API 來自動配置，簡化管理和擴展。
 ```
 
+```
+如果已存在"proxysql.db"檔案(在/var/lib/proxysql目錄下)，則ProxySQL服務只有在第一次啟動時才會去讀取proxysql.cnf檔並解析;後面啟動會就不會讀 取proxysql.cnf檔了!
+
+如果想要讓proxysql.cnf檔案裡的設定在重啟proxysql服務後生效(即想要讓proxysql重啟時讀取並解析proxysql.cnf設定檔)，則需要先刪除/var/lib/proxysql/proxysql.db 資料庫文件，然後重新啟動proxysql服務。
+
+這樣就相當於初始化啟動proxysql服務了，會再次生產一個純淨的proxysql.db資料庫檔案(如果之前配置了proxysql相關路由規則等，則就會被抹掉)。
+
+所以你要先刪除/var/lib/proxysql/proxysql.db資料庫文件，然後再重啟/啟動proxysql服務。
+```
+
+```
+整套配置系統分為三層：頂層為 RUNTIME ,中間層為 MEMORY , 底層也就是持久層 DISK 和 CONFIG FILE 。
+
+RUNTIME ： 代表 ProxySQL 目前生效的正在使用的配置，無法直接修改這裡的配置，必須從下一層 “load” 進來。
+MEMORY： MEMORY 圖層上方連接 RUNTIME 圖層，下方連接持久層。 這層可以正常操作 ProxySQL 配置，隨便修改，不會影響生產環境。 修改一個設定一般都是現在 MEMORY 層完成的，確認正常之後在載入達到 RUNTIME 和 持久化的磁碟上。
+
+DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資訊會遺失，所需要將設定資訊保留在磁碟中。 重啟時，可以從磁碟快速載入回來。
+```
+
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
@@ -24,6 +43,7 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
     - [心得相關](#心得相關)
     - [percona 相關](#percona-相關)
     - [例外狀況相關](#例外狀況相關)
+    - [SQL 語句 (轉址)](#sql-語句-轉址)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
@@ -36,6 +56,8 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
   - [ProxySQL 操作](#proxysql-操作)
   - [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
   - [手動添加步驟](#手動添加步驟)
+  - [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
+  - [部署 ProxySQL 高可用性](#部署-proxysql-高可用性)
 - [例外狀況](#例外狀況)
   - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 
@@ -54,6 +76,8 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 [MySQL Variables](https://proxysql.com/Documentation/global-variables/mysql-variables/)
 
 [MySQL Monitor Variables](https://proxysql.com/Documentation/global-variables/mysql-monitor-variables/)
+
+[ZzzCrazyPig/proxysql_groupreplication_checker - 設定proxysql故障轉移 腳本](https://github.com/ZzzCrazyPig/proxysql_groupreplication_checker)
 
 ### 心得相關
 
@@ -75,6 +99,16 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 
 [ProxySQL+Mysql实现数据库读写分离实战](https://segmentfault.com/a/1190000022074101)
 
+[骏马金龙](https://www.cnblogs.com/f-ck-need-u/p/9300829.html#1%E5%85%B3%E4%BA%8Eproxysql%E8%B7%AF%E7%94%B1%E7%9A%84%E7%AE%80%E8%BF%B0)
+
+[MySQL中间件：ProxySQL](https://www.cnblogs.com/f-ck-need-u/p/7586194.html#middleware)
+
+[MySQL/MariaDB系列文章目录](https://www.cnblogs.com/f-ck-need-u/p/7586194.html#middleware)
+
+[ProxySQL配置与高可用](https://www.yoyoask.com/?p=3560)
+
+[CentOS 7.6配置MySQL 5.7 MGR单主高可用+ProxySQL实现读写分离和故障转移](https://blog.51cto.com/qiuyue/2413300?source=drh)
+
 ### percona 相關
 
 [ProxySQL、proxysql-admin 和 percona-scheduler-admin 文檔](https://docs.percona.com/proxysql/index.html)
@@ -84,6 +118,10 @@ SSL 支援： ProxySQL 支援加密連接，可以通過 SSL/TLS 保護數據在
 [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](https://github.com/xinity/pxc_swarm/issues/2)
 
 [Ubuntu 18.04 - Fresh ProxySQL install - no mysqld.sock port found](https://github.com/sysown/proxysql/issues/2135)
+
+### SQL 語句 (轉址)
+
+[基于SQL语句路由](https://www.cnblogs.com/f-ck-need-u/p/9300829.html#6%E5%9F%BA%E4%BA%8Esql%E8%AF%AD%E5%8F%A5%E8%B7%AF%E7%94%B1)
 
 # 安裝
 
@@ -576,14 +614,20 @@ FROM mysql_query_rules;
 針對 select * from table_name  for update 這樣的修改語句，我們是需要將請求轉到寫群組，也就是hostgroup_id=1#對於其它沒有被規則匹配的請求全部轉送到預設的群組（mysql_users表中default_hostgroup）
 ```
 
+`刪除 proxysql 的轉送規則`
+
+```sql
+DELETE FROM mysql_query_rules WHERE rule_id = your_rule_id;
+```
+
 `更新配置到RUNTIME中`
 
 ```sql
-LOAD mysql users TO runtime;
-LOAD mysql servers TO runtime;
-LOAD mysql query rules TO runtime;
-LOAD mysql variables TO runtime;
-LOAD admin variables TO runtime;
+LOAD MYSQL USERS TO RUNTIME;
+LOAD MYSQL SERVERS TO RUNTIME;
+LOAD MYSQL QUERY RULES TO RUNTIME;
+LOAD MYSQL VARIABLES TO RUNTIME;
+LOAD ADMIN VARIABLES TO RUNTIME;
 ```
 
 `將所有配置儲存至磁碟上`
@@ -591,12 +635,81 @@ LOAD admin variables TO runtime;
 所有設定資料都保存到磁碟上，永久寫入/var/lib/proxysql/proxysql.db這個檔案中
 
 ```sql
-SAVE mysql users TO disk;
-SAVE mysql servers TO disk;
-SAVE mysql query rules TO disk;
-SAVE mysql variables TO disk;
-SAVE admin variables TO disk;
-LOAD mysql users TO runtime;
+SAVE MYSQL USERS TO DISK;
+SAVE MYSQL SERVERS TO DISK;
+SAVE MYSQL QUERY RULES TO DISK;
+SAVE MYSQL VARIABLES TO DISK;
+SAVE ADMIN VARIABLES TO DISK;
+```
+
+## 基本步驟 - 透過 ProxySQL 連線 MySQL
+
+`MySQL 新增使用者`
+
+```sql
+CREATE USER 'proxysql'@'%' IDENTIFIED BY 'newpassw0rd!';
+GRANT ALL PRIVILEGES ON *.* TO 'proxysql'@'%';
+FLUSH PRIVILEGES;
+```
+
+`ProxySQL 新增使用者`
+
+```sql
+INSERT INTO mysql_users (username, password, active, default_hostgroup)
+VALUES ('proxysql', 'newpassw0rd!', 1, 1);
+LOAD MYSQL USERS TO RUNTIME;
+SAVE MYSQL USERS TO DISK;
+```
+
+## 部署 ProxySQL 高可用性
+
+```sql
+-- 主資料庫組
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (1, 'master_server', 3306);
+
+-- 從資料庫組
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (2, 'slave_server', 3306);
+```
+
+```sql
+-- 主資料庫組
+UPDATE mysql_servers
+SET max_connections = 10000
+WHERE hostgroup_id = 1;
+
+-- 從資料庫組
+UPDATE mysql_servers
+SET max_connections = 10000
+WHERE hostgroup_id = 2;
+
+UPDATE mysql_servers
+SET comment = 'read_only'
+WHERE hostgroup_id = 2;
+-- 標記為唯讀
+
+-- 高可用性設置
+UPDATE global_variables
+SET variable_value = '2000-10000'
+WHERE variable_name = 'mysql-check_interval';
+
+UPDATE global_variables
+SET variable_value = '600'
+WHERE variable_name = 'mysql-check_timeout';
+
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+```
+
+`配置 Failover 規則： 設定 ProxySQL 規則，以確保在主資料庫失效後從資料庫能夠升級為主資料庫。`
+
+```sql
+INSERT INTO mysql_replication_hostgroups (writer_hostgroup, reader_hostgroup)
+VALUES (1, 2);
+
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
 ```
 
 # 例外狀況
