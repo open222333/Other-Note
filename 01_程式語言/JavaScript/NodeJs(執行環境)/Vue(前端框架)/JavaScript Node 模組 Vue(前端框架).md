@@ -7,26 +7,26 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 ## 目錄
 
 - [JavaScript Node 模組 Vue(前端框架)](#javascript-node-模組-vue前端框架)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [Vue3相關](#vue3相關)
-    - [Vite網站](#vite網站)
-    - [教學相關](#教學相關)
-    - [UI元素](#ui元素)
-    - [VSCode相關](#vscode相關)
-    - [瀏覽器開發者插件](#瀏覽器開發者插件)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [Vue3相關](#vue3相關)
+		- [Vite網站](#vite網站)
+		- [教學相關](#教學相關)
+		- [UI元素](#ui元素)
+		- [VSCode相關](#vscode相關)
+		- [瀏覽器開發者插件](#瀏覽器開發者插件)
 - [安裝](#安裝)
-  - [Vue CLI](#vue-cli)
-  - [Vite](#vite)
+	- [Vue CLI](#vue-cli)
+	- [Vite](#vite)
 - [指令](#指令)
-  - [Vue CLI](#vue-cli-1)
-  - [Vite](#vite-1)
+	- [Vue CLI](#vue-cli-1)
+	- [Vite](#vite-1)
 - [專案結構](#專案結構)
 - [用法](#用法)
-  - [Vue3 指令](#vue3-指令)
+	- [Vue3 指令](#vue3-指令)
 - [VSCode套件](#vscode套件)
-  - [Vetur](#vetur)
-  - [Volar](#volar)
+	- [Vetur](#vetur)
+	- [Volar](#volar)
 - [.gitignore範本](#gitignore範本)
 
 ## 參考資料
@@ -102,6 +102,11 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 npm install -g @vue/cli
 ```
 
+```bash
+# 舊版
+npm install -g vue-cli
+```
+
 ## Vite
 
 ```bash
@@ -113,12 +118,28 @@ npm install -g create-vite
 
 ## Vue CLI
 
-```bash
-# 創建一個新的 Vue 項目, my-project 替換為你想要的項目名稱
-vue create my-project
+`創建一個新的 Vue 項目, my-project 替換為你想要的項目名稱`
 
-# 啟動開發服務器
+```bash
+vue create my-project
+```
+
+`啟動開發伺服器`
+
+```bash
 npm run serve
+```
+
+`檢視專案配置`
+
+```bash
+vue inspect
+```
+
+`添加 Vue 插件`
+
+```bash
+vue add @vue/cli-plugin-some-plugin
 ```
 
 ## Vite
