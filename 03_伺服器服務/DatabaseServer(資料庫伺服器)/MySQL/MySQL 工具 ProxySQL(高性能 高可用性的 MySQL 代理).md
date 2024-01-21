@@ -38,28 +38,33 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [心得相關](#心得相關)
-    - [percona 相關](#percona-相關)
-    - [例外狀況相關](#例外狀況相關)
-    - [SQL 語句 (轉址)](#sql-語句-轉址)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [心得相關](#心得相關)
+		- [percona 相關](#percona-相關)
+		- [例外狀況相關](#例外狀況相關)
+		- [SQL 語句 (轉址)](#sql-語句-轉址)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Docker 部署](#docker-部署)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
+	- [Debian (Ubuntu)](#debian-ubuntu)
+	- [RedHat (CentOS)](#redhat-centos)
+	- [Docker 部署](#docker-部署)
+	- [配置文檔](#配置文檔)
+		- [基本範例](#基本範例)
 - [指令](#指令)
-  - [進行基本設定](#進行基本設定)
-  - [服務操作](#服務操作)
-  - [ProxySQL 操作](#proxysql-操作)
-  - [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
-  - [手動添加步驟](#手動添加步驟)
-  - [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
-  - [部署 ProxySQL 高可用性](#部署-proxysql-高可用性)
+	- [進行基本設定](#進行基本設定)
+	- [服務操作](#服務操作)
+	- [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
+	- [ProxySQL 操作](#proxysql-操作)
+		- [使用者](#使用者)
+		- [MySQL 伺服器](#mysql-伺服器)
+		- [設定路由規則](#設定路由規則)
+		- [應用配置](#應用配置)
+		- [設定](#設定)
+	- [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
+	- [高可用步驟](#高可用步驟)
 - [例外狀況](#例外狀況)
-  - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
+	- [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
+- [高可用 說明](#高可用-說明)
 
 ## 參考資料
 
@@ -433,7 +438,44 @@ systemctl disable proxysql
 service proxysql reload
 ```
 
+## 透過 ProxySQL 連接到已設定的 MySQL 伺服器
+
+ProxySQL 的管理端口（6032）
+
+ProxySQL 的 MySQL 連接端口（通常是 6033）
+
+```bash
+mysql -u your_username -pyour_password -h 127.0.0.1 -P 6033 --prompt='MySQL> '
+```
+
+
 ## ProxySQL 操作
+
+### 使用者
+
+`新增使用者`
+
+```sql
+INSERT INTO mysql_users (username, password, active, default_hostgroup)
+VALUES ('your_username', 'your_password', 1, 1);
+```
+
+`修改使用者`
+
+```sql
+UPDATE mysql_users
+SET username = 'new_username', password = 'new_password'
+WHERE username = 'old_username';
+```
+
+`應用 MYSQL USERS 配置`
+
+```sql
+LOAD MYSQL USERS TO RUNTIME;
+SAVE MYSQL USERS TO DISK;
+```
+
+### MySQL 伺服器
 
 ```sql
 -- 將 MySQL 伺服器加入 master 群組
@@ -443,15 +485,20 @@ VALUES (1, 'master_server', 3306);
 -- 將 MySQL 伺服器加入 slave 群組
 INSERT INTO mysql_servers (hostgroup_id, hostname, port)
 VALUES (2, 'slave_server', 3306);
+```
 
+```sql
 -- 更新現有的 MySQL 伺服器配置
 UPDATE mysql_servers
 SET hostname = '新的主機名稱', port = 新的端口
 WHERE hostgroup_id = 你的主機群組ID AND hostname = '舊的主機名稱' AND port = 舊的端口;
+```
 
--- 設定路由規則，將 SELECT 查詢導向到 slave 群組
-INSERT INTO mysql_query_rules (rule_id, active, match_digest, destination_hostgroup)
-VALUES (1, 1, '^SELECT.*', 2);
+`應用 MYSQL SERVERS 配置`
+
+```sql
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
 ```
 
 `查看 設定的 mysql servers`
@@ -465,6 +512,8 @@ SELECT * FROM mysql_servers;
 ```sql
 SELECT * FROM mysql_users;
 ```
+
+### 設定路由規則
 
 `設定路由`
 
@@ -478,11 +527,43 @@ INSERT INTO mysql_query_rules (rule_id, active, destination_hostgroup)
 VALUES (2, 1, 1);
 ```
 
+`刪除路由`
+
+```sql
+DELETE FROM mysql_query_rules WHERE rule_id = your_rule_id;
+```
+
+`常用路由`
+
+```sql
+INSERT INTO mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)
+VALUES(1,1,'^SELECT.*FOR UPDATE$',1,1);
+INSERT INTO mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)
+VALUES(2,1,'^SELECT',2,1);
+```
+
+`修改 ProxySQL 中的路由規則`
+
+```sql
+UPDATE mysql_query_rules
+SET rule_definition = '新的規則'
+WHERE rule_id = 你的規則ID;
+```
+
+`應用 MYSQL QUERY RULES 配置`
+
+```sql
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
 `檢視 ProxySQL 中的路由規則`
 
 ```sql
 SELECT * FROM mysql_query_rules;
 ```
+
+### 應用配置
 
 `更新配置到RUNTIME中`
 
@@ -506,25 +587,7 @@ SAVE MYSQL VARIABLES TO DISK;
 SAVE ADMIN VARIABLES TO DISK;
 ```
 
-`新增使用者`
-
-```sql
-INSERT INTO mysql_users (username, password, active, default_hostgroup)
-VALUES ('your_username', 'your_password', 1, 1);
-LOAD MYSQL USERS TO RUNTIME;
-SAVE MYSQL USERS TO DISK;
-```
-
-`修改使用者`
-
-```sql
-UPDATE mysql_users
-SET username = 'new_username', password = 'new_password'
-WHERE username = 'old_username';
-
-LOAD MYSQL SERVERS TO RUNTIME;
-SAVE MYSQL SERVERS TO DISK;
-```
+### 設定
 
 `調整 mysql-connections_max_connect_timeout 參數來增加連接超時的時間`
 
@@ -534,43 +597,40 @@ LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
 ```
 
-## 透過 ProxySQL 連接到已設定的 MySQL 伺服器
+## 基本步驟 - 透過 ProxySQL 連線 MySQL
 
-ProxySQL 的管理端口（6032）
+`MySQL 新增使用者`
 
-ProxySQL 的 MySQL 連接端口（通常是 6033）
-
-```bash
-mysql -u your_username -pyour_password -h 127.0.0.1 -P 6033 --prompt='MySQL> '
+```sql
+CREATE USER 'proxysql'@'%' IDENTIFIED BY 'proxysqlpassword';
+GRANT ALL PRIVILEGES ON *.* TO 'proxysql'@'%';
+FLUSH PRIVILEGES;
 ```
 
-## 手動添加步驟
+`ProxySQL 新增使用者`
+
+```sql
+INSERT INTO mysql_users (username, password, active, default_hostgroup)
+VALUES ('proxysql', 'proxysqlpassword', 1, 1);
+LOAD MYSQL USERS TO RUNTIME;
+SAVE MYSQL USERS TO DISK;
+```
+
+## 高可用步驟
 
 `使用 insert into 語句來動態配置`
 
 ```sql
 INSERT INTO mysql_servers(hostgroup_id,hostname,port,weight,comment)
-VALUES(1,'db1','3306',1,'Write Group');
+VALUES(1,'master','3306',1,'Write Group');
 INSERT intomysql_servers(hostgroup_id,hostname,port,weight,comment)
-VALUES(2,'db2','3307',1,'Read Group');
-```
-
-`查看 設定的 mysql servers`
-
-```sql
-SELECT * FROM mysql_servers;
-```
-
-`查看 設定的 mysql users`
-
-```sql
-SELECT * FROM mysql_users;
+VALUES(2,'slave1','3307',1,'Read Group');
 ```
 
 `在 mysql 上新增監控的用戶`
 
 ```sql
-GRANT SELECT ON *.* TO 'monitor'@'192.168.22.%' IDENTIFIED BY 'monitor';
+GRANT SELECT ON *.* TO 'monitor'@'%' IDENTIFIED BY 'monitorpassword';
 FLUSH PRIVILEGES;
 ```
 
@@ -578,7 +638,7 @@ FLUSH PRIVILEGES;
 
 ```sql
 SET mysql-monitor_username='monitor';
-SET mysql-monitor_password='monitor';
+SET mysql-monitor_password='monitorpassword';
 ```
 
 `配置 proxysql 的轉送規則`
@@ -588,126 +648,183 @@ INSERT INTO mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,
 VALUES(1,1,'^SELECT.*FOR UPDATE$',1,1);
 INSERT INTO mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)
 VALUES(2,1,'^SELECT',2,1);
-
--- 修改 ProxySQL 中的路由規則
-UPDATE mysql_query_rules
-SET rule_definition = '新的規則'
-WHERE rule_id = 你的規則ID;
 ```
 
-`查看 proxysql 的轉送規則`
+`使用 ProxySQL 管理用戶登入到 ProxySQL 控制台`
+
+```bash
+mysql -u admin -p -h 127.0.0.1 -P 6032
+```
+
+`設定 MySQL 主從伺服器`
 
 ```sql
-SELECT rule_id,active,match_digest,destination_hostgroup,apply
-FROM mysql_query_rules;
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (1, 'master', 3306);
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (2, 'slave1', 3306);
 ```
 
-```
-+---------+--------+----------------------+-----------------------+-------+
-| rule_id | active | match_digest         | destination_hostgroup | apply |
-+---------+--------+----------------------+-----------------------+-------+
-| 1       | 1      | ^SELECT.*FOR UPDATE$ | 1                     | 1     |
-| 2       | 1      | ^SELECT              | 2                     | 1     |
-+---------+--------+----------------------+-----------------------+-------+
-
-設定查詢select的請求轉送到hostgroup_id=2群組上（讀群組）
-針對 select * from table_name  for update 這樣的修改語句，我們是需要將請求轉到寫群組，也就是hostgroup_id=1#對於其它沒有被規則匹配的請求全部轉送到預設的群組（mysql_users表中default_hostgroup）
-```
-
-`刪除 proxysql 的轉送規則`
+`重新載入設定`
 
 ```sql
-DELETE FROM mysql_query_rules WHERE rule_id = your_rule_id;
-```
-
-`更新配置到RUNTIME中`
-
-```sql
-LOAD MYSQL USERS TO RUNTIME;
 LOAD MYSQL SERVERS TO RUNTIME;
-LOAD MYSQL QUERY RULES TO RUNTIME;
-LOAD MYSQL VARIABLES TO RUNTIME;
-LOAD ADMIN VARIABLES TO RUNTIME;
-```
-
-`將所有配置儲存至磁碟上`
-
-所有設定資料都保存到磁碟上，永久寫入/var/lib/proxysql/proxysql.db這個檔案中
-
-```sql
-SAVE MYSQL USERS TO DISK;
 SAVE MYSQL SERVERS TO DISK;
-SAVE MYSQL QUERY RULES TO DISK;
+```
+
+`設定 ProxySQL 監聽端口`
+
+```sql
+UPDATE global_variables
+SET variable_value='0.0.0.0'
+WHERE variable_name='mysql-interfaces';
+UPDATE global_variables
+SET variable_value='6033'
+WHERE variable_name='mysql-port';
+```
+
+`重新載入設定`
+
+```sql
+LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
-SAVE ADMIN VARIABLES TO DISK;
 ```
 
-## 基本步驟 - 透過 ProxySQL 連線 MySQL
-
-`MySQL 新增使用者`
+`設定 hostgroup`
 
 ```sql
-CREATE USER 'proxysql'@'%' IDENTIFIED BY 'newpassw0rd!';
-GRANT ALL PRIVILEGES ON *.* TO 'proxysql'@'%';
-FLUSH PRIVILEGES;
-```
-
-`ProxySQL 新增使用者`
-
-```sql
-INSERT INTO mysql_users (username, password, active, default_hostgroup)
-VALUES ('proxysql', 'newpassw0rd!', 1, 1);
-LOAD MYSQL USERS TO RUNTIME;
-SAVE MYSQL USERS TO DISK;
-```
-
-## 部署 ProxySQL 高可用性
-
-```sql
--- 主資料庫組
-INSERT INTO mysql_servers (hostgroup_id, hostname, port)
-VALUES (1, 'master_server', 3306);
-
--- 從資料庫組
-INSERT INTO mysql_servers (hostgroup_id, hostname, port)
-VALUES (2, 'slave_server', 3306);
-```
-
-```sql
--- 主資料庫組
 UPDATE mysql_servers
 SET max_connections = 10000
 WHERE hostgroup_id = 1;
-
--- 從資料庫組
 UPDATE mysql_servers
 SET max_connections = 10000
 WHERE hostgroup_id = 2;
-
 UPDATE mysql_servers
 SET comment = 'read_only'
 WHERE hostgroup_id = 2;
--- 標記為唯讀
+```
 
--- 高可用性設置
-UPDATE global_variables
-SET variable_value = '2000-10000'
-WHERE variable_name = 'mysql-check_interval';
+`重新載入設定`
 
-UPDATE global_variables
-SET variable_value = '600'
-WHERE variable_name = 'mysql-check_timeout';
-
+```sql
 LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
 ```
 
-`配置 Failover 規則： 設定 ProxySQL 規則，以確保在主資料庫失效後從資料庫能夠升級為主資料庫。`
+`添加 Query Rules`
+
+```sql
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (1, 1, '^SELECT.*FOR UPDATE$', 1, 1);
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (2, 1, '^SELECT', 2, 1);
+```
+
+`重新載入設定`
+
+```sql
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
+`添加 Host Groups`
+
+`配置 Failover 規則`
+
+Failover 是指在一個系統組件或伺服器失效時，自動或手動將流量或工作負載切換到另一個可用的組件或伺服器的過程。
+
+這是為了確保系統的可用性和持續運行，即使某些組件或伺服器出現故障。
+
+設定 ProxySQL 規則，以確保在主資料庫失效後從資料庫能夠升級為主資料庫。
 
 ```sql
 INSERT INTO mysql_replication_hostgroups (writer_hostgroup, reader_hostgroup)
 VALUES (1, 2);
+```
 
+`重新載入設定`
+
+```sql
+LOAD MYSQL HOSTGROUPS TO RUNTIME;
+SAVE MYSQL HOSTGROUPS TO DISK;
+```
+
+`高可用性設置`
+
+`設定 MySQL 伺服器健康檢查的間隔`
+
+```sql
+UPDATE global_variables
+SET variable_value = '2000-10000'
+WHERE variable_name = 'mysql-check_interval';
+```
+
+`設定 MySQL 伺服器健康檢查的超時時間`
+
+```sql
+UPDATE global_variables
+SET variable_value = '600'
+WHERE variable_name = 'mysql-check_timeout';
+```
+
+`設定 MySQL 伺服器健康檢查的監控用戶名稱`
+
+mysql-monitor_username 是 ProxySQL 中用於 MySQL 伺服器健康檢查的監控用戶名稱的全局變數。
+
+mysql-monitor_password 是 ProxySQL 中用於 MySQL 伺服器健康檢查的監控用戶密碼的全局變數。
+
+這兩個全局變數的配置主要是為了指定 ProxySQL 在進行 MySQL 伺服器健康檢查時所使用的用戶名稱和密碼。
+
+這樣可以確保 ProxySQL 能夠通過這個用戶進行檢查，並根據 MySQL 伺服器的回應確定其狀態。
+
+這也是確保 ProxySQL 能夠正確執行健康檢查的一個重要配置。
+
+```sql
+UPDATE global_variables
+SET variable_value='1'
+WHERE variable_name='mysql-monitor_username';
+UPDATE global_variables
+SET variable_value='1'
+WHERE variable_name='mysql-monitor_password';
+```
+
+`重新載入設定`
+
+```sql
+LOAD MYSQL VARIABLES TO RUNTIME;
+SAVE MYSQL VARIABLES TO DISK;
+```
+
+`配置健康檢查間隔`
+
+```sql
+UPDATE scheduler SET interval_ms=10000 WHERE id=1;
+```
+
+`重新載入設定`
+
+```sql
+LOAD SCHEDULER TO RUNTIME;
+SAVE SCHEDULER TO DISK;
+```
+
+`設定故障切換`
+
+SET status='OFFLINE_SOFT':
+這是設定 status 欄位的值為 OFFLINE_SOFT。
+status 欄位表示 伺服器的狀態，OFFLINE_SOFT 表示軟關機，即將伺服器標記為離線，但允許現有連接繼續使用。
+
+WHERE hostname='master_host': 這是一個條件語句，表示只將符合指定主機名為 'master_host' 的伺服器應用此更新。只有符合條件的記錄才會被更新。
+
+```sql
+UPDATE mysql_servers
+SET status='OFFLINE_SOFT'
+WHERE hostname='master';
+```
+
+`重新載入設定`
+
+```sql
 LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
 ```
@@ -719,3 +836,55 @@ SAVE MYSQL SERVERS TO DISK;
 ```bash
 mysql -h127.0.0.1 -P6032 -uadmin -p
 ```
+
+# 高可用 說明
+
+在 ProxySQL 中實現高可用性（High Availability）通常需要考慮兩個方面：ProxySQL 本身的高可用性和背後的 MySQL 伺服器的高可用性。
+以下是一個簡單的示例，說明如何設定 ProxySQL 的高可用性。
+
+ProxySQL 本身的高可用性：
+使用 Keepalived：
+
+安裝 Keepalived 並設定 Virtual IP（VIP）。
+在兩個或多個 ProxySQL 伺服器上安裝並運行 Keepalived。
+Keepalived 會檢測 ProxySQL 伺服器的狀態，並在主伺服器故障時將 VIP 切換到備用伺服器。
+使用 HAProxy：
+
+安裝 HAProxy 並配置它來檢測 ProxySQL 狀態。
+在兩個或多個 ProxySQL 伺服器上運行 HAProxy。
+HAProxy 可以在主伺服器失效時將流量切換到備用伺服器。
+MySQL 伺服器的高可用性：
+使用 MySQL 主從複製：
+
+配置 MySQL 主從複製，其中 ProxySQL 主要連接到主伺服器。
+如果主伺服器失效，ProxySQL 可以自動切換到備用伺服器。
+使用 Galera Cluster：
+
+如果你使用的是 Galera Cluster，ProxySQL 可以連接到 Galera Cluster 中的任何節點，實現高可用性。
+使用 MySQL Group Replication：
+
+如果你使用的是 MySQL Group Replication，ProxySQL 可以連接到 Group Replication 中的任何可用節點。
+設定 ProxySQL：
+安裝 ProxySQL：
+
+在每個 ProxySQL 伺服器上安裝 ProxySQL。
+設定 ProxySQL 管理用戶：
+
+使用 ProxySQL 管理用戶登入到 ProxySQL 控制台。
+設定 MySQL 主從伺服器：
+
+在 ProxySQL 控制台中添加 MySQL 主伺服器和備用伺服器的配置。
+設定監聽端口：
+
+配置 ProxySQL 監聽端口，以便應用程式可以連接到 ProxySQL。
+設定 Query Rules 和 Host Groups：
+
+根據需要設定 ProxySQL 的 Query Rules 和 Host Groups。
+設定高可用性檢測：
+
+配置 ProxySQL 以檢測 MySQL 伺服器的可用性，並根據需要調整健康檢查的參數。
+設定故障切換：
+
+根據需要配置 ProxySQL 進行故障切換，以在主伺服器故障時切換到備用伺服器。
+上述步驟僅為一個簡單的示例，實際的設定取決於你的環境和需求。
+在設定 ProxySQL 的高可用性時，確保仔細考慮你的 MySQL 環境的特點，以及選擇的高可用性解決方案。
