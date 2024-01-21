@@ -40,6 +40,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+		- [腳本相關](#腳本相關)
 		- [心得相關](#心得相關)
 		- [percona 相關](#percona-相關)
 		- [例外狀況相關](#例外狀況相關)
@@ -65,6 +66,10 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 - [例外狀況](#例外狀況)
 	- [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 - [高可用 說明](#高可用-說明)
+- [腳本](#腳本)
+	- [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
+	- [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
+	- [proxysql\_groupreplication\_checker.sh](#proxysql_groupreplication_checkersh)
 
 ## 參考資料
 
@@ -82,7 +87,13 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 
 [MySQL Monitor Variables](https://proxysql.com/Documentation/global-variables/mysql-monitor-variables/)
 
+### 腳本相關
+
 [ZzzCrazyPig/proxysql_groupreplication_checker - 設定proxysql故障轉移 腳本](https://github.com/ZzzCrazyPig/proxysql_groupreplication_checker)
+
+[ZzzCrazyPig/proxysql_groupreplication_checker - 設定proxysql故障轉移 腳本說明](https://github.com/ZzzCrazyPig/proxysql_groupreplication_checker/blob/master/README_Chinese.md)
+
+[lefred/proxysql_groupreplication_checker](https://github.com/lefred/proxysql_groupreplication_checker)
 
 ### 心得相關
 
@@ -113,6 +124,8 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 [ProxySQL配置与高可用](https://www.yoyoask.com/?p=3560)
 
 [CentOS 7.6配置MySQL 5.7 MGR单主高可用+ProxySQL实现读写分离和故障转移](https://blog.51cto.com/qiuyue/2413300?source=drh)
+
+[MySQL高可用架构MHA+ProxySQL实现读写分离和负载均衡](https://bbs.huaweicloud.com/blogs/344705)
 
 ### percona 相關
 
@@ -475,6 +488,12 @@ LOAD MYSQL USERS TO RUNTIME;
 SAVE MYSQL USERS TO DISK;
 ```
 
+`查看 設定的 mysql users`
+
+```sql
+SELECT * FROM mysql_users;
+```
+
 ### MySQL 伺服器
 
 ```sql
@@ -505,12 +524,6 @@ SAVE MYSQL SERVERS TO DISK;
 
 ```sql
 SELECT * FROM mysql_servers;
-```
-
-`查看 設定的 mysql users`
-
-```sql
-SELECT * FROM mysql_users;
 ```
 
 ### 設定路由規則
@@ -639,6 +652,37 @@ FLUSH PRIVILEGES;
 ```sql
 SET mysql-monitor_username='monitor';
 SET mysql-monitor_password='monitorpassword';
+UPDATE global_variables
+SET variable_value='monitor'
+WHERE variable_name='mysql-monitor_username';
+UPDATE global_variables
+SET variable_value='monitorpassword'
+WHERE variable_name='mysql-monitor_password';
+```
+
+`重新載入設定`
+
+```sql
+LOAD MYSQL VARIABLES TO RUNTIME;
+SAVE MYSQL VARIABLES TO DISK;
+```
+
+`查看 監控用戶`
+
+```sql
+SELECT * FROM global_variables
+WHERE variable_name IN('mysql-monitor_username','mysql-monitor_password');
+```
+
+`檢查連接到MySQL的日誌`
+
+```sql
+SELECT * FROM monitor.mysql_server_ping_log
+ORDER BY time_start_us
+DESC LIMIT 6;
+SELECT * FROM monitor.mysql_server_connect_log
+ORDER BY time_start_us
+DESC LIMIT 6;
 ```
 
 `配置 proxysql 的轉送規則`
@@ -888,3 +932,418 @@ MySQL 伺服器的高可用性：
 根據需要配置 ProxySQL 進行故障切換，以在主伺服器故障時切換到備用伺服器。
 上述步驟僅為一個簡單的示例，實際的設定取決於你的環境和需求。
 在設定 ProxySQL 的高可用性時，確保仔細考慮你的 MySQL 環境的特點，以及選擇的高可用性解決方案。
+
+# 腳本
+
+## gr_sw_mode_checker.sh
+
+實作單主模式下的MySQL群組複製高可用和讀寫分離的腳本，限制只能有一個節點用於寫入。
+
+```bash
+#!/bin/bash
+#
+# author: CrazyPig
+# date: 2017-01-08
+# version: 1.0
+
+function usage() {
+  echo "Usage: $0 <hostgroup_id write> <hostgroup_id read> [write node can be read : 1(YES: default) or 0(NO)] [log_file]"
+  exit 0
+}
+
+if [ "$1" = '-h' -o "$1" = '--help' ] || [ -z "$1" -o -z "$2" ]; then
+  usage
+fi
+
+# receive input arg
+writeGroupId="${1:-1}"
+readGroupId="${2:-2}"
+writeNodeCanRead="${3:-1}"
+errFile="${4:-"./checker.log"}"
+
+# variable define
+proxysql_user="admin"
+proxysql_password="admin"
+proxysql_host="127.0.0.1"
+proxysql_port="6032"
+
+switchOver=0
+timeout=3
+
+# enable(1) debug info or not(0)
+debug=1
+function debug() {
+  local appendToFile="${2:-0}"
+  local msg="[`date \"+%Y-%m-%d %H:%M:%S\"`] $1"
+  if [ $debug -eq 1 ]; then
+    echo $msg
+  fi
+  if [ $appendToFile -eq 1 ]; then
+    echo $msg >> $errFile
+  fi
+}
+
+debug "writeGroupId : $writeGroupId, readGroupId : $readGroupId, writeNodeCanRead : $writeNodeCanRead, errFile : $errFile"
+proxysql_cmd="mysql -u$proxysql_user -p$proxysql_password -h$proxysql_host -P$proxysql_port -Nse"
+debug "proxysql_cmd : $proxysql_cmd"
+mysql_credentials=$($proxysql_cmd "SELECT variable_value FROM global_variables WHERE variable_name IN ('mysql-monitor_username','mysql-monitor_password') ORDER BY variable_name DESC")
+mysql_user=$(echo $mysql_credentials | awk '{print $1}')
+mysql_password=$(echo $mysql_credentials | awk '{print $2}')
+debug "mysql_user : $mysql_user, mysql_password : $mysql_password"
+mysql_cmd="mysql -u$mysql_user -p$mysql_password"
+debug "mysql_cmd : $mysql_cmd"
+
+update_servers_cmd_opts="LOAD MYSQL SERVERS TO RUNTIME; SAVE MYSQL SERVERS TO DISK;"
+
+# check node status is OK or not
+function isNodeOk() {
+  local gr_status=$1
+  local trx_behind=$2
+  debug "gr_status : $gr_status, trx_behind : $trx_behind"
+  if [ "$gr_status" == "YES" ]; then
+    return 1
+  elif [ "$gr_status" == "" -o "$gr_status" == "NO" ]; then
+    return 0
+  fi
+}
+
+# main logic
+
+# find current write node
+read cwn_hostname cwn_port <<< $($proxysql_cmd "SELECT hostname,port FROM mysql_servers WHERE hostgroup_id = $writeGroupId LIMIT 1;")
+debug "current write node hostname : ${cwn_hostname}, port : ${cwn_port}"
+# for every read node in read hostgroup
+output=$($proxysql_cmd "SELECT hostgroup_id, hostname, port, status FROM mysql_servers WHERE hostgroup_id = $readGroupId;" 2>> $errFile)
+while read hostgroup_id hostname port status
+do
+  # check node is ok
+  read gr_status trx_behind <<< $(timeout $timeout $mysql_cmd -h$hostname -P$port -Nse "SELECT viable_candidate, transactions_behind FROM sys.gr_member_routing_candidate_status" 2>>$errFile | tail -1 2>>$errFile)
+  isNodeOk $gr_status $trx_behind
+  isOK=$?
+  debug "node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, status: $status, isOK: $isOK ]"
+  # node is current write node
+  if [ "$hostname" == "$cwn_hostname" -a "$port" == "$cwn_port" ]; then
+    debug "node is the current write node"
+    if [ $isOK -eq 0 ]; then
+      # need to find new write node
+      switchOver=1
+      debug "current write node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, isOK: $isOK] is not OK, we need to do switch over" 1
+      $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_SOFT' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+      $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_HARD' WHERE hostgroup_id = $writeGroupId AND hostname = '$cwn_hostname' AND port = $cwn_port; ${update_servers_cmd_opts}" 2>> $errFile
+    else # isOK = 1
+      read isPrimaryNode <<< $(timeout $timeout $mysql_cmd -h$hostname -P$port -Nse "SELECT IF((SELECT @@server_uuid) = (SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME='group_replication_primary_member'), 1, 0);" 2>> $errFile)
+      if [ $isPrimaryNode -eq 0 ]; then
+        debug "current write node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, isOK: $isOK] is no longer the write node, we need to do switch over" 1
+        $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_HARD' WHERE hostgroup_id = $writeGroupId AND hostname = '$hostname' AND port = '$port'; ${update_servers_cmd_opts}" 2>> $errFile
+        switchOver=1
+        if [ "$status" != "ONLINE" ]; then
+          debug "isOK : $isOK, write node can be read, will update node status to ONLINE [hostgroup_id: $readGroupId, hostname: $hostname, port: $port]"
+          $proxysql_cmd "UPDATE mysql_servers SET status = 'ONLINE' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+        fi
+        continue
+      fi
+      if [ $writeNodeCanRead -eq 0 ]; then # write node can not be read
+        debug "isOK : $isOK, write node can not be read, will update node status to OFFLINE_SOFT [hostgroup_id: $readGroupId, hostname: $hostname, port: $port]"
+        $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_SOFT' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+      else
+        if [ "$status" != "ONLINE" ]; then
+          debug "isOK : $isOK, write node can be read, will update node status to ONLINE [hostgroup_id: $readGroupId, hostname: $hostname, port: $port]"
+          $proxysql_cmd "UPDATE mysql_servers SET status = 'ONLINE' WHERE hostgroup_id = $writeGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+          $proxysql_cmd "UPDATE mysql_servers SET status = 'ONLINE' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+        fi
+      fi
+    fi
+  # node is not current write node and status is not OK
+  elif [ $isOK -eq 0 ]; then
+    debug "read node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, isOK: $isOK] is not OK, we will set it's status to be 'OFFLINE_SOFT'" 1
+    $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_SOFT' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+  elif [ $isOK -eq 1 -a "$status" == "OFFLINE_SOFT" ]; then
+    debug "read node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, isOK: $isOK] is OK, but is's status is 'OFFLINE_SOFT', we will update it to be 'ONLINE' 1"
+    $proxysql_cmd "UPDATE mysql_servers SET status = 'ONLINE' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+  fi
+done <<EOF
+$output
+EOF
+
+successSwitchOver=0
+if [ $switchOver -eq 1 ]; then
+  debug "now we will select one normal node from read hostgroup to be the new node ..." 1
+  # we need to find new primary node from read hostgroup
+output1=$($proxysql_cmd "SELECT hostname, port FROM mysql_servers WHERE hostgroup_id = $readGroupId AND status = 'ONLINE';" 2>> $errFile)
+  while read hostname port
+  do
+    read isPrimaryNode <<< $(timeout $timeout $mysql_cmd -h$hostname -P$port -Nse "SELECT IF((SELECT @@server_uuid) = (SELECT VARIABLE_VALUE FROM performance_schema.global_status WHERE VARIABLE_NAME= 'group_replication_primary_member'), 1, 0);" 2>> $errFile)
+    if [ "$isPrimaryNode" != "" -a $isPrimaryNode -eq 1 ]; then
+      # success in finding new primary node from read hostgroup
+      debug "success in finding new primary node from read hostgroup [hostgroup_id: $readGroupId, hostname: $hostname, port: $port]" 1
+      $proxysql_cmd "UPDATE mysql_servers SET hostname = '$hostname', port = '$port', status = 'ONLINE' WHERE hostgroup_id = $writeGroupId; ${update_servers_cmd_opts}" 2>> $errFile
+      successSwitchOver=1
+      if [ $writeNodeCanRead -eq 0 ]; then
+        $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_SOFT' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+      fi
+      break
+    fi
+  done <<EOF
+$output1
+EOF
+  # can not find new primary node from read hostgroup
+  if [ $successSwitchOver -eq 0 ]; then
+    debug "from read hostgroup, we can not find new node to be write node" 1
+  fi
+fi
+```
+
+## gr_mw_mode_sw_cheker.sh
+
+實作Multi-Primary模式下的MySQL Group Replication高可用且讀寫分離的腳本，限制只能有一個節點可以寫入。
+
+```bash
+#!/bin/bash
+#
+# author: CrazyPig
+# date: 2017-01-07
+# version: 1.0
+
+function usage() {
+  echo "Usage: $0 <hostgroup_id write> <hostgroup_id read> [write node can be read : 1(YES: default) or 0(NO)] [log_file]"
+  exit 0
+}
+
+if [ "$1" = '-h' -o "$1" = '--help' ] || [ -z "$1" -o -z "$2" ]; then
+  usage
+fi
+
+# receive input arg
+writeGroupId="${1:-1}"
+readGroupId="${2:-2}"
+writeNodeCanRead="${3:-1}"
+errFile="${4:-"./checker.log"}"
+
+# variable define
+proxysql_user="admin"
+proxysql_password="admin"
+proxysql_host="127.0.0.1"
+proxysql_port="6032"
+
+switchOver=0
+timeout=3
+
+# enable(1) debug info or not(0)
+debug=1
+function debug() {
+  local appendToFile="${2:-0}"
+  local msg="[`date \"+%Y-%m-%d %H:%M:%S\"`] $1"
+  if [ $debug -eq 1 ]; then
+    echo $msg
+  fi
+  if [ $appendToFile -eq 1 ]; then
+    echo $msg >> $errFile
+  fi
+}
+
+debug "writeGroupId : $writeGroupId, readGroupId : $readGroupId, writeNodeCanRead : $writeNodeCanRead, errFile : $errFile"
+proxysql_cmd="mysql -u$proxysql_user -p$proxysql_password -h$proxysql_host -P$proxysql_port -Nse"
+debug "proxysql_cmd : $proxysql_cmd"
+mysql_credentials=$($proxysql_cmd "SELECT variable_value FROM global_variables WHERE variable_name IN ('mysql-monitor_username','mysql-monitor_password') ORDER BY variable_name DESC")
+mysql_user=$(echo $mysql_credentials | awk '{print $1}')
+mysql_password=$(echo $mysql_credentials | awk '{print $2}')
+debug "mysql_user : $mysql_user, mysql_password : $mysql_password"
+mysql_cmd="mysql -u$mysql_user -p$mysql_password"
+debug "mysql_cmd : $mysql_cmd"
+
+update_servers_cmd_opts="LOAD MYSQL SERVERS TO RUNTIME; SAVE MYSQL SERVERS TO DISK;"
+
+# check node status is OK or not
+function isNodeOk() {
+  local gr_status=$1
+  local trx_behind=$2
+  debug "gr_status : $gr_status, trx_behind : $trx_behind"
+  if [ "$gr_status" == "YES" ]; then
+    return 1
+  elif [ "$gr_status" == "" -o "$gr_status" == "NO" ]; then
+    return 0
+  fi
+}
+
+# main logic
+
+# find current write node
+read cwn_hostname cwn_port <<< $($proxysql_cmd "SELECT hostname,port FROM mysql_servers WHERE hostgroup_id = $writeGroupId LIMIT 1;")
+debug "current write node hostname : ${cwn_hostname}, port : ${cwn_port}"
+# for every read node in read hostgroup
+output=$($proxysql_cmd "SELECT hostgroup_id, hostname, port, status FROM mysql_servers WHERE hostgroup_id = $readGroupId;" 2>> $errFile)
+while read hostgroup_id hostname port status
+do
+  # check node is ok
+  read gr_status trx_behind <<< $(timeout $timeout $mysql_cmd -h$hostname -P$port -Nse "SELECT viable_candidate, transactions_behind FROM sys.gr_member_routing_candidate_status" 2>>$errFile | tail -1 2>>$errFile)
+  isNodeOk $gr_status $trx_behind
+  isOK=$?
+  debug "node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, status: $status, isOK: $isOK ]"
+  # node is current write node
+  if [ "$hostname" == "$cwn_hostname" -a "$port" == "$cwn_port" ]; then
+    debug "node is the current write node"
+    if [ $isOK -eq 0 ]; then
+      # need to find new write node
+      switchOver=1
+      debug "current write node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, isOK: $isOK] is not OK, we need to do switch over" 1
+      $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_SOFT' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+      $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_HARD' WHERE hostgroup_id = $writeGroupId AND hostname = '$cwn_hostname' AND port = $cwn_port; ${update_servers_cmd_opts}" 2>> $errFile
+    else # isOK = 1
+      if [ $writeNodeCanRead -eq 0 ]; then # write node can not be read
+        debug "isOK : $isOK, write node can not be read, will update node status to OFFLINE_SOFT [hostgroup_id: $readGroupId, hostname: $hostname, port: $port]"
+        $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_SOFT' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+      else
+        if [ "$status" != "ONLINE" ]; then
+          debug "isOK : $isOK, write node can be read, will update node status to ONLINE [hostgroup_id: $readGroupId, hostname: $hostname, port: $port]"
+          $proxysql_cmd "UPDATE mysql_servers SET status = 'ONLINE' WHERE hostgroup_id = $writeGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+          $proxysql_cmd "UPDATE mysql_servers SET status = 'ONLINE' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+        fi
+      fi
+    fi
+  # node is not current write node and status is not OK
+  elif [ $isOK -eq 0 ]; then
+    debug "read node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, isOK: $isOK] is not OK, we will set it's status to be 'OFFLINE_SOFT'" 1
+    $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_SOFT' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+  elif [ $isOK -eq 1 -a "$status" == "OFFLINE_SOFT" ]; then
+    debug "read node [hostgroup_id: $hostgroup_id, hostname: $hostname, port: $port, isOK: $isOK] is OK, but is's status is 'OFFLINE_SOFT', we will update it to be 'ONLINE' 1"
+    $proxysql_cmd "UPDATE mysql_servers SET status = 'ONLINE' WHERE hostgroup_id = $readGroupId AND hostname = '$hostname' AND port = $port; ${update_servers_cmd_opts}" 2>> $errFile
+  fi
+done <<EOF
+$output
+EOF
+
+if [ $switchOver -eq 1 ]; then
+  debug "now we will select one normal node from read hostgroup to be the new node ..." 1
+  read nwn_hostname nwn_port <<< $($proxysql_cmd "SELECT hostname, port FROM mysql_servers WHERE hostgroup_id = $readGroupId AND status = 'ONLINE' LIMIT 1;" 2>> $errFile)
+  if [ "$nwn_hostname" != "" ]; then
+    debug "find new write node from read hostgroup, [hostgroup_id: $readGroupId, hostname : $nwn_hostname, port : $nwn_port]" 1
+    $proxysql_cmd "UPDATE mysql_servers SET hostname = '$nwn_hostname', port = $nwn_port, status = 'ONLINE' WHERE hostgroup_id = $writeGroupId; ${update_servers_cmd_opts}" 2>> $errFile
+    if [ $writeNodeCanRead -eq 0 ]; then
+      $proxysql_cmd "UPDATE mysql_servers SET status = 'OFFLINE_SOFT' WHERE hostgroup_id = $readGroupId AND hostname = '$nwn_hostname' AND port = $nwn_port; ${update_servers_cmd_opts}" 2>> $errFile
+    fi
+  else
+    debug "from read hostgroup, we can not find new node to be write node" 1
+  fi
+fi
+```
+
+## proxysql_groupreplication_checker.sh
+
+腳本修改自 : https://github.com/lefred/proxysql_groupreplication_checker，提供了MGR Multi-Primary模式下讀寫分離功能，以及寫入節點故障切換功能。
+
+```bash
+#!/bin/bash
+## inspired by proxysql_galera_checker.sh
+# Author: Frédéric -lefred- Descamps
+# version: 0.1
+# 2016-08-25
+
+# CHANGE THOSE
+PROXYSQL_USERNAME="admin"
+PROXYSQL_PASSWORD="admin"
+PROXYSQL_HOSTNAME="127.0.0.1"
+PROXYSQL_PORT="6032"
+#
+
+function usage()
+{
+  echo "Usage: $0 <hostgroup_id write> [hostgroup_id read] [number writers] [writers are readers 0|1} [log_file]"
+  exit 0
+}
+
+if [ "$1" = '-h' -o "$1" = '--help'  -o -z "$1" ]
+then
+  usage
+fi
+
+if [ $# -lt 1 ]
+then
+  echo "Invalid number of arguments"
+  usage
+fi
+
+HOSTGROUP_WRITER_ID="${1}"
+HOSTGROUP_READER_ID="${2:--1}"
+NUMBER_WRITERS="${3:-0}"
+WRITER_IS_READER="${4:-1}"
+ERR_FILE="${5:-/dev/null}"
+
+#echo "Hostgroup writers $HOSTGROUP_WRITER_ID"
+#echo "Hostgroup readers $HOSTGROUP_READER_ID"
+#echo "Number of writers $NUMBER_WRITERS"
+#echo "Writers are readers $WRITER_IS_READER"
+#echo "log file $ERR_FILE"
+
+#Timeout exists for instances where mysqld may be hung
+TIMEOUT=10
+
+PROXYSQL_CMDLINE="mysql -u$PROXYSQL_USERNAME -p$PROXYSQL_PASSWORD -h $PROXYSQL_HOSTNAME -P $PROXYSQL_PORT --protocol=tcp -Nse"
+MYSQL_CREDENTIALS=$($PROXYSQL_CMDLINE "SELECT variable_value FROM global_variables WHERE variable_name IN ('mysql-monitor_username','mysql-monitor_password') ORDER BY variable_name DESC")
+MYSQL_USERNAME=$(echo $MYSQL_CREDENTIALS | awk '{print $1}')
+MYSQL_PASSWORD=$(echo $MYSQL_CREDENTIALS | awk '{print $2}')
+#echo $MYSQL_CREDENTIALS
+#echo $MYSQL_USERNAME $MYSQL_PASSWORD
+MYSQL_CMDLINE="timeout $TIMEOUT mysql -u$MYSQL_USERNAME -p$MYSQL_PASSWORD "
+
+$PROXYSQL_CMDLINE "SELECT hostgroup_id, hostname, port, status, max_replication_lag FROM mysql_servers WHERE hostgroup_id IN ($HOSTGROUP_WRITER_ID, $HOSTGROUP_READER_ID) AND status <> 'OFFLINE_HARD'" | while read hostgroup server port stat max_replication_lag
+do
+  read GR_STATUS READONLY TRX_BEHIND <<<$($MYSQL_CMDLINE -h $server -P $port -Nse "SELECT viable_candidate, read_only, transactions_behind FROM sys.gr_member_routing_candidate_status" 2>>${ERR_FILE} | tail -1 2>>${ERR_FILE})
+  echo "`date` Check server $hostgroup:$server:$port , status $stat , GR_STATUS $GR_STATUS, READONLY $READONLY, TRX_BEHIND $TRX_BEHIND" >> ${ERR_FILE}
+  UPDATE_STATS_ONLINE_CMD="UPDATE mysql_servers SET status='ONLINE' WHERE hostgroup_id=$hostgroup AND hostname='$server' AND port='$port'; LOAD MYSQL SERVERS TO RUNTIME;"
+  UPDATE_STATS_OFFLINE_SOFT_CMD="UPDATE mysql_servers SET status='OFFLINE_SOFT' WHERE hostgroup_id=$hostgroup AND hostname='$server' AND port='$port'; LOAD MYSQL SERVERS TO RUNTIME;"
+  if [ "${GR_STATUS}" == "" -a "${READONLY}" == "" -a "${TRX_BEHIND}" == "" ] ; then
+    # case : mysql server can not reach
+    echo "`date` Changing server $hostgroup:$server:$port to status OFFLINE_SOFT" >> ${ERR_FILE}
+    $PROXYSQL_CMDLINE "${UPDATE_STATS_OFFLINE_SOFT_CMD}" 2>> ${ERR_FILE}
+  elif [ "${GR_STATUS}" == "YES" -a "${READONLY}" == "NO" -a "$stat" != "ONLINE" -a ${TRX_BEHIND} -le $max_replication_lag ] ; then
+    echo "`date` Changing server $hostgroup:$server:$port to status ONLINE" >> ${ERR_FILE}
+    $PROXYSQL_CMDLINE "${UPDATE_STATS_ONLINE_CMD}" 2>> ${ERR_FILE}
+  elif [ "${GR_STATUS}" == "YES" -a "${READONLY}" == "YES" -a "$stat" != "ONLINE" -a "$hostgroup" == "$HOSTGROUP_READER_ID" -a ${TRX_BEHIND} -le $max_replication_lag ] ; then
+    echo "`date` Changing server $hostgroup:$server:$port to status ONLINE" >> ${ERR_FILE}
+    $PROXYSQL_CMDLINE "${UPDATE_STATS_ONLINE_CMD}" 2>> ${ERR_FILE}
+  elif [ "${GR_STATUS}" == "NO" -o "${READONLY}" == "YES" -a "$stat" = "ONLINE" -a "$hostgroup" == "$HOSTGROUP_WRITER_ID" ] ; then
+    echo "`date` Changing server $hostgroup:$server:$port to status OFFLINE_SOFT" >> ${ERR_FILE}
+    $PROXYSQL_CMDLINE "${UPDATE_STATS_OFFLINE_SOFT_CMD}" 2>> ${ERR_FILE}
+  elif [ "${GR_STATUS}" == "YES" -a "${READONLY}" == "NO" -a "$stat" = "ONLINE" -a ${TRX_BEHIND} -gt $max_replication_lag ] ; then
+    echo "`date` Changing server $hostgroup:$server:$port to status OFFLINE_SOFT" >> ${ERR_FILE}
+    $PROXYSQL_CMDLINE "${UPDATE_STATS_OFFLINE_SOFT_CMD}" 2>> ${ERR_FILE}
+  fi
+done
+
+if [ $NUMBER_WRITERS -gt 0 ]
+then
+  CONT=0
+  # Only check online servers
+  $PROXYSQL_CMDLINE "SELECT hostname, port FROM mysql_servers WHERE hostgroup_id = $HOSTGROUP_WRITER_ID AND status = 'ONLINE' order by hostname, port" | while read server port
+  do
+    if [ $CONT -ge $NUMBER_WRITERS ]
+    then
+      # Number of writers reached, disabling extra servers
+      echo "`date` Number of writers reached, disabling extra write server $HOSTGROUP_WRITER_ID:$server:$port to status OFFLINE_SOFT" >> ${ERR_FILE}
+      $PROXYSQL_CMDLINE "UPDATE mysql_servers set status = 'OFFLINE_SOFT' WHERE hostgroup_id = $HOSTGROUP_WRITER_ID AND hostname = '$server' AND port = $port;" 2>> ${ERR_FILE}
+    fi
+    CONT=$(( $CONT + 1 ))
+  done
+fi
+
+if [ $WRITER_IS_READER -eq 0 ]
+then
+  # Writer is not a read node, but only if we have another read node online
+  READER_NON_WRITER=$($PROXYSQL_CMDLINE "SELECT count(*) FROM mysql_servers ms1 LEFT JOIN mysql_servers ms2 ON ms1.hostname = ms2.hostname AND ms1.port = ms2.port AND ms1.hostgroup_id <> ms2.hostgroup_id WHERE ms1.hostgroup_id = $HOSTGROUP_READER_ID AND ms1.status = 'ONLINE' AND (ms2.hostgroup_id = $HOSTGROUP_WRITER_ID OR ms2.hostgroup_id IS NULL) AND (ms2.status = 'OFFLINE_SOFT' OR ms2.hostgroup_id IS NULL);" 2>>${ERR_FILE})
+  if [ $READER_NON_WRITER -gt 0 ]
+  then
+    $PROXYSQL_CMDLINE "SELECT hostname, port FROM mysql_servers WHERE hostgroup_id = $HOSTGROUP_WRITER_ID AND status = 'ONLINE' order by hostname, port" | while read server port
+    do
+      echo "`date` Disabling read for write server $HOSTGROUP_READER_ID:$server:$port to status OFFLINE_SOFT" >> ${ERR_FILE}
+      $PROXYSQL_CMDLINE "UPDATE mysql_servers set status = 'OFFLINE_SOFT' WHERE hostgroup_id = $HOSTGROUP_READER_ID AND hostname = '$server' AND port = $port;" 2>> ${ERR_FILE}
+    done
+  else
+    echo "`date` Not enough read servers, we won't disable read in write servers" >> ${ERR_FILE}
+  fi
+fi
+
+echo "`date` Enabling config" >> ${ERR_FILE}
+$PROXYSQL_CMDLINE "LOAD MYSQL SERVERS TO RUNTIME;" 2>> ${ERR_FILE}
+
+exit 0
+```
