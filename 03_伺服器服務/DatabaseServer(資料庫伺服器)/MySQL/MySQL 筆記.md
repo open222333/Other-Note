@@ -39,6 +39,10 @@ RDBMS
   - [匯出匯入](#匯出匯入)
     - [匯出 - mysqldump](#匯出---mysqldump)
     - [匯入](#匯入)
+  - [測試用](#測試用)
+    - [引入延遲（睡眠）](#引入延遲睡眠)
+    - [確保在某個事務中選定的行在該事務完成之前不會被其他事務修改](#確保在某個事務中選定的行在該事務完成之前不會被其他事務修改)
+    - [START TRANSACTION;](#start-transaction)
 - [重大備份](#重大備份)
 - [例外狀況](#例外狀況)
   - [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
@@ -938,6 +942,72 @@ mysql -u$username -p $dbname < $name.sql
 mysql -u$username -p < $name.sql
 # 恢復資料庫
 mysql -h(ip) -uroot -p(password) databasename< database.sql
+```
+
+## 測試用
+
+### 引入延遲（睡眠）
+
+```sql
+SELECT SLEEP(n)
+```
+
+```sql
+-- 導致 MySQL 休眠 100 秒
+SELECT SLEEP(100)
+```
+
+### 確保在某個事務中選定的行在該事務完成之前不會被其他事務修改
+
+這個SQL 查詢語句是一個帶有FOR UPDATE子句的SELECT查詢，用於在交易中鎖定選定的行，以防止其他交易對這些行進行修改。
+這是一種控制並發存取的方法，通常用於確保在某個事務中選定的行在該事務完成之前不會被其他事務修改。
+
+具體來說，FOR UPDATE子句是用於在選定的行上設定寫鎖。
+這樣，其他事務如果嘗試在這些行上執行寫入操作，就會被阻塞，直到擁有寫鎖的事務完成。
+
+這種技術在需要確保事務中某些資料不會被其他事務並發修改的情況下非常有用。
+然而，需要注意，使用這種方式可能導致效能問題和死鎖的風險，因此應謹慎使用，並確保在程式中正確處理鎖定的釋放。
+
+```sql
+SELECT * FROM database.table WHERE id = 1 FOR UPDATE;
+```
+
+### START TRANSACTION;
+
+"start transaction" 這個片語通常出現在資料庫管理系統（DBMS）和交易控制語言的上下文中。在資料庫的背景中，一個交易是一系列包含一個或多個 SQL 陳述式的工作單位。交易的目的是確保資料的一致性和完整性。
+
+以下是 "start transaction" 陳述式的解釋：
+
+交易開始：
+
+"start transaction" 陳述式標誌著資料庫中一個交易的開始。它表示接下來的一系列 SQL 陳述式將被視為一個單一、原子性的工作單位。
+原子性：
+
+交易遵循原子性的原則，這意味著要麼交易中的所有陳述式都成功執行，要麼一個都不執行。如果交易中的任何部分失敗，整個交易都將被回滾，確保資料庫保持一致的狀態。
+隔離性：
+
+交易還提供隔離性，這意味著一個交易所做的更改對其他交易是不可見的，直到這些更改被提交。這有助於防止數據不一致和衝突。
+一致性：
+
+"start transaction" 陳述式有助於資料庫的一致性。它確保資料庫從一個一致的狀態轉移到另一個狀態，並且對數據的任何修改都符合定義的規則和約束。
+持久性：
+
+一旦交易成功完成，對資料庫所做的更改就變得永久。這稱為持久性。即使系統在交易提交後崩潰或遇到故障，交易所做的更改也會被保留。
+
+```sql
+-- 在這個例子中，交易以 "START TRANSACTION" 開始，後面是一系列修改資料庫的 SQL 陳述式。
+-- 如果所有陳述式都成功執行，則使用 "COMMIT" 陳述式提交交易。
+-- 如果交易中發生任何錯誤，可以使用 "ROLLBACK" 陳述式將其回滾，還原交易中所做的任何更改。
+-- 開始交易
+START TRANSACTION;
+
+-- 交易內的 SQL 陳述式
+UPDATE table1 SET column1 = 'value1' WHERE condition1;
+INSERT INTO table2 (column2) VALUES ('value2');
+DELETE FROM table3 WHERE condition3;
+
+-- 提交交易
+COMMIT;
 ```
 
 # 重大備份
