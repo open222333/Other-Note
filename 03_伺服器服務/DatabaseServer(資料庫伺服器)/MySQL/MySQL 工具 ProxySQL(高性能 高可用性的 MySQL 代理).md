@@ -38,38 +38,42 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [腳本相關](#腳本相關)
-		- [心得相關](#心得相關)
-		- [percona 相關](#percona-相關)
-		- [例外狀況相關](#例外狀況相關)
-		- [SQL 語句 (轉址)](#sql-語句-轉址)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [腳本相關](#腳本相關)
+    - [心得相關](#心得相關)
+    - [percona 相關](#percona-相關)
+    - [例外狀況相關](#例外狀況相關)
+    - [SQL 語句 (轉址)](#sql-語句-轉址)
 - [安裝](#安裝)
-	- [Debian (Ubuntu)](#debian-ubuntu)
-	- [RedHat (CentOS)](#redhat-centos)
-	- [Docker 部署](#docker-部署)
-	- [配置文檔](#配置文檔)
-		- [基本範例](#基本範例)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+  - [RedHat (CentOS)](#redhat-centos)
+  - [Docker 部署](#docker-部署)
+  - [配置文檔](#配置文檔)
+    - [基本範例](#基本範例)
 - [指令](#指令)
-	- [進行基本設定](#進行基本設定)
-	- [服務操作](#服務操作)
-	- [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
-	- [ProxySQL 操作](#proxysql-操作)
-		- [使用者](#使用者)
-		- [MySQL 伺服器](#mysql-伺服器)
-		- [設定路由規則](#設定路由規則)
-		- [應用配置](#應用配置)
-		- [設定](#設定)
-	- [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
-	- [高可用步驟](#高可用步驟)
+  - [進行基本設定](#進行基本設定)
+  - [服務操作](#服務操作)
+  - [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
+  - [ProxySQL 操作](#proxysql-操作)
+    - [使用者](#使用者)
+    - [MySQL 伺服器](#mysql-伺服器)
+    - [設定路由規則](#設定路由規則)
+    - [應用配置](#應用配置)
+    - [設定](#設定)
+  - [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
+  - [高可用步驟](#高可用步驟)
+    - [群組](#群組)
+    - [路由](#路由)
+    - [監控 (高可用)](#監控-高可用)
+    - [修改伺服器的狀態](#修改伺服器的狀態)
 - [例外狀況](#例外狀況)
-	- [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
+  - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 - [高可用 說明](#高可用-說明)
 - [腳本](#腳本)
-	- [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
-	- [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
-	- [proxysql\_groupreplication\_checker.sh](#proxysql_groupreplication_checkersh)
+  - [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
+  - [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
+  - [proxysql\_groupreplication\_checker.sh](#proxysql_groupreplication_checkersh)
 
 ## 參考資料
 
@@ -631,69 +635,6 @@ SAVE MYSQL USERS TO DISK;
 
 ## 高可用步驟
 
-`使用 insert into 語句來動態配置`
-
-```sql
-INSERT INTO mysql_servers(hostgroup_id,hostname,port,weight,comment)
-VALUES(1,'master','3306',1,'Write Group');
-INSERT intomysql_servers(hostgroup_id,hostname,port,weight,comment)
-VALUES(2,'slave1','3307',1,'Read Group');
-```
-
-`在 mysql 上新增監控的用戶`
-
-```sql
-GRANT SELECT ON *.* TO 'monitor'@'%' IDENTIFIED BY 'monitorpassword';
-FLUSH PRIVILEGES;
-```
-
-`在proxysql主機端設定監控用戶`
-
-```sql
-SET mysql-monitor_username='monitor';
-SET mysql-monitor_password='monitorpassword';
-UPDATE global_variables
-SET variable_value='monitor'
-WHERE variable_name='mysql-monitor_username';
-UPDATE global_variables
-SET variable_value='monitorpassword'
-WHERE variable_name='mysql-monitor_password';
-```
-
-`重新載入設定`
-
-```sql
-LOAD MYSQL VARIABLES TO RUNTIME;
-SAVE MYSQL VARIABLES TO DISK;
-```
-
-`查看 監控用戶`
-
-```sql
-SELECT * FROM global_variables
-WHERE variable_name IN('mysql-monitor_username','mysql-monitor_password');
-```
-
-`檢查連接到MySQL的日誌`
-
-```sql
-SELECT * FROM monitor.mysql_server_ping_log
-ORDER BY time_start_us
-DESC LIMIT 6;
-SELECT * FROM monitor.mysql_server_connect_log
-ORDER BY time_start_us
-DESC LIMIT 6;
-```
-
-`配置 proxysql 的轉送規則`
-
-```sql
-INSERT INTO mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)
-VALUES(1,1,'^SELECT.*FOR UPDATE$',1,1);
-INSERT INTO mysql_query_rules(rule_id,active,match_digest,destination_hostgroup,apply)
-VALUES(2,1,'^SELECT',2,1);
-```
-
 `使用 ProxySQL 管理用戶登入到 ProxySQL 控制台`
 
 ```bash
@@ -734,6 +675,8 @@ LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
 ```
 
+### 群組
+
 `設定 hostgroup`
 
 ```sql
@@ -753,22 +696,6 @@ WHERE hostgroup_id = 2;
 ```sql
 LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
-```
-
-`添加 Query Rules`
-
-```sql
-INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
-VALUES (1, 1, '^SELECT.*FOR UPDATE$', 1, 1);
-INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
-VALUES (2, 1, '^SELECT', 2, 1);
-```
-
-`重新載入設定`
-
-```sql
-LOAD MYSQL QUERY RULES TO RUNTIME;
-SAVE MYSQL QUERY RULES TO DISK;
 ```
 
 `添加 Host Groups`
@@ -793,7 +720,83 @@ LOAD MYSQL HOSTGROUPS TO RUNTIME;
 SAVE MYSQL HOSTGROUPS TO DISK;
 ```
 
-`高可用性設置`
+### 路由
+
+`添加 Query Rules`
+
+```sql
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (1, 1, '^SELECT.*FOR UPDATE$', 1, 1);
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (2, 1, '^SELECT', 2, 1);
+```
+
+`重新載入設定`
+
+```sql
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
+### 監控 (高可用)
+
+`在 mysql 上新增監控的用戶`
+
+```sql
+GRANT SELECT ON *.* TO 'monitor'@'%' IDENTIFIED BY 'monitorpassword';
+FLUSH PRIVILEGES;
+```
+
+`設定 MySQL 伺服器健康檢查的監控用戶名稱`
+
+mysql-monitor_username 是 ProxySQL 中用於 MySQL 伺服器健康檢查的監控用戶名稱的全局變數。
+
+mysql-monitor_password 是 ProxySQL 中用於 MySQL 伺服器健康檢查的監控用戶密碼的全局變數。
+
+這兩個全局變數的配置主要是為了指定 ProxySQL 在進行 MySQL 伺服器健康檢查時所使用的用戶名稱和密碼。
+
+這樣可以確保 ProxySQL 能夠通過這個用戶進行檢查，並根據 MySQL 伺服器的回應確定其狀態。
+
+這也是確保 ProxySQL 能夠正確執行健康檢查的一個重要配置。
+
+`在proxysql主機端設定監控用戶`
+
+```sql
+SET mysql-monitor_username='monitor';
+SET mysql-monitor_password='monitorpassword';
+UPDATE global_variables
+SET variable_value='monitor'
+WHERE variable_name='mysql-monitor_username';
+UPDATE global_variables
+SET variable_value='monitorpassword'
+WHERE variable_name='mysql-monitor_password';
+```
+
+`重新載入設定`
+
+```sql
+LOAD MYSQL VARIABLES TO RUNTIME;
+SAVE MYSQL VARIABLES TO DISK;
+```
+
+`查看 監控用戶`
+
+```sql
+SELECT * FROM global_variables
+WHERE variable_name IN('mysql-monitor_username','mysql-monitor_password');
+```
+
+`檢查連接到MySQL的日誌`
+
+```sql
+SELECT * FROM monitor.mysql_server_ping_log
+ORDER BY time_start_us
+DESC LIMIT 6;
+SELECT * FROM monitor.mysql_server_connect_log
+ORDER BY time_start_us
+DESC LIMIT 6;
+```
+
 
 `設定 MySQL 伺服器健康檢查的間隔`
 
@@ -811,38 +814,23 @@ SET variable_value = '600'
 WHERE variable_name = 'mysql-check_timeout';
 ```
 
-`設定 MySQL 伺服器健康檢查的監控用戶名稱`
-
-mysql-monitor_username 是 ProxySQL 中用於 MySQL 伺服器健康檢查的監控用戶名稱的全局變數。
-
-mysql-monitor_password 是 ProxySQL 中用於 MySQL 伺服器健康檢查的監控用戶密碼的全局變數。
-
-這兩個全局變數的配置主要是為了指定 ProxySQL 在進行 MySQL 伺服器健康檢查時所使用的用戶名稱和密碼。
-
-這樣可以確保 ProxySQL 能夠通過這個用戶進行檢查，並根據 MySQL 伺服器的回應確定其狀態。
-
-這也是確保 ProxySQL 能夠正確執行健康檢查的一個重要配置。
-
-```sql
-UPDATE global_variables
-SET variable_value='1'
-WHERE variable_name='mysql-monitor_username';
-UPDATE global_variables
-SET variable_value='1'
-WHERE variable_name='mysql-monitor_password';
-```
-
-`重新載入設定`
-
-```sql
-LOAD MYSQL VARIABLES TO RUNTIME;
-SAVE MYSQL VARIABLES TO DISK;
-```
-
 `配置健康檢查間隔`
 
+腳本設置 這裡使用 gr_sw_mode_checker.sh
+
+active : 1: 表示使活性發揮作用
+interval_ms : 每隔多久執行一次腳本 (eg: 5000(ms) = 5s 表示每隔 5s 腳本被呼叫一次)
+filename : 指定腳本的具體路徑，如上面的/var/lib/proxysql/checker.log
+arg1~arg4 : 指定給予腳本的參數
+
+arg1 -> 指定writehostgroup_id
+arg2 -> 指定readhostgroup_id
+arg3 -> 寫入節點是否可以用於讀取, 1(YES, 預設值), 0(NO)
+arg4 -> 日誌文件，預設：'./checker.log'
+
 ```sql
-UPDATE scheduler SET interval_ms=10000 WHERE id=1;
+INSERT INTO scheduler(active,interval_ms,filename,arg1,arg2,arg3,arg4)
+VALUES(1,5000,'/var/lib/proxysql/gr_sw_mode_checker.sh',1,2,1,'/var/lib/proxysql/gr_sw_mode_checker.log');
 ```
 
 `重新載入設定`
@@ -852,6 +840,14 @@ LOAD SCHEDULER TO RUNTIME;
 SAVE SCHEDULER TO DISK;
 ```
 
+`檢視 scheduler`
+
+```sql
+SELECT * FROM scheduler;
+```
+
+### 修改伺服器的狀態
+
 `設定故障切換`
 
 SET status='OFFLINE_SOFT':
@@ -859,6 +855,8 @@ SET status='OFFLINE_SOFT':
 status 欄位表示 伺服器的狀態，OFFLINE_SOFT 表示軟關機，即將伺服器標記為離線，但允許現有連接繼續使用。
 
 WHERE hostname='master_host': 這是一個條件語句，表示只將符合指定主機名為 'master_host' 的伺服器應用此更新。只有符合條件的記錄才會被更新。
+
+將伺服器標記為 "OFFLINE_SOFT" 可能是為了暫時停用它，而不是直接停止 MySQL 服務。
 
 ```sql
 UPDATE mysql_servers
