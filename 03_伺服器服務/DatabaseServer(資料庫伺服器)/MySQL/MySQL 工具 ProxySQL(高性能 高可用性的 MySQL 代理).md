@@ -44,13 +44,14 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [心得相關](#心得相關)
     - [percona 相關](#percona-相關)
     - [例外狀況相關](#例外狀況相關)
-    - [SQL 語句 (轉址)](#sql-語句-轉址)
+    - [SQL 語句 (轉址)`                              `](#sql-語句-轉址------------------------------)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
   - [Docker 部署](#docker-部署)
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
+    - [Cluster叢集配置：(讓所有proxysql同步)](#cluster叢集配置讓所有proxysql同步)
 - [指令](#指令)
   - [進行基本設定](#進行基本設定)
   - [服務操作](#服務操作)
@@ -61,12 +62,17 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [設定路由規則](#設定路由規則)
     - [應用配置](#應用配置)
     - [設定](#設定)
+    - [ProxySQL Cluster 相關](#proxysql-cluster-相關)
+    - [觀察群集狀況 （所有 ProxySQL 節點上都可以查看）](#觀察群集狀況-所有-proxysql-節點上都可以查看)
   - [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
   - [高可用步驟](#高可用步驟)
     - [群組](#群組)
+    - [添加 mysql](#添加-mysql)
     - [路由](#路由)
     - [監控 (高可用)](#監控-高可用)
     - [修改伺服器的狀態](#修改伺服器的狀態)
+  - [常用查詢](#常用查詢)
+    - [查看監控](#查看監控)
 - [例外狀況](#例外狀況)
   - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 - [高可用 說明](#高可用-說明)
@@ -119,8 +125,6 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 
 [ProxySQL+Mysql实现数据库读写分离实战](https://segmentfault.com/a/1190000022074101)
 
-[骏马金龙](https://www.cnblogs.com/f-ck-need-u/p/9300829.html#1%E5%85%B3%E4%BA%8Eproxysql%E8%B7%AF%E7%94%B1%E7%9A%84%E7%AE%80%E8%BF%B0)
-
 [MySQL中间件：ProxySQL](https://www.cnblogs.com/f-ck-need-u/p/7586194.html#middleware)
 
 [MySQL/MariaDB系列文章目录](https://www.cnblogs.com/f-ck-need-u/p/7586194.html#middleware)
@@ -141,9 +145,11 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 
 [Ubuntu 18.04 - Fresh ProxySQL install - no mysqld.sock port found](https://github.com/sysown/proxysql/issues/2135)
 
-### SQL 語句 (轉址)
+### SQL 語句 (轉址)`                                `
 
-[基于SQL语句路由](https://www.cnblogs.com/f-ck-need-u/p/9300829.html#6%E5%9F%BA%E4%BA%8Esql%E8%AF%AD%E5%8F%A5%E8%B7%AF%E7%94%B1)
+[骏马金龙](https://www.cnblogs.com/f-ck-need-u/p/9300829.html#1%E5%85%B3%E4%BA%8Eproxysql%E8%B7%AF%E7%94%B1%E7%9A%84%E7%AE%80%E8%BF%B0)
+
+[骏马金龙 - 基于SQL语句路由](https://www.cnblogs.com/f-ck-need-u/p/9300829.html#6%E5%9F%BA%E4%BA%8Esql%E8%AF%AD%E5%8F%A5%E8%B7%AF%E7%94%B1)
 
 # 安裝
 
@@ -382,6 +388,56 @@ mysql_users =
 )
 ```
 
+### Cluster叢集配置：(讓所有proxysql同步)
+
+```ini
+admin_variables=
+{
+        admin_credentials="admin:admin;cluster_kevin:123456"
+#       mysql_ifaces="127.0.0.1:6032;/tmp/proxysql_admin.sock"
+        mysql_ifaces="0.0.0.0:6032"
+#       refresh_interval=2000
+#       debug=true
+        cluster_username="cluster_kevin"
+        cluster_password="123456"
+        cluster_check_interval_ms=200
+        cluster_check_status_frequency=100
+        cluster_mysql_query_rules_save_to_disk=true
+
+        cluster_mysql_servers_save_to_disk=true
+        cluster_mysql_users_save_to_disk=true
+
+        cluster_proxysql_servers_save_to_disk=true
+
+        cluster_mysql_query_rules_diffs_before_sync=3
+        cluster_mysql_servers_diffs_before_sync=3
+        cluster_mysql_users_diffs_before_sync=3
+        cluster_proxysql_servers_diffs_before_sync=3
+}
+
+proxysql_servers =
+(
+        {
+                hostname="192.168.6.121"
+                port=6032
+                weight=1
+                comment="ProxySQL-node1"
+        },
+        {
+                hostname="192.168.6.122"
+                port=6032
+                weight=1
+                comment="ProxySQL-node2"
+        },
+        {
+                hostname="192.168.6.123"
+                port=6032
+                weight=1
+                comment="ProxySQL-node3"
+        }
+)
+```
+
 # 指令
 
 `使用 MySQL 客戶端連接到 ProxySQL`
@@ -465,7 +521,6 @@ ProxySQL 的 MySQL 連接端口（通常是 6033）
 mysql -u your_username -pyour_password -h 127.0.0.1 -P 6033 --prompt='MySQL> '
 ```
 
-
 ## ProxySQL 操作
 
 ### 使用者
@@ -534,11 +589,20 @@ SELECT * FROM mysql_servers;
 
 `設定路由`
 
+match_digest：
+
+通常是大小寫不敏感的。
+Digest 是對查詢內容的散列值，一個字母的大小寫變化通常不會影響 digest 的值。
+
+match_pattern：
+
+大小寫敏感性取決於正則表達式的具體實現。
+在一些正則表達式引擎中，可以通過添加標誌（如 i）來使匹配變為大小寫不敏感，但在 ProxySQL 中具體實現可能有所不同。
+
 ```sql
 -- 將 SELECT 查詢導向到 slave 群組
 INSERT INTO mysql_query_rules (rule_id, active, match_digest, destination_hostgroup)
 VALUES (1, 1, '^SELECT.*', 2);
-
 -- 將所有其他查詢導向到 master 群組
 INSERT INTO mysql_query_rules (rule_id, active, destination_hostgroup)
 VALUES (2, 1, 1);
@@ -614,6 +678,28 @@ LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
 ```
 
+### ProxySQL Cluster 相關
+
+### 觀察群集狀況 （所有 ProxySQL 節點上都可以查看）
+
+```sql
+SELECT * FROM proxysql_servers;
+```
+
+```sql
+SELECT * FROM stats_proxysql_servers_metrics;
+```
+
+```sql
+SELECT hostname,port,comment,Uptime_s,last_check_ms
+FROM stats_proxysql_servers_metrics;
+```
+
+```sql
+SELECT hostname,name,checksum,updated_at
+FROM stats_proxysql_servers_checksums;
+```
+
 ## 基本步驟 - 透過 ProxySQL 連線 MySQL
 
 `MySQL 新增使用者`
@@ -638,23 +724,7 @@ SAVE MYSQL USERS TO DISK;
 `使用 ProxySQL 管理用戶登入到 ProxySQL 控制台`
 
 ```bash
-mysql -u admin -p -h 127.0.0.1 -P 6032
-```
-
-`設定 MySQL 主從伺服器`
-
-```sql
-INSERT INTO mysql_servers (hostgroup_id, hostname, port)
-VALUES (1, 'master', 3306);
-INSERT INTO mysql_servers (hostgroup_id, hostname, port)
-VALUES (2, 'slave1', 3306);
-```
-
-`重新載入設定`
-
-```sql
-LOAD MYSQL SERVERS TO RUNTIME;
-SAVE MYSQL SERVERS TO DISK;
+mysql -u admin -p -h 127.0.0.1 -P 6032 --prompt='ProxySQLAdmin> '
 ```
 
 `設定 ProxySQL 監聽端口`
@@ -716,8 +786,32 @@ VALUES (1, 2);
 `重新載入設定`
 
 ```sql
-LOAD MYSQL HOSTGROUPS TO RUNTIME;
-SAVE MYSQL HOSTGROUPS TO DISK;
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+```
+
+`查看 MySQL 主從`
+
+```sql
+SELECT * FROM mysql_replication_hostgroups;
+```
+
+### 添加 mysql
+
+`設定 MySQL 主從伺服器`
+
+```sql
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (1, 'master', 3306);
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (2, 'slave1', 3306);
+```
+
+`重新載入設定`
+
+```sql
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
 ```
 
 ### 路由
@@ -729,6 +823,10 @@ INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostg
 VALUES (1, 1, '^SELECT.*FOR UPDATE$', 1, 1);
 INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
 VALUES (2, 1, '^SELECT', 2, 1);
+INSERT INTO mysql_query_rules(rule_id,active,match_pattern,destination_hostgroup,apply)
+VALUES (3, 1,'^select.*for update$', 1, 1);
+INSERT INTO mysql_query_rules(rule_id,active,match_pattern,destination_hostgroup,apply)
+VALUES (4, 1,'^select', 2, 1);
 ```
 
 `重新載入設定`
@@ -736,6 +834,17 @@ VALUES (2, 1, '^SELECT', 2, 1);
 ```sql
 LOAD MYSQL QUERY RULES TO RUNTIME;
 SAVE MYSQL QUERY RULES TO DISK;
+```
+
+`查看路由`
+
+```sql
+SELECT * FROM mysql_query_rules;
+```
+
+```sql
+SELECT rule_id,active,match_pattern,destination_hostgroup,apply
+FROM mysql_query_rules;
 ```
 
 ### 監控 (高可用)
@@ -792,11 +901,19 @@ WHERE variable_name IN('mysql-monitor_username','mysql-monitor_password');
 SELECT * FROM monitor.mysql_server_ping_log
 ORDER BY time_start_us
 DESC LIMIT 6;
+```
+
+```sql
 SELECT * FROM monitor.mysql_server_connect_log
 ORDER BY time_start_us
 DESC LIMIT 6;
 ```
 
+`查看read_only的日誌監控`
+
+```sql
+SELECT * FROM mysql_server_read_only_log LIMIT 10;
+```
 
 `設定 MySQL 伺服器健康檢查的間隔`
 
@@ -830,7 +947,7 @@ arg4 -> 日誌文件，預設：'./checker.log'
 
 ```sql
 INSERT INTO scheduler(active,interval_ms,filename,arg1,arg2,arg3,arg4)
-VALUES(1,5000,'/var/lib/proxysql/gr_sw_mode_checker.sh',1,2,1,'/var/lib/proxysql/gr_sw_mode_checker.log');
+VALUES(1,5000,'/script/proxysql/gr_sw_mode_checker.sh',1,2,1,'/logs/proxysql/gr_sw_mode_checker.log');
 ```
 
 `重新載入設定`
@@ -869,6 +986,93 @@ WHERE hostname='master';
 ```sql
 LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
+```
+
+## 常用查詢
+
+`查看 ProxySQL 分組`
+
+```sql
+SELECT * FROM mysql_replication_hostgroups;
+```
+
+`查看 設定的 mysql servers`
+
+```sql
+SELECT * FROM mysql_servers;
+```
+
+`查看 設定的 mysql users`
+
+```sql
+SELECT * FROM mysql_users;
+```
+
+`統計各種SQL類型的執行次數與時間`
+
+```sql
+SELECT * FROM stats_mysql_commands_counters;
+```
+
+`查看連接後端MySQL的連接池信息`
+
+```sql
+SELECT * FROM stats_mysql_connection_pool;
+```
+
+`查看路由規則表`
+
+```sql
+SELECT rule_id,active,match_pattern,destination_hostgroup,apply
+FROM mysql_query_rules;
+```
+
+`與MySQL相關的代理程式級別的全域統計`
+
+```sql
+SELECT * FROM stats_mysql_global;
+```
+
+`統計路由命中次數`
+
+```sql
+SELECT * FROM stats_mysql_processlist;
+```
+
+`儲存monitor模組收集的信息，主要是對後端db的健康/延遲檢查`
+
+`查看monitor資料庫中的表`
+
+```sql
+SHOW tables FROM monitor;
+```
+
+`查看請求路由資訊`
+
+```sql
+SELECT hostgroup,schemaname,username,digest_text,count_star FROM stats_mysql_query_digest;
+```
+
+### 查看監控
+
+`檢查連接到MySQL的日誌`
+
+```sql
+SELECT * FROM monitor.mysql_server_ping_log
+ORDER BY time_start_us
+DESC LIMIT 6;
+```
+
+```sql
+SELECT * FROM monitor.mysql_server_connect_log
+ORDER BY time_start_us
+DESC LIMIT 6;
+```
+
+`查看read_only的日誌監控`
+
+```sql
+SELECT * FROM mysql_server_read_only_log LIMIT 10;
 ```
 
 # 例外狀況
