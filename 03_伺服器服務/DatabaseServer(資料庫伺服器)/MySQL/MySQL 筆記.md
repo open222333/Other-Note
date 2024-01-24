@@ -40,9 +40,10 @@ RDBMS
     - [匯出 - mysqldump](#匯出---mysqldump)
     - [匯入](#匯入)
   - [測試用](#測試用)
-    - [引入延遲（睡眠）](#引入延遲睡眠)
-    - [確保在某個事務中選定的行在該事務完成之前不會被其他事務修改](#確保在某個事務中選定的行在該事務完成之前不會被其他事務修改)
-    - [START TRANSACTION;](#start-transaction)
+    - [模擬長時間連線](#模擬長時間連線)
+      - [引入延遲（睡眠）](#引入延遲睡眠)
+      - [確保在某個事務中選定的行在該事務完成之前不會被其他事務修改](#確保在某個事務中選定的行在該事務完成之前不會被其他事務修改)
+      - [START TRANSACTION;](#start-transaction)
 - [重大備份](#重大備份)
 - [例外狀況](#例外狀況)
   - [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
@@ -946,18 +947,26 @@ mysql -h(ip) -uroot -p(password) databasename< database.sql
 
 ## 測試用
 
-### 引入延遲（睡眠）
+### 模擬長時間連線
 
 ```sql
-SELECT SLEEP(n)
+START TRANSACTION;
+SELECT * FROM database.table WHERE id = 1 FOR UPDATE;
+SELECT SLEEP(100);
+```
+
+#### 引入延遲（睡眠）
+
+```sql
+SELECT SLEEP(n);
 ```
 
 ```sql
 -- 導致 MySQL 休眠 100 秒
-SELECT SLEEP(100)
+SELECT SLEEP(100);
 ```
 
-### 確保在某個事務中選定的行在該事務完成之前不會被其他事務修改
+#### 確保在某個事務中選定的行在該事務完成之前不會被其他事務修改
 
 這個SQL 查詢語句是一個帶有FOR UPDATE子句的SELECT查詢，用於在交易中鎖定選定的行，以防止其他交易對這些行進行修改。
 這是一種控制並發存取的方法，通常用於確保在某個事務中選定的行在該事務完成之前不會被其他事務修改。
@@ -972,7 +981,7 @@ SELECT SLEEP(100)
 SELECT * FROM database.table WHERE id = 1 FOR UPDATE;
 ```
 
-### START TRANSACTION;
+#### START TRANSACTION;
 
 "start transaction" 這個片語通常出現在資料庫管理系統（DBMS）和交易控制語言的上下文中。在資料庫的背景中，一個交易是一系列包含一個或多個 SQL 陳述式的工作單位。交易的目的是確保資料的一致性和完整性。
 

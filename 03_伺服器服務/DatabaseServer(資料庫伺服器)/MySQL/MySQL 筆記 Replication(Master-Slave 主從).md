@@ -1,6 +1,7 @@
 # MySQL 筆記 Replication(Master-Slave 主從)
 
 ```
+MySQL Replication
 
 主從複製是一種常見的資料庫架構，通常用於提升系統效能、資料備份和故障恢復。在MySQL中，主從複製由一個主伺服器（Master）和一個或多個從伺服器（Slave）組成。
 
@@ -33,9 +34,52 @@
 在MySQL中，可以通過修改配置檔或使用SQL命令來配置主從複製。具體的配置步驟可能略有不同，取決於MySQL版本和特定的需求。主從複製是一個強大的工具，但在使用之前應該仔細考慮資料一致性、延遲和故障恢復等因素。
 ```
 
+```
+MySQL Group Replication(MGR)
+
+在 MySQL Group Replication 中，如果只有兩個節點，且主節點掛掉，從節點不會自動升級為主節點。
+MySQL Group Replication 的高可用性和故障轉移機制通常需要至少三個節點來實現。
+在一個三節點的 Group Replication 部署中，當主節點失效時，剩餘的兩個節點可以透過投票選舉新的主節點。
+這是因為需要超過半數的節點的投票來決定新主節點。
+當只有兩個節點時，沒有足夠的節點來進行投票，因此無法自動進行故障轉移。
+如果只有兩個節點，建議考慮新增第三個節點以實現 Group Replication 的正常運作。
+三節點的配置不僅提供了更好的高可用性，而且更容易進行故障轉移。
+請注意，Group Replication 還需要確保網路的可靠性，以防止因網路分區而導致的問題。
+在任何資料庫高可用性部署中，建議使用奇數節點，以確保在故障轉移時能夠得到正確的投票結果。
+```
+
+# MySQL Replication 和 MySQL Group Replication
+
+## MySQL Replication
+
+主從模型： MySQL Replication 是一種主從模型的複製，其中有一個主資料庫（Master）和一個或多個從資料庫（Slave）。
+
+複製方式：資料從主庫非同步傳輸到從庫，主庫將變更記錄（binlog）傳送到從庫，從庫將這些變更套用至自己的資料集。
+
+讀寫分離：可以透過配置讀寫分離，即主庫處理寫入操作，而從庫用於讀取操作，提高了讀取效能。
+
+設定簡單：相對而言，MySQL Replication 的設定相對簡單，特別是在小規模的環境中。
+
+## MySQL Group Replication
+
+多主複製： MySQL Group Replication 是基於群組的複製，允許多個節點同時寫入。每個節點都可以接收寫入操作，然後這些寫入操作會在整個群組中同步。
+
+一致性： MySQL Group Replication 強調資料的一致性，確保所有節點在任何給定時間點都具有相同的資料集。
+
+自動故障轉移：具有自動故障轉移功能，當群組中的主節點發生故障時，會自動選舉新的主節點。
+
+交易一致性：保證交易一致性，如果交易在一個節點上提交，則它將在群組中的所有節點上提交。
+
+分散式資料庫： Group Replication 適用於建置分散式資料庫系統，確保高可用性和容錯性。
+
+總的來說，MySQL Replication 主要用於主從複製，用於讀寫分離和備份，而MySQL Group Replication 更適合建構分散式資料庫系統，具有多主複製、自動故障轉移和一致性等特性。
+
 ## 目錄
 
 - [MySQL 筆記 Replication(Master-Slave 主從)](#mysql-筆記-replicationmaster-slave-主從)
+- [MySQL Replication 和 MySQL Group Replication](#mysql-replication-和-mysql-group-replication)
+  - [MySQL Replication](#mysql-replication)
+  - [MySQL Group Replication](#mysql-group-replication)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [Master-Slave(主從環境)相關](#master-slave主從環境相關)

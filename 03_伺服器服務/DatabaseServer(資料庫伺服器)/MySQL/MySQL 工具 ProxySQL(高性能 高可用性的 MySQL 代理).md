@@ -64,8 +64,17 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [設定](#設定)
     - [ProxySQL Cluster 相關](#proxysql-cluster-相關)
     - [觀察群集狀況 （所有 ProxySQL 節點上都可以查看）](#觀察群集狀況-所有-proxysql-節點上都可以查看)
+  - [設定 ProxySQL 監聽端口](#設定-proxysql-監聽端口)
   - [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
-  - [高可用步驟](#高可用步驟)
+  - [高可用步驟 (MySQL Replication)](#高可用步驟-mysql-replication)
+    - [MySQL 配置所需帳戶](#mysql-配置所需帳戶)
+    - [ProxySQL 設定對外存取帳號](#proxysql-設定對外存取帳號)
+    - [ProxySQL 建立群組](#proxysql-建立群組)
+    - [ProxySQL 新增主從伺服器節點](#proxysql-新增主從伺服器節點)
+    - [ProxySQL 設置監控 MySQL 後端節點](#proxysql-設置監控-mysql-後端節點)
+    - [設定讀寫分離策略：路由規則](#設定讀寫分離策略路由規則)
+    - [測試讀寫分離](#測試讀寫分離)
+  - [高可用步驟 (MySQL Group Replication)](#高可用步驟-mysql-group-replication)
     - [群組](#群組)
     - [添加 mysql](#添加-mysql)
     - [路由](#路由)
@@ -73,6 +82,11 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [修改伺服器的狀態](#修改伺服器的狀態)
   - [常用查詢](#常用查詢)
     - [查看監控](#查看監控)
+- [測試意外宕機，故障轉移 (MGR)](#測試意外宕機故障轉移-mgr)
+  - [恢復](#恢復)
+    - [保持資料完整](#保持資料完整)
+    - [啟動組](#啟動組)
+    - [查看 各表格是否自動恢復](#查看-各表格是否自動恢復)
 - [例外狀況](#例外狀況)
   - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 - [高可用 說明](#高可用-說明)
@@ -129,11 +143,13 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 
 [MySQL/MariaDB系列文章目录](https://www.cnblogs.com/f-ck-need-u/p/7586194.html#middleware)
 
-[ProxySQL配置与高可用](https://www.yoyoask.com/?p=3560)
+[ProxySQL配置与高可用(MySQL Group Replication)](https://www.yoyoask.com/?p=3560)
 
 [CentOS 7.6配置MySQL 5.7 MGR单主高可用+ProxySQL实现读写分离和故障转移](https://blog.51cto.com/qiuyue/2413300?source=drh)
 
 [MySQL高可用架构MHA+ProxySQL实现读写分离和负载均衡](https://bbs.huaweicloud.com/blogs/344705)
+
+[重要参考步骤---ProxySQL实现读写分离(MySQL Replication)](https://www.cnblogs.com/hahaha111122222/p/16295607.html)
 
 ### percona 相關
 
@@ -440,6 +456,12 @@ proxysql_servers =
 
 # 指令
 
+`查看 ProxySQL 的版本`
+
+```bash
+proxysql --version
+```
+
 `使用 MySQL 客戶端連接到 ProxySQL`
 
 ```bash
@@ -700,6 +722,27 @@ SELECT hostname,name,checksum,updated_at
 FROM stats_proxysql_servers_checksums;
 ```
 
+## 設定 ProxySQL 監聽端口
+
+`設定 ProxySQL 監聽端口`
+
+```sql
+UPDATE global_variables
+SET variable_value='0.0.0.0'
+WHERE variable_name='mysql-interfaces';
+UPDATE global_variables
+SET variable_value='6033'
+WHERE variable_name='mysql-port';
+```
+
+`重新載入設定`
+
+```sql
+LOAD MYSQL VARIABLES TO RUNTIME;
+SAVE MYSQL VARIABLES TO DISK;
+```
+
+
 ## 基本步驟 - 透過 ProxySQL 連線 MySQL
 
 `MySQL 新增使用者`
@@ -719,30 +762,114 @@ LOAD MYSQL USERS TO RUNTIME;
 SAVE MYSQL USERS TO DISK;
 ```
 
-## 高可用步驟
+## 高可用步驟 (MySQL Replication)
+
+### MySQL 配置所需帳戶
+
+`mysql 建立 proxysql 所需 監控帳戶(monitor) 對外存取帳戶(proxysql)`
+
+```sql
+CREATE USER 'monitor'@'%' IDENTIFIED BY 'monitorpassword';
+GRANT ALL PRIVILEGES ON *.* TO 'monitor'@'%';
+CREATE USER 'proxysql'@'%' IDENTIFIED BY 'proxysqlpassword';
+GRANT ALL PRIVILEGES ON *.* TO 'proxysql'@'%';
+FLUSH PRIVILEGES;
+```
+
+### ProxySQL 設定對外存取帳號
+
+```sql
+INSERT INTO mysql_users (username, password, active, default_hostgroup)
+VALUES ('proxysql', 'proxysqlpassword', 1, 1);
+LOAD MYSQL USERS TO RUNTIME;
+SAVE MYSQL USERS TO DISK;
+```
+
+### ProxySQL 建立群組
+
+```sql
+INSERT INTO mysql_replication_hostgroups (writer_hostgroup, reader_hostgroup, comment)
+VALUES (1, 2, 'proxy');
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+```
+
+### ProxySQL 新增主從伺服器節點
+
+```sql
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (1, 'master', 3306);
+INSERT INTO mysql_servers (hostgroup_id, hostname, port)
+VALUES (2, 'slave1', 3306);
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+```
+
+### ProxySQL 設置監控 MySQL 後端節點
+
+```sql
+SET mysql-monitor_username='monitor';
+SET mysql-monitor_password='monitorpassword';
+LOAD MYSQL VARIABLES TO RUNTIME;
+SAVE MYSQL VARIABLES TO DISK;
+```
+
+`修改變數的方式`
+
+```sql
+UPDATE global_variables SET variable_value='monitor'
+WHERE variable_name='mysql-monitor_username';
+UPDATE global_variables SET variable_value='monitorpassword'
+WHERE variable_name='mysql-monitor_password';
+LOAD MYSQL VARIABLES TO RUNTIME;
+SAVE MYSQL VARIABLES TO DISK;
+```
+
+### 設定讀寫分離策略：路由規則
+
+把所有以select 開頭的語句全部分配到讀組中，讀組編號是 2
+
+把^SELECT.*FOR UPDATE$語句，這是一個特殊的select語句，會產生一個寫鎖(排他鎖)，把他分到編號為 1 的寫組中，其他所有操作都會預設路由到寫組中
+
+^SELECT.*FOR UPDATE$ 規則的rule_id必須要小於普通的select規則的rule_id，因為ProxySQL是根據rule_id的順序進行規則比對的。
+
+```sql
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (1, 1, '^SELECT.*FOR UPDATE$', 1, 1);
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (2, 1, '^SELECT', 2, 1);
+INSERT INTO mysql_query_rules(rule_id,active,match_pattern,destination_hostgroup,apply)
+VALUES (3, 1, '^select.*for update$', 1, 1);
+INSERT INTO mysql_query_rules(rule_id,active,match_pattern,destination_hostgroup,apply)
+VALUES (4, 1, '^select', 2, 1);
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
+### 測試讀寫分離
+
+`測試讀取操作`
+
+```bash
+mysql -uproxysql -p -h127.0.0.1 -P6033 -e 'select @@server_id'
+```
+
+`測試寫入操作，以事務持久化進行測試`
+
+```bash
+mysql -uproxysql -p -h127.0.0.1 -P6033  -e '\
+    start transaction;\
+    select @@server_id;\
+    commit;\
+    select @@server_id;'
+```
+
+## 高可用步驟 (MySQL Group Replication)
 
 `使用 ProxySQL 管理用戶登入到 ProxySQL 控制台`
 
 ```bash
 mysql -u admin -p -h 127.0.0.1 -P 6032 --prompt='ProxySQLAdmin> '
-```
-
-`設定 ProxySQL 監聽端口`
-
-```sql
-UPDATE global_variables
-SET variable_value='0.0.0.0'
-WHERE variable_name='mysql-interfaces';
-UPDATE global_variables
-SET variable_value='6033'
-WHERE variable_name='mysql-port';
-```
-
-`重新載入設定`
-
-```sql
-LOAD MYSQL VARIABLES TO RUNTIME;
-SAVE MYSQL VARIABLES TO DISK;
 ```
 
 ### 群組
@@ -912,7 +1039,8 @@ DESC LIMIT 6;
 `查看read_only的日誌監控`
 
 ```sql
-SELECT * FROM mysql_server_read_only_log LIMIT 10;
+SELECT * FROM mysql_server_read_only_log
+LIMIT 10;
 ```
 
 `設定 MySQL 伺服器健康檢查的間隔`
@@ -949,6 +1077,19 @@ arg4 -> 日誌文件，預設：'./checker.log'
 INSERT INTO scheduler(active,interval_ms,filename,arg1,arg2,arg3,arg4)
 VALUES(1,5000,'/script/proxysql/gr_sw_mode_checker.sh',1,2,1,'/logs/proxysql/gr_sw_mode_checker.log');
 ```
+
+```sql
+UPDATE scheduler
+SET active = 1,
+    interval_ms = 5000,
+    filename = '/script/proxysql/gr_sw_mode_checker.sh',
+    arg1 = 1,
+    arg2 = 2,
+    arg3 = 1,
+    arg4 = '/logs/proxysql/gr_sw_mode_checker.log'
+WHERE id = 1;
+```
+
 
 `重新載入設定`
 
@@ -1073,6 +1214,123 @@ DESC LIMIT 6;
 
 ```sql
 SELECT * FROM mysql_server_read_only_log LIMIT 10;
+```
+
+# 測試意外宕機，故障轉移 (MGR)
+
+`在 mysql 中查看目前group群組情況`
+
+```sql
+SELECT
+    MEMBER_ID,
+    MEMBER_HOST,
+    MEMBER_PORT,
+    MEMBER_STATE,
+    IF(global_status.VARIABLE_NAME IS NOT NULL,
+        'PRIMARY',
+        'SECONDARY') AS MEMBER_ROLE
+FROM
+    performance_schema.replication_group_members
+        LEFT JOIN
+    performance_schema.global_status ON global_status.VARIABLE_NAME = 'group_replication_primary_member'
+        AND global_status.VARIABLE_VALUE = replication_group_members.MEMBER_ID;
+```
+
+`查看 sql 請求路由訊息`
+
+```sql
+SELECT hostgroup,schemaname,username,digest_text,count_star
+FROM stats_mysql_query_digest;
+```
+
+## 恢復
+
+### 保持資料完整
+
+如果其他節點不斷有資料寫入
+
+因為之前宕機的是主(Master)
+
+再重新加入群組要以 slave 的身份
+
+reset master 以 slave 身份仍然不能正常加入
+
+匯出一份完整數據(帶gtid的) 匯入當機的 mysql 後 直接啟動組
+
+```bash
+mysqldump -uroot -p --all-databases --triggers --routines --events --skip-lock-tables > all.sql
+```
+
+### 啟動組
+
+注意這個允許本地不想交的指令必須執行
+
+否則proxysql之前的查詢主從節點健康的視圖你會無法使用
+
+自然proxysql就無法辨識已經恢復正常
+
+```sql
+-- 群組複製允許本地不相交
+SET global group_replication_allow_local_disjoint_gtids_join=ON;
+SET SESSION binlog_format = 'ROW';
+SET GLOBAL binlog_format = 'ROW';
+START GROUP_REPLICATION;
+```
+
+`查看 MGR 組狀態`
+
+```sql
+SELECT
+    MEMBER_ID,
+    MEMBER_HOST,
+    MEMBER_PORT,
+    MEMBER_STATE,
+    IF(global_status.VARIABLE_NAME IS NOT NULL,
+        'PRIMARY',
+        'SECONDARY') AS MEMBER_ROLE
+FROM
+    performance_schema.replication_group_members
+        LEFT JOIN
+    performance_schema.global_status ON global_status.VARIABLE_NAME = 'group_replication_primary_member'
+        AND global_status.VARIABLE_VALUE = replication_group_members.MEMBER_ID;
+```
+
+### 查看 各表格是否自動恢復
+
+`sys.gr_member_routing_candidate_status` 表是MySQL Group Replication 中的一個系統表，用於提供有關Group Replication 成員（節點）的資訊。
+
+以下是對該資料表的查詢以及欄位的說明：
+
+```sql
+SELECT * FROM sys.gr_member_routing_candidate_status;
+```
+
+此查詢傳回有關Group Replication 成員的目前狀態和路由候選狀態的資訊。
+
+`sys.gr_member_routing_candidate_status` 表的主要欄位說明：
+
+- **MEMBER_ID：** Group Replication 成員的識別碼。
+
+- **MEMBER_HOST：** 成員的主機名稱或IP 位址。
+
+- **MEMBER_PORT：** 成員的連接埠號碼。
+
+- **MEMBER_STATE：** 成員的目前狀態，例如'ONLINE' 表示在線。
+
+- **MEMBER_ROLE：** 成員的角色，例如'PRIMARY' 表示主節點。
+
+- **ROUTING_SUPPORT：** 成員是否支援路由功能，如果支持，值為'YES'。
+
+- **ROUTING_CANDIDATE_STATUS：** 成員在路由中的候選狀態，例如'ACTIVE' 表示是活躍的候選者。
+
+這個表的查詢結果將顯示Group Replication 成員的詳細信息，包括其當前狀態和是否支援路由功能。
+候選狀態可以用於了解成員是否可以用作路由目標。
+請注意，使用這個表的查詢需要確保使用者俱有執行相關查詢的權限，而MySQL 版本必須支援`sys` schema 和Group Replication。
+
+`查看 proxysql 節點是否恢復`
+
+```sql
+SELECT * FROM mysql_servers;
 ```
 
 # 例外狀況
