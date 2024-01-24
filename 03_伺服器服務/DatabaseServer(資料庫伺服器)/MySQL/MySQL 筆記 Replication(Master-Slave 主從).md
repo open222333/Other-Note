@@ -36,19 +36,20 @@
 ## 目錄
 
 - [MySQL 筆記 Replication(Master-Slave 主從)](#mysql-筆記-replicationmaster-slave-主從)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [Master-Slave(主從環境)相關](#master-slave主從環境相關)
-		- [keepalived(實現高可用性的工具) 相關](#keepalived實現高可用性的工具-相關)
-		- [錯誤處理相關](#錯誤處理相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [Master-Slave(主從環境)相關](#master-slave主從環境相關)
+    - [keepalived(實現高可用性的工具) 相關](#keepalived實現高可用性的工具-相關)
+    - [錯誤處理相關](#錯誤處理相關)
 - [指令](#指令)
-	- [基本用法](#基本用法)
-	- [keepalived (實作高可用)](#keepalived-實作高可用)
+  - [基本用法](#基本用法)
+  - [keepalived (實作高可用)](#keepalived-實作高可用)
 - [例外狀況](#例外狀況)
-	- [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
-	- [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
-	- [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
-		- [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
+  - [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
+  - [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
+  - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
+    - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
+    - [Last\_Errno: 1594](#last_errno-1594)
 
 ## 參考資料
 
@@ -103,6 +104,10 @@
 [MySQL Replication 遇到 Got fatal error 1236 from master 修復](https://blog.longwin.com.tw/2013/09/mysql-replication-error-1236-fix-2013/)
 
 [MySQL主从复制，启动slave时报错1872 Slave failed to initialize relay log info structure from the repository](https://blog.51cto.com/u_15127597/4309432)
+
+[MySQL replication error 1594](https://dba.stackexchange.com/questions/69394/mysql-replication-error-1594)
+
+[MySQL 主从失败报错：Last_SQL_Errno: 1594](https://www.cnblogs.com/cyleon/p/10679341.html)
 
 # 指令
 
@@ -446,3 +451,58 @@ dba.rebootClusterFromCompleteOutage()
 ```sql
 -- https://stackoverflow.com/questions/730579/1114-hy000-the-table-is-full
 ```
+
+### Last_Errno: 1594
+
+Last_Error: Relay log read failure: Could not parse relay log event entry. The possible reasons are: the master's binary log is corrupted (you can check this by running 'mysqlbinlog' on the binary log), the slave's relay log is corrupted (you can check this by running 'mysqlbinlog' on the relay log), a network problem, or a bug in the master's or slave's MySQL code. If you want to check the master's binary log or slave's relay log, you will be able to know their names by issuing 'SHOW SLAVE STATUS' on this slave.
+
+```sql
+-- 檢查slave狀態
+show slave status\G
+-- Check Relay_Master_Log_File and Exec_Master_Log_Pos
+-- Relay_Master_Log_File: mysql-bin.004772    slave函式庫已讀取的master的binlog
+-- Exec_Master_Log_Pos: 516345810             在slave上已經執行的position位置點
+
+-- 停用slave，以slave已經讀取的binlog文件，和已經執行的position為起點，重新設定同步
+-- 停止slave
+stop slave;
+-- 手動設定master資料 linode部分 ip可以使用內網ip
+change master to
+master_log_file='mysql-bin.004772',
+master_log_pos=516345810;
+-- 執行slave
+start slave;
+-- 檢查slave狀態
+show slave status\G
+```
+
+```
+檢查主庫的二進制日誌:
+使用 SHOW SLAVE STATUS; 在從庫上查看主庫的二進制日誌文件名稱和位置。
+連接到主 MySQL 伺服器，使用 mysqlbinlog 檢查主庫中錯誤訊息中提到的二進制日誌文件，檢查是否存在任何損壞或問題。
+
+檢查從庫的中繼日誌:
+使用 mysqlbinlog 檢查從庫中錯誤訊息中提到的中繼日誌文件，查看是否存在損壞。
+如果中繼日誌損壞，你可以停止從庫 (STOP SLAVE;)，跳過損壞的中繼日誌事件 (SET GLOBAL SQL_SLAVE_SKIP_COUNTER = [損壞事件的數量];)，然後重新啟動從庫 (START SLAVE;)。
+
+檢查網路問題:
+確保主庫和從庫之間的網路連接正常，並且沒有任何網路問題。
+
+檢查 MySQL 版本和修補:
+檢查你使用的 MySQL 版本，確保它是最新的，並且查看是否有任何已知問題。如果有，考慮升級到修復問題的版本。
+
+重新啟動 MySQL 從庫:
+嘗試重新啟動從庫，停止從庫 (STOP SLAVE;)，然後重新啟動 (START SLAVE;)，最後檢查狀態 (SHOW SLAVE STATUS\G)。
+```
+
+```bash
+mysqlbinlog [Master_Log_File] | less
+```
+
+檢查二進制日誌文件：
+在 mysqlbinlog 輸出中查找是否存在任何錯誤消息、損壞或不正確的日誌條目。
+如果有錯誤或損壞，你可能需要使用備份還原該二進制日誌，或者在主庫上進行修復。
+
+根據發現的問題進行修復：
+如果發現二進制日誌損壞，可以嘗試使用主庫上的備份進行還原，或者查找和修復損壞的日誌條目。
+記得在執行任何修復操作之前，確保有充分的數據備份以防萬一。
