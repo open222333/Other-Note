@@ -129,6 +129,8 @@ MySQL Group Replication 的高可用性和故障轉移機制通常需要至少�
 
 [mysql系列（一）—— 细说show slave status参数详解（最全）](https://blog.51cto.com/zhengmingjing/1910565)
 
+[MySQL 中常见的几种高可用架构部署方案解析](https://www.jb51.net/article/281852.htm)
+
 ### keepalived(實現高可用性的工具) 相關
 
 [Linux 工具 keepalived(實現高可用性的工具).md](../../../02_作業系統/Unix/Linux/Linux%20工具/Linux%20工具%20keepalived(實現高可用性的工具).md)

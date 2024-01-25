@@ -20,6 +20,7 @@ RDBMS
     - [備份相關](#備份相關)
       - [備份指令相關](#備份指令相關)
       - [解說相關](#解說相關)
+    - [架構相關](#架構相關)
     - [錯誤處理相關](#錯誤處理相關)
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
@@ -122,6 +123,10 @@ RDBMS
 #### 解說相關
 
 [恢复mysql数据结构（.frm）和数据（.ibd）](https://cloud.tencent.com/developer/article/2069047?from=15425&areaSource=102001.3&traceId=tgUxumfIzi91Zj2x4aECD)
+
+### 架構相關
+
+[MySQL 中常见的几种高可用架构部署方案解析](https://www.jb51.net/article/281852.htm)
 
 ### 錯誤處理相關
 

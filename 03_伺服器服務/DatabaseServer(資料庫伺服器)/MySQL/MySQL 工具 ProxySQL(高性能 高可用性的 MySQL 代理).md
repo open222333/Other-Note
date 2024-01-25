@@ -151,6 +151,8 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 
 [重要参考步骤---ProxySQL实现读写分离(MySQL Replication)](https://www.cnblogs.com/hahaha111122222/p/16295607.html)
 
+[（5.20）mysql中的ProxySQL实现读写分离与读负载均衡【转】](https://www.cnblogs.com/gered/p/12856263.html)
+
 ### percona 相關
 
 [ProxySQL、proxysql-admin 和 percona-scheduler-admin 文檔](https://docs.percona.com/proxysql/index.html)
@@ -852,6 +854,10 @@ SAVE MYSQL QUERY RULES TO DISK;
 
 ```bash
 mysql -uproxysql -p -h127.0.0.1 -P6033 -e 'select @@server_id'
+```
+
+```bash
+mysql -uproxysql -p -P6033 -h127.0.0.1 -e "SELECT CONCAT('Hostname: ', @@hostname) AS Hostname;"
 ```
 
 `測試寫入操作，以事務持久化進行測試`
