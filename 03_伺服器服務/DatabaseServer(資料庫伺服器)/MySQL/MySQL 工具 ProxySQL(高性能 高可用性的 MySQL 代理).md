@@ -1862,3 +1862,49 @@ check_mysql_health() {
 # Run the health check function
 check_mysql_health
 ```
+
+```bash
+#!/bin/bash
+
+# ProxySQL 管理員帳號和密碼
+PROXYSQL_ADMIN_USER="admin"
+PROXYSQL_ADMIN_PASSWORD="admin"
+PROXYSQL_ADMIN_HOST="127.0.0.1"
+PROXYSQL_ADMIN_PORT="6032"
+
+# MySQL 伺服器健康檢查函數
+check_mysql_health() {
+    mysql_servers=$(mysql -h $PROXYSQL_ADMIN_HOST -P $PROXYSQL_ADMIN_PORT -u $PROXYSQL_ADMIN_USER -p$PROXYSQL_ADMIN_PASSWORD -N -e "SELECT hostgroup_id,hostname,port,status FROM mysql_servers;")
+
+    while read -r line; do
+        hostgroup_id=$(echo $line | awk '{print $1}')
+        hostname=$(echo $line | awk '{print $2}')
+        port=$(echo $line | awk '{print $3}')
+        status=$(echo $line | awk '{print $4}')
+
+        # 進行健康檢查
+        if [ "$status" -eq 1 ]; then
+            echo "MySQL server $hostname:$port in hostgroup $hostgroup_id is UP."
+        else
+            echo "MySQL server $hostname:$port in hostgroup $hostgroup_id is DOWN."
+            # 執行更換伺服器狀態的操作
+            change_mysql_server_status $hostgroup_id $hostname $port
+        fi
+    done <<< "$mysql_servers"
+}
+
+# 更換 MySQL 伺服器狀態函數
+change_mysql_server_status() {
+    hostgroup_id=$1
+    hostname=$2
+    port=$3
+
+    # 在這裡可以執行更換伺服器狀態的操作，例如使用 ProxySQL 的 UPDATE 指令
+    mysql -h $PROXYSQL_ADMIN_HOST -P $PROXYSQL_ADMIN_PORT -u $PROXYSQL_ADMIN_USER -p$PROXYSQL_ADMIN_PASSWORD -e "UPDATE mysql_servers SET status = 1 WHERE hostgroup_id = $hostgroup_id AND hostname = '$hostname' AND port = $port;"
+
+    echo "Changed MySQL server status for $hostname:$port in hostgroup $hostgroup_id."
+}
+
+# 執行健康檢查
+check_mysql_health
+```
