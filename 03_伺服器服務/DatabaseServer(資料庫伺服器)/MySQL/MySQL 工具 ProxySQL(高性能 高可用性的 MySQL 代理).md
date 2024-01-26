@@ -94,6 +94,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
   - [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
   - [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
   - [proxysql\_groupreplication\_checker.sh](#proxysql_groupreplication_checkersh)
+  - [定期檢查 MySQL 伺服器的健康狀態-](#定期檢查-mysql-伺服器的健康狀態-)
 
 ## 參考資料
 
@@ -481,7 +482,7 @@ mysql -h <proxySQL_host> -P <proxySQL_port> -u <mysql_username> -p
 `連接到 ProxySQL 管理`
 
 ```bash
-mysql -h127.0.0.1 -P6032 -uadmin -p
+mysql -h127.0.0.1 -P6032 -uadmin -p --prompt='ProxyAdmin> '
 ```
 
 `查看 databases`
@@ -542,7 +543,7 @@ ProxySQL 的管理端口（6032）
 ProxySQL 的 MySQL 連接端口（通常是 6033）
 
 ```bash
-mysql -u your_username -pyour_password -h 127.0.0.1 -P 6033 --prompt='MySQL> '
+mysql -uyour_username -pyour_password -h127.0.0.1 -P6033 --prompt='MySQL> '
 ```
 
 ## ProxySQL 操作
@@ -833,7 +834,7 @@ SAVE MYSQL VARIABLES TO DISK;
 
 把^SELECT.*FOR UPDATE$語句，這是一個特殊的select語句，會產生一個寫鎖(排他鎖)，把他分到編號為 1 的寫組中，其他所有操作都會預設路由到寫組中
 
-^SELECT.*FOR UPDATE$ 規則的rule_id必須要小於普通的select規則的rule_id，因為ProxySQL是根據rule_id的順序進行規則比對的。
+^SELECT.*FOR UPDATE$ 規則的rule_id 必須要小於普通的select規則的rule_id，因為ProxySQL是根據rule_id的順序進行規則比對的。
 
 ```sql
 INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
@@ -853,21 +854,31 @@ SAVE MYSQL QUERY RULES TO DISK;
 `測試讀取操作`
 
 ```bash
-mysql -uproxysql -p -h127.0.0.1 -P6033 -e 'select @@server_id'
+mysql -uproxysql -p -h127.0.0.1 -P6033 --prompt='MySQL> ' -e 'select @@server_id'
 ```
 
 ```bash
-mysql -uproxysql -p -P6033 -h127.0.0.1 -e "SELECT CONCAT('Hostname: ', @@hostname) AS Hostname;"
+mysql -uproxysql -p -h127.0.0.1 -P6033 --prompt='MySQL> ' -e "SELECT CONCAT('Hostname: ', @@hostname) AS Hostname;" --prompt='MySQL> '
 ```
 
 `測試寫入操作，以事務持久化進行測試`
 
 ```bash
-mysql -uproxysql -p -h127.0.0.1 -P6033  -e '\
+mysql -uproxysql -p -h127.0.0.1 -P6033 --prompt='MySQL> ' -e '\
     start transaction;\
     select @@server_id;\
     commit;\
     select @@server_id;'
+```
+
+```bash
+mysql -uproxysql -p -h127.0.0.1 -P6033 --prompt='MySQL> ' -e "start transaction; SELECT CONCAT('Hostname before commit: ', @@hostname) AS Hostname; commit; SELECT CONCAT('Hostname after commit: ', @@hostname) AS Hostname;"
+```
+
+`查看某個特定查詢的路由結果`
+
+```sql
+SELECT * FROM stats_mysql_query_digest WHERE digest_text = 'YOUR_QUERY';
 ```
 
 ## 高可用步驟 (MySQL Group Replication)
@@ -1344,7 +1355,7 @@ SELECT * FROM mysql_servers;
 ## Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)
 
 ```bash
-mysql -h127.0.0.1 -P6032 -uadmin -p
+mysql -h127.0.0.1 -P6032 -uadmin -p --prompt='ProxyAdmin> '
 ```
 
 # 高可用 說明
@@ -1812,4 +1823,42 @@ echo "`date` Enabling config" >> ${ERR_FILE}
 $PROXYSQL_CMDLINE "LOAD MYSQL SERVERS TO RUNTIME;" 2>> ${ERR_FILE}
 
 exit 0
+```
+
+## 定期檢查 MySQL 伺服器的健康狀態-
+
+```bash
+#!/bin/bash
+
+# Define variables
+PROXYSQL_ADMIN_USER="admin"
+PROXYSQL_ADMIN_PASSWORD="admin"
+PROXYSQL_ADMIN_HOST="127.0.0.1"
+PROXYSQL_ADMIN_PORT="6032"
+
+# Health check for MySQL server
+check_mysql_health() {
+    # Get the list of MySQL servers from ProxySQL
+    mysql_servers=$(mysql -h $PROXYSQL_ADMIN_HOST -P $PROXYSQL_ADMIN_PORT -u $PROXYSQL_ADMIN_USER -p$PROXYSQL_ADMIN_PASSWORD -N -e "SELECT hostgroup_id,hostname,port,status FROM mysql_servers;")
+
+    # Loop through each MySQL server
+    while read -r line; do
+        hostgroup_id=$(echo $line | awk '{print $1}')
+        hostname=$(echo $line | awk '{print $2}')
+        port=$(echo $line | awk '{print $3}')
+        status=$(echo $line | awk '{print $4}')
+
+        # Check the health of the MySQL server
+        if [ "$status" -eq 1 ]; then
+            echo "MySQL server $hostname:$port in hostgroup $hostgroup_id is UP."
+        else
+            echo "MySQL server $hostname:$port in hostgroup $hostgroup_id is DOWN."
+            # Perform additional actions if the server is down, such as restarting it
+            # /path/to/restart_mysql.sh $hostname $port
+        fi
+    done <<< "$mysql_servers"
+}
+
+# Run the health check function
+check_mysql_health
 ```
