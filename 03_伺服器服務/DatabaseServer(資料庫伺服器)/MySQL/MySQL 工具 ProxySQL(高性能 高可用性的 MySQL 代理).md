@@ -38,63 +38,63 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [腳本相關](#腳本相關)
-    - [心得相關](#心得相關)
-    - [percona 相關](#percona-相關)
-    - [例外狀況相關](#例外狀況相關)
-    - [SQL 語句 (轉址)`                              `](#sql-語句-轉址------------------------------)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [腳本相關](#腳本相關)
+		- [心得相關](#心得相關)
+		- [percona 相關](#percona-相關)
+		- [例外狀況相關](#例外狀況相關)
+		- [SQL 語句 (轉址)`                              `](#sql-語句-轉址------------------------------)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Docker 部署](#docker-部署)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
-    - [Cluster叢集配置：(讓所有proxysql同步)](#cluster叢集配置讓所有proxysql同步)
+	- [Debian (Ubuntu)](#debian-ubuntu)
+	- [RedHat (CentOS)](#redhat-centos)
+	- [Docker 部署](#docker-部署)
+	- [配置文檔](#配置文檔)
+		- [基本範例](#基本範例)
+		- [Cluster叢集配置：(讓所有proxysql同步)](#cluster叢集配置讓所有proxysql同步)
 - [指令](#指令)
-  - [進行基本設定](#進行基本設定)
-  - [服務操作](#服務操作)
-  - [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
-  - [ProxySQL 操作](#proxysql-操作)
-    - [使用者](#使用者)
-    - [MySQL 伺服器](#mysql-伺服器)
-    - [設定路由規則](#設定路由規則)
-    - [應用配置](#應用配置)
-    - [設定](#設定)
-    - [ProxySQL Cluster 相關](#proxysql-cluster-相關)
-    - [觀察群集狀況 （所有 ProxySQL 節點上都可以查看）](#觀察群集狀況-所有-proxysql-節點上都可以查看)
-  - [設定 ProxySQL 監聽端口](#設定-proxysql-監聽端口)
-  - [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
-  - [高可用步驟 (MySQL Replication)](#高可用步驟-mysql-replication)
-    - [MySQL 配置所需帳戶](#mysql-配置所需帳戶)
-    - [ProxySQL 設定對外存取帳號](#proxysql-設定對外存取帳號)
-    - [ProxySQL 建立群組](#proxysql-建立群組)
-    - [ProxySQL 新增主從伺服器節點](#proxysql-新增主從伺服器節點)
-    - [ProxySQL 設置監控 MySQL 後端節點](#proxysql-設置監控-mysql-後端節點)
-    - [設定讀寫分離策略：路由規則](#設定讀寫分離策略路由規則)
-    - [測試讀寫分離](#測試讀寫分離)
-  - [高可用步驟 (MySQL Group Replication)](#高可用步驟-mysql-group-replication)
-    - [群組](#群組)
-    - [添加 mysql](#添加-mysql)
-    - [路由](#路由)
-    - [監控 (高可用)](#監控-高可用)
-    - [修改伺服器的狀態](#修改伺服器的狀態)
-  - [常用查詢](#常用查詢)
-    - [查看監控](#查看監控)
+	- [進行基本設定](#進行基本設定)
+	- [服務操作](#服務操作)
+	- [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
+	- [ProxySQL 操作](#proxysql-操作)
+		- [使用者](#使用者)
+		- [MySQL 伺服器](#mysql-伺服器)
+		- [設定路由規則](#設定路由規則)
+		- [應用配置](#應用配置)
+		- [設定](#設定)
+		- [ProxySQL Cluster 相關](#proxysql-cluster-相關)
+		- [觀察群集狀況 （所有 ProxySQL 節點上都可以查看）](#觀察群集狀況-所有-proxysql-節點上都可以查看)
+	- [設定 ProxySQL 監聽端口](#設定-proxysql-監聽端口)
+	- [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
+	- [高可用步驟 (MySQL Replication)](#高可用步驟-mysql-replication)
+		- [MySQL 配置所需帳戶](#mysql-配置所需帳戶)
+		- [ProxySQL 設定對外存取帳號](#proxysql-設定對外存取帳號)
+		- [ProxySQL 建立群組](#proxysql-建立群組)
+		- [ProxySQL 新增主從伺服器節點](#proxysql-新增主從伺服器節點)
+		- [ProxySQL 設置監控 MySQL 後端節點](#proxysql-設置監控-mysql-後端節點)
+		- [設定讀寫分離策略：路由規則](#設定讀寫分離策略路由規則)
+		- [測試讀寫分離](#測試讀寫分離)
+	- [高可用步驟 (MySQL Group Replication)](#高可用步驟-mysql-group-replication)
+		- [群組](#群組)
+		- [添加 mysql](#添加-mysql)
+		- [路由](#路由)
+		- [監控 (高可用)](#監控-高可用)
+		- [修改伺服器的狀態](#修改伺服器的狀態)
+	- [常用查詢](#常用查詢)
+		- [查看監控](#查看監控)
 - [測試意外宕機，故障轉移 (MGR)](#測試意外宕機故障轉移-mgr)
-  - [恢復](#恢復)
-    - [保持資料完整](#保持資料完整)
-    - [啟動組](#啟動組)
-    - [查看 各表格是否自動恢復](#查看-各表格是否自動恢復)
+	- [恢復](#恢復)
+		- [保持資料完整](#保持資料完整)
+		- [啟動組](#啟動組)
+		- [查看 各表格是否自動恢復](#查看-各表格是否自動恢復)
 - [例外狀況](#例外狀況)
-  - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
+	- [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 - [高可用 說明](#高可用-說明)
 - [腳本](#腳本)
-  - [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
-  - [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
-  - [proxysql\_groupreplication\_checker.sh](#proxysql_groupreplication_checkersh)
-  - [定期檢查 MySQL 伺服器的健康狀態-](#定期檢查-mysql-伺服器的健康狀態-)
+	- [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
+	- [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
+	- [proxysql\_groupreplication\_checker.sh](#proxysql_groupreplication_checkersh)
+	- [定期檢查 MySQL 伺服器的健康狀態-](#定期檢查-mysql-伺服器的健康狀態-)
 
 ## 參考資料
 
@@ -1196,6 +1196,35 @@ SELECT * FROM stats_mysql_global;
 ```sql
 SELECT * FROM stats_mysql_processlist;
 ```
+
+`從 stats_mysql_query_digest 表中選擇一些關於查詢摘要統計資料的字段，並按 first_seen 降序排列，然後限制結果集的數量為 5 個。`
+
+```sql
+SELECT
+  hostgroup AS hg,
+  count_star,
+  FROM_UNIXTIME(first_seen) AS first_seen_time,
+  sum_time,
+  digest,
+  digest_text
+FROM
+  stats_mysql_query_digest
+ORDER BY
+  first_seen DESC
+LIMIT 5;
+```
+
+hostgroup：查詢所屬的主機群組。
+
+count_star：查詢執行的次數。
+
+FROM_UNIXTIME(first_seen)：查詢首次執行的時間，已轉換為日期時間格式。
+
+sum_time：查詢總共執行的時間（單位可能是微秒）。
+
+digest：查詢摘要的雜湊值。
+
+digest_text：查詢語句的文字形式。
 
 `儲存monitor模組收集的信息，主要是對後端db的健康/延遲檢查`
 
