@@ -154,6 +154,8 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 
 [（5.20）mysql中的ProxySQL实现读写分离与读负载均衡【转】](https://www.cnblogs.com/gered/p/12856263.html)
 
+[关于ProxySQL路由的简述 - mysql_query_rules](https://www.cnblogs.com/hahaha111122222/p/16382884.html)
+
 ### percona 相關
 
 [ProxySQL、proxysql-admin 和 percona-scheduler-admin 文檔](https://docs.percona.com/proxysql/index.html)
