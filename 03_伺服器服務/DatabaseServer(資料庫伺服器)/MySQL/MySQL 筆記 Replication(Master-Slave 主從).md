@@ -209,6 +209,9 @@ show variables like 'log_bin%';
 CREATE USER 'replication'@'192.168%' IDENTIFIED BY '.wFb9A?$9*WN';
 GRANT REPLICATION SLAVE ON *.* TO 'replication'@'192.168%';
 
+CREATE USER 'replication'@'%' IDENTIFIED BY 'replicationpassword';
+GRANT REPLICATION SLAVE ON *.* TO 'replication'@'replicationpassword';
+
 FLUSH PRIVILEGES;
 
 -- 檢查使用者 列出所有使用者帳號
