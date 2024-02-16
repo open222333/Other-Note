@@ -7,16 +7,16 @@ RESTful API是一種設計風格，這種風格使API設計具有整體一致性
 ## 目錄
 
 - [程式設計 - RESTful-API(API設計準則)](#程式設計---restful-apiapi設計準則)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [工具](#工具)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [工具](#工具)
 - [RESTful API 設計準則](#restful-api-設計準則)
-	- [HTTP動詞](#http動詞)
-	- [URI名詞](#uri名詞)
-	- [HTTP回傳狀態碼](#http回傳狀態碼)
-	- [HTTP Header](#http-header)
-	- [HTTP Body: JSON或XML格式](#http-body-json或xml格式)
-	- [其它原則](#其它原則)
+  - [HTTP動詞](#http動詞)
+  - [URI名詞](#uri名詞)
+  - [HTTP回傳狀態碼](#http回傳狀態碼)
+  - [HTTP Header](#http-header)
+  - [HTTP Body: JSON或XML格式](#http-body-json或xml格式)
+  - [其它原則](#其它原則)
 - [測試工具](#測試工具)
 
 ## 參考資料
