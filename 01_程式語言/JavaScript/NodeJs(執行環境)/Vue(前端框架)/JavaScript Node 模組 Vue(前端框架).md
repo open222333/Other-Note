@@ -7,26 +7,27 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 ## 目錄
 
 - [JavaScript Node 模組 Vue(前端框架)](#javascript-node-模組-vue前端框架)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [Vue3相關](#vue3相關)
-		- [Vite網站](#vite網站)
-		- [教學相關](#教學相關)
-		- [UI元素](#ui元素)
-		- [VSCode相關](#vscode相關)
-		- [瀏覽器開發者插件](#瀏覽器開發者插件)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [Vue3相關](#vue3相關)
+    - [Vite網站](#vite網站)
+    - [教學相關](#教學相關)
+    - [UI元素](#ui元素)
+    - [VSCode相關](#vscode相關)
+    - [瀏覽器開發者插件](#瀏覽器開發者插件)
 - [安裝](#安裝)
-	- [Vue CLI](#vue-cli)
-	- [Vite](#vite)
+  - [Vue CLI](#vue-cli)
+  - [Vite](#vite)
+  - [docker部署](#docker部署)
 - [指令](#指令)
-	- [Vue CLI](#vue-cli-1)
-	- [Vite](#vite-1)
+  - [Vue CLI](#vue-cli-1)
+  - [Vite](#vite-1)
 - [專案結構](#專案結構)
 - [用法](#用法)
-	- [Vue3 指令](#vue3-指令)
+  - [Vue3 指令](#vue3-指令)
 - [VSCode套件](#vscode套件)
-	- [Vetur](#vetur)
-	- [Volar](#volar)
+  - [Vetur](#vetur)
+  - [Volar](#volar)
 - [.gitignore範本](#gitignore範本)
 
 ## 參考資料
@@ -60,6 +61,8 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 [重新認識 Vue.js](https://book.vue.tw/)
 
 [Vue3 基礎教學【Proladon】](https://www.youtube.com/watch?v=FkVJCy3dao4&list=PLSCgthA1AnifSzKdpV4FWq1pLVF4FbZ4K)
+
+[【 Tool 】透過 Docker 建立 Vue 開發環境](https://learningsky.io/use-docker-to-create-vue-development-environment/)
 
 ### UI元素
 
@@ -114,6 +117,46 @@ npm install -g vue-cli
 npm install -g create-vite
 ```
 
+## docker部署
+
+```dockerfile
+FROM node:14.18.2-buster
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+# 安裝常用工具和依賴
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install -y \
+        build-essential \
+        curl \
+        nmap \
+        git \
+        nano \
+    && rm -rf /var/lib/apt/lists/*
+
+# 全局安裝 Vue CLI
+RUN npm install -g @vue/cli@4.5.15
+```
+
+```yml
+version: '3'
+services:
+  vue_web:
+    build:
+      # Dockerfile 路徑
+      context: ./frontend
+    volumes:
+      - .:/app
+    ports:
+      - "8080:80"
+    # 添加 serve 命令以啟動 Vue 開發伺服器
+    command: ["npm", "run", "serve"]
+```
+
 # 指令
 
 ## Vue CLI
@@ -151,6 +194,12 @@ Vite 是一個輕量級的、速度極快的構建工具，對 Vue SFC 提供第
 ```bash
 # 創建一個新的 Vue 項目, my-project 替換為你想要的項目名稱
 create-vite my-project
+```
+
+```bash
+# Vue CLI 2.x 中的初始化命令
+# webpack: 這是使用的模板名稱，表示使用 webpack 作為構建工具和打包工具。Webpack 是一個現代的 JavaScript 應用程式的靜態模塊打包工具。
+vue init webpack project_name
 ```
 
 # 專案結構
