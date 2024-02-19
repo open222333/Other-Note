@@ -7,13 +7,13 @@ npm是Node.js預設的、用JavaScript編寫的軟體套件管理系統。
 ## 目錄
 
 - [JavaScript Node 工具 npm(軟體套件管理系統)](#javascript-node-工具-npm軟體套件管理系統)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [](#)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [](#)
 - [配置](#配置)
 - [指令](#指令)
 - [例外狀況](#例外狀況)
-  - [node: /lib64/libm.so.6: version \`GLIBC\_2.27' not found](#node-lib64libmso6-version-glibc_227-not-found)
+	- [node: /lib64/libm.so.6: version \`GLIBC\_2.27' not found](#node-lib64libmso6-version-glibc_227-not-found)
 
 ## 參考資料
 
@@ -50,10 +50,12 @@ npm install -g npm
 	-g
 		全局安裝 自動加入PATH
 
-# 生成package.json 會詢問問題
+# 生成package.json 會詢問問題, 創建一個 package.json 文件
 npm init
 	--yes
 		跳過問題生成默認package.json
+
+npm init -y
 
 # 下載 dependencies(依賴) 根據 package.json
 npm install $package@$version

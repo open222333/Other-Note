@@ -150,6 +150,12 @@ services:
 
 # 指令
 
+```bash
+# Vue CLI 2.x 中的初始化命令
+# webpack: 這是使用的模板名稱，表示使用 webpack 作為構建工具和打包工具。Webpack 是一個現代的 JavaScript 應用程式的靜態模塊打包工具。
+vue init webpack project_name
+```
+
 ## Vue CLI
 
 `創建一個新的 Vue 項目, my-project 替換為你想要的項目名稱`
