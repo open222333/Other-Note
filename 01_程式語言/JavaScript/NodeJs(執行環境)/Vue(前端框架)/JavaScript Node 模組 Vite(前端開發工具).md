@@ -18,17 +18,19 @@ Vite 的目標是為開發者提供更快速、更靈活的開發體驗。
 - [JavaScript Node 模組 Vite(前端開發工具)](#javascript-node-模組-vite前端開發工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-    - [Vite網站](#vite網站)
+    - [心得相關](#心得相關)
 - [安裝](#安裝)
 - [指令](#指令)
 
 ## 參考資料
 
-[官方網站](https://cn.vuejs.org/)
-
-### Vite網站
-
 [Vite官方網站](https://vitejs.dev/)
+
+[Vite官方中文文檔網站](https://cn.vitejs.dev/guide/)
+
+### 心得相關
+
+[前端开发能不学习webpack直接学vite吗?](https://www.zhihu.com/question/505684041)
 
 # 安裝
 
@@ -39,17 +41,7 @@ npm install -g create-vite
 
 # 指令
 
-```
-Vite 是一個輕量級的、速度極快的構建工具，對 Vue SFC 提供第一優先級支持。
-```
-
 ```bash
 # 創建一個新的 Vue 項目, my-project 替換為你想要的項目名稱
 create-vite my-project
-```
-
-```bash
-# Vue CLI 2.x 中的初始化命令
-# webpack: 這是使用的模板名稱，表示使用 webpack 作為構建工具和打包工具。Webpack 是一個現代的 JavaScript 應用程式的靜態模塊打包工具。
-vue init webpack project_name
 ```
