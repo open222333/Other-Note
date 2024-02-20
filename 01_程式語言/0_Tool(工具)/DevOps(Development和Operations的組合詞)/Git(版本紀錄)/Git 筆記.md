@@ -1033,6 +1033,15 @@ git reset --hard 分支名(HEAD 或 branch)@{n}
 ## Git submodule 子模組
 
 ```bash
+# 如果子模組資料夾是空的，可能是因為在主倉庫中未初始化或更新子模組。
+# 執行以下命令以初始化和克隆子模組
+git submodule update --init --recursive
+
+# 已經初始化過子模組，但它們的資料夾仍然是空的，請執行以下命令來更新子模組
+git submodule update --recursive --remote
+```
+
+```bash
 # 添加子模組
 git submodule add <repository_url> <path_to_submodule>
 
@@ -1042,6 +1051,9 @@ git submodule update
 
 # 克隆包含子模組的儲存庫
 git clone --recursive <repository_url>
+
+# 手動檢查子模組的狀態
+git submodule status
 ```
 
 ## Git subtree 子樹

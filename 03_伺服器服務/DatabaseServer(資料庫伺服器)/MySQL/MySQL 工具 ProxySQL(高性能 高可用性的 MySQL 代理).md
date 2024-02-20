@@ -38,63 +38,62 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 ## 目錄
 
 - [MySQL 工具 ProxySQL(高性能 高可用性的 MySQL 代理)](#mysql-工具-proxysql高性能-高可用性的-mysql-代理)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [腳本相關](#腳本相關)
-		- [心得相關](#心得相關)
-		- [percona 相關](#percona-相關)
-		- [例外狀況相關](#例外狀況相關)
-		- [SQL 語句 (轉址)`                              `](#sql-語句-轉址------------------------------)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [腳本相關](#腳本相關)
+    - [心得相關](#心得相關)
+    - [percona 相關](#percona-相關)
+    - [例外狀況相關](#例外狀況相關)
+    - [SQL 語句 (轉址)`                              `](#sql-語句-轉址------------------------------)
 - [安裝](#安裝)
-	- [Debian (Ubuntu)](#debian-ubuntu)
-	- [RedHat (CentOS)](#redhat-centos)
-	- [Docker 部署](#docker-部署)
-	- [配置文檔](#配置文檔)
-		- [基本範例](#基本範例)
-		- [Cluster叢集配置：(讓所有proxysql同步)](#cluster叢集配置讓所有proxysql同步)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+  - [RedHat (CentOS)](#redhat-centos)
+  - [Docker 部署](#docker-部署)
+  - [配置文檔](#配置文檔)
+    - [基本範例](#基本範例)
+    - [Cluster叢集配置：(讓所有proxysql同步)](#cluster叢集配置讓所有proxysql同步)
 - [指令](#指令)
-	- [進行基本設定](#進行基本設定)
-	- [服務操作](#服務操作)
-	- [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
-	- [ProxySQL 操作](#proxysql-操作)
-		- [使用者](#使用者)
-		- [MySQL 伺服器](#mysql-伺服器)
-		- [設定路由規則](#設定路由規則)
-		- [應用配置](#應用配置)
-		- [設定](#設定)
-		- [ProxySQL Cluster 相關](#proxysql-cluster-相關)
-		- [觀察群集狀況 （所有 ProxySQL 節點上都可以查看）](#觀察群集狀況-所有-proxysql-節點上都可以查看)
-	- [設定 ProxySQL 監聽端口](#設定-proxysql-監聽端口)
-	- [基本步驟 - 透過 ProxySQL 連線 MySQL](#基本步驟---透過-proxysql-連線-mysql)
-	- [高可用步驟 (MySQL Replication)](#高可用步驟-mysql-replication)
-		- [MySQL 配置所需帳戶](#mysql-配置所需帳戶)
-		- [ProxySQL 設定對外存取帳號](#proxysql-設定對外存取帳號)
-		- [ProxySQL 建立群組](#proxysql-建立群組)
-		- [ProxySQL 新增主從伺服器節點](#proxysql-新增主從伺服器節點)
-		- [ProxySQL 設置監控 MySQL 後端節點](#proxysql-設置監控-mysql-後端節點)
-		- [設定讀寫分離策略：路由規則](#設定讀寫分離策略路由規則)
-		- [測試讀寫分離](#測試讀寫分離)
-	- [高可用步驟 (MySQL Group Replication)](#高可用步驟-mysql-group-replication)
-		- [群組](#群組)
-		- [添加 mysql](#添加-mysql)
-		- [路由](#路由)
-		- [監控 (高可用)](#監控-高可用)
-		- [修改伺服器的狀態](#修改伺服器的狀態)
-	- [常用查詢](#常用查詢)
-		- [查看監控](#查看監控)
+  - [進行基本設定](#進行基本設定)
+  - [服務操作](#服務操作)
+  - [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
+  - [ProxySQL 操作](#proxysql-操作)
+    - [使用者](#使用者)
+    - [MySQL 伺服器](#mysql-伺服器)
+    - [設定路由規則](#設定路由規則)
+    - [應用配置](#應用配置)
+    - [設定](#設定)
+    - [ProxySQL Cluster 相關](#proxysql-cluster-相關)
+    - [觀察群集狀況 （所有 ProxySQL 節點上都可以查看）](#觀察群集狀況-所有-proxysql-節點上都可以查看)
+  - [設定 ProxySQL 監聽端口](#設定-proxysql-監聽端口)
+  - [高可用步驟 (MySQL Replication)](#高可用步驟-mysql-replication)
+    - [MySQL 配置所需帳戶](#mysql-配置所需帳戶)
+    - [ProxySQL 設定對外存取帳號 (透過 ProxySQL 連線 MySQL)](#proxysql-設定對外存取帳號-透過-proxysql-連線-mysql)
+    - [ProxySQL 建立群組](#proxysql-建立群組)
+    - [ProxySQL 新增主從伺服器節點](#proxysql-新增主從伺服器節點)
+    - [ProxySQL 設置監控 MySQL 後端節點](#proxysql-設置監控-mysql-後端節點)
+    - [設定讀寫分離策略：路由規則](#設定讀寫分離策略路由規則)
+    - [測試讀寫分離](#測試讀寫分離)
+  - [高可用步驟 (MySQL Group Replication)](#高可用步驟-mysql-group-replication)
+    - [群組](#群組)
+    - [添加 mysql](#添加-mysql)
+    - [路由](#路由)
+    - [監控 (高可用)](#監控-高可用)
+    - [修改伺服器的狀態](#修改伺服器的狀態)
+  - [常用查詢](#常用查詢)
+    - [查看監控](#查看監控)
 - [測試意外宕機，故障轉移 (MGR)](#測試意外宕機故障轉移-mgr)
-	- [恢復](#恢復)
-		- [保持資料完整](#保持資料完整)
-		- [啟動組](#啟動組)
-		- [查看 各表格是否自動恢復](#查看-各表格是否自動恢復)
+  - [恢復](#恢復)
+    - [保持資料完整](#保持資料完整)
+    - [啟動組](#啟動組)
+    - [查看 各表格是否自動恢復](#查看-各表格是否自動恢復)
 - [例外狀況](#例外狀況)
-	- [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
+  - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 - [高可用 說明](#高可用-說明)
 - [腳本](#腳本)
-	- [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
-	- [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
-	- [proxysql\_groupreplication\_checker.sh](#proxysql_groupreplication_checkersh)
-	- [定期檢查 MySQL 伺服器的健康狀態-](#定期檢查-mysql-伺服器的健康狀態-)
+  - [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
+  - [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
+  - [proxysql\_groupreplication\_checker.sh](#proxysql_groupreplication_checkersh)
+  - [定期檢查 MySQL 伺服器的健康狀態-](#定期檢查-mysql-伺服器的健康狀態-)
 
 ## 參考資料
 
@@ -747,26 +746,6 @@ LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
 ```
 
-
-## 基本步驟 - 透過 ProxySQL 連線 MySQL
-
-`MySQL 新增使用者`
-
-```sql
-CREATE USER 'proxysql'@'%' IDENTIFIED BY 'proxysqlpassword';
-GRANT ALL PRIVILEGES ON *.* TO 'proxysql'@'%';
-FLUSH PRIVILEGES;
-```
-
-`ProxySQL 新增使用者`
-
-```sql
-INSERT INTO mysql_users (username, password, active, default_hostgroup)
-VALUES ('proxysql', 'proxysqlpassword', 1, 1);
-LOAD MYSQL USERS TO RUNTIME;
-SAVE MYSQL USERS TO DISK;
-```
-
 ## 高可用步驟 (MySQL Replication)
 
 ### MySQL 配置所需帳戶
@@ -774,18 +753,18 @@ SAVE MYSQL USERS TO DISK;
 `mysql 建立 proxysql 所需 監控帳戶(monitor) 對外存取帳戶(proxysql)`
 
 ```sql
-CREATE USER 'monitor'@'%' IDENTIFIED BY 'monitorpassword';
+CREATE USER 'monitor'@'%' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON *.* TO 'monitor'@'%';
-CREATE USER 'proxysql'@'%' IDENTIFIED BY 'proxysqlpassword';
+CREATE USER 'proxysql'@'%' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON *.* TO 'proxysql'@'%';
 FLUSH PRIVILEGES;
 ```
 
-### ProxySQL 設定對外存取帳號
+### ProxySQL 設定對外存取帳號 (透過 ProxySQL 連線 MySQL)
 
 ```sql
 INSERT INTO mysql_users (username, password, active, default_hostgroup)
-VALUES ('proxysql', 'proxysqlpassword', 1, 1);
+VALUES ('proxysql', 'password', 1, 1);
 LOAD MYSQL USERS TO RUNTIME;
 SAVE MYSQL USERS TO DISK;
 ```
@@ -814,7 +793,7 @@ SAVE MYSQL SERVERS TO DISK;
 
 ```sql
 SET mysql-monitor_username='monitor';
-SET mysql-monitor_password='monitorpassword';
+SET mysql-monitor_password='password';
 LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
 ```
@@ -824,7 +803,7 @@ SAVE MYSQL VARIABLES TO DISK;
 ```sql
 UPDATE global_variables SET variable_value='monitor'
 WHERE variable_name='mysql-monitor_username';
-UPDATE global_variables SET variable_value='monitorpassword'
+UPDATE global_variables SET variable_value='password'
 WHERE variable_name='mysql-monitor_password';
 LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
@@ -838,6 +817,8 @@ SAVE MYSQL VARIABLES TO DISK;
 
 ^SELECT.*FOR UPDATE$ 規則的rule_id 必須要小於普通的select規則的rule_id，因為ProxySQL是根據rule_id的順序進行規則比對的。
 
+第一方案
+
 ```sql
 INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
 VALUES (1, 1, '^SELECT.*FOR UPDATE$', 1, 1);
@@ -849,6 +830,15 @@ INSERT INTO mysql_query_rules(rule_id,active,match_pattern,destination_hostgroup
 VALUES (4, 1, '^select', 2, 1);
 LOAD MYSQL QUERY RULES TO RUNTIME;
 SAVE MYSQL QUERY RULES TO DISK;
+```
+
+第二方案
+
+```sql
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (1, 1, '^SELECT', 2, 1);
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (2, 1, '.*', 1, 1);
 ```
 
 ### 測試讀寫分離
