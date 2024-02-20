@@ -11,6 +11,7 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
   - [參考資料](#參考資料)
     - [Vue3相關](#vue3相關)
     - [Vite網站](#vite網站)
+    - [正式部署相關](#正式部署相關)
     - [教學相關](#教學相關)
     - [UI元素](#ui元素)
     - [VSCode相關](#vscode相關)
@@ -27,6 +28,9 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
   - [Vetur](#vetur)
   - [Volar](#volar)
 - [.gitignore範本](#gitignore範本)
+- [](#)
+  - [選項式API (Options API)](#選項式api-options-api)
+  - [組合式API (Composition API)](#組合式api-composition-api)
 
 ## 參考資料
 
@@ -53,6 +57,10 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
 ### Vite網站
 
 [Vite官方網站](https://vitejs.dev/)
+
+### 正式部署相關
+
+[生产部署](https://cn.vuejs.org/guide/best-practices/production-deployment.html)
 
 ### 教學相關
 
@@ -154,6 +162,26 @@ services:
 # Vue CLI 2.x 中的初始化命令
 # webpack: 這是使用的模板名稱，表示使用 webpack 作為構建工具和打包工具。Webpack 是一個現代的 JavaScript 應用程式的靜態模塊打包工具。
 vue init webpack project_name
+```
+
+創建專案
+
+```bash
+npm create vue@latest
+```
+
+```bash
+cd vue_project_name
+npm install
+npm run dev
+```
+
+將應用程式發佈到生產環境時
+
+會在 ./dist 資料夾中為你的應用程式建立一個生產環境的建置版本
+
+```bash
+npm run build
 ```
 
 ## Vue CLI
@@ -273,4 +301,65 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+```
+
+#
+
+## 選項式API (Options API)
+
+```vue
+<script>
+export default {
+  // data() 傳回的屬性將會成為響應式的狀態
+  // 並且暴露在 `this` 上
+  data() {
+    return {
+      count: 0
+    }
+  },
+
+  // methods 是一些用來更改狀態與觸發更新的函數
+  // 它們可以在模板中作為事件處理器綁定
+  methods: {
+    increment() {
+      this.count++
+    }
+  },
+
+  // 生命週期鉤子會在元件生命週期的各個不同階段被呼叫
+  // 例如這個函數就會在元件掛載完成後被呼叫
+  mounted() {
+    console.log(`The initial count is ${this.count}.`)
+  }
+}
+</script>
+
+<template>
+  <button @click="increment">Count is: {{ count }}</button>
+</template>
+```
+
+## 組合式API (Composition API)
+
+```vue
+<script setup>
+import { ref, onMounted } from 'vue'
+
+// 響應式狀態
+const count = ref(0)
+
+// 用來修改狀態、觸發更新的函數
+function increment() {
+  count.value++
+}
+
+// 生命週期鉤子
+onMounted(() => {
+  console.log(`The initial count is ${count.value}.`)
+})
+</script>
+
+<template>
+  <button @click="increment">Count is: {{ count }}</button>
+</template>
 ```
