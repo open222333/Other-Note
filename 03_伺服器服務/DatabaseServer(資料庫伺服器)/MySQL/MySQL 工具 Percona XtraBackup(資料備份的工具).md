@@ -254,6 +254,9 @@ xtrabackup --user={$username} --password={$password} --backup --target-dir={$xtr
 # $exclude_list 排除的table 例如： db1.table1 db2.table2 db2.table3
 xtrabackup --user={$username} --password={$password} --databases-exclude={$exclude_list} --backup --target-dir={$xtrabackup_path}
 
+# 傳送
+rsync -Pr {$xtrabackup_path} root@{$slave ip}:{$xtrabackup_path}
+
 ### 匯入
 # 停止mysql
 service mysql stop
