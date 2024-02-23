@@ -2,21 +2,44 @@
 
 ```
 可用於將 MongoDB 數據同步到 Elasticsearch 的最全面的庫
+
+monstache 實現實時同步的原理涉及 MongoDB 的 Change Streams、MongoDB Oplog（操作日誌）以及 Elasticsearch 的 Bulk API。
+
+下面是 monstache 實時同步的基本原理：
+
+Change Streams：
+MongoDB 提供了 Change Streams API，允許客戶端訂閱對集合的更改。monstache 利用 Change Streams 來監聽 MongoDB 中的變更，包括插入、更新和刪除操作。
+
+Oplog Tailer：
+MongoDB 的操作日誌（Oplog）是一個特殊的集合，記錄了對 MongoDB 數據庫的每個寫入操作。monstache 使用 Oplog Tailer 來實時訂閱 Oplog 中的變更。這使得 monstache 能夠在沒有對數據庫性能產生顯著影響的情況下獲取變更。
+
+實時處理：
+當 MongoDB 中發生變更時，monstache 會實時處理 Change Streams 或 Oplog 中的變更事件。根據配置，monstache 可以選擇性地過濾和轉換這些事件。
+
+Elasticsearch Bulk API：
+處理變更事件後，monstache 將變更數據轉換為符合 Elasticsearch Bulk API 格式的文檔，並將這些文檔批量索引到 Elasticsearch。Bulk API 允許一次性提交多個文檔，提高了索引效率。
+
+實現實時同步：
+通過監聽 MongoDB 的變更並實時將這些變更同步到 Elasticsearch，monstache 實現了 MongoDB 數據到 Elasticsearch 的實時同步。
+
+這種基於 Change Streams 和 Oplog 的實時同步機制，使得 monstache 能夠在 MongoDB 中發生變更時迅速捕獲並同步到 Elasticsearch，從而確保兩個數據庫之間的數據保持實時性。這對於支持實時搜索和分析等應用場景非常有用。
 ```
 
 ## 目錄
 
 - [Golang 模組 monstache(MongoDB to Elasticsearch)](#golang-模組-monstachemongodb-to-elasticsearch)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [安裝步驟](#安裝步驟)
 - [用法](#用法)
 - [配置文檔](#配置文檔)
-	- [中間件](#中間件)
+  - [中間件](#中間件)
 - [狀況](#狀況)
-	- [使用golang連接mongo server selection error: server selection timeout, current topology](#使用golang連接mongo-server-selection-error-server-selection-timeout-current-topology)
+  - [使用golang連接mongo server selection error: server selection timeout, current topology](#使用golang連接mongo-server-selection-error-server-selection-timeout-current-topology)
 - [Mapping(映射)](#mapping映射)
 - [pm2 執行守護程式](#pm2-執行守護程式)
+- [direct-read-dynamic-exclude-regex 匹配規則 範例](#direct-read-dynamic-exclude-regex-匹配規則-範例)
+  - [排除指定資料庫以及集合](#排除指定資料庫以及集合)
 
 ## 參考資料
 
@@ -276,4 +299,18 @@ type = "type2"
 
 ```
 pm2 start filename.json
+```
+
+# direct-read-dynamic-exclude-regex 匹配規則 範例
+
+## 排除指定資料庫以及集合
+
+Python 可用
+
+```
+^(?!admin|config|local).*|\.(m3_u8|m3u8|account|.*log.*)
+```
+
+```
+^(?!admin\\.|config\\.|local\\.).*\\.(m3_u8|m3u8|account|.*log.*)
 ```
