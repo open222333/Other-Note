@@ -248,6 +248,21 @@ services:
         mem_limit: 4g
         mem_reservation: 4g
         command: ["--replSet", "rs0"]  # 新增這一行
+        # command: mongod --replSet rs0  # 设置副本集名称为 rs0
+```
+
+```bash
+# 進入 MongoDB 容器
+docker exec -it mongo bash
+# 連接到 MongoDB
+mongo
+```
+
+```Javascript
+// 初始化副本集
+rs.initiate()
+// 驗證副本集的狀態
+rs.status()
 ```
 
 ## 設置 主-讀寫 從-只讀不寫(主掛了不會升為主)
