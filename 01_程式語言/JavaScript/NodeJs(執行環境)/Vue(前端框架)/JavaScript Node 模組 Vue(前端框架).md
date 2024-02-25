@@ -28,9 +28,10 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
   - [Vetur](#vetur)
   - [Volar](#volar)
 - [.gitignore範本](#gitignore範本)
-- [](#)
+- [範例](#範例)
   - [選項式API (Options API)](#選項式api-options-api)
   - [組合式API (Composition API)](#組合式api-composition-api)
+  - [使用指定的端口](#使用指定的端口)
 
 ## 參考資料
 
@@ -148,6 +149,7 @@ services:
     build:
       # Dockerfile 路徑
       context: ./frontend
+      dockerfile: Dockerfile.custom
     volumes:
       - .:/app
     ports:
@@ -303,7 +305,7 @@ pnpm-debug.log*
 *.sw?
 ```
 
-#
+# 範例
 
 ## 選項式API (Options API)
 
@@ -362,4 +364,32 @@ onMounted(() => {
 <template>
   <button @click="increment">Count is: {{ count }}</button>
 </template>
+```
+
+## 使用指定的端口
+
+打開 package.json 文件。
+
+在 scripts 部分中找到 dev 命令。
+
+添加 --port 選項，指定你想要的端口號。例如，使用端口號為 3000：
+
+```json
+"scripts": {
+  "dev": "vue-cli-service serve --port 3000"
+}
+```
+
+使用的是 Vite 作為開發伺服器
+
+打開你的 vite.config.js 文件（如果專案中沒有，你可能需要創建一個）。
+
+在 vite.config.js 中，你可以像下面這樣指定 server.port：
+
+```JavaScript
+export default {
+  server: {
+    port: 3000,
+  },
+};
 ```
