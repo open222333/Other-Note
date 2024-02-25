@@ -41,6 +41,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
     - [例外相關](#例外相關)
     - [指令相關](#指令相關)
 - [安裝](#安裝)
+  - [Docker部署](#docker部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
   - [配置檔案設定](#配置檔案設定)
@@ -117,6 +118,23 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 [mongorestore - 匯入 中文文檔](https://www.docs4dev.com/docs/zh/mongodb/v3.6/reference/reference-program-mongorestore.html)
 
 # 安裝
+
+## Docker部署
+
+```yml
+version: "3"
+services:
+  mongo:
+    image: mongo
+    container_name: mongo1
+    ports:
+      - 31141:27017
+    # expose: # 開給內網
+    #     - 5000
+    command: mongod --replSet RS --bind_ip_all --dbpath /data/db
+    volumes:
+      - ./data/mongo:/data/db
+```
 
 ## Debian (Ubuntu)
 

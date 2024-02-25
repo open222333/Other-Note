@@ -33,6 +33,7 @@
     - [第一種 資料結構](#第一種-資料結構)
     - [第二種 資料結構](#第二種-資料結構)
     - [實作](#實作)
+    - [使用 Blueprint 進行模組化 簡易範例](#使用-blueprint-進行模組化-簡易範例)
   - [實作 Flask Application Factories(工廠模式)](#實作-flask-application-factories工廠模式)
     - [實作](#實作-1)
   - [實作 Cookie 設定](#實作-cookie-設定)
@@ -46,7 +47,8 @@
     - [避免 CSRF 攻擊](#避免-csrf-攻擊)
       - [方法一. CSRF token](#方法一-csrf-token)
       - [方法二. SameSite cookie](#方法二-samesite-cookie)
-  - [變量與請求](#變量與請求)
+  - [變量與請求, 各種 API 範例](#變量與請求-各種-api-範例)
+  - [全域（global）的容器對象](#全域global的容器對象)
   - [實作 flask與pymysql](#實作-flask與pymysql)
     - [`講解 _app_ctx_stack.top`](#講解-_app_ctx_stacktop)
 
@@ -213,7 +215,7 @@ python -m flask run
 # 在 main.py 的下方加入 if name == 'main':
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True, host='0.0.0.0', port=5000)
 ```
 
 ```bash
@@ -357,8 +359,6 @@ def index():
 # 代表未來所有的 app2 所創建出來的路徑，前面網址都需要加上 pages
 # @app2.route('/app2')，網址是 http://127.0.0.1:5000/pages/app2
 app.register_blueprint(app2, url_prefix='/pages')
-
-
 ```
 
 `flask/view/api.py`
@@ -379,6 +379,28 @@ app2 = Blueprint(
 @app2.route('/app2')
 def show(page):
     return "Hello Blueprint app2"
+```
+
+### 使用 Blueprint 進行模組化 簡易範例
+
+```Python
+from flask import Flask, Blueprint
+
+app = Flask(__name__)
+api_bp = Blueprint('api', __name__)
+
+@api_bp.route('/endpoint1')
+def endpoint1():
+    return 'This is endpoint 1'
+
+@api_bp.route('/endpoint2')
+def endpoint2():
+    return 'This is endpoint 2'
+
+app.register_blueprint(api_bp, url_prefix='/api')
+
+if __name__ == '__main__':
+    app.run(debug=True)
 ```
 
 ## 實作 Flask Application Factories(工廠模式)
@@ -764,7 +786,7 @@ def setcookie():
     return resp
 ```
 
-## 變量與請求
+## 變量與請求, 各種 API 範例
 
 ```
 如果有多個before_request的時候，只要中間有執行return的部份，後續就不再被執行。
@@ -780,41 +802,226 @@ teardown_request
 ```
 
 ```Python
-from flask import Flask, g, request
+from flask import Flask, g, request, jsonify
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
 
 
+# 前置請求鉤子 1
 @app.before_request
 def before_request():
+    """
+    這個函數在每次請求進入應用程序時執行。
+    它會印出 'before request started' 和請求的 URL。
+    """
     print('before request started')
     print(request.url)
 
+# 前置請求鉤子 2
+
+
 @app.before_request
 def before_request2():
+    """
+    這個函數同樣在每次請求進入時執行。
+    它會印出 'before request started 2' 和請求的 URL。
+    它在 'g' 對象中設置了一個名為 'name' 的變數為 "Test request"。
+    """
     print('before request started 2')
     print(request.url)
     g.name = "Test request"
 
+# 後置請求鉤子
+
 
 @app.after_request
 def after_request(response):
+    """
+    這個函數在每次請求完成並生成響應後執行。
+    它會印出 'after request finished' 和請求的 URL。
+    它在響應的標頭中添加了一對 "key: value"。
+    """
     print('after request finished')
     print(request.url)
     response.headers['key'] = 'value'
     return response
 
+# 拆除請求鉤子
+
 
 @app.teardown_request
 def teardown_request(exception):
+    """
+    這個函數在請求上下文被撤銷時執行。
+    它會印出 'teardown request' 和請求的 URL。
+    """
     print('teardown request')
     print(request.url)
 
 
-@app.route('/abc')
-def index():
-    return 'Hello, %s!' % g.name
+@app.route('/abc/<name>/<age>')
+def greet(name, age):
+    """帶有參數的 api
 
+    Args:
+        name (_type_): _description_
+        age (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    g.name = name
+    g.age = age
+    return 'Hello, %s! You are %s years old.' % (name, age)
+
+
+@app.route('/abc', methods=['POST'])
+def post_api():
+    data = request.form.get('data')
+
+    # 假設你有一個名為 "data" 的表單字段
+    if data:
+        g.name = data
+        return 'Hello, %s!' % data
+    else:
+        return 'Please provide data in the POST request.'
+
+
+@app.route('/api/data', methods=['GET', 'POST'])
+def api_data():
+    """處理 GET 和 POST 請求
+
+    Returns:
+        _type_: _description_
+    """
+    if request.method == 'GET':
+        return 'Received a GET request.'
+    elif request.method == 'POST':
+        data = request.get_json()
+        return f'Received a POST request with data: {data}'
+
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    """文件上傳 API
+
+    Returns:
+        _type_: _description_
+    """
+    if 'file' not in request.files:
+        return 'No file part'
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return 'No selected file'
+
+    if file:
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return 'File uploaded successfully'
+
+
+@app.route('/abc', methods=['*'])
+def index():
+    """
+    處理 '/abc' 端點的請求，支援所有 HTTP 方法。
+
+    如果請求中包含名為 'data' 的表單字段，將其值存儲在 g.name 中，
+    並返回包含該值的歡迎消息。否則，返回請求中沒有提供 'data' 的提示信息。
+    """
+    data = request.form.get('data')  # 從表單中獲取 'data' 字段的值
+
+    if data:
+        g.name = data  # 將 'data' 的值存儲在 g.name 中
+        return 'Hello, %s!' % data  # 返回歡迎消息
+    else:
+        return 'Please provide data in the request.'  # 返回提示信息
+
+
+@app.route('/api/data', methods=['POST'])
+def api_data():
+    """
+    處理 '/api/data' 端點的 POST 請求。
+
+    接收請求頭中的 'Authorization'，以及表單中的 'username' 和 'password'。
+    返回包含接收到的數據的 JSON 響應。
+    """
+    # 檢查是否包含 'Authorization' 請求頭
+    authorization_header = request.headers.get('Authorization')
+
+    if authorization_header:
+        # 獲取 'username' 和 'password' 表單字段的值
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # 在實際應用中，這裡應該有身份驗證邏輯
+
+        # 組合回應 JSON
+        response_data = {
+            'Authorization': authorization_header,
+            'username': username,
+            'password': password
+        }
+
+        return jsonify(response_data)
+
+    else:
+        return 'Authorization header is missing.', 401  # 返回未授權的錯誤碼
+
+@app.route('/api/form', methods=['POST'])
+def api_form():
+    """
+    處理 '/api/form' 端點的 POST 請求。
+
+    接收表單數據中的 'name' 和 'email' 字段。
+    返回包含接收到的數據的 JSON 響應。
+    """
+    # 獲取 'name' 和 'email' 表單字段的值
+    name = request.form.get('name')
+    email = request.form.get('email')
+
+    # 在實際應用中，這裡可以有更多的邏輯，例如數據驗證、存儲等
+
+    # 組合回應 JSON
+    response_data = {
+        'name': name,
+        'email': email
+    }
+
+    return jsonify(response_data)
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
+```
+
+## 全域（global）的容器對象
+
+```Python
+from flask import Flask, g
+
+'''
+在 Flask 中，g 是一個全域（global）的容器對象，用於存儲在請求生命週期中共享的數據。
+
+g 的名稱來自 "context globals" 的縮寫，表示它是與請求上下文（request context）相關聯的全域對象。
+
+在 Flask 應用中，當一個請求進入時，Flask 會創建一個請求上下文，該上下文存在於整個請求的生命週期中。
+
+g 對象允許在這個上下文中存儲數據，以便在應用的不同部分共享它。
+'''
+
+app = Flask(__name__)
+
+@app.before_request
+def before_request():
+    g.user = get_current_user()  # 假設有一個函數用於獲取當前用戶
+
+@app.route('/')
+def index():
+    # 在這裡可以訪問 g.user，它將包含在 before_request 中設置的用戶對象
+    return f'Hello, {g.user.username}'
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -22,6 +22,8 @@
 # 查看監聽的port
 netstat -an | grep LISTEN
 
+lsof -i -P -n | grep LISTEN
+
 # 查看 ssh連線 進程
 ps aux | grep ssh
 

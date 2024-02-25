@@ -320,7 +320,7 @@ systemctl enable docker
 # 顯示 docker 的資訊
 docker info
 
-# 顯示 docker 的版本 
+# 顯示 docker 的版本
 docker version
 
 # 使用Dockerfile 建立印象檔
@@ -877,14 +877,20 @@ services:
   redis_celery:
     image: redis
   worker:
-    build: .
+    build:
+      # Dockerfile 路徑
+      context: ./docker
+      dockerfile: Dockerfile.custom
     env_file:
       - ./env/celery.env
     volumes:
       - .:/usr/src/app
     command: celery worker -A celery -l info -E -P gevent --purge -n worker%i@%h
   beat:
-    build: .
+    build:
+      # Dockerfile 路徑
+      context: ./docker
+      dockerfile: Dockerfile.custom
     env_file:
       - ./env/celery.env
     volumes:
@@ -1011,7 +1017,10 @@ version: '3'
 services:
   centos:
     container_name: centos
-    build: .
+    build:
+      # Dockerfile 路徑
+      context: ./docker
+      dockerfile: Dockerfile.custom
     ports:
       - 8080:80
       - 8443:443
@@ -1125,7 +1134,10 @@ services:
 version: "3.9"
 services:
   web:
-    build: .
+    build:
+      # Dockerfile 路徑
+      context: ./docker
+      dockerfile: Dockerfile.custom
     ports:
       - "8000:8000"
   db:
@@ -1224,7 +1236,10 @@ version: "3"
 services:
   manager_node_1:
     image: mysql_innodb_cluster
-    build: .
+    build:
+      # Dockerfile 路徑
+      context: ./docker
+      dockerfile: Dockerfile.custom
     container_name: manager_node_1
     hostname: manager_node_1
     environment:
