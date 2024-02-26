@@ -368,6 +368,9 @@ docker logs -f --tail=20 [Container ID]
 	--tail 顯示筆數
 	-f
 
+# 使用 Docker 命令清空日誌
+docker logs {$container_id} > /dev/null
+
 # 取得一個指定版本的image,如果不指定,預設版本則為latest
 docker pull [Image 名稱]:[Image 版本]
 
