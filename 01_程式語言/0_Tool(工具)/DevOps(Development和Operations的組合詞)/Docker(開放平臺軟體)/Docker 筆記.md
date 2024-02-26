@@ -526,11 +526,6 @@ docker-compose build
 
 # 進入容器
 docker-compose exec <service> bash  -f  docker exec -it <id or container-name> bash
-
-# 要查看應用程序的輸出
-docker logs $container_id
-	# --tail 顯示筆數
-	# -f
 ```
 
 ### 排錯
