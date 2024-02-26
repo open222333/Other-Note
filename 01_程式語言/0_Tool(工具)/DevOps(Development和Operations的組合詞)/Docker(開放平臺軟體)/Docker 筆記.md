@@ -24,9 +24,11 @@
   - [服務](#服務)
   - [docker](#docker)
     - [docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小](#docker-slim-容量優化工具-一些工具可以分析和優化-docker-映像的大小)
+    - [docker inspect 取得有關 Docker 物件的詳細信息](#docker-inspect-取得有關-docker-物件的詳細信息)
     - [image](#image)
     - [docker hub](#docker-hub)
-    - [network](#network)
+    - [container 容器](#container-容器)
+    - [network 網路](#network-網路)
   - [docker-compose](#docker-compose)
     - [排錯](#排錯)
 - [範例](#範例)
@@ -405,6 +407,18 @@ docker-slim build --http-probe <your-image-name>
 docker-slim build --show-copies <your-image-name>
 ```
 
+### docker inspect 取得有關 Docker 物件的詳細信息
+
+docker inspect: Docker inspect 指令用於檢查 Docker 物件的詳細資訊。
+
+--format: 該選項允許你指定輸出格式。在我們的例子中，我們使用 Go 模板語法來存取容器的設定資訊。
+
+'{{.Config.Labels}}': 這是 Go 範本語法，表示輸出容器配置中的標籤資訊。
+
+```bash
+docker inspect --format '{{.Config.Labels}}' 容器ID
+```
+
 ### image
 
 ```bash
@@ -434,7 +448,14 @@ docker login --username=myusername
 docker push myusername/docker-whale
 ```
 
-### network
+### container 容器
+
+```bash
+# 刪除所有沒在使用的容器
+docker container prune -f
+```
+
+### network 網路
 
 ```bash
 # 將容器連接到網絡
