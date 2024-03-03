@@ -277,3 +277,20 @@ def get_all_files_2024(dir_path: str, extensions: str = None, add_abspath: str =
                 target_file_path.append(file)
     target_file_path.sort()
     return target_file_path
+
+
+def move_files_and_remove_subdirectories(source_path: str):
+    """移動子資料夾檔案至資料夾並刪除子資料夾
+
+    Args:
+        source_path (str): 資料夾路徑
+    """
+    for subfolder_name in os.listdir(source_path):
+        subfolder_path = os.path.join(source_path, subfolder_name)
+
+        if os.path.isdir(subfolder_path):
+            for file_name in os.listdir(subfolder_path):
+                source_path = os.path.join(subfolder_path, file_name)
+                destination_path = os.path.join(source_path, file_name)
+                shutil.copy2(source_path, destination_path)
+            shutil.rmtree(subfolder_path)
