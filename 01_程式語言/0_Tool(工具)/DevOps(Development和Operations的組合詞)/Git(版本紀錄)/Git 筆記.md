@@ -30,7 +30,7 @@
   - [Pull – 拉取下來 從遠端更新本地(有衝突會合併)](#pull--拉取下來-從遠端更新本地有衝突會合併)
   - [Push – 將 Commit 送出去](#push--將-commit-送出去)
   - [Add](#add)
-  - [操作檔案](#操作檔案)
+  - [Git 刪除檔案(取消追蹤)](#git-刪除檔案取消追蹤)
   - [Commit 提交](#commit-提交)
   - [Branch 分支](#branch-分支)
   - [Git checkout 切換 branch](#git-checkout-切換-branch)
@@ -418,7 +418,7 @@ git add -u
 git add -i
 ```
 
-## 操作檔案
+## Git 刪除檔案(取消追蹤)
 
 ```bash
 ### Git 刪除檔案 ###
@@ -426,12 +426,20 @@ git rm filename
 
 ### Git 清除Cache ###
 # 例如Git含有submodule欲刪除後，需要清空.git/index Cache以讓Main module追蹤原submodule目錄。
-# 解除追蹤檔案
-git rm --cached filename
-# 解除追蹤資料夾
-git rm --cached -r folder
-# 解除追蹤所有
-git rm --cached -r .
+# 取消追蹤單個文件
+git rm --cached filename.txt
+
+# 取消追蹤多個文件
+git rm --cached file1.txt file2.txt
+
+# 取消追蹤整個目錄（遞歸）
+git rm --cached -r directory/
+
+# 提交更改
+git commit -m "停止追蹤文件"
+
+# 如果想要保留在工作目錄中，不刪除實際文件，請使用下面的命令
+git rm --cached --ignore-unmatch filename.txt
 
 # 修改檔名、搬移目錄
 git mv filename new-filename
