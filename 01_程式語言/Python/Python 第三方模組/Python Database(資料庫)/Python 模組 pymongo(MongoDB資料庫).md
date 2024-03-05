@@ -255,6 +255,19 @@ db.inventory.replace_one(
 )
 ```
 
+`移除欄位`
+
+```Python
+# 指定要移除欄位的條件
+query = {"your_query_field": "your_query_value"}
+
+# 使用 $unset 操作符來移除指定欄位
+update = {"$unset": {"field_to_remove": 1}}
+
+# 執行更新操作
+collection.update_many(query, update)
+```
+
 ## 聚合aggregate
 
 ```Python
@@ -312,5 +325,4 @@ if pymongo.version >= "2.3":
 			authSource=auth_db,
 			read_preference=pymongo.ReadPreference.SECONDARY_PREFERRED
 		)
-
 ```
