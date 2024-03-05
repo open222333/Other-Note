@@ -18,17 +18,22 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 ## 目錄
 
 - [JavaScript Node 工具 pm2(node程序管理器)](#javascript-node-工具-pm2node程序管理器)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [設定檔相關](#設定檔相關)
-		- [應用相關](#應用相關)
-		- [log相關](#log相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [設定檔相關](#設定檔相關)
+    - [應用相關](#應用相關)
+    - [log相關](#log相關)
+    - [套件](#套件)
 - [安裝步驟](#安裝步驟)
 - [指令](#指令)
 - [pm2 ecosystem(執行程式)](#pm2-ecosystem執行程式)
-	- [範例1](#範例1)
-	- [範例2](#範例2)
-	- [範例3 - 自動化部署](#範例3---自動化部署)
+  - [範例1](#範例1)
+  - [範例2](#範例2)
+  - [範例3 - 自動化部署](#範例3---自動化部署)
+- [套件](#套件-1)
+  - [pm2-logrotate (管理和維護應用程序的日誌檔案)](#pm2-logrotate-管理和維護應用程序的日誌檔案)
+- [狀況](#狀況)
+  - [錯誤 spawn ENOMEM](#錯誤-spawn-enomem)
 
 ## 參考資料
 
@@ -53,6 +58,10 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 ### log相關
 
 [LOGS](https://pm2.keymetrics.io/docs/usage/log-management/)
+
+### 套件
+
+[pm2-logrotate](https://www.npmjs.com/package/pm2-logrotate)
 
 # 安裝步驟
 
@@ -183,7 +192,12 @@ pm2 save
 
 # 如果有更新 node 的版本，記得更新 script
 pm2 unstartup && pm2 startup && pm2 save
+```
 
+`查看所有 PM2 管理的應用程序的實時監控信息，包括記憶體使用情況。`
+
+```bash
+pm2 monit
 ```
 
 # pm2 ecosystem(執行程式)
@@ -429,4 +443,165 @@ module.exports = {
       },
    }
 }
+```
+
+# 套件
+
+## pm2-logrotate (管理和維護應用程序的日誌檔案)
+
+處理 PM2 启動的應用程序的日誌檔案的輪轉
+
+它可以幫助管理和維護應用程序的日誌檔案，以防止它們變得過大，同時保留過去的日誌歷史。
+
+```bash
+pm2 install pm2-logrotate
+```
+
+`設定輪轉規則`
+
+```bash
+pm2 set pm2-logrotate:compress true      # 启用/禁用壓縮
+pm2 set pm2-logrotate:retain 7           # 保留最近的7個日誌檔案
+pm2 set pm2-logrotate:dateFormat YYYY-MM-DD_HH-mm-ss # 指定日期格式
+```
+
+`手動觸發輪轉`
+
+```bash
+pm2 trigger pm2-logrotate rotate
+```
+
+`查看輪轉日誌的計劃 顯示有關 pm2-logrotate 的配置和狀態信息`
+
+```bash
+pm2 show pm2-logrotate
+```
+
+```
+Process Information:
+
+    status: 進程的狀態，這裡是 "online"。
+    name: 進程的名稱，這是 "pm2-logrotate"。
+    namespace: 進程的命名空間，這裡是 "default"。
+    version: pm2-logrotate 模組的版本。
+    restarts: 進程重新啟動的次數。
+    uptime: 進程的運行時間。
+    script path: pm2-logrotate 的腳本路徑。
+    interpreter: 使用的解釋器，這裡是 "node"。
+    node.js version: 使用的 Node.js 版本。
+    created at: 進程創建的時間。
+
+Process Configuration:
+
+    有關 pm2-logrotate 配置的信息，如輪轉間隔、日期格式、保留日誌文件數量等。
+    Actions Available:
+
+    提供的操作列表，包括 heapdump、CPU profiling 等。
+
+Code Metrics Value:
+
+    堆"（Heap）在計算機科學中通常指的是記憶體中的一個區域，用於動態分配和釋放內存。
+    在程式執行過程中，當需要在運行時動態創建對象或數據結構時，這些對象通常被放置在堆中。
+
+    堆是用來存儲動態分配的內存，這些內存的大小在程式運行時可以動態地增長或減少。
+    與之相對的是 "棧"（Stack），棧用於存儲局部變數和函數調用信息。
+
+    Used Heap Size:
+    已使用的堆大小，即進程當前使用的內存空間。
+    Heap Usage:
+    堆使用率，表示已使用堆大小與總堆大小的百分比。
+    Heap Size:
+    總堆大小，即分配給進程的內存總量。
+    Files Count:
+    檔案數量，表示進程當前打開的文件數量。
+    Global Logs Size:
+    全局日誌大小，表示已記錄的全局日誌文件的總大小。
+    Event Loop Latency p95:
+    事件循環延遲的百分位數（p95），表示事件處理的時間百分之95的數據。
+    Event Loop Latency:
+    事件循環延遲，表示事件處理的平均時間。
+    Active Handles:
+    活動的處理程序數量，表示當前進程中處於活動狀態的事件處理程序數量。
+    Active Requests:
+    活動的請求數量，表示當前進程中處於活動狀態的請求數量。
+
+Divergent Env Variables from Local Env:
+
+    與本地環境變數不同的環境變數列表。
+```
+
+# 狀況
+
+## 錯誤 spawn ENOMEM
+
+`檢查系統記憶體`
+
+使用命令檢查系統記憶體的使用情況。
+
+```bash
+free -m
+```
+
+```bash
+top
+```
+
+```bash
+htop
+```
+
+確保系統記憶體足夠，如果記憶體使用率太高，可能需要釋放一些記憶體或增加記憶體容量。
+
+`檢查進程限制`
+
+檢查系統對進程數量的限制。
+
+可以使用 ulimit -a 命令檢查進程限制。
+
+如果進程數量限制太低，可能需要增加這個限制。
+
+```bash
+ulimit -a
+```
+
+```
+core file size          (blocks, -c) 0
+data seg size           (kbytes, -d) unlimited
+scheduling priority             (-e) 0
+file size               (blocks, -f) unlimited
+pending signals                 (-i) 127959
+max locked memory       (kbytes, -l) 64
+max memory size         (kbytes, -m) unlimited
+open files                      (-n) 1024000
+pipe size            (512 bytes, -p) 8
+POSIX message queues     (bytes, -q) 819200
+real-time priority              (-r) 0
+stack size              (kbytes, -s) 8192
+cpu time               (seconds, -t) unlimited
+max user processes              (-u) 127959
+virtual memory          (kbytes, -v) unlimited
+file locks                      (-x) unlimited
+```
+
+`重新啟動 PM2`
+
+如果以上步驟未能解決問題，嘗試重新啟動 PM2。
+
+```bash
+pm2 kill
+pm2 resurrect
+```
+
+`檢查日誌`
+
+查看 PM2 的日誌文件以獲取更多詳細信息。
+
+```bash
+pm2 logs
+```
+
+`查看所有 PM2 管理的應用程序的實時監控信息，包括記憶體使用情況。`
+
+```bash
+pm2 monit
 ```
