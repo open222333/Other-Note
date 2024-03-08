@@ -233,6 +233,18 @@ cursor = db.inventory.find({"status": "A", "qty": {"$lt": 30}})
 cursor = db.inventory.find({"item": {"$exists": False}})
 ```
 
+`查詢某個欄位是否存在並且有值`
+
+```Python
+db.your_collection.find({ "your_field": { "$exists": true, "$ne": null } })
+```
+
+`搜尋包含特定值`
+
+```Python
+db.post.find({ "your_field": { "$elemMatch": { "$eq": "your_value" } } })
+```
+
 ## Update
 
 ```Python
