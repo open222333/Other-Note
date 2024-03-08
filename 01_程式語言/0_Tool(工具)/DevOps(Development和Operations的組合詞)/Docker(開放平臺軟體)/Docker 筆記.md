@@ -85,6 +85,8 @@
 
 [Daemon configuration file](https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file)
 
+[dockerd daemon](https://docs.docker.com/engine/reference/commandline/dockerd/#options)
+
 #### log配置
 
 [Docker Container Log 文件限制](https://medium.com/%E7%A8%8B%E5%BC%8F%E8%A3%A1%E6%9C%89%E8%9F%B2/docker-container-log-%E6%96%87%E4%BB%B6%E9%99%90%E5%88%B6-1ab8559f1308)
@@ -213,6 +215,8 @@ docker-compose --version
 
 `/etc/docker/daemon.json`
 
+特別注意 /etc/sysconfig/docker 或 /etc/default/docker 中的其他可能存在的日誌設定
+
 ```bash
 vim /etc/docker/daemon.json
 
@@ -222,6 +226,12 @@ systemctl daemon-reload
 
 # 重啟docker
 systemctl restart docker
+```
+
+`查看是否生效`
+
+```bash
+docker info
 ```
 
 ## log
@@ -242,6 +252,43 @@ Container Log 預設路徑如下：
 }
 ```
 
+`查看是否生效`
+
+```bash
+docker info
+
+# Logging Driver：應該顯示為 json-file。
+# Log Options：應該顯示為 max-size=10m max-file=3。
+```
+
+`比較有用 查看容器`
+
+```bash
+docker container ls
+```
+
+```bash
+docker inspect $CONTAINER_ID
+```
+
+```json
+{
+    ...
+    "HostConfig": {
+        "LogConfig": {
+            "Type": "json-file",
+            "Config": {
+                "max-file": "3",
+                "max-size": "50m"
+            }
+        },
+    }
+    ...
+}
+```
+
+`清除 log (釋放空間)`
+
 ```bash
 # 清除 log
 cat /dev/null > <container-id>-json.log
@@ -259,6 +306,35 @@ cat /dev/null > *-json.log
   "ipv6": true,
   "fixed-cidr-v6": "2001:db8:1::/64"
 }
+```
+
+`查看是否生效`
+
+```bash
+docker info | grep IPv6
+
+# IPv6: true
+# Fixed CIDR v6: 2001:db8:1::/64
+```
+
+`取得 NETWORK_ID`
+
+```bash
+docker network ls
+```
+
+`查看資訊確認是否啟動 IPv6`
+
+```bash
+docker network inspect $NETWORK_ID
+```
+
+`確保操作系統的網絡設置正確支持 IPv6`
+
+如果該文件的值為 0，表示 IPv6 被啟用。如果是 1，你可能需要啟用 IPv6
+
+```bash
+cat /proc/sys/net/ipv6/conf/all/disable_ipv6
 ```
 
 ## 設定網段
@@ -314,6 +390,11 @@ systemctl restart docker
 systemctl stop docker
 # 開機啟動
 systemctl enable docker
+# 停止 Docker 在開機時自動啟動
+systemctl disable docker
+
+# 查看運行日誌
+journalctl -u docker
 ```
 
 ## docker

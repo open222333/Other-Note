@@ -103,11 +103,6 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
       - [Golang - monstache](#golang---monstache)
     - [例外狀況](#例外狀況)
       - [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit)
-- [指令 API](#指令-api)
-  - [alias(別名)](#alias別名)
-    - [新增 刪除 別名至索引](#新增-刪除-別名至索引)
-  - [創建索引模板(index temple)](#創建索引模板index-temple)
-  - [搜尋API(Search API)](#搜尋apisearch-api)
 - [安裝方式](#安裝方式)
   - [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
     - [官方](#官方)
@@ -124,6 +119,15 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [配置文檔 override.conf](#配置文檔-overrideconf)
   - [生產環境 建議設定](#生產環境-建議設定)
 - [集群 Cluster](#集群-cluster)
+- [操作](#操作)
+  - [指令 API](#指令-api)
+    - [alias(別名)](#alias別名)
+    - [新增 刪除 別名至索引](#新增-刪除-別名至索引)
+    - [創建索引模板(index temple)](#創建索引模板index-temple)
+    - [搜尋API(Search API)](#搜尋apisearch-api)
+  - [Kibana(後台)](#kibana後台)
+  - [Python 基本範例](#python-基本範例)
+  - [創建模板](#創建模板)
 - [同步資料 Mongodb](#同步資料-mongodb)
   - [Python - mongo-connector](#python---mongo-connector-1)
     - [配置文檔 config.json](#配置文檔-configjson)
@@ -224,6 +228,8 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 
 ### 集群相關
 
+[Discovery and cluster formation settings](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/modules-discovery-settings.html)
+
 [[Elasticsearch] 分散式特性 & 分散式搜尋的機制](https://godleon.github.io/blog/Elasticsearch/Elasticsearch-distributed-mechanism/)
 
 ### 分詞器相關
@@ -301,367 +307,6 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 [官方解決方案](https://www.elastic.co/guide/en/elasticsearch/reference/master/disk-usage-exceeded.html)
 
 [集群級分片分配和路由設置(Cluster-level shard allocation and routing settings)](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-cluster.html)
-
-# 指令 API
-
-```bash
-# 查看節點訊息
-curl -X GET http://localhost:9200/_cat/nodes?v
-
-# 查看節點
-curl -X GET http://localhost:9200/_nodes/stats?pretty
-
-# 查看伺服器參數
-curl -X GET http://localhost:9200/_cat/thread_pool/?v&h=id,name,active,rejected,completed,size,type&pretty&s=type
-
-# 測試
-curl -X GET http://localhost:9200
-
-# 創建索引
-curl -X PUT http://localhost:9200/index
-
-# 將某個索引的 refresh_interval 設置為 1 分鐘
-# ms: 毫秒
-# s: 秒
-# m: 分钟
-curl -X PUT http://localhost:9200/{index}/_settings -d '
-{
-    "index" : {
-        "refresh_interval" : "1m"
-    }
-}'
-
-# 獲取集群設置 JSON
-curl -X GET http://localhost:9200/_cluster/settings?pretty&include_defaults
-
-curl -X GET http://localhost:9200/_nodes/stats?metric=adaptive_selection,breaker,discovery,fs,http,indices,jvm,os,process,thread_pool,transport&filter_path=nodes.*.adaptive_selection*,nodes.*.breaker*,nodes.*.fs*,nodes.*.os*,nodes.*.jvm*,nodes.*.process*,nodes.*.thread_pool*,nodes.*.discovery.cluster_state_queue,nodes.*.discovery.published_cluster_states,nodes.process.*.*,nodes.*.indices*,nodes.*.http.current_open,nodes.*.http.total_opened,_nodes,cluster_name,nodes.*.attributes,nodes.*.timestamp,nodes.*.transport*,nodes.*.transport_address,nodes.*.transport_address,nodes.*.host,nodes.*.ip,,nodes.*.roles,nodes.*.name&pretty
-
-# 創建索引 accounts 使用分詞器
-# analyzer是字段文本的分詞器，search_analyzer是搜索詞的分詞器。 ik_max_word分詞器是插件ik提供的，可以對文本進行最大數量的分詞。
-curl -X PUT 'localhost:9200/accounts' -d '
-{
-  "mappings": {
-    "person": {
-      "properties": {
-        "user": {
-          "type": "text",
-          "analyzer": "ik_max_word",
-          "search_analyzer": "ik_max_word"
-        },
-        "title": {
-          "type": "text",
-          "analyzer": "ik_max_word",
-          "search_analyzer": "ik_max_word"
-        },
-        "desc": {
-          "type": "text",
-          "analyzer": "ik_max_word",
-          "search_analyzer": "ik_max_word"
-        }
-      }
-    }
-  }
-}'
-
-# 建立 mapping
-curl -X POST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
-{
-	"properties": {
-		"content": {
-			"type": "text",
-			"analyzer": "ik_max_word",
-			"search_analyzer": "ik_smart"
-		}
-	}
-}'
-
-# 新增doc
-curl -X POST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d '{"content":"內容"}'
-
-# 刪除多個索引
-curl -X DELETE 'http://localhost:9200/index_one,index_two'
-curl -X DELETE 'http://localhost:9200/index_*'
-
-# 刪除 全部索引
-# action.destructive_requires_name: true 避免刪除全部索引 刪除需提供名稱
-curl -X DELETE 'http://localhost:9200/_all'
-curl -X DELETE 'http://localhost:9200/*'
-
-# 查看plugin 訊息
-elasticsearch-plugin -h
-
-# 返回集群的健康狀態
-curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty"
-
-# 修改 分片數量上限
-curl -X PUT localhost:9200/_cluster/settings -H "Content-Type: application/json" -d '{ "persistent": { "cluster.max_shards_per_node": "5000" } }'
-```
-
-## alias(別名)
-
-```bash
-# 取得 index 的別名資訊
-curl -X GET http://{{elastic_host}}/{{index}}/_alias/{{alias}}
-
-# 檢測這個別名指向哪一個索引
-curl -X GET http://{{elastic_host}}/*/_alias/{{alias}}
-
-# 哪些別名指向這個索引
-curl -X GET http://{{elastic_host}}/{{index}}/_alias/*
-```
-
-### 新增 刪除 別名至索引
-
-```
-添加別名到新索引的同時必須從舊的索引中刪除它 在零停機的情況下從舊索引遷移到新索引
-```
-
-```bash
-curl -X POST http://{{elastic_host}}/{{index}}/_aliases -H 'Content-Type: application/json' \
--d 'body'
-```
-
-```json
-{
-    "actions": [
-        {
-            "remove": {
-                "index": "{{old_index_alias}}",
-                "alias": "{{alias}}"
-            }
-        },
-        {
-            "add": {
-                "index": "{{new_index_alias}}",
-                "alias": "{{alias}}",
-				// 指定 routing 的值，或是 filter 的條件，來讓這個 alias 有限定的用途。
-				// filter 若使用別名 將從指定的資料範圍搜尋資料
-				"filter": { "term": { "user.id": "kimchy" } },
-				// 指定 routing 可以減少讓 request 跑到其他 shard 運作的時間，能直接強制導到某些 shard 身上。
-				"search_routing": "1,2",
-        		"index_routing": "2",
-				// 若會需要將資料透過 alias 來寫入，必預要明確的標示哪個 index 是 is_write_index
-				"is_write_index": true
-            }
-        }
-    ]
-}
-```
-
-## 創建索引模板(index temple)
-
-```bash
-# 創建範例
-curl -X PUT "localhost:9200/_index_template/{模板名稱}?pretty" -H 'Content-Type: application/json' \
--d 'body 以下json檔範例'
-```
-
-```json
-{
-  // index 或 data stream 的名字，可以使用萬用字元 * 來定義這個 pattern。
-  "index_patterns": ["te*", "bar*"],
-  // 索引的模板
-  "template": {
-    // 設定
-    "settings": {
-      "number_of_shards": 1
-    },
-    // 映射
-    "mappings": {
-      "_source": {
-        "enabled": true
-      },
-      // 屬性(根據欄位)
-      "properties": {
-        "欄位名稱": {
-          "type": "keyword"
-        },
-        "欄位名稱": {
-          // 日期
-          "type": "date",
-          "format": "EEE MMM dd HH:mm:ss Z yyyy"
-        },
-        "欄位名稱": {
-          "type": "date",
-          //將 index 設定為 false，ES 就不會索引該 field 的資料
-          "index": false,
-		  "analyzer": "standard",
-		  // "analyzer": "english",
-          "search_analyzer": "english",
-          "search_quote_analyzer": "standard"
-        }
-      },
-      // 動態模板
-      "dynamic_templates": [{
-          "strings": {
-            "match_mapping_type": "string",
-            "mapping": {
-              "type": "text",
-              // 建立索引時指定使用分詞器
-              "analyzer": "ik_max_word",
-              // 搜尋時指定使用分詞器
-              "search_analyzer": "ik_max_word",
-              "fields": {
-                "keyword": {
-                  "type": "keyword",
-                  "ignore_above": 256
-                }
-              }
-            }
-          }
-        },
-        {
-          // 此示例將 name 對像中任何字段的值複製到頂級 full_name 字段 middle除外
-          "full_name": {
-            "path_match": "name.*",
-            "path_unmatch": "*.middle",
-            "mapping": {
-              "type": "text",
-              "copy_to": "full_name"
-            }
-          }
-        }
-      ]
-    },
-    "aliases": {
-      "mydata": {}
-    }
-  },
-  "priority": 500,
-  "composed_of": ["component_template1", "runtime_component_template"],
-  "version": 3,
-  // 自定義元數據 可以不使用 以下範例為 更新訊息資料
-  "_meta": {
-    "class": "MyApp2::User3",
-    "version": {
-      "min": "1.3",
-      "max": "1.5"
-    }
-  }
-}
-```
-
-## 搜尋API(Search API)
-
-```bash
-# 返回與請求中定義的查詢匹配的搜索命中
-curl -X GET "localhost:9200/{索引名稱}/_search?pretty"  -H 'Content-Type: application/json' -d 'json格式body'
-```
-
-```json
-// bool-query
-// bool 查詢採用 “匹配越多越好” 的方法，因此每個匹配 must 或 should 子句的分數將被加在一起，為每個文檔提供最終的_score
-
-// must 該子句 (查詢) 必須出現在匹配的文件中，並將影響評分。
-// filter 該子句 (查詢) 必須出現在匹配的文檔中。然而，與 must 不同的是，查詢的分數將被忽略。過濾器子句在過濾器上下文中執行，這意味著評分將被忽略，子句將被考慮用於緩存。
-// should 該子句 (查詢) 應該出現在匹配的文檔中。
-// must_not 子句 (查詢) 不能出現在匹配的文檔中。子句在過濾器上下文中執行，這意味著忽略評分，子句被考慮用於緩存。因為忽略評分，所以返回所有文檔的評分為 0。
-{
-  "query": {
-    "bool" : {
-      "must" : {
-		// term 是直接把 field 拿去查詢倒排索引中確切的 term
-		// match 會先對 field 進行分詞操作，然後再去倒排索引中查詢
-        "term" : { "user.id" : "kimchy" }
-      },
-      "filter": {
-        "term" : { "tags" : "production" }
-      },
-      "must_not" : {
-		// 範圍
-        "range" : {
-          "age" : { "gte" : 10, "lte" : 20 }
-        }
-      },
-      "should" : [
-        { "term" : { "tags" : "env1" } },
-        { "term" : { "tags" : "deployed" } }
-      ],
-	  // should需有幾條語句必須匹配
-      "minimum_should_match" : 1,
-	  // 個別字段可以自動提升 — 計入相關性分數
-      "boost" : 1.0
-    }
-  }
-}
-
-// boosting-query
-// 使查詢内容的结果減少分數 排序靠後
-{
-  "query": {
-    "boosting": {
-      "positive": {
-        "term": {
-          "text": "apple"
-        }
-      },
-      "negative": {
-        "term": {
-          "text": "pie tart fruit crumble tree"
-        }
-      },
-      "negative_boost": 0.5
-    }
-  }
-}
-
-// constant_score query
-// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-constant-score-query.html
-// 包裝過濾器查詢並返回每個匹配的文檔，其相關性分數等於 boost 參數值。
-{
-  "query": {
-    "constant_score": {
-      "filter": { // 必須出現在匹配的文檔中。查詢的分數將被忽略。
-        "term": { "user.id": "kimchy" }
-      },
-	  // 浮點數，用作與過濾器查詢匹配的每個文檔的恆定相關性分數。默認為 1.0
-      "boost": 1.2
-    }
-  }
-}
-
-// dis_max query
-// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-dis-max-query.html
-// 返回匹配一個或多個包裝查詢的文檔，稱為查詢子句或子句。
-{
-  "query": {
-    "dis_max": {
-      "queries": [ // queries 包含一個或多個查詢子句。返回的文檔必須與這些查詢中的一個或多個匹配
-        { "term": { "title": "Quick pets" } },
-        { "term": { "body": "Quick pets" } }
-      ],
-	  // tie_breaker 0 到 1.0 之間的浮點數，用於增加匹配多個查詢子句的文檔的相關性分數。默認為 0.0。
-      "tie_breaker": 0.7
-    }
-  }
-}
-
-// function_score query
-// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-random
-{
-  "query": {
-    "function_score": {
-      "query": { "match_all": {} },
-      "boost": "5",
-      "functions": [
-        {
-          "filter": { "match": { "test": "bar" } },
-          "random_score": {},
-          "weight": 23
-        },
-        {
-          "filter": { "match": { "test": "cat" } },
-          "weight": 42
-        }
-      ],
-      "max_boost": 42,
-      "score_mode": "max",
-      "boost_mode": "multiply",
-      "min_score": 42
-    }
-  }
-}
-```
 
 # 安裝方式
 
@@ -1745,13 +1390,447 @@ thread_pool.get.queue_size: 1000
 
 # 集群 Cluster
 
-[Discovery and cluster formation settings](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/modules-discovery-settings.html)
-
 - 設置一個新的 Elasticsearch 實例。
 
 - 使用 elasticsearch.yml 中的 cluster.name 設置指定集群的名稱。
 
 - 啟動彈性搜索。節點自動發現並加入指定的集群。要將節點添加到在多台機器上運行的集群中，還必須設置 discovery.seed_hosts 以便新節點可以發現其集群的其餘部分
+
+# 操作
+
+## 指令 API
+
+```bash
+# 查看節點訊息
+curl -X GET http://localhost:9200/_cat/nodes?v
+
+# 查看節點
+curl -X GET http://localhost:9200/_nodes/stats?pretty
+
+# 查看伺服器參數
+curl -X GET http://localhost:9200/_cat/thread_pool/?v&h=id,name,active,rejected,completed,size,type&pretty&s=type
+
+# 測試
+curl -X GET http://localhost:9200
+
+# 創建索引
+curl -X PUT http://localhost:9200/index
+
+# 將某個索引的 refresh_interval 設置為 1 分鐘
+# ms: 毫秒
+# s: 秒
+# m: 分钟
+curl -X PUT http://localhost:9200/{index}/_settings -d '
+{
+    "index" : {
+        "refresh_interval" : "1m"
+    }
+}'
+
+# 獲取集群設置 JSON
+curl -X GET http://localhost:9200/_cluster/settings?pretty&include_defaults
+
+curl -X GET http://localhost:9200/_nodes/stats?metric=adaptive_selection,breaker,discovery,fs,http,indices,jvm,os,process,thread_pool,transport&filter_path=nodes.*.adaptive_selection*,nodes.*.breaker*,nodes.*.fs*,nodes.*.os*,nodes.*.jvm*,nodes.*.process*,nodes.*.thread_pool*,nodes.*.discovery.cluster_state_queue,nodes.*.discovery.published_cluster_states,nodes.process.*.*,nodes.*.indices*,nodes.*.http.current_open,nodes.*.http.total_opened,_nodes,cluster_name,nodes.*.attributes,nodes.*.timestamp,nodes.*.transport*,nodes.*.transport_address,nodes.*.transport_address,nodes.*.host,nodes.*.ip,,nodes.*.roles,nodes.*.name&pretty
+
+# 創建索引 accounts 使用分詞器
+# analyzer是字段文本的分詞器，search_analyzer是搜索詞的分詞器。 ik_max_word分詞器是插件ik提供的，可以對文本進行最大數量的分詞。
+curl -X PUT 'localhost:9200/accounts' -d '
+{
+  "mappings": {
+    "person": {
+      "properties": {
+        "user": {
+          "type": "text",
+          "analyzer": "ik_max_word",
+          "search_analyzer": "ik_max_word"
+        },
+        "title": {
+          "type": "text",
+          "analyzer": "ik_max_word",
+          "search_analyzer": "ik_max_word"
+        },
+        "desc": {
+          "type": "text",
+          "analyzer": "ik_max_word",
+          "search_analyzer": "ik_max_word"
+        }
+      }
+    }
+  }
+}'
+
+# 建立 mapping
+curl -X POST http://localhost:9200/index/_mapping -H 'Content-Type:application/json' -d'
+{
+	"properties": {
+		"content": {
+			"type": "text",
+			"analyzer": "ik_max_word",
+			"search_analyzer": "ik_smart"
+		}
+	}
+}'
+
+# 新增doc
+curl -X POST http://localhost:9200/index/_create/1 -H 'Content-Type:application/json' -d '{"content":"內容"}'
+
+# 刪除多個索引
+curl -X DELETE 'http://localhost:9200/index_one,index_two'
+curl -X DELETE 'http://localhost:9200/index_*'
+
+# 刪除 全部索引
+# action.destructive_requires_name: true 避免刪除全部索引 刪除需提供名稱
+curl -X DELETE 'http://localhost:9200/_all'
+curl -X DELETE 'http://localhost:9200/*'
+
+# 查看plugin 訊息
+elasticsearch-plugin -h
+
+# 返回集群的健康狀態
+curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&pretty"
+
+# 修改 分片數量上限
+curl -X PUT localhost:9200/_cluster/settings -H "Content-Type: application/json" -d '{ "persistent": { "cluster.max_shards_per_node": "5000" } }'
+```
+
+### alias(別名)
+
+```bash
+# 取得 index 的別名資訊
+curl -X GET http://{{elastic_host}}/{{index}}/_alias/{{alias}}
+
+# 檢測這個別名指向哪一個索引
+curl -X GET http://{{elastic_host}}/*/_alias/{{alias}}
+
+# 哪些別名指向這個索引
+curl -X GET http://{{elastic_host}}/{{index}}/_alias/*
+```
+
+### 新增 刪除 別名至索引
+
+```
+添加別名到新索引的同時必須從舊的索引中刪除它 在零停機的情況下從舊索引遷移到新索引
+```
+
+```bash
+curl -X POST http://{{elastic_host}}/{{index}}/_aliases -H 'Content-Type: application/json' \
+-d 'body'
+```
+
+```json
+{
+    "actions": [
+        {
+            "remove": {
+                "index": "{{old_index_alias}}",
+                "alias": "{{alias}}"
+            }
+        },
+        {
+            "add": {
+                "index": "{{new_index_alias}}",
+                "alias": "{{alias}}",
+				// 指定 routing 的值，或是 filter 的條件，來讓這個 alias 有限定的用途。
+				// filter 若使用別名 將從指定的資料範圍搜尋資料
+				"filter": { "term": { "user.id": "kimchy" } },
+				// 指定 routing 可以減少讓 request 跑到其他 shard 運作的時間，能直接強制導到某些 shard 身上。
+				"search_routing": "1,2",
+        		"index_routing": "2",
+				// 若會需要將資料透過 alias 來寫入，必預要明確的標示哪個 index 是 is_write_index
+				"is_write_index": true
+            }
+        }
+    ]
+}
+```
+
+### 創建索引模板(index temple)
+
+```bash
+# 創建範例
+curl -X PUT "localhost:9200/_index_template/{模板名稱}?pretty" -H 'Content-Type: application/json' \
+-d 'body 以下json檔範例'
+```
+
+```json
+{
+  // index 或 data stream 的名字，可以使用萬用字元 * 來定義這個 pattern。
+  "index_patterns": ["te*", "bar*"],
+  // 索引的模板
+  "template": {
+    // 設定
+    "settings": {
+      "number_of_shards": 1
+    },
+    // 映射
+    "mappings": {
+      "_source": {
+        "enabled": true
+      },
+      // 屬性(根據欄位)
+      "properties": {
+        "欄位名稱": {
+          "type": "keyword"
+        },
+        "欄位名稱": {
+          // 日期
+          "type": "date",
+          "format": "EEE MMM dd HH:mm:ss Z yyyy"
+        },
+        "欄位名稱": {
+          "type": "date",
+          //將 index 設定為 false，ES 就不會索引該 field 的資料
+          "index": false,
+		  "analyzer": "standard",
+		  // "analyzer": "english",
+          "search_analyzer": "english",
+          "search_quote_analyzer": "standard"
+        }
+      },
+      // 動態模板
+      "dynamic_templates": [{
+          "strings": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "text",
+              // 建立索引時指定使用分詞器
+              "analyzer": "ik_max_word",
+              // 搜尋時指定使用分詞器
+              "search_analyzer": "ik_max_word",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        {
+          // 此示例將 name 對像中任何字段的值複製到頂級 full_name 字段 middle除外
+          "full_name": {
+            "path_match": "name.*",
+            "path_unmatch": "*.middle",
+            "mapping": {
+              "type": "text",
+              "copy_to": "full_name"
+            }
+          }
+        }
+      ]
+    },
+    "aliases": {
+      "mydata": {}
+    }
+  },
+  "priority": 500,
+  "composed_of": ["component_template1", "runtime_component_template"],
+  "version": 3,
+  // 自定義元數據 可以不使用 以下範例為 更新訊息資料
+  "_meta": {
+    "class": "MyApp2::User3",
+    "version": {
+      "min": "1.3",
+      "max": "1.5"
+    }
+  }
+}
+```
+
+### 搜尋API(Search API)
+
+`使用 Elasticsearch 的 REST API 可以輕鬆查詢索引的映射`
+
+```bash
+curl -XGET 'http://localhost:9200/your_index/_mapping'
+```
+
+```bash
+# 返回與請求中定義的查詢匹配的搜索命中
+curl -X GET "localhost:9200/{索引名稱}/_search?pretty"  -H 'Content-Type: application/json' -d 'json格式body'
+```
+
+```json
+// bool-query
+// bool 查詢採用 “匹配越多越好” 的方法，因此每個匹配 must 或 should 子句的分數將被加在一起，為每個文檔提供最終的_score
+
+// must 該子句 (查詢) 必須出現在匹配的文件中，並將影響評分。
+// filter 該子句 (查詢) 必須出現在匹配的文檔中。然而，與 must 不同的是，查詢的分數將被忽略。過濾器子句在過濾器上下文中執行，這意味著評分將被忽略，子句將被考慮用於緩存。
+// should 該子句 (查詢) 應該出現在匹配的文檔中。
+// must_not 子句 (查詢) 不能出現在匹配的文檔中。子句在過濾器上下文中執行，這意味著忽略評分，子句被考慮用於緩存。因為忽略評分，所以返回所有文檔的評分為 0。
+{
+  "query": {
+    "bool" : {
+      "must" : {
+		// term 是直接把 field 拿去查詢倒排索引中確切的 term
+		// match 會先對 field 進行分詞操作，然後再去倒排索引中查詢
+        "term" : { "user.id" : "kimchy" }
+      },
+      "filter": {
+        "term" : { "tags" : "production" }
+      },
+      "must_not" : {
+		// 範圍
+        "range" : {
+          "age" : { "gte" : 10, "lte" : 20 }
+        }
+      },
+      "should" : [
+        { "term" : { "tags" : "env1" } },
+        { "term" : { "tags" : "deployed" } }
+      ],
+	  // should需有幾條語句必須匹配
+      "minimum_should_match" : 1,
+	  // 個別字段可以自動提升 — 計入相關性分數
+      "boost" : 1.0
+    }
+  }
+}
+
+// boosting-query
+// 使查詢内容的结果減少分數 排序靠後
+{
+  "query": {
+    "boosting": {
+      "positive": {
+        "term": {
+          "text": "apple"
+        }
+      },
+      "negative": {
+        "term": {
+          "text": "pie tart fruit crumble tree"
+        }
+      },
+      "negative_boost": 0.5
+    }
+  }
+}
+
+// constant_score query
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-constant-score-query.html
+// 包裝過濾器查詢並返回每個匹配的文檔，其相關性分數等於 boost 參數值。
+{
+  "query": {
+    "constant_score": {
+      "filter": { // 必須出現在匹配的文檔中。查詢的分數將被忽略。
+        "term": { "user.id": "kimchy" }
+      },
+	  // 浮點數，用作與過濾器查詢匹配的每個文檔的恆定相關性分數。默認為 1.0
+      "boost": 1.2
+    }
+  }
+}
+
+// dis_max query
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-dis-max-query.html
+// 返回匹配一個或多個包裝查詢的文檔，稱為查詢子句或子句。
+{
+  "query": {
+    "dis_max": {
+      "queries": [ // queries 包含一個或多個查詢子句。返回的文檔必須與這些查詢中的一個或多個匹配
+        { "term": { "title": "Quick pets" } },
+        { "term": { "body": "Quick pets" } }
+      ],
+	  // tie_breaker 0 到 1.0 之間的浮點數，用於增加匹配多個查詢子句的文檔的相關性分數。默認為 0.0。
+      "tie_breaker": 0.7
+    }
+  }
+}
+
+// function_score query
+// https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-random
+{
+  "query": {
+    "function_score": {
+      "query": { "match_all": {} },
+      "boost": "5",
+      "functions": [
+        {
+          "filter": { "match": { "test": "bar" } },
+          "random_score": {},
+          "weight": 23
+        },
+        {
+          "filter": { "match": { "test": "cat" } },
+          "weight": 42
+        }
+      ],
+      "max_boost": 42,
+      "score_mode": "max",
+      "boost_mode": "multiply",
+      "min_score": 42
+    }
+  }
+}
+```
+
+## Kibana(後台)
+
+通過 Kibana 的 Dev Tools 或 Discover 頁面來查看索引映射
+
+Dev Tools:
+
+打開 Kibana，進入 Dev Tools 頁面，然後執行以下查詢：
+
+```
+GET /your_index/_mapping
+```
+
+在 Kibana 的 Discover 頁面，選擇要查看的索引，然後選擇左側菜單中的「Index Management」。
+
+## Python 基本範例
+
+```Python
+from elasticsearch import Elasticsearch
+
+es = Elasticsearch(['http://localhost:9200'])
+mapping = es.indices.get_mapping(index='your_index')
+print(mapping)
+```
+
+## 創建模板
+
+`創建映射定義的 JSON 文件, 並使用 curl 或其他 HTTP 工具發送 HTTP PUT 請求`
+
+```json
+{
+  "mappings": {
+    "properties": {
+      "field1": { "type": "text" },
+      "field2": { "type": "keyword" },
+      "field3": { "type": "integer" }
+      // 添加其他字段及其屬性
+    }
+  }
+}
+```
+
+```bash
+curl -X PUT "http://localhost:9200/your_index_name" -H 'Content-Type: application/json' -d @mapping.json
+```
+
+`Python`
+
+```Python
+from elasticsearch import Elasticsearch
+
+es = Elasticsearch("http://localhost:9200")
+
+index_name = "your_index_name"
+mapping_definition = {
+    "mappings": {
+        "properties": {
+            "field1": {"type": "text"},
+            "field2": {"type": "keyword"},
+            "field3": {"type": "integer"}
+            # 添加其他字段及其屬性
+        }
+    }
+}
+
+es.indices.create(index=index_name, body=mapping_definition)
+```
 
 # 同步資料 Mongodb
 

@@ -3,10 +3,11 @@
 ## 目錄
 
 - [Linux 基本 網路相關](#linux-基本-網路相關)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-	- [ssh遠端設定](#ssh遠端設定)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+  - [ssh遠端設定](#ssh遠端設定)
 - [要確定對方主機某一個埠 TCP port 是否有開啟](#要確定對方主機某一個埠-tcp-port-是否有開啟)
+- [IPv6](#ipv6)
 
 ## 參考資料
 
@@ -42,4 +43,14 @@ nmap -p 80 google.com
 
 # Telnet
 telnet www.google.com 23
+```
+
+# IPv6
+
+`確保操作系統的網絡設置正確支持 IPv6`
+
+如果該文件的值為 0，表示 IPv6 被啟用。如果是 1，你可能需要啟用 IPv6
+
+```bash
+cat /proc/sys/net/ipv6/conf/all/disable_ipv6
 ```
