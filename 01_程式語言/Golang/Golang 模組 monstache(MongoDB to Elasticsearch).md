@@ -36,6 +36,7 @@ Elasticsearch Bulk API：
   - [中間件](#中間件)
 - [狀況](#狀況)
   - [使用golang連接mongo server selection error: server selection timeout, current topology](#使用golang連接mongo-server-selection-error-server-selection-timeout-current-topology)
+  - [undefined: "sync/atomic".Int64](#undefined-syncatomicint64)
 - [Mapping(映射)](#mapping映射)
 - [pm2 執行守護程式](#pm2-執行守護程式)
 - [direct-read-dynamic-exclude-regex 匹配規則 範例](#direct-read-dynamic-exclude-regex-匹配規則-範例)
@@ -66,8 +67,15 @@ cd ~/build
 git clone https://github.com/rwynn/monstache.git
 cd monstache
 
+# 查看所有分支
+git branch -a
+
+# 查看所有標籤
+git tag -l
+
 # 選擇版本
 git checkout <branch-or-tag-to-build>
+git checkout v6.7.10
 
 # 安裝
 go install
@@ -242,6 +250,23 @@ func Map(input *monstachemap.MapperPluginInput) (output *monstachemap.MapperPlug
 
 ```
 最終排查到問題原因：mongo配置了集群，但是連接時只指定了單節點，mongo沒有發現副本節點，所以連接失敗 解決辦法：在連接時指定單節點連接 connect=direct
+```
+
+## undefined: "sync/atomic".Int64
+
+清除 go 快取
+
+```bash
+go clean -modcache
+```
+
+檢查環境變數：
+
+確保環境變數（例如 GOROOT、GOPATH）被正確設置
+
+```bash
+echo $GOROOT
+echo $GOPATH
 ```
 
 # Mapping(映射)

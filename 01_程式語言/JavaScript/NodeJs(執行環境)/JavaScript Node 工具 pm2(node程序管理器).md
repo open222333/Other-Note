@@ -181,6 +181,7 @@ pm2 flush
 # 重新加載所有日誌
 pm2 reloadLogs
 
+# 首先運行 pm2 startup，然後再運行 pm2 save
 # 產生開機 script
 pm2 startup
 

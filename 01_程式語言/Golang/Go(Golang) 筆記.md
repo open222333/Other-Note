@@ -5,10 +5,15 @@
 - [Go(Golang) 筆記](#gogolang-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+- [Go 的版本管理工具](#go-的版本管理工具)
+  - [gimme](#gimme)
+  - [goenv](#goenv)
+  - [gvm](#gvm)
 - [Go modules 套件管理工具](#go-modules-套件管理工具)
 - [安裝](#安裝)
   - [基本](#基本)
   - [CentOS7](#centos7)
+  - [移除](#移除)
 
 ## 參考資料
 
@@ -19,6 +24,103 @@
 [模組文檔](https://pkg.go.dev/)
 
 [下載](https://go.dev/dl/)
+
+# Go 的版本管理工具
+
+## gimme
+
+`安裝 gimme`
+
+```bash
+curl -sL -o /usr/local/bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/master/gimme
+chmod +x /usr/local/bin/gimme
+```
+
+使用 gimme 安裝 Go 版本
+
+```bash
+gimme 1.16.0
+```
+
+設定環境變數
+
+```bash
+export GOROOT_BOOTSTRAP=$GOROOT
+export GIMME_ENV=$HOME/.gimme/envs/latest.env
+source $HOME/.gimme/envs/latest.env
+```
+
+## goenv
+
+`安裝 goenv`
+
+```bash
+git clone https://github.com/syndbg/goenv.git ~/.goenv
+```
+
+`將 ~/.goenv/bin 添加到您的 PATH 中，以便能夠在終端中執行 goenv`
+
+```bash
+echo 'export PATH="$HOME/.goenv/bin:$PATH"' >> ~/.bashrc
+```
+
+`使用 goenv install 命令安裝需要的 Go 版本`
+
+```bash
+goenv install 1.16.0
+```
+
+`設定全域 Go 版本`
+
+```bash
+goenv global 1.16.0
+```
+
+`局部 Go 版本`
+
+```bash
+cd /path/to/your/project
+goenv local 1.16.0
+```
+
+## gvm
+
+安裝 gvm
+
+```bash
+bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
+source ~/.gvm/scripts/gvm
+```
+
+驗證 gvm 是否成功安裝
+
+```bash
+gvm version
+```
+
+使用 gvm 安裝 Go
+
+```bash
+gvm install go1.17
+```
+
+使用特定版本的 Go
+
+```bash
+gvm use go1.17
+```
+
+列出已經安裝的 Go 版本
+
+```bash
+gvm list
+```
+
+設定 Go 版本作為默認版本
+
+```bash
+gvm default go1.17
+```
 
 # Go modules 套件管理工具
 
@@ -106,4 +208,35 @@ export GOPATH=$HOME/gopath # 第三方套件安裝路徑
 export PATH=$PATH:$HOME/go/bin:$GOPATH/bin
 
 source ~/.bash_profile
+```
+
+## 移除
+
+刪除之前解壓縮的 Go 安裝目錄
+
+```bash
+rm -rf /usr/local/go
+```
+
+移除環境變數
+
+打開 Shell 配置文件 例如 .bashrc .bash_profile .zshrc
+
+將這兩行從配置文件中刪除
+
+```bash
+export PATH=$PATH:/usr/local/go/bin
+export GOPATH=$HOME/go
+```
+
+應用對環境變數的更改
+
+```bash
+source ~/.bashrc
+```
+
+檢查 Go 是否成功移除
+
+```bash
+go version
 ```
