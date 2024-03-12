@@ -1,10 +1,31 @@
-# NetWork 筆記
+# NetWork 筆記()
 
+```
+```
 
-# 網路 IPv4
+## 目錄
 
+- [NetWork 筆記()](#network-筆記)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [Internet Protocol(IP 網際網路協定)](#internet-protocolip-網際網路協定)
+- [Internet Protocol(IP 網際網路協定)](#internet-protocolip-網際網路協定-1)
+  - [網路 IPv4](#網路-ipv4)
+  - [網路 IPv6](#網路-ipv6)
+- [狀況](#狀況)
+  - [網路檢測程序](#網路檢測程序)
 
-# 網路 IPv6
+## 參考資料
+
+### Internet Protocol(IP 網際網路協定)
+
+[保留IP位址](https://zh.wikipedia.org/zh-tw/%E4%BF%9D%E7%95%99IP%E5%9C%B0%E5%9D%80)
+
+# Internet Protocol(IP 網際網路協定)
+
+## 網路 IPv4
+
+## 網路 IPv6
 
 [Wiki](https://zh.wikipedia.org/wiki/IPv6#IPv6%E6%A0%BC%E5%BC%8F)
 
@@ -18,6 +39,8 @@ fe80::/10
 fc00::/7
 	唯一區域位址（ULA，unique local address）只可用於本地通訊，類似於IPv4的專用網路位址10.0.0.0/8、172.16.0.0/12和192.168.0.0/16。這定義在RFC 4193
 ```
+
+# 狀況
 
 ## 網路檢測程序
 
@@ -59,4 +82,3 @@ fc00::/7
 	* 先將一些駐留程式(TSR)設備驅動程式卸載(unload)﹐然後重新開機試試看。
 	* 將一些非必要的設備暫時關閉(disable)再重新開機。
 	* 如果程式依然有問題﹐將網路設備也給關閉看看。
-
