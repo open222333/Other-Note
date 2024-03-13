@@ -299,6 +299,14 @@ long_query_time = 2
 wait_timeout = 600
 ```
 
+MySQL 5.7.5 版本引入的一個參數，它與 read_only 類似，但提供了更高的安全性。
+
+當 super_read_only 設置為 ON 時，即使用戶有 SUPER 權限也無法修改數據庫，這使得在故障轉移和數據庫複製方面更加安全可靠
+
+```ini
+super_read_only = ON
+```
+
 ## MacOS
 
 ```bash
@@ -752,7 +760,8 @@ SELECT * FROM mysql.user where user='user'\G
 
 -- 給予權限 dbname.table *為全部 權限參考下方許可權列表
 GRANT 權限 ON 數據庫對象 TO 用戶
-GRANT privileges ON dbname.table TO 'username'@'host' IDENTIFIED BY 'password';
+GRANT all privileges ON dbname.table TO 'username'@'host' IDENTIFIED BY 'password';
+GRANT all privileges ON dbname.table TO 'username'@'host';
 
 -- 給帳號username'@'localhost對所有資料庫擁有SELECT,INSERT,UPDATE,DELETE的權限
 GRANT CREATE,SELECT,INSERT,UPDATE,DELETE ON *.* TO 'user'@'%' IDENTIFIED BY 'password';

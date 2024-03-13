@@ -103,6 +103,8 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 
 [官方 ProxySQL Docker Image](https://hub.docker.com/r/proxysql/proxysql)
 
+[官方網站 文檔](https://proxysql.com/Documentation/)
+
 [Download and Install ProxySQL](https://proxysql.com/documentation/installing-proxysql/)
 
 [Admin Variables](https://proxysql.com/Documentation/global-variables/admin-variables/)
@@ -617,6 +619,12 @@ SAVE MYSQL SERVERS TO DISK;
 SELECT * FROM mysql_servers;
 ```
 
+`清除所有 MYSQL SERVERS`
+
+```sql
+DELETE FROM mysql_servers;
+```
+
 ### 設定路由規則
 
 `設定路由`
@@ -644,6 +652,12 @@ VALUES (2, 1, 1);
 
 ```sql
 DELETE FROM mysql_query_rules WHERE rule_id = your_rule_id;
+```
+
+`清除所有路由规则`
+
+```sql
+DELETE FROM mysql_query_rules;
 ```
 
 `常用路由`
@@ -965,10 +979,26 @@ INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostg
 VALUES (1, 1, '^SELECT.*FOR UPDATE$', 1, 1);
 INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
 VALUES (2, 1, '^SELECT', 2, 1);
+```
+
+```sql
 INSERT INTO mysql_query_rules(rule_id,active,match_pattern,destination_hostgroup,apply)
 VALUES (3, 1,'^select.*for update$', 1, 1);
 INSERT INTO mysql_query_rules(rule_id,active,match_pattern,destination_hostgroup,apply)
 VALUES (4, 1,'^select', 2, 1);
+```
+
+```sql
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (1, 1, '^INSERT', 1, 1);
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (2, 1, '^UPDATE', 1, 1);
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (3, 1, '^SELECT.*FOR UPDATE$', 1, 1);
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (4, 1, '^SELECT', 2, 1);
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (5, 1, '.*', 1, 1);
 ```
 
 `重新載入設定`
