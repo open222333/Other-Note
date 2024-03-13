@@ -7,14 +7,15 @@ phpMyAdmin 是一個以PHP為基礎，以Web-Base方式架構在網站主機上�
 ## 目錄
 
 - [MySQL 工具 phpMyAdmin(MySQL資料庫管理工具)](#mysql-工具-phpmyadminmysql資料庫管理工具)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [安裝相關](#安裝相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [安裝相關](#安裝相關)
+    - [設定相關](#設定相關)
 - [安裝](#安裝)
-	- [CentOS7 phpMyAdmin安裝(Apache)](#centos7-phpmyadmin安裝apache)
-	- [CentOS7 phpMyAdmin安裝(Apache)](#centos7-phpmyadmin安裝apache-1)
+  - [CentOS7 phpMyAdmin安裝(Apache)](#centos7-phpmyadmin安裝apache)
+  - [CentOS7 phpMyAdmin安裝(Apache)](#centos7-phpmyadmin安裝apache-1)
 - [設定檔](#設定檔)
-	- [單一 phpadmin 多個 mysql](#單一-phpadmin-多個-mysql)
+  - [單一 phpadmin 多個 mysql](#單一-phpadmin-多個-mysql)
 
 ## 參考資料
 
@@ -22,11 +23,19 @@ phpMyAdmin 是一個以PHP為基礎，以Web-Base方式架構在網站主機上�
 
 [官方文檔](https://docs.phpmyadmin.net/zh_CN/latest/)
 
+[官方文檔 English](https://docs.phpmyadmin.net/en/latest/index.html)
+
 ### 安裝相關
 
 [How to Install phpMyAdmin on CentOS 7](https://phoenixnap.com/kb/how-to-install-secure-phpmyadmin-on-centos-7)
 
 [How To Install phpMyAdmin with Nginx on CentOS 7 / RHEL 7](https://www.itzgeek.com/how-tos/linux/centos-how-tos/phpmyadmin-with-nginx-on-centos-7-rhel-7.html)
+
+### 設定相關
+
+[Configuration 官方文檔](https://docs.phpmyadmin.net/en/latest/config.html#)
+
+[Server connection settings 官方文檔 (config.user.inc.php)](https://docs.phpmyadmin.net/en/latest/config.html#server-connection-settings)
 
 # 安裝
 

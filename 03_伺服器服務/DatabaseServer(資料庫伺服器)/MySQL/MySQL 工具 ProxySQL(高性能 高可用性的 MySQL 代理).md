@@ -543,6 +543,12 @@ ProxySQL 的管理端口（6032）
 
 ProxySQL 的 MySQL 連接端口（通常是 6033）
 
+--prompt 定制提示符的外觀和格式
+
+```bash
+mysql -uyour_username -pyour_password -h127.0.0.1 -P6032 --prompt='ProxySQL> '
+```
+
 ```bash
 mysql -uyour_username -pyour_password -h127.0.0.1 -P6033 --prompt='MySQL> '
 ```
