@@ -20,20 +20,21 @@
 ## 目錄
 
 - [Python 模組-內建 logging(記錄日誌)](#python-模組-內建-logging記錄日誌)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [類別相關](#類別相關)
-		- [教學範例](#教學範例)
-	- [Log 的呈現 / 輸出方式](#log-的呈現--輸出方式)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [類別相關](#類別相關)
+    - [教學範例](#教學範例)
+  - [Log 的呈現 / 輸出方式](#log-的呈現--輸出方式)
 - [用法](#用法)
-	- [基本用法](#基本用法)
-	- [基本用法 - 指定log檔案大小](#基本用法---指定log檔案大小)
-	- [基本用法 - 指定時間](#基本用法---指定時間)
-	- [log 訊息分別以不同的格式輸出到不同的地方](#log-訊息分別以不同的格式輸出到不同的地方)
-	- [同一個 application 中使用不同型態的 logger 的結果 dictConfig()用法](#同一個-application-中使用不同型態的-logger-的結果-dictconfig用法)
-	- [使用配置文檔](#使用配置文檔)
-	- [範例 - 自制 Log Class](#範例---自制-log-class)
-	- [範例 - 沒有使用 Log Class 的設定](#範例---沒有使用-log-class-的設定)
+  - [基本用法](#基本用法)
+  - [基本用法 - 指定log檔案大小](#基本用法---指定log檔案大小)
+  - [基本用法 - 指定時間](#基本用法---指定時間)
+  - [使用自定義 log 級別](#使用自定義-log-級別)
+  - [log 訊息分別以不同的格式輸出到不同的地方](#log-訊息分別以不同的格式輸出到不同的地方)
+  - [同一個 application 中使用不同型態的 logger 的結果 dictConfig()用法](#同一個-application-中使用不同型態的-logger-的結果-dictconfig用法)
+  - [使用配置文檔](#使用配置文檔)
+  - [範例 - 自制 Log Class](#範例---自制-log-class)
+  - [範例 - 沒有使用 Log Class 的設定](#範例---沒有使用-log-class-的設定)
 - [Formatter 格式代號](#formatter-格式代號)
 
 ## 參考資料
@@ -193,6 +194,44 @@ def _logging(**kwargs):
 
 os.makedirs('./logs', exist_ok=True)
 logger = _logging(filename='./logs/default')
+```
+
+## 使用自定義 log 級別
+
+```
+DEBUG（10）
+INFO（20）
+WARNING（30）
+ERROR（40）
+CRITICAL（50）
+```
+
+```Python
+import logging
+
+# 定義一個自訂的日誌級別
+MY_LOG_LEVEL = 25
+logging.addLevelName(MY_LOG_LEVEL, "MY_LOG")
+
+# 建立日誌記錄器
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.DEBUG)
+
+# 建立日誌處理器並設定格式
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+logger.addHandler(stream_handler)
+
+# 使用自訂日誌等級記錄日誌
+logger.log(MY_LOG_LEVEL, "This is a custom log message.")
+
+# 使用內建日誌等級記錄日誌
+logger.debug("This is a debug message.")
+logger.info("This is an info message.")
+logger.warning("This is a warning message.")
+logger.error("This is an error message.")
+logger.critical("This is a critical message.")
 ```
 
 ## log 訊息分別以不同的格式輸出到不同的地方
