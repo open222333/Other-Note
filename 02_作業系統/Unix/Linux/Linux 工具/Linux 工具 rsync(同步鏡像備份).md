@@ -84,6 +84,28 @@ sent 82 bytes received 28 bytes 220.00 bytes/sectotal size is 0 speedup is 0.00[
 rsync -av --progress --exclude="dir2" dir* 192.168.19.142:/sahilsending incremental file listdir1/dir3/dir4/dir5/
 ```
 
+``
+
+```bash
+rsync -av /source/ /dest/ --log-file=mylog.log
+```
+
+`執行過程中的標準錯誤輸出儲存到文件`
+
+source: 源目錄或文件的路徑，表示要從哪裡同步文件和目錄。可以是本地文件系統的路徑，也可以是遠程系統的路徑（使用 SSH 協議）。
+
+destination: 目標目錄的路徑，表示同步後文件和目錄將存儲在這個目錄下。同步操作會將 source 中的文件和目錄同步到 destination 中。
+
+```bash
+rsync [options] source destination 2> error.log
+```
+
+`同時保存標準輸出和標準錯誤到同一個文件`
+
+```bash
+rsync [options] source destination > output.log 2>&1
+```
+
 # rsync 與 scp 區別
 
 ```

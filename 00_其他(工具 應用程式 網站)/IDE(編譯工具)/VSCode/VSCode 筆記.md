@@ -3,35 +3,36 @@
 ## 目錄
 
 - [VSCode 筆記](#vscode-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [擴充套件相關](#擴充套件相關)
-	- [快捷鍵](#快捷鍵)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [擴充套件相關](#擴充套件相關)
+  - [快捷鍵](#快捷鍵)
 - [C/C++ 設定 開發工具 常用擴充套件](#cc-設定-開發工具-常用擴充套件)
 - [Java 設定 開發工具 常用擴充套件](#java-設定-開發工具-常用擴充套件)
 - [Python 設定 開發工具 常用擴充套件](#python-設定-開發工具-常用擴充套件)
 - [JavaScript 設定 開發工具 常用擴充套件](#javascript-設定-開發工具-常用擴充套件)
-	- [【Quokka.js】即時顯示輸出值（JS限定）](#quokkajs即時顯示輸出值js限定)
+  - [【Quokka.js】即時顯示輸出值（JS限定）](#quokkajs即時顯示輸出值js限定)
 - [使用者設定的檔案](#使用者設定的檔案)
 - [實用外掛 Code Runner](#實用外掛-code-runner)
 - [實用外掛 Beautify](#實用外掛-beautify)
 - [設定檔 備份 setting.json](#設定檔-備份-settingjson)
-	- [20220210](#20220210)
-	- [20220211](#20220211)
-	- [20220314](#20220314)
-	- [20220325](#20220325)
-	- [20220408](#20220408)
-	- [20220823](#20220823)
-	- [20221004](#20221004)
-	- [20221028](#20221028)
-	- [20230315 - javascript](#20230315---javascript)
-	- [20230315 - python](#20230315---python)
-	- [20230531](#20230531)
-	- [20230802](#20230802)
-	- [20240105](#20240105)
+  - [20220210](#20220210)
+  - [20220211](#20220211)
+  - [20220314](#20220314)
+  - [20220325](#20220325)
+  - [20220408](#20220408)
+  - [20220823](#20220823)
+  - [20221004](#20221004)
+  - [20221028](#20221028)
+  - [20230315 - javascript](#20230315---javascript)
+  - [20230315 - python](#20230315---python)
+  - [20230531](#20230531)
+  - [20230802](#20230802)
+  - [20240105](#20240105)
+  - [20240319](#20240319)
 - [例外狀況](#例外狀況)
-	- [Python](#python)
-		- [from import 語句自動折疊的問題](#from-import-語句自動折疊的問題)
+  - [Python](#python)
+    - [from import 語句自動折疊的問題](#from-import-語句自動折疊的問題)
 
 ## 參考資料
 
@@ -2247,6 +2248,128 @@ MacOS: cmd + shift + p
     "editor.autoIndent": "full",
     "autopep8.args": ["--max-line-length=250"],
     "editor.folding": false
+  }
+}
+```
+
+## 20240319
+
+```json
+{
+  "folders": [
+    {
+        "path": "repo/Other-Note"
+    },
+    {
+        "path": "repo/Other-Work"
+    },
+    {
+        "path": "../bucket/backup_script"
+    },
+    {
+        "path": "repo/Bash-DBBackup"
+    }
+],
+  "settings": {
+    // 編輯區 設定
+    // "editor.tabSize": 4,
+    "editor.fontSize": 16,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.suggestSelection": "first",
+    "editor.wordWrap": "on",
+    "editor.foldingImportsByDefault": false,
+    "editor.showFoldingControls": "always",
+    // 去除行尾空白
+    "files.trimTrailingWhitespace": true,
+    // 安全性
+    "security.workspace.trust.untrustedFiles": "open",
+    "diffEditor.wordWrap": "off",
+    "notebook.showFoldingControls": "always",
+    "notebook.cellToolbarLocation": {
+      "default": "right",
+      "jupyter-notebook": "left"
+    },
+    "workbench.editorAssociations": {
+      "*.ipynb": "jupyter-notebook"
+    },
+    // 終端機字體顏色
+    "workbench.colorCustomizations": {
+      "terminal.foreground": "#33ff00"
+    },
+    // 工作區
+    "terminal.integrated.enableMultiLinePasteWarning": "always",
+    "terminal.integrated.fontSize": 16,
+    "terminal.integrated.defaultProfile.osx": "bash",
+    // 除錯設定
+    "debug.console.fontSize": 16,
+    // 檔案異動確認
+    "explorer.confirmDragAndDrop": false,
+    "explorer.confirmDelete": false,
+    // 自動儲存
+    "files.autoSave": "afterDelay",
+    // Python
+    "python.terminal.activateEnvironment": true,
+    "python.defaultInterpreterPath": "/usr/local/anaconda3/bin/",
+    // Code Runner 設定
+    "code-runner.runInTerminal": true,
+    // 不顯示檔案
+    "files.exclude": {
+      ".tmp.drivedownload": true,
+      ".tmp.driveupload": true,
+      ".vscode": true,
+      "**/.classpath": true,
+      "**/.project": true,
+      "**/.settings": true,
+      "**/.factorypath": true
+    },
+    // 將 檔案 關聯到 編輯器
+    "files.associations": {
+      "**/*.html": "html",
+      "**/templates/*/*.html": "django-html",
+      "**/templates/*": "django-txt",
+      "**/templates/*.html": "django-html",
+      "**/requirements{/**,*}.{txt,in}": "pip-requirements",
+      "*.yml": "dockercompose",
+      "*.sh": "shellscript"
+    },
+    "emmet.includeLanguages": {
+      "django-html": "html"
+    },
+    // 各個檔案設定
+    "[django-html]": {
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true,
+    },
+    "[javascript]": {
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true,
+      // "js/ts.implicitProjectConfig.checkJs": true,
+    },
+    "[python]": {
+      "editor.insertSpaces": true
+    },
+    "[json]": {
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true,
+    },
+    "[markdown]": {
+      "editor.tabSize": 4,
+    },
+    "[nginx]": {
+      "editor.tabSize": 4,
+      "editor.insertSpaces": true,
+      "editor.detectIndentation": true,
+    },
+    "[shellscript]": {
+        "editor.insertSpaces": false,
+        "editor.tabSize": 4
+    },
+    "editor.folding": true,
+    "editor.minimap.enabled": false,
+    "autopep8.args": [
+        "--max-line-length=180"
+    ]
   }
 }
 ```
