@@ -39,6 +39,8 @@ RDBMS
     - [使用者相關](#使用者相關)
     - [密碼設定強度修改](#密碼設定強度修改)
     - [許可權 列表](#許可權-列表)
+    - [CRUD 增刪查改 INSERT、UPDATE、DELETE、SELECT](#crud-增刪查改-insertupdatedeleteselect)
+      - [INSERT](#insert)
   - [匯出匯入](#匯出匯入)
     - [匯出 - mysqldump](#匯出---mysqldump)
     - [匯入](#匯入)
@@ -103,6 +105,10 @@ RDBMS
 [mysql/docker-healthcheck](https://github.com/docker-library/healthcheck/blob/40afbf64d69cf933af0da4df6383958a29113601/mysql/docker-healthcheck)
 
 ### 操作相關
+
+[增刪查改 CRUD Wiki](https://zh.wikipedia.org/wiki/%E5%A2%9E%E5%88%AA%E6%9F%A5%E6%94%B9)
+
+[資料調處語言（Data Manipulation Language, DML）Wiki](https://zh.wikipedia.org/zh-tw/%E8%B3%87%E6%96%99%E6%93%8D%E7%B8%B1%E8%AA%9E%E8%A8%80)
 
 [MySQL列出所有表](https://www.yiibai.com/mysql/show-tables.html)
 
@@ -579,6 +585,10 @@ describe 表名;
 -- https://dev.mysql.com/doc/refman/8.0/en/show-create-database.html
 SHOW CREATE DATABASE db_name\G
 
+-- 顯示所有資料庫 字符集和排序規則
+SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME
+FROM information_schema.SCHEMATA;
+
 -- 顯示資料庫 字符集和排序規則
 SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME
 FROM INFORMATION_SCHEMA.SCHEMATA
@@ -847,6 +857,25 @@ SHOW VIEW
 SHUT DOWN （使用mysqladmin shutdown 來關閉mysql）
 SUPER
 USAGE (無訪問許可權)
+```
+
+### CRUD 增刪查改 INSERT、UPDATE、DELETE、SELECT
+
+#### INSERT
+
+`插入資料並忽略重複資料`
+
+```sql
+INSERT IGNORE INTO users (id, name, email)
+VALUES (1, 'John Doe', 'john@example.com');
+```
+
+`插入資料並更新重複資料`
+
+```sql
+INSERT INTO users (id, name, email)
+VALUES (1, 'John Doe', 'john@example.com')
+ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email);
 ```
 
 ## 匯出匯入
