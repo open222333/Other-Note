@@ -3,15 +3,18 @@
 ## 目錄
 
 - [SQL 筆記](#sql-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [用法](#用法)
-	- [範例](#範例)
-		- [鎖定](#鎖定)
-		- [解除鎖定](#解除鎖定)
-		- [模糊匹配(可能導致性能問題，特別是當數據量龐大時)](#模糊匹配可能導致性能問題特別是當數據量龐大時)
-		- [重複出現統計 COUNT](#重複出現統計-count)
-		- [合併 JOIN](#合併-join)
+  - [範例](#範例)
+    - [CRUD 增刪查改 INSERT、UPDATE、DELETE、SELECT](#crud-增刪查改-insertupdatedeleteselect)
+      - [INSERT](#insert)
+      - [SELECT](#select)
+    - [鎖定](#鎖定)
+    - [解除鎖定](#解除鎖定)
+    - [模糊匹配(可能導致性能問題，特別是當數據量龐大時)](#模糊匹配可能導致性能問題特別是當數據量龐大時)
+    - [重複出現統計 COUNT](#重複出現統計-count)
+    - [合併 JOIN](#合併-join)
 
 ## 參考資料
 
@@ -22,6 +25,36 @@
 # 用法
 
 ## 範例
+
+### CRUD 增刪查改 INSERT、UPDATE、DELETE、SELECT
+
+#### INSERT
+
+`插入多筆`
+
+```sql
+INSERT INTO users (id, name, email) VALUES
+(1, 'John Doe', 'john@example.com'),
+(2, 'Jane Smith', 'jane@example.com'),
+(3, 'Mike Johnson', 'mike@example.com');
+```
+
+`插入資料並忽略重複資料`
+
+```sql
+INSERT IGNORE INTO users (id, name, email)
+VALUES (1, 'John Doe', 'john@example.com');
+```
+
+`插入資料並更新重複資料`
+
+```sql
+INSERT INTO users (id, name, email)
+VALUES (1, 'John Doe', 'john@example.com')
+ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email);
+```
+
+#### SELECT
 
 ```sql
 -- 將資料從資料庫中的表格內選出
