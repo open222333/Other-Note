@@ -13,6 +13,7 @@ RDBMS
 - [MySQL 筆記](#mysql-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [SQL 語法相關](#sql-語法相關)
     - [使用者權限相關](#使用者權限相關)
     - [安裝相關](#安裝相關)
       - [Docker相關](#docker相關)
@@ -71,6 +72,14 @@ RDBMS
 [MySQL Community Downloads - MySQL 社區下載](https://dev.mysql.com/downloads/)
 
 [Connectors and APIs - MySQL 連接器和 API 是用於將不同編程語言的應用程序連接到 MySQL 數據庫服務器的驅動程序和庫](https://dev.mysql.com/doc/index-connectors.html)
+
+### SQL 語法相關
+
+[SQL語法手冊](http://tw.gitbook.net/sql/index.html)
+
+[SQL語法手冊](https://www.1keydata.com/tw/sql/sql.html)
+
+[SQL 筆記](https://github.com/open222333/Other-Note/blob/main/01_%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/SQL/SQL%20%E7%AD%86%E8%A8%98.md)
 
 ### 使用者權限相關
 
