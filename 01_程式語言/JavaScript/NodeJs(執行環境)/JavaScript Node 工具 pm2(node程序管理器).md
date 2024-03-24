@@ -114,8 +114,14 @@ pm2 show $app_name
 pm2 start app.js
 	--name
 		指定 app 一個名字
+
+    --no-watch
+        重新加載應用程序，但不啟用 "watch" 功能。
 	--watch
 		檔案有變更時，會自動重新啟動
+        # 開啟 "watch" 功能
+        # 使用 PM2 運行應用程序並啟用了 "watch" 功能時，PM2 會持續監視應用程序的文件。
+        # 如果文件發生變化（例如編輯了文件內容），PM2 將自動重新啟動應用程序以應用這些變化，而不需要手動停止和重新啟動應用程序。
 	--max-memory-restart
 		Memory 使用超過這個門檻時，會自動重啟
 	--log
