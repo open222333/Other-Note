@@ -16,7 +16,7 @@ Logstash蒐集Log，透過Broker(透過Redis，也可以透過Kafka或是message
 最後儲存在Elasticsearch中，可以供查詢以及其他應用
 Kibana在進行web介面上的串接，前端視覺化
 
-Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch 數據進行可視化，並讓您在Elastic Stack 中進行導航。
+Kibana 是一個免費且開放的用戶界面，能夠讓對Elasticsearch 數據進行可視化，並讓在Elastic Stack 中進行導航。
 
 索引(index)
 index 在 ES 中是個邏輯空間的概念，用來儲存 document 的容器，而這些 document 內容都是相似的 (跟其他領域的 index 用法不太一樣)
@@ -128,6 +128,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [Kibana(後台)](#kibana後台)
   - [Python 基本範例](#python-基本範例)
   - [創建模板](#創建模板)
+  - [使用 Elasticsearch ILM 自動刪除索引的基本步驟](#使用-elasticsearch-ilm-自動刪除索引的基本步驟)
 - [同步資料 Mongodb](#同步資料-mongodb)
   - [Python - mongo-connector](#python---mongo-connector-1)
     - [配置文檔 config.json](#配置文檔-configjson)
@@ -175,6 +176,19 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 [elasticsearch-analysis-ik - ik分詞器 github專案](https://github.com/medcl/elasticsearch-analysis-ik)
 
 [elasticsearch-analysis-ik - ik分詞器 所有版本 手動下載](https://github.com/medcl/elasticsearch-analysis-ik/releases)
+
+[Elasticsearch Index Lifecycle Management（ILM）](https://www.elastic.co/guide/en/elasticsearch/reference/current/index-lifecycle-management.html#index-lifecycle-management)
+
+```
+Elasticsearch Index Lifecycle Management（ILM）是一個功能強大的工具，可以幫助自動管理索引的生命週期。
+這包括了定義索引的不同階段（如熱、暖、冷、刪除等），以及在每個階段進行的操作，例如刪除、壓縮、移動到低成本存儲等。
+以下是 Elasticsearch ILM 的一些主要特性和功能：
+簡化管理：ILM 讓可以通過定義一個策略，而不是手動管理每個索引的生命週期。這樣可以節省大量時間和精力。
+自動化操作：ILM 可以自動執行一系列操作，如刪除過期索引、將索引從熱節點移動到冷節點等。這樣可以提高系統的效率和運行成本。
+智能調整：ILM 可以根據需求和策略自動調整索引的生命週期，例如根據索引的使用模式調整索引的熱度和冷度。
+監控和警報：ILM 提供了監控和警報功能，可以讓及時了解索引生命週期管理的情況，並採取必要的措施。
+適應多種用例：ILM 可以適應各種不同的用例，包括日誌管理、時間序列數據、存檔數據等等。
+```
 
 ### 教學心得相關
 
@@ -1832,6 +1846,16 @@ mapping_definition = {
 es.indices.create(index=index_name, body=mapping_definition)
 ```
 
+## 使用 Elasticsearch ILM 自動刪除索引的基本步驟
+
+定義索引生命週期策略：首先，需要定義一個索引生命週期策略，其中包括了索引的生命週期階段（例如熱、暖、冷、刪除等），以及定義在每個階段進行的操作（如何處理索引或文檔）。
+
+應用策略到索引：將定義好的索引生命週期策略應用到索引上，這樣 Elasticsearch 就會根據策略來管理索引的生命週期，包括自動刪除過期的索引或文檔。
+
+定義刪除策略：在索引生命週期策略中，可以定義一個刪除階段，並設置相應的條件來指示 Elasticsearch 在符合條件時自動刪除索引或文檔。
+
+監控和調整：定期監控索引的生命週期管理情況，並根據需求調整相應的策略和條件。
+
 # 同步資料 Mongodb
 
 ## Python - mongo-connector
@@ -2104,7 +2128,7 @@ namespace-exclude-regex = '^mydb\.ignorecollection$'
 
 # turn on indexing of GridFS file content
 # https://github.com/rwynn/monstache/issues/33
-# 另外，為了清楚起見，monstache 僅在配置中啟用文件內容索引時才需要 ingest-attachment 插件。 如果您將以下內容更改為 false monstache 將不會嘗試需要攝取附件的請求。
+# 另外，為了清楚起見，monstache 僅在配置中啟用文件內容索引時才需要 ingest-attachment 插件。 如果將以下內容更改為 false monstache 將不會嘗試需要攝取附件的請求。
 index-files = false
 
 # turn on search result highlighting of GridFS content
@@ -2125,6 +2149,14 @@ exit-after-direct-reads = false
 
 # 排除
 direct-read-dynamic-exclude-regex = ".*(dbname1|dbname2).*\\.(m3_u8|m3u8|.*log.*).*"
+direct-read-dynamic-exclude-regex = ".*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*)"
+direct-read-dynamic-exclude-regex = "(admin|config|local)\\..*|.*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*)"
+
+# direct-read-split-max 設置確實可能會導致使用大量記憶體，特別是當設置為較大的值時。
+# 這是因為該設置決定了一次處理的最大文件數量，如果設置得太大，系統可能需要同時處理大量的文件，導致記憶體壓力增加。
+# 為了降低記憶體使用量，可以嘗試將 direct-read-split-max 設置為較小的值，例如設置為 1 或 2，這樣可以減少系統同時處理的文件數量，從而減輕記憶體壓力。
+# 另外，還可以優化的程序邏輯，以減少在單個操作中需要處理的數據量，從而進一步減少記憶體需求。
+direct-read-split-max = 1
 
 [[script]]
 script="""
