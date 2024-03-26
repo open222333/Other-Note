@@ -6,23 +6,25 @@
 ## 目錄
 
 - [Linux 工具 OpenSSL OpenSSH(連線、密鑰)](#linux-工具-openssl-openssh連線密鑰)
-  - [目錄](#目錄)
-  - [參考資料](#參考資料)
-    - [指令相關](#指令相關)
-    - [憑證相關](#憑證相關)
-    - [設定檔相關](#設定檔相關)
-    - [深入學習相關](#深入學習相關)
-    - [範例相關](#範例相關)
+	- [目錄](#目錄)
+	- [參考資料](#參考資料)
+		- [指令相關](#指令相關)
+		- [憑證相關](#憑證相關)
+		- [設定檔相關](#設定檔相關)
+		- [深入學習相關](#深入學習相關)
+		- [範例相關](#範例相關)
 - [安裝](#安裝)
-  - [CentOS7](#centos7)
+	- [CentOS7](#centos7)
 - [指令](#指令)
-  - [連線設定](#連線設定)
-  - [ssh指令](#ssh指令)
-  - [scp指令 (傳遞檔案)](#scp指令-傳遞檔案)
-    - [rsync 與 scp 區別](#rsync-與-scp-區別)
-  - [sshpass(傳送密碼)](#sshpass傳送密碼)
-  - [ssh\_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
-    - [常用建立連線設定步驟](#常用建立連線設定步驟)
+	- [ssh指令](#ssh指令)
+	- [scp指令 (傳遞檔案)](#scp指令-傳遞檔案)
+		- [rsync 與 scp 區別](#rsync-與-scp-區別)
+	- [sshpass(傳送密碼)](#sshpass傳送密碼)
+- [常用](#常用)
+	- [ssh\_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
+		- [常用建立連線設定步驟](#常用建立連線設定步驟)
+	- [公鑰(.pub 文件)傳送到另一個電腦使用](#公鑰pub-文件傳送到另一個電腦使用)
+	- [連線設定1](#連線設定1)
 
 ## 參考資料
 
@@ -78,7 +80,236 @@ yum install -y sshpass
 
 # 指令
 
-## 連線設定
+## ssh指令
+
+```bash
+# -L 指定將本地（客戶端）主機上的給定端口轉發到遠程端的給定主機和端口
+ssh username@host_ip:port -fN -L [bind_address:]port:host:hostport
+	-1：強制使用ssh協議版本1
+	-2：強制使用ssh協議版本2
+	-4：強制使用IPv4地址
+	-6：強制使用IPv6地址
+	-A：開啟認證代理連接轉發功能
+	-a：關閉認證代理連接轉發功能
+	-b：使用本機指定地址作為對應連接的源ip地址
+	-C：請求壓縮所有數據
+	-c：選擇所加密的密碼型式（blowfish|3des 預設是3des）
+	-e：設定跳脫字符
+	-F：指定ssh指令的配置文件
+	-f：後台執行ssh指令
+	-g：允許遠程主機連接主機的轉發端口
+	-i：指定身份文件（預設是在使用者的家目錄中的.ssh/identity）
+	-l：指定連接遠程服務器登錄用戶名
+	-N：不執行遠程指令
+	-n：重定向stdin 到/dev/null
+	-o：指定配置選項
+	-p：指定遠程服務器上的端口（默認22）
+	-P：使用非特定的port 去對外聯機（注意這個選項會關掉RhostsAuthentication 和RhostsRSAAuthentication）
+	-q：靜默模式
+	-T：禁止分配偽終端
+	-t：強製配置pseudo-tty
+	-v：打印更詳細信息
+	-X：開啟X11轉發功能
+	-x：關閉X11轉發功能
+	-y：開啟信任X11轉發功能
+	-L listen-port:host:port 指派本地的port 到達端機器地址上的port
+
+ssh-keygen
+	-m PEM 將金鑰格式設定為 PEM
+	-t rsa 要建立的金鑰類型，在此案例中採用 RSA 格式
+	-b 4096 金鑰中的位元數，在此案例中為 4096
+	-C "azureuser@myserver" 附加至公開金鑰檔案結尾以便輕鬆識別的註解。 通常會以電子郵件地址作為註解，但您可以使用任何最適合您的基礎結構的項目。
+	-f ~/.ssh/mykeys/myprivatekey 私密金鑰檔案的檔案名稱 (如果選擇不使用預設名稱)。 加上 .pub 的對應公開金鑰檔案會產生在相同的目錄中。 此目錄必須已存在。
+	-N mypassphrase = 用來存取私密金鑰檔案的其他複雜密碼。
+
+# Remove old key
+ssh-keygen -R $target_host
+
+# Add the new key
+ssh-keyscan $target_host >> ~/.ssh/known_hosts
+```
+
+## scp指令 (傳遞檔案)
+
+```bash
+### 指令 scp  ###
+scp [帳號@來源主機]:來源檔案 [帳號@目的主機]:目的檔案
+
+# 複製目錄 -r 參數
+scp -r /path/folder1 myuser@192.168.0.1:/path/folder2
+
+# 保留檔案時間與權限 -p 參數
+scp -p /path/file1 myuser@192.168.0.1:/path/file2
+
+# 將資料壓縮之後再傳送，減少網路頻寬的使用量 -C 參數
+scp -C /path/file1 myuser@192.168.0.1:/path/file2
+
+# 限制傳輸速度 -l 指定可用的網路頻寬上限值（單位為 Kbit/s）：
+scp -l 400 /path/file1 myuser@192.168.0.1:/path/file2
+
+# 使用 2222 連接埠 -P
+scp -P 2222 /path/file1 myuser@192.168.0.1:/path/file2
+
+# 使用 IPv4 -4
+scp -4 /path/file1 myuser@192.168.0.1:/path/file2
+
+# 使用 IPv6 -6
+scp -6 /path/file1 myuser@192.168.0.1:/path/file2
+```
+
+### rsync 與 scp 區別
+
+```
+主要區別在於它們複製文件的方式。
+
+scp基本上讀取源文件並將其寫入目標。它在本地或通過網絡執行簡單的線性複制。
+
+rsync還可以在本地或通過網絡複製文件。但它採用特殊的增量傳輸算法和一些優化來使操作更快。考慮通話。
+
+rsync有大量的命令行選項，允許用戶微調其行為。它支持複雜的過濾規則，以批處理模式、守護模式等方式運行，scp只有幾個開關。
+```
+
+## sshpass(傳送密碼)
+
+```bash
+# 用 sshpass 傳送密碼 123qwe，ssh 登入 kvm7.deyu.wang 在目錄 /root 下產生一個檔案 abc 內容為 aaaa。 遠端連線時目錄 .ssh 中有一個檔案 known_hosts 會記錄曾經連線過的信任主機，若連線主機重新安裝或更換 ip，其 host key 不同，ssh 會產生警告訊息，要求確認並刪除在 known_hosts 中的記錄，才能連線。選項 -o StrictHostKeyChecking=no 就是不進行 host key 的檢查，以避免此中斷程式的動作
+sshpass -p123qwe ssh -o StrictHostKeyChecking=no kvm7.deyu.wang "echo aaaa > /root/abc"
+
+# 遠程創建文件file
+sshpass -p 123456 ssh admin@1.1.1.1 "touch file"
+# 把本地文件file1傳入遠程機器1.1.1.2上的用戶目錄下
+sshpass -p 123456 scp file1 admin@1.1.1.2:~
+
+rsync -av -e "sshpass -p123qwe ssh" b.txt kvm7.deyu.wang:
+```
+
+# 常用
+
+## ssh_config(紀錄主機連線資訊)
+
+```bash
+# 編輯設定
+vim ~/.ssh/config
+
+# - master
+Host            master                # 代號
+Hostname        192.168.11.24        # IP or Domain name
+Port            2222                # 指定埠口
+User            jonny                # 使用者名稱
+identityfile    ~/.ssh/id_rsa_24    # 指定金鑰
+
+# - slave
+Host            slave                # 代號
+Hostname        192.168.11.25        # IP or Domain name
+Port            2223                # 指定埠口
+User            jonny                # 使用者名稱
+identityfile    ~/.ssh/id_rsa_25    # 指定金鑰
+
+# 使用代號進行連線
+ssh slave
+sftp
+
+
+# 另一種格式
+Host ssh-jp-manager
+    User root
+    HostName 192.168.11.25
+    Port 22
+    ServerAliveInterval 60
+    IdentityFile ~/.ssh/id_rsa
+
+Host test1
+	User            root
+	HostName        192.168.11.1
+	ServerAliveInterval     60
+	IdentityFile	 ~/.ssh/test1
+Host test2
+	User            root
+	HostName        192.168.11.2
+	ServerAliveInterval     60
+	IdentityFile     ~/.ssh/test2
+Host test3
+	User            user
+	HostName        192.168.11.3
+	ServerAliveInterval     60
+	IdentityFile     ~/.ssh/test3
+```
+
+`背景建立 連線通道`
+
+建立 SSH 隧道，將來自本地端口的流量通過 SSH 連接轉發到遠程主機
+
+user@host: 這是用於指定 SSH 連接的目標主機的用戶名和主機地址。
+user 是目標主機上的用戶名，host 是目標主機的 IP 地址或主機名。
+
+-fN: 這是兩個選項的組合。
+-f 表示在背景運行 SSH 連接，並且不會打開 shell。
+-N 表示不執行任何命令，僅用於轉發端口。
+
+-L 127.0.0.1:port:host_ip:port:
+這是用於定義本地端口轉發的選項。
+這告訴 SSH 在本地主機的 127.0.0.1 地址的 port 端口上監聽，並將來自該端口的流量轉發到遠程主機的 host_ip 地址的 port 端口上。
+
+```bash
+ssh user@host -fN -L 127.0.0.1:port:host_ip:port
+```
+
+### 常用建立連線設定步驟
+
+```bash
+ssh-keygen -f ~/.ssh/$hostname
+
+# 複製公鑰
+ssh-copy-id -i ~/.ssh/$hostname.pub $user@$host
+
+# 編輯 填入資料
+vim ~/.ssh/config
+
+Host $hostname
+		User            $user
+		HostName        $host
+		ServerAliveInterval     60
+		IdentityFile     ~/.ssh/$hostname
+```
+
+## 公鑰(.pub 文件)傳送到另一個電腦使用
+
+將 SSH 公鑰文件（即 .pub 文件）添加到目標服務器或系統的授權文件中
+
+若還沒有訪問目標服務器，請使用 SSH 登錄到該服務器。
+
+```bash
+ssh username@hostname
+```
+
+創建 SSH 授權文件：
+
+在目標服務器上，創建 .ssh 目錄（如果不存在），然後創建 authorized_keys 文件用於存儲授權的公鑰。
+
+```bash
+mkdir -p ~/.ssh
+touch ~/.ssh/authorized_keys
+```
+
+將公鑰添加到授權文件中：
+
+打開 authorized_keys 文件，將公鑰（即 .pub 文件的內容）添加到這個文件中。
+
+可以使用文本編輯器（如 nano 或 vim）來編輯文件：
+
+```bash
+nano ~/.ssh/authorized_keys
+```
+
+設置授權文件的權限：
+
+確保 authorized_keys 文件的權限設置正確，只有擁有者可以讀取和寫入，其他用戶無權限。
+
+```bash
+chmod 600 ~/.ssh/authorized_keys
+```
+
+## 連線設定1
 
 ```bash
 ### 生成密鑰 ###
@@ -87,6 +318,8 @@ yum install -y sshpass
 openssl rand 16 > {key_dir}/{key_name}.key
 
 openssl rand [-out file] [-rand file(s)] [-base64] [-hex] num
+
+ssh-keygen -t rsa -b 2048 -f /path/to/.ssh/key_name
 
 ssh-keygen
 	# -f  指定密鑰文件名。 ssh-keygen -f /path/to/your_key
@@ -227,192 +460,3 @@ firewall-cmd --reload
 openssl x509 -in certificate.crt -text -noout
 ```
 
-## ssh指令
-
-```bash
-# -L 指定將本地（客戶端）主機上的給定端口轉發到遠程端的給定主機和端口
-ssh username@host_ip:port -fN -L [bind_address:]port:host:hostport
-	-1：強制使用ssh協議版本1
-	-2：強制使用ssh協議版本2
-	-4：強制使用IPv4地址
-	-6：強制使用IPv6地址
-	-A：開啟認證代理連接轉發功能
-	-a：關閉認證代理連接轉發功能
-	-b：使用本機指定地址作為對應連接的源ip地址
-	-C：請求壓縮所有數據
-	-c：選擇所加密的密碼型式（blowfish|3des 預設是3des）
-	-e：設定跳脫字符
-	-F：指定ssh指令的配置文件
-	-f：後台執行ssh指令
-	-g：允許遠程主機連接主機的轉發端口
-	-i：指定身份文件（預設是在使用者的家目錄中的.ssh/identity）
-	-l：指定連接遠程服務器登錄用戶名
-	-N：不執行遠程指令
-	-n：重定向stdin 到/dev/null
-	-o：指定配置選項
-	-p：指定遠程服務器上的端口（默認22）
-	-P：使用非特定的port 去對外聯機（注意這個選項會關掉RhostsAuthentication 和RhostsRSAAuthentication）
-	-q：靜默模式
-	-T：禁止分配偽終端
-	-t：強製配置pseudo-tty
-	-v：打印更詳細信息
-	-X：開啟X11轉發功能
-	-x：關閉X11轉發功能
-	-y：開啟信任X11轉發功能
-	-L listen-port:host:port 指派本地的port 到達端機器地址上的port
-
-ssh-keygen
-	-m PEM 將金鑰格式設定為 PEM
-	-t rsa 要建立的金鑰類型，在此案例中採用 RSA 格式
-	-b 4096 金鑰中的位元數，在此案例中為 4096
-	-C "azureuser@myserver" 附加至公開金鑰檔案結尾以便輕鬆識別的註解。 通常會以電子郵件地址作為註解，但您可以使用任何最適合您的基礎結構的項目。
-	-f ~/.ssh/mykeys/myprivatekey 私密金鑰檔案的檔案名稱 (如果選擇不使用預設名稱)。 加上 .pub 的對應公開金鑰檔案會產生在相同的目錄中。 此目錄必須已存在。
-	-N mypassphrase = 用來存取私密金鑰檔案的其他複雜密碼。
-
-# Remove old key
-ssh-keygen -R $target_host
-
-# Add the new key
-ssh-keyscan $target_host >> ~/.ssh/known_hosts
-```
-
-## scp指令 (傳遞檔案)
-
-```bash
-### 指令 scp  ###
-scp [帳號@來源主機]:來源檔案 [帳號@目的主機]:目的檔案
-
-# 複製目錄 -r 參數
-scp -r /path/folder1 myuser@192.168.0.1:/path/folder2
-
-# 保留檔案時間與權限 -p 參數
-scp -p /path/file1 myuser@192.168.0.1:/path/file2
-
-# 將資料壓縮之後再傳送，減少網路頻寬的使用量 -C 參數
-scp -C /path/file1 myuser@192.168.0.1:/path/file2
-
-# 限制傳輸速度 -l 指定可用的網路頻寬上限值（單位為 Kbit/s）：
-scp -l 400 /path/file1 myuser@192.168.0.1:/path/file2
-
-# 使用 2222 連接埠 -P
-scp -P 2222 /path/file1 myuser@192.168.0.1:/path/file2
-
-# 使用 IPv4 -4
-scp -4 /path/file1 myuser@192.168.0.1:/path/file2
-
-# 使用 IPv6 -6
-scp -6 /path/file1 myuser@192.168.0.1:/path/file2
-```
-
-### rsync 與 scp 區別
-
-```
-主要區別在於它們複製文件的方式。
-
-scp基本上讀取源文件並將其寫入目標。它在本地或通過網絡執行簡單的線性複制。
-
-rsync還可以在本地或通過網絡複製文件。但它採用特殊的增量傳輸算法和一些優化來使操作更快。考慮通話。
-
-rsync有大量的命令行選項，允許用戶微調其行為。它支持複雜的過濾規則，以批處理模式、守護模式等方式運行，scp只有幾個開關。
-```
-
-## sshpass(傳送密碼)
-
-```bash
-# 用 sshpass 傳送密碼 123qwe，ssh 登入 kvm7.deyu.wang 在目錄 /root 下產生一個檔案 abc 內容為 aaaa。 遠端連線時目錄 .ssh 中有一個檔案 known_hosts 會記錄曾經連線過的信任主機，若連線主機重新安裝或更換 ip，其 host key 不同，ssh 會產生警告訊息，要求確認並刪除在 known_hosts 中的記錄，才能連線。選項 -o StrictHostKeyChecking=no 就是不進行 host key 的檢查，以避免此中斷程式的動作
-sshpass -p123qwe ssh -o StrictHostKeyChecking=no kvm7.deyu.wang "echo aaaa > /root/abc"
-
-# 遠程創建文件file
-sshpass -p 123456 ssh admin@1.1.1.1 "touch file"
-# 把本地文件file1傳入遠程機器1.1.1.2上的用戶目錄下
-sshpass -p 123456 scp file1 admin@1.1.1.2:~
-
-rsync -av -e "sshpass -p123qwe ssh" b.txt kvm7.deyu.wang:
-```
-
-## ssh_config(紀錄主機連線資訊)
-
-```bash
-# 編輯設定
-vim ~/.ssh/config
-
-# - master
-Host            master                # 代號
-Hostname        192.168.11.24        # IP or Domain name
-Port            2222                # 指定埠口
-User            jonny                # 使用者名稱
-identityfile    ~/.ssh/id_rsa_24    # 指定金鑰
-
-# - slave
-Host            slave                # 代號
-Hostname        192.168.11.25        # IP or Domain name
-Port            2223                # 指定埠口
-User            jonny                # 使用者名稱
-identityfile    ~/.ssh/id_rsa_25    # 指定金鑰
-
-# 使用代號進行連線
-ssh slave
-sftp
-
-
-# 另一種格式
-Host ssh-jp-manager
-    User root
-    HostName 192.168.11.25
-    Port 22
-    ServerAliveInterval 60
-    IdentityFile ~/.ssh/id_rsa
-
-Host test1
-	User            root
-	HostName        192.168.11.1
-	ServerAliveInterval     60
-	IdentityFile	 ~/.ssh/test1
-Host test2
-	User            root
-	HostName        192.168.11.2
-	ServerAliveInterval     60
-	IdentityFile     ~/.ssh/test2
-Host test3
-	User            user
-	HostName        192.168.11.3
-	ServerAliveInterval     60
-	IdentityFile     ~/.ssh/test3
-```
-
-`背景建立 連線通道`
-
-建立 SSH 隧道，將來自本地端口的流量通過 SSH 連接轉發到遠程主機
-
-user@host: 這是用於指定 SSH 連接的目標主機的用戶名和主機地址。
-user 是目標主機上的用戶名，host 是目標主機的 IP 地址或主機名。
-
--fN: 這是兩個選項的組合。
--f 表示在背景運行 SSH 連接，並且不會打開 shell。
--N 表示不執行任何命令，僅用於轉發端口。
-
--L 127.0.0.1:port:host_ip:port:
-這是用於定義本地端口轉發的選項。
-這告訴 SSH 在本地主機的 127.0.0.1 地址的 port 端口上監聽，並將來自該端口的流量轉發到遠程主機的 host_ip 地址的 port 端口上。
-
-```bash
-ssh user@host -fN -L 127.0.0.1:port:host_ip:port
-```
-
-### 常用建立連線設定步驟
-
-```bash
-ssh-keygen -f ~/.ssh/$hostname
-
-# 複製公鑰
-ssh-copy-id -i ~/.ssh/$hostname.pub $user@$host
-
-# 編輯 填入資料
-vim ~/.ssh/config
-
-Host $hostname
-		User            $user
-		HostName        $host
-		ServerAliveInterval     60
-		IdentityFile     ~/.ssh/$hostname
-```
