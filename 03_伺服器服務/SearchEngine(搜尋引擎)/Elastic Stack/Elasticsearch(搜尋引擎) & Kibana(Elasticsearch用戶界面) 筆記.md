@@ -127,7 +127,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
     - [搜尋API(Search API)](#搜尋apisearch-api)
   - [Kibana(後台)](#kibana後台)
   - [Python 基本範例](#python-基本範例)
-  - [創建模板](#創建模板)
+  - [模板](#模板)
   - [使用 Elasticsearch ILM 自動刪除索引的基本步驟](#使用-elasticsearch-ilm-自動刪除索引的基本步驟)
 - [同步資料 Mongodb](#同步資料-mongodb)
   - [Python - mongo-connector](#python---mongo-connector-1)
@@ -1520,6 +1520,24 @@ curl -X GET http://{{elastic_host}}/*/_alias/{{alias}}
 curl -X GET http://{{elastic_host}}/{{index}}/_alias/*
 ```
 
+`查看所有別名的設定`
+
+```bash
+curl -XGET 'http://localhost:9200/_cat/aliases?v'
+```
+
+看到類似以下的輸出：
+
+alias index filter routing.index routing.search
+
+這個輸出顯示了所有的別名設定，其中每一行代表一個別名，列出了別名的名稱以及它所指向的索引（或過濾器、路由等信息）。
+
+`查看特定別名的設定`
+
+```bash
+curl -XGET 'http://localhost:9200/_alias/your_alias_name'
+```
+
 ### 新增 刪除 別名至索引
 
 ```
@@ -1556,6 +1574,27 @@ curl -X POST http://{{elastic_host}}/{{index}}/_aliases -H 'Content-Type: applic
         }
     ]
 }
+```
+
+```bash
+# 創建別名 "logs"，指向索引 "logs-2024-03-21"
+curl -XPOST 'http://localhost:9200/_aliases' -d '
+{
+    "actions" : [
+        { "add" : { "index" : "logs-2024-03-21", "alias" : "logs" } }
+    ]
+}
+'
+
+# 將別名 "logs" 指向新的索引 "logs-2024-03-22"
+curl -XPOST 'http://localhost:9200/_aliases' -d '
+{
+    "actions" : [
+        { "remove" : { "index" : "logs-2024-03-21", "alias" : "logs" } },
+        { "add" : { "index" : "logs-2024-03-22", "alias" : "logs" } }
+    ]
+}
+'
 ```
 
 ### 創建索引模板(index temple)
@@ -1803,7 +1842,19 @@ mapping = es.indices.get_mapping(index='your_index')
 print(mapping)
 ```
 
-## 創建模板
+## 模板
+
+`查看所有模板及其設定`
+
+```bash
+curl -XGET 'http://localhost:9200/_template'
+```
+
+查看特定模板的設定
+
+```bash
+curl -XGET 'http://localhost:9200/_template/your_template_name'
+```
 
 `創建映射定義的 JSON 文件, 並使用 curl 或其他 HTTP 工具發送 HTTP PUT 請求`
 
@@ -2150,7 +2201,9 @@ exit-after-direct-reads = false
 # 排除
 direct-read-dynamic-exclude-regex = ".*(dbname1|dbname2).*\\.(m3_u8|m3u8|.*log.*).*"
 direct-read-dynamic-exclude-regex = ".*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*)"
-direct-read-dynamic-exclude-regex = "(admin|config|local)\\..*|.*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*)"
+direct-read-dynamic-exclude-regex = "(admin|config|local)\\..*|.*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*|login)"
+direct-read-dynamic-exclude-regex = ".*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*|login)"
+direct-read-split-max = 1
 
 # direct-read-split-max 設置確實可能會導致使用大量記憶體，特別是當設置為較大的值時。
 # 這是因為該設置決定了一次處理的最大文件數量，如果設置得太大，系統可能需要同時處理大量的文件，導致記憶體壓力增加。
