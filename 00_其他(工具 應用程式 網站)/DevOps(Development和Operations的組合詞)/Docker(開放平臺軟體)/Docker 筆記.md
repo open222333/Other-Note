@@ -295,6 +295,9 @@ cat /dev/null > <container-id>-json.log
 
 # 清空 log
 cat /dev/null > *-json.log
+
+# 清空特定容器的日誌
+docker logs --tail 0 <container_name_or_id> > /dev/null
 ```
 
 ## ipv6
