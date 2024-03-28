@@ -1,18 +1,15 @@
 # JavaScript Node 工具 pm2(node程序管理器)
 
 ```
-pm2 是一個 node 的程序管理器
-pm2 可以讓 node 服務 crash 掉之後，自動幫我們重啟
-pm2 可以在 server 重啟之後，自動幫我們重啟
-pm2 可利用 CPU 多核，開啟多程序，已達到類似負載平衡的效果
-	Graceful reload 可達成類似 rolling upgrade 的效果，0 downtime 升級
-	多程序多服務，可提升處理 request 的速度
-	可設定 cron 排程自動重啟時間
-pm2 提供多項資訊，包含已重啟次數、 CPU 用量、 memory 用量, process id, 等等…
-pm2 可以在指定的條件下，自動幫我們重啟，條件可以是’up time’, ‘已使用多少 memory’, 等等…,
-pm2 可以幫我們整理 log, 讓 log 以我們想要的週期分割檔案，並保存我們想要的數量，若有超過，自動刪除。
-pm2 提供簡單的部署方式，可一次性部署到多台 server
-pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
+一個 node 的程序管理器
+可以讓 node 服務 crash 掉之後，自動幫我們重啟
+可以在 server 重啟之後，自動幫我們重啟
+可利用 CPU 多核，開啟多程序，已達到類似負載平衡的Graceful reload 可達成類似 rolling upgrade 的效果，0 downtime 多程序多服務，可提升處理 request 的可設定 cron 排程自動重啟時間
+提供多項資訊，包含已重啟次數、 CPU 用量、 memory 用量, process id, 等等…
+可以在指定的條件下，自動幫我們重啟，條件可以是’up time’, ‘已使用多少 memory’, 等等…,
+可以幫我們整理 log, 讓 log 以我們想要的週期分割檔案，並保存我們想要的數量，若有超過，自動刪除。
+提供簡單的部署方式，可一次性部署到多台 server
+可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
 ```
 
 ## 目錄
@@ -25,13 +22,13 @@ pm2 可與 CD / CD 工具做結合， CI / CD 部署也沒有問題
     - [log相關](#log相關)
     - [套件](#套件)
 - [安裝步驟](#安裝步驟)
+- [配置文檔](#配置文檔)
+  - [基本](#基本)
 - [指令](#指令)
-- [pm2 ecosystem(執行程式)](#pm2-ecosystem執行程式)
-  - [範例1](#範例1)
-  - [範例2](#範例2)
-  - [範例3 - 自動化部署](#範例3---自動化部署)
-- [套件](#套件-1)
-  - [pm2-logrotate (管理和維護應用程序的日誌檔案)](#pm2-logrotate-管理和維護應用程序的日誌檔案)
+  - [pm2 ecosystem(執行程式)](#pm2-ecosystem執行程式)
+    - [範例1](#範例1)
+    - [範例2](#範例2)
+    - [範例3 - 自動化部署](#範例3---自動化部署)
 - [狀況](#狀況)
   - [錯誤 spawn ENOMEM](#錯誤-spawn-enomem)
 
@@ -75,8 +72,8 @@ npm install pm2@latest -g && pm2 update
 
 # 安裝 log 套件
 pm2 install pm2-logrotate
-	# config 檔位置
-	/home/user/.pm2/module_conf.json
+	# config 檔位置 修改 .pm2/module_conf.json 文件後 重啟 PM2 進程以應用新的配置
+    ~/.pm2/module_conf.json
 
 	module_conf.json設定檔參數
 	max_size (預設 10M):
@@ -99,6 +96,37 @@ pm2 install pm2-logrotate
 # 自動補齊 支援 pm2 指令可以打 tab 自動補齊
 pm2 completion install
 ```
+
+# 配置文檔
+
+## 基本
+
+配置 PM2 模組（module）的設置文件。這個文件可以包含各種配置選項，用於定義模組的行為和特性。
+
+```json
+// "module_name"：模組的名稱，用於識別和管理模組。
+// "script"：要運行的腳本文件的路徑。
+// "args"：腳本的命令行參數，以陣列形式指定。
+// "exec_mode"：執行模式，可以是 fork（默認）或 cluster。
+// "instances"：如果執行模式為 cluster，則指定集群中的實例數量。
+// "env"：環境變量，用於設置腳本運行時的環境變量。
+// "watch"：是否監聽文件變化並自動重啟。
+// "ignore_watch"：要忽略監聽的文件或目錄。
+{
+  "module_name": "my_module",
+  "script": "./path/to/script.js",
+  "args": ["--arg1", "value1", "--arg2", "value2"],
+  "exec_mode": "cluster",
+  "instances": 2,
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": 3000
+  },
+  "watch": true,
+  "ignore_watch": ["node_modules", "logs"]
+}
+```
+
 
 # 指令
 
@@ -207,7 +235,7 @@ pm2 unstartup && pm2 startup && pm2 save
 pm2 monit
 ```
 
-# pm2 ecosystem(執行程式)
+## pm2 ecosystem(執行程式)
 
 ```bash
 # 產生範例 ecosystem file
@@ -378,7 +406,7 @@ module.exports = {
 };
 ```
 
-## 範例1
+### 範例1
 
 ```json
 // pm2 start ecosystem.json
@@ -393,7 +421,7 @@ module.exports = {
 }
 ```
 
-## 範例2
+### 範例2
 
 ```json
 {
@@ -430,7 +458,7 @@ module.exports = {
 }
 ```
 
-## 範例3 - 自動化部署
+### 範例3 - 自動化部署
 
 ```json
 {
@@ -450,91 +478,6 @@ module.exports = {
       },
    }
 }
-```
-
-# 套件
-
-## pm2-logrotate (管理和維護應用程序的日誌檔案)
-
-處理 PM2 启動的應用程序的日誌檔案的輪轉
-
-它可以幫助管理和維護應用程序的日誌檔案，以防止它們變得過大，同時保留過去的日誌歷史。
-
-```bash
-pm2 install pm2-logrotate
-```
-
-`設定輪轉規則`
-
-```bash
-pm2 set pm2-logrotate:compress true      # 启用/禁用壓縮
-pm2 set pm2-logrotate:retain 7           # 保留最近的7個日誌檔案
-pm2 set pm2-logrotate:dateFormat YYYY-MM-DD_HH-mm-ss # 指定日期格式
-```
-
-`手動觸發輪轉`
-
-```bash
-pm2 trigger pm2-logrotate rotate
-```
-
-`查看輪轉日誌的計劃 顯示有關 pm2-logrotate 的配置和狀態信息`
-
-```bash
-pm2 show pm2-logrotate
-```
-
-```
-Process Information:
-
-    status: 進程的狀態，這裡是 "online"。
-    name: 進程的名稱，這是 "pm2-logrotate"。
-    namespace: 進程的命名空間，這裡是 "default"。
-    version: pm2-logrotate 模組的版本。
-    restarts: 進程重新啟動的次數。
-    uptime: 進程的運行時間。
-    script path: pm2-logrotate 的腳本路徑。
-    interpreter: 使用的解釋器，這裡是 "node"。
-    node.js version: 使用的 Node.js 版本。
-    created at: 進程創建的時間。
-
-Process Configuration:
-
-    有關 pm2-logrotate 配置的信息，如輪轉間隔、日期格式、保留日誌文件數量等。
-    Actions Available:
-
-    提供的操作列表，包括 heapdump、CPU profiling 等。
-
-Code Metrics Value:
-
-    堆"（Heap）在計算機科學中通常指的是記憶體中的一個區域，用於動態分配和釋放內存。
-    在程式執行過程中，當需要在運行時動態創建對象或數據結構時，這些對象通常被放置在堆中。
-
-    堆是用來存儲動態分配的內存，這些內存的大小在程式運行時可以動態地增長或減少。
-    與之相對的是 "棧"（Stack），棧用於存儲局部變數和函數調用信息。
-
-    Used Heap Size:
-    已使用的堆大小，即進程當前使用的內存空間。
-    Heap Usage:
-    堆使用率，表示已使用堆大小與總堆大小的百分比。
-    Heap Size:
-    總堆大小，即分配給進程的內存總量。
-    Files Count:
-    檔案數量，表示進程當前打開的文件數量。
-    Global Logs Size:
-    全局日誌大小，表示已記錄的全局日誌文件的總大小。
-    Event Loop Latency p95:
-    事件循環延遲的百分位數（p95），表示事件處理的時間百分之95的數據。
-    Event Loop Latency:
-    事件循環延遲，表示事件處理的平均時間。
-    Active Handles:
-    活動的處理程序數量，表示當前進程中處於活動狀態的事件處理程序數量。
-    Active Requests:
-    活動的請求數量，表示當前進程中處於活動狀態的請求數量。
-
-Divergent Env Variables from Local Env:
-
-    與本地環境變數不同的環境變數列表。
 ```
 
 # 狀況

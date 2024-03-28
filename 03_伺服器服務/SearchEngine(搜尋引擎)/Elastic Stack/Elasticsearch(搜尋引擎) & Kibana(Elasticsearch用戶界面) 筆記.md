@@ -91,6 +91,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 - [Elasticsearch(搜尋引擎) \& Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [記憶體相關](#記憶體相關)
     - [教學心得相關](#教學心得相關)
     - [執行緒相關](#執行緒相關)
     - [搜尋相關](#搜尋相關)
@@ -103,6 +104,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
       - [Golang - monstache](#golang---monstache)
     - [例外狀況](#例外狀況)
       - [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit)
+    - [優化相關](#優化相關)
 - [安裝方式](#安裝方式)
   - [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
     - [官方](#官方)
@@ -132,12 +134,11 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 - [同步資料 Mongodb](#同步資料-mongodb)
   - [Python - mongo-connector](#python---mongo-connector-1)
     - [配置文檔 config.json](#配置文檔-configjson)
-  - [Golang - monstache](#golang---monstache-1)
-    - [安裝步驟 CentOS7](#安裝步驟-centos7-1)
 - [例外狀況](#例外狀況-1)
   - [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit-1)
   - [Validation Failed: 1: this action would add \[5\] shards, but this cluster currently has \[5000\]/\[5000\] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
   - [kibana 發生 search\_phase\_execution\_exception 錯誤](#kibana-發生-search_phase_execution_exception-錯誤)
+  - [記憶體用量過大](#記憶體用量過大)
 
 ## 參考資料
 
@@ -189,6 +190,12 @@ Elasticsearch Index Lifecycle Management（ILM）是一個功能強大的工具�
 監控和警報：ILM 提供了監控和警報功能，可以讓及時了解索引生命週期管理的情況，並採取必要的措施。
 適應多種用例：ILM 可以適應各種不同的用例，包括日誌管理、時間序列數據、存檔數據等等。
 ```
+
+### 記憶體相關
+
+[Elasticsearch Memory Settings（Elasticsearch 記憶體設置）](https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html)
+
+[Elasticsearch Cache Settings（Elasticsearch 快取設置）](https://www.elastic.co/guide/en/elasticsearch/reference/current/shard-request-cache.html)
 
 ### 教學心得相關
 
@@ -321,6 +328,14 @@ Elasticsearch Index Lifecycle Management（ILM）是一個功能強大的工具�
 [官方解決方案](https://www.elastic.co/guide/en/elasticsearch/reference/master/disk-usage-exceeded.html)
 
 [集群級分片分配和路由設置(Cluster-level shard allocation and routing settings)](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-cluster.html)
+
+### 優化相關
+
+[elasticsearch優化總結](https://longfamily.pixnet.net/blog/post/356133674)
+
+[elasticsearch優化總結](https://www.796t.com/content/1541971520.html)
+
+[Elasticsearch 基本原理及規劃](https://jeff-yen.medium.com/elasticsearch-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86%E5%8F%8A%E8%A6%8F%E5%8A%83-e1763b856a08)
 
 # 安裝方式
 
@@ -2042,185 +2057,6 @@ es.indices.create(index=index_name, body=mapping_definition)
 }
 ```
 
-## Golang - monstache
-
-### 安裝步驟 CentOS7
-
-```bash
-# 安裝gcc
-yum install gcc -y
-
-# 在 CentOS 上安裝 Go
-wget https://golang.org/dl/go1.17.1.linux-amd64.tar.gz
-tar -C /usr/local -xzf go1.17.1.linux-amd64.tar.gz
-export PATH=$PATH:/usr/local/go/bin
-export GOPATH=$HOME/go
-source ~/.bashrc
-go version
-
-# somewhere outside your $GOPATH(golang 第三方套件安裝路徑)
-# cd ~/build
-
-# clone 專案
-git clone https://github.com/rwynn/monstache.git
-cd monstache
-
-# 選擇版本
-git checkout <branch-or-tag-to-build>
-
-# 安裝
-go install
-
-# 執行同步(需先編輯config.toml)
-monstache -f /path/to/config.toml
-```
-
-```conf
-# toml檔
-# connection settings
-
-# connect to MongoDB using the following URL
-# MongoDB實例的主節點訪問地址
-# /?connect=direct 直連
-# https://www.mongodb.com/docs/mongodb-shell/connect/
-mongo-url = "mongodb://someuser:password@localhost:40001"
-
-# connect to the Elasticsearch REST API at the following node URLs
-# Elasticsearch的訪問地址。
-elasticsearch-urls = ["https://es1:9200", "https://es2:9200"]
-
-# frequently required settings
-
-# if you need to seed an index from a collection and not just listen and sync changes events
-# you can copy entire collections or views from MongoDB to Elasticsearch
-direct-read-namespaces = ["mydb.mycollection", "db.collection", "test.test", "db2.myview"]
-
-# if you want to use MongoDB change streams instead of legacy oplog tailing use change-stream-namespaces
-# change streams require at least MongoDB API 3.6+
-# if you have MongoDB 4+ you can listen for changes to an entire database or entire deployment
-# in this case you usually don't need regexes in your config to filter collections unless you target the deployment.
-# to listen to an entire db use only the database name.  For a deployment use an empty string.
-# 追蹤更新自動同步 mongodb 需使用 replica sets
-# 如果要使用MongoDB變更流功能，需要指定此參數。啟用此參數後，oplog追踪會被設置為無效
-# MongoDB 版本4以上 可更改 db.collection 使用 db 追蹤整個db
-change-stream-namespaces = ["mydb.mycollection", "db.collection", "test.test"]
-
-# 追蹤全部的
-change-stream-namespaces = [""]
-
-# additional settings
-
-# if you don't want to listen for changes to all collections in MongoDB but only a few
-# e.g. only listen for inserts, updates, deletes, and drops from mydb.mycollection
-# this setting does not initiate a copy, it is only a filter on the change event listener
-# 通過正則表達式指定需要監聽的集合。
-namespace-regex = '^mydb\.mycollection$'
-
-# compress requests to Elasticsearch
-gzip = true
-
-# generate indexing statistics
-stats = true
-
-# index statistics into Elasticsearch
-index-stats = true
-
-# use the following user name for Elasticsearch basic auth
-# 訪問Elasticsearch的用戶名。
-elasticsearch-user = "someuser"
-
-# use the following password for Elasticsearch basic auth
-# 訪問Elasticsearch的用戶密碼。
-elasticsearch-password = "somepassword"
-
-# use 4 go routines concurrently pushing documents to Elasticsearch
-# 定義連接ES的線程數。默認為4，即使用4個Go線程同時將數據同步到ES。
-elasticsearch-max-conns = 4
-
-# use the following PEM file to connections to Elasticsearch
-elasticsearch-pem-file = "/path/to/elasticCert.pem"
-
-# validate connections to Elasticsearch
-elastic-validate-pem-file = true
-
-# propogate dropped collections in MongoDB as index deletes in Elasticsearch
-# 表示當刪除MongoDB集合時，會同時刪除ES中對應的索引。
-dropped-collections = true
-
-# propogate dropped databases in MongoDB as index deletes in Elasticsearch
-# 表示當刪除MongoDB數據庫時，會同時刪除ES中對應的索引。
-dropped-databases = true
-
-# do not start processing at the beginning of the MongoDB oplog
-# if you set the replay to true you may see version conflict messages
-# in the log if you had synced previously. This just means that you are replaying old docs which are already
-# in Elasticsearch with a newer version. Elasticsearch is preventing the old docs from overwriting new ones.
-replay = false
-
-# resume processing from a timestamp saved in a previous run
-# Monstache會將已成功同步到ES的MongoDB操作的時間戳寫入monstache.monstache集合中。當Monstache因為意外停止時，可通過該時間戳恢復同步任務，避免數據丟失。如果指定了cluster-name，該參數將自動開啟
-resume = true
-
-# do not validate that progress timestamps have been saved
-resume-write-unsafe = false
-
-# override the name under which resume state is saved
-resume-name = "default"
-
-# use a custom resume strategy (tokens) instead of the default strategy (timestamps)
-# tokens work with MongoDB API 3.6+ while timestamps work only with MongoDB API 4.0+
-# 指定恢復策略。
-# Strategy 0 -default- Timestamp based resume of change streams. Compatible with MongoDB API 4.0+.
-# Stategy 1 Token based resume of change streams. Compatible with MongoDB API 3.6+.
-resume-strategy = 1
-
-# exclude documents whose namespace matches the following pattern
-namespace-exclude-regex = '^mydb\.ignorecollection$'
-
-# turn on indexing of GridFS file content
-# https://github.com/rwynn/monstache/issues/33
-# 另外，為了清楚起見，monstache 僅在配置中啟用文件內容索引時才需要 ingest-attachment 插件。 如果將以下內容更改為 false monstache 將不會嘗試需要攝取附件的請求。
-index-files = false
-
-# turn on search result highlighting of GridFS content
-file-highlighting = true
-
-# index GridFS files inserted into the following collections
-file-namespaces = ["users.fs.files"]
-
-# print detailed information including request traces
-verbose = true
-
-# enable clustering mode
-# 指定集群名稱。
-cluster-name = 'apollo'
-
-# do not exit after full-sync, rather continue tailing the oplog
-exit-after-direct-reads = false
-
-# 排除
-direct-read-dynamic-exclude-regex = ".*(dbname1|dbname2).*\\.(m3_u8|m3u8|.*log.*).*"
-direct-read-dynamic-exclude-regex = ".*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*)"
-direct-read-dynamic-exclude-regex = "(admin|config|local)\\..*|.*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*|login)"
-direct-read-dynamic-exclude-regex = ".*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*|login)"
-direct-read-split-max = 1
-
-# direct-read-split-max 設置確實可能會導致使用大量記憶體，特別是當設置為較大的值時。
-# 這是因為該設置決定了一次處理的最大文件數量，如果設置得太大，系統可能需要同時處理大量的文件，導致記憶體壓力增加。
-# 為了降低記憶體使用量，可以嘗試將 direct-read-split-max 設置為較小的值，例如設置為 1 或 2，這樣可以減少系統同時處理的文件數量，從而減輕記憶體壓力。
-# 另外，還可以優化的程序邏輯，以減少在單個操作中需要處理的數據量，從而進一步減少記憶體需求。
-direct-read-split-max = 1
-
-[[script]]
-script="""
-module.exports = function (doc, ns) {
-  var index = "{名稱}-{日期}." + ns.split(".")[1];
-  doc._meta_monstache = { index: index };
-  return doc;
-}
-"""
-```
-
 # 例外狀況
 
 ## Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit
@@ -2282,11 +2118,30 @@ curl -X PUT "localhost:9200/_cluster/settings?pretty" -H 'Content-Type: applicat
 ```
 提高分片上限
 
+Elasticsearch 返回了一個錯誤，指出集群已經達到了最大正常 shards 的上限
+
+每個索引都會被分成多個 shards，而每個節點都有一個最大的正常 shards 數量限制。
+當集群中的 shards 數量接近或者達到了這個限制時，Elasticsearch 就會拒絕添加新的 shards，並返回這樣的錯誤訊息。
+
+謹慎設置最大 shards 每節點限制，避免設置過高導致性能問題或者資源耗盡。
+
 yml設置無效果 需使用api
 ```
 
+localhost:9200/_cluster/settings：目標 Elasticsearch 集群的端點，用於設置集群配置。
+
+-H "Content-Type: application/json"：設置請求的 Content-Type 為 JSON 格式。
+
+-d '{ "persistent": { "cluster.max_shards_per_node": "30000" } }'：請求的主體，即要設置的集群配置內容，這裡將最大 shards 每節點限制設置為 30000。
+
 ```bash
 curl -X PUT localhost:9200/_cluster/settings -H "Content-Type: application/json" -d '{ "persistent": { "cluster.max_shards_per_node": "30000" } }'
+```
+
+`獲取集群的配置信息`
+
+```bash
+curl -X GET localhost:9200/_cluster/settings
 ```
 
 ## kibana 發生 search_phase_execution_exception 錯誤
@@ -2294,3 +2149,35 @@ curl -X PUT localhost:9200/_cluster/settings -H "Content-Type: application/json"
 ```bash
 curl -X DELETE http://localhost:9200/.kibana*
 ```
+
+## 記憶體用量過大
+
+Elasticsearch 的虛擬記憶體（Virtual memory）使用量增加時，可能有幾個可能的原因和相應的解決方案：
+
+索引數量過多：如果在 Elasticsearch 中有大量的索引，並且每個索引都有大量的分片和副本，這可能導致虛擬記憶體使用量增加。解決方法包括適當配置索引、分片和副本，以減少虛擬記憶體的負擔。
+
+搜索和聚合操作：執行複雜的搜索和聚合操作可能需要大量的記憶體。可以優化搜索和聚合操作，使用更有效的查詢方式或者增加系統的實體記憶體來應對。
+
+大型數據集：如果數據集非常大，Elasticsearch 可能需要更多的虛擬記憶體來處理。可以考慮對數據集進行分割，或者增加系統的實體記憶體。
+
+不適當的配置：某些 Elasticsearch 配置可能會導致虛擬記憶體使用量增加。請檢查的 Elasticsearch 配置文件（例如 elasticsearch.yml）中的設置，並根據需要進行調整。
+
+系統資源不足：如果的系統資源（例如 CPU、實體記憶體）不足，可能會導致 Elasticsearch 使用虛擬記憶體來應對。請確保系統擁有足夠的資源來支持 Elasticsearch 的正常運行
+
+
+`在 Elasticsearch 中創建索引以及同步 MongoDB 時，會使用到不同的記憶體，具體情況如下：`
+
+創建索引（Indexing）：
+
+創建索引是將數據存儲到 Elasticsearch 中的過程，它需要使用到以下記憶體：
+
+    Physical Memory（實體記憶體）：用於存儲正在處理的數據和索引的中間結果，以及緩存數據以加速索引操作。
+
+    Disk Storage（磁盤存儲）：用於永久存儲索引數據，包括原始文檔、索引結構、倒排索引等。
+    同步 MongoDB（Syncing with MongoDB）：
+
+同步 MongoDB 數據到 Elasticsearch 是一個複雜的過程，它通常包括以下兩個步驟：
+
+    從 MongoDB 檢索資料：在此過程中，需要使用到 Physical Memory（實體記憶體）和 Network Memory（網絡記憶體）來存儲和處理從 MongoDB 檢索到的數據，以及在網絡上傳輸數據。
+
+    將數據索引到 Elasticsearch：在此過程中，需要使用到 Physical Memory（實體記憶體）來存儲正在處理的數據和索引的中間結果，以及 Disk Storage（磁盤存儲）來永久存儲索引數據。
