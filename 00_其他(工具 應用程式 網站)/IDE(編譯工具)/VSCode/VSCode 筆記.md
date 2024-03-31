@@ -2257,18 +2257,6 @@ MacOS: cmd + shift + p
 ```json
 {
   "folders": [
-    {
-        "path": "repo/Other-Note"
-    },
-    {
-        "path": "repo/Other-Work"
-    },
-    {
-        "path": "../bucket/backup_script"
-    },
-    {
-        "path": "repo/Bash-DBBackup"
-    }
 ],
   "settings": {
     // 編輯區 設定
