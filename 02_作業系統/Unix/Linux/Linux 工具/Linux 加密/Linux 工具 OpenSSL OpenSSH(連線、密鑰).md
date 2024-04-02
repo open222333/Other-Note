@@ -6,25 +6,25 @@
 ## 目錄
 
 - [Linux 工具 OpenSSL OpenSSH(連線、密鑰)](#linux-工具-openssl-openssh連線密鑰)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [指令相關](#指令相關)
-		- [憑證相關](#憑證相關)
-		- [設定檔相關](#設定檔相關)
-		- [深入學習相關](#深入學習相關)
-		- [範例相關](#範例相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [指令相關](#指令相關)
+    - [憑證相關](#憑證相關)
+    - [設定檔相關](#設定檔相關)
+    - [深入學習相關](#深入學習相關)
+    - [範例相關](#範例相關)
 - [安裝](#安裝)
-	- [CentOS7](#centos7)
+  - [CentOS7](#centos7)
 - [指令](#指令)
-	- [ssh指令](#ssh指令)
-	- [scp指令 (傳遞檔案)](#scp指令-傳遞檔案)
-		- [rsync 與 scp 區別](#rsync-與-scp-區別)
-	- [sshpass(傳送密碼)](#sshpass傳送密碼)
+  - [ssh指令](#ssh指令)
+  - [scp指令 (傳遞檔案)](#scp指令-傳遞檔案)
+    - [rsync 與 scp 區別](#rsync-與-scp-區別)
+  - [sshpass(傳送密碼)](#sshpass傳送密碼)
 - [常用](#常用)
-	- [ssh\_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
-		- [常用建立連線設定步驟](#常用建立連線設定步驟)
-	- [公鑰(.pub 文件)傳送到另一個電腦使用](#公鑰pub-文件傳送到另一個電腦使用)
-	- [連線設定1](#連線設定1)
+  - [ssh\_config(紀錄主機連線資訊)](#ssh_config紀錄主機連線資訊)
+    - [常用建立連線設定步驟](#常用建立連線設定步驟)
+  - [公鑰(.pub 文件)傳送到另一個電腦使用](#公鑰pub-文件傳送到另一個電腦使用)
+  - [連線設定1](#連線設定1)
 
 ## 參考資料
 
@@ -181,6 +181,28 @@ sshpass -p 123456 ssh admin@1.1.1.1 "touch file"
 sshpass -p 123456 scp file1 admin@1.1.1.2:~
 
 rsync -av -e "sshpass -p123qwe ssh" b.txt kvm7.deyu.wang:
+```
+
+```Ruby
+=begin
+sshpass.rb 是一個 Ruby 語言編寫的工具，用於通過 SSH 密碼自動登錄遠程服務器。
+它的作用是簡化在腳本或命令行中通過 SSH 登錄的過程，特別是當需要自動化執行需要 SSH 登錄的任務時。
+
+這個工具的原理是使用 sshpass 命令來將密碼傳遞給 SSH 客戶端，從而實現自動登錄遠程服務器。
+通過 sshpass.rb，可以在 Ruby 程式中方便地使用 SSH 登錄功能，而不需要手動輸入密碼。
+=end
+require 'sshpass'
+
+host = 'example.com'
+user = 'username'
+password = 'your_password'
+command = 'ls -l'
+
+# 使用 sshpass.rb 登錄遠程主機並執行命令
+output = SSHPass.run(host, user, password, command)
+
+puts "Command output:"
+puts output
 ```
 
 # 常用
