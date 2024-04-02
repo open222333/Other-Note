@@ -23,9 +23,10 @@ urllib3 是一個功能強大的 Python HTTP 客戶端。
 ## 目錄
 
 - [Python 模組 urllib3(HTTP 客戶端)](#python-模組-urllib3http-客戶端)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [範例相關](#範例相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [範例相關](#範例相關)
+    - [錯誤相關](#錯誤相關)
 - [指令](#指令)
 - [用法](#用法)
 
@@ -38,6 +39,10 @@ urllib3 是一個功能強大的 Python HTTP 客戶端。
 ### 範例相關
 
 [官方文檔 - 範例](https://urllib3.readthedocs.io/en/stable/user-guide.html)
+
+### 錯誤相關
+
+[Your proxy appears to only use HTTP and not HTTPS, try changing your proxy URL to be HTTP](https://urllib3.readthedocs.io/en/1.26.x/advanced-usage.html#https-proxy-error-http-proxy)
 
 # 指令
 
