@@ -29,6 +29,7 @@ Vue.js是一個用於建立使用者介面的開源Model–view–viewmodel前�
   - [Volar](#volar)
 - [.gitignore範本](#gitignore範本)
 - [範例](#範例)
+  - [使用 HTML script 標籤引用 vue](#使用-html-script-標籤引用-vue)
   - [選項式API (Options API)](#選項式api-options-api)
   - [組合式API (Composition API)](#組合式api-composition-api)
   - [使用指定的端口](#使用指定的端口)
@@ -306,6 +307,22 @@ pnpm-debug.log*
 ```
 
 # 範例
+
+## 使用 HTML script 標籤引用 vue
+
+jsDelivr：jsDelivr 是一個開源的 CDN 服務商，提供了廣泛的 npm 托管包的快速、可靠的分發。
+它支持 JavaScript、CSS、圖像等資源的分發，並且提供了版本管理、自動壓縮等功能。
+
+unpkg：unpkg 是另一個流行的開源 CDN 服務商，也提供了許多 npm 托管包的 CDN 分發。
+它以簡單、直觀的方式提供了對各種 npm 包的訪問，並且支持通過版本號或標籤來引入特定版本的資源。
+
+```html
+<!-- Vue 2.x-->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js" ></script>
+<!-- Vue 3.x-->
+<script src="https://cdn.jsdelivr.net/npm/vue@next"></script>
+<script src="https://unpkg.com/vue@next"></script>
+```
 
 ## 選項式API (Options API)
 

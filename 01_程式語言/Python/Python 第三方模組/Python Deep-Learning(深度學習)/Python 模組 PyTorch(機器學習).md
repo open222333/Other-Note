@@ -11,10 +11,10 @@ PyTorch是一個開源的Python機器學習庫，基於Torch，底層由C++實�
 ## 目錄
 
 - [Python 模組 PyTorch(機器學習)](#python-模組-pytorch機器學習)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [範例相關](#範例相關)
-		- [心得相關](#心得相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [範例相關](#範例相關)
+    - [心得相關](#心得相關)
 - [指令](#指令)
 - [用法](#用法)
 
@@ -31,6 +31,8 @@ PyTorch是一個開源的Python機器學習庫，基於Torch，底層由C++實�
 [PyTorch 官網教程](https://pytorch.org/tutorials/)
 
 [PyTorch - wiki](https://zh.wikipedia.org/zh-tw/PyTorch)
+
+[PyTorch documentation](https://pytorch.org/docs/stable/index.html#pytorch-documentation)
 
 ### 範例相關
 
