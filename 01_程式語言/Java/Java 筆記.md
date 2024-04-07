@@ -3,13 +3,13 @@
 ## 目錄
 
 - [Java 筆記](#java-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [指令](#指令)
-	- [cURL 範本](#curl-範本)
-	- [GET](#get)
-	- [POST](#post)
-	- [Basic Auth](#basic-auth)
+  - [cURL 範本](#curl-範本)
+  - [GET](#get)
+  - [POST](#post)
+  - [Basic Auth](#basic-auth)
 
 ## 參考資料
 
@@ -22,6 +22,22 @@
 ```bash
 java -version
 ```
+
+編譯 Java 程式
+
+```bash
+javac YourProgram.java
+```
+
+執行已經編譯好的 Java 程式
+
+```bash
+java -cp path/to/libs YourProgram
+```
+
+-D：設置系統屬性，例如 -Dproperty=value。
+-X：設置非標準的選項，例如 -Xms512m 設置初始堆大小為 512 MB。
+-jar：執行包含主程序入口的 JAR 文件，例如 java -jar YourApp.jar。
 
 ## cURL 範本
 
