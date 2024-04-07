@@ -5,6 +5,7 @@
 - [Java 筆記](#java-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
+- [指令](#指令)
 	- [cURL 範本](#curl-範本)
 	- [GET](#get)
 	- [POST](#post)
@@ -15,6 +16,12 @@
 [官網](https://www.java.com/zh-TW/)
 
 [JAVA 基本文法](https://www.runoob.com/java/java-basic-syntax.html)
+
+# 指令
+
+```bash
+java -version
+```
 
 ## cURL 範本
 
