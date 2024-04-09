@@ -1,4 +1,4 @@
-# Signoz(監控和排除分散式系統問題而設計的工具)
+# Signoz 筆記
 
 ```
 Signoz 是一款針對監控和排除分散式系統問題而設計的工具。
@@ -7,22 +7,24 @@ Signoz 是一款針對監控和排除分散式系統問題而設計的工具。
 
 ## 目錄
 
-- [Signoz(監控和排除分散式系統問題而設計的工具)](#signoz監控和排除分散式系統問題而設計的工具)
+- [Signoz 筆記](#signoz-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [Docker相關](#docker相關)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
     - [Docker](#docker)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
-- [指令](#指令)
 
 ## 參考資料
 
 [signoz 官方網站](https://signoz.io/)
 
 [signoz github](https://github.com/signoz/signoz)
+
+### Docker相關
+
+[signoz github docker基本文檔](https://github.com/SigNoz/signoz/blob/develop/deploy/docker/clickhouse-setup/docker-compose.yaml)
 
 # 安裝
 
@@ -56,14 +58,3 @@ git clone -b main https://github.com/SigNoz/signoz.git
 cd signoz/deploy/
 docker compose -f docker/clickhouse-setup/docker-compose.yaml up -d
 ```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
-```
-
-# 指令
