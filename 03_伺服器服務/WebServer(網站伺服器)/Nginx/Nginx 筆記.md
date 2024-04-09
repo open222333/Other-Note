@@ -450,6 +450,18 @@ waiting — 開啟 keep-alive 的情況下,這個值等於 active – (reading+w
 
 # 例外處理
 
+## CORS 錯誤
+
+針對 /speed_test 這個路徑設定允許 cors
+
+```bash
+location /speed_test {
+        add_header 'Access-Control-Allow-Origin' $http_origin;
+        add_header 'Access-Control-Allow-Methods' 'GET,POST,OPTIONS,PUT,DELETE,PATCH';
+	return 200 "OK";
+}
+```
+
 ## nginx: [warn] could not build optimal server_names_hash, you should increase either server_names_hash_max_size: 1024 or server_names_hash_bucket_size: 128; ignoring server_names_hash_bucket_size
 
 ```

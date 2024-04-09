@@ -136,21 +136,20 @@ yum-config-manager \
     --add-repo \
     https://download.docker.com/linux/centos/docker-ce.repo
 
-    # 可選：啟用夜間或測試存儲庫。
+### 可選：啟用夜間或測試存儲庫。 ###
+# 這些存儲庫包含在docker.repo上面的文件中，但默認情況下是禁用的。
+# 可以在穩定存儲庫旁邊啟用它們。
+# 啟用夜間存儲庫：
+yum-config-manager --enable docker-ce-nightly
 
-	# 這些存儲庫包含在docker.repo上面的文件中，但默認情況下是禁用的。
-	# 您可以在穩定存儲庫旁邊啟用它們。
-	# 啟用夜間存儲庫：
-	yum-config-manager --enable docker-ce-nightly
+# 啟用測試通道：
+yum-config-manager --enable docker-ce-test
 
-	# 啟用測試通道：
-	yum-config-manager --enable docker-ce-test
-
-	# 您可以通過運行帶有標誌的命令來禁用夜間或測試存儲庫 。
-	# 要重新啟用它，請使用該標誌。
-	# 禁用夜間存儲庫：
-	yum-config-manager--disable--enable
-
+# 可以通過運行帶有標誌的命令來禁用夜間或測試存儲庫 。
+# 要重新啟用它，請使用該標誌。
+# 禁用夜間存儲庫：
+yum-config-manager--disable--enable
+################################
 
 # 安裝最新版本的 Docker Engine 和 containerd，或者進入下一步安裝特定版本：
 yum install docker-ce docker-ce-cli containerd.io -y
