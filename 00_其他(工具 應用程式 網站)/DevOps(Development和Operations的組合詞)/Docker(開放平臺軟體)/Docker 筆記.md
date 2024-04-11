@@ -402,6 +402,15 @@ journalctl -u docker
 ## docker
 
 ```bash
+# 清除沒在使用的image
+docker system prune
+	-a 額外刪除任何已停止的容器和所有未使用的image
+
+# 清理不再使用的映像、容器和其他資源，以釋放磁碟空間
+docker system prune -a
+```
+
+```bash
 # 顯示 docker 的資訊
 docker info
 
@@ -429,13 +438,6 @@ docker rm [Container ID]
 
 # 重啟 容器
 docker restart [OPTIONS] CONTAINER [CONTAINER...]
-
-# 清除沒在使用的image
-docker system prune
-	-a 額外刪除任何已停止的容器和所有未使用的image
-
-# 清理不再使用的映像、容器和其他資源，以釋放磁碟空間
-docker system prune -a
 
 # 透過 iamge 執行並產生一個新的 container
 docker run [OPTIONS] [Image 名稱]:[Image 版本] [執行指令]
