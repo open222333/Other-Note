@@ -14,6 +14,8 @@ Signoz 是一款針對監控和排除分散式系統問題而設計的工具。
 - [用法](#用法)
   - [指令應用](#指令應用)
   - [程式碼內應用](#程式碼內應用)
+- [範例](#範例)
+  - [Python 3.6.15 Dockerfile 範例](#python-3615-dockerfile-範例)
 
 ## 參考資料
 
@@ -21,7 +23,9 @@ Signoz 是一款針對監控和排除分散式系統問題而設計的工具。
 
 [signoz github](https://github.com/signoz/signoz)
 
-[signoz flask](https://signoz.io/docs/instrumentation/flask/)
+[signoz Flask OpenTelemetry Instrumentation](https://signoz.io/docs/instrumentation/flask/)
+
+[OpenTelemetry-Python API Reference](https://opentelemetry-python.readthedocs.io/en/latest/examples/fork-process-model/README.html)
 
 # 安裝
 
@@ -30,6 +34,10 @@ Signoz 是一款針對監控和排除分散式系統問題而設計的工具。
 ```bash
 pip install opentelemetry-distro==0.43b0
 pip install opentelemetry-exporter-otlp==1.22.0
+```
+
+```bash
+pip install opentelemetry-instrument==1.2.0
 ```
 
 # 用法
@@ -44,36 +52,44 @@ opentelemetry-bootstrap --action=install
 
 設置環境變數
 
+使用SignOz雲端服務 需付費取得 SIGNOZ_INGESTION_KEY
+
 ```ini
+; 設置 OpenTelemetry 的資源屬性，其中 <service_name> 是應用服務的名稱。
+; 這個資源屬性將被用來標識和分類數據。
 OTEL_RESOURCE_ATTRIBUTES=service.name=<servine_name>
+; 設置了 OpenTelemetry 的 OTLP Exporter 的端點地址。
+; 請將 {region} 替換為實際的區域名稱。
+; 這個端點地址用於將 OpenTelemetry 數據傳送到 Signoz 服務中。
 OTEL_EXPORTER_OTLP_ENDPOINT="https://ingest.{region}.signoz.cloud:443"
+; 設置 OTLP Exporter 的 HTTP 標頭，其中 SIGNOZ_INGESTION_KEY 是 Signoz 數據傳送密鑰。
+; 這個密鑰用於授權數據的傳送。
 OTEL_EXPORTER_OTLP_HEADERS="signoz-access-token=SIGNOZ_INGESTION_KEY"
+; 設置了 OTLP Exporter 使用的協議，這裡設置為 gRPC 協議。
 OTEL_EXPORTER_OTLP_PROTOCOL=grpc
 ```
+
+自建服務後台
+
+gRPC 導出器
+
+http://localhost:4317
+
+HTTP 導出器
+
+http://localhost:4318
+
+```ini
+OTEL_RESOURCE_ATTRIBUTES=service.name=<service_name> \
+OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317" \
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc opentelemetry-instrument <your run command>
+```
+
+啟用 OpenTelemetry 監控和追踪功能，並指定要運行的命令 <your_run_command>。
 
 ```bash
 opentelemetry-instrument <your_run_command>
 ```
-
-OTEL_RESOURCE_ATTRIBUTES=service.name=<service_name>：
-
-這個環境變數用來設置 OpenTelemetry 的資源屬性，其中 <service_name> 是你的應用服務的名稱。這個資源屬性將被用來標識和分類你的數據。
-
-OTEL_EXPORTER_OTLP_ENDPOINT="https://ingest.{region}.signoz.cloud:443"：
-
-這個環境變數設置了 OpenTelemetry 的 OTLP Exporter 的端點地址。請將 {region} 替換為實際的區域名稱。這個端點地址用於將 OpenTelemetry 數據傳送到 Signoz 服務中。
-
-OTEL_EXPORTER_OTLP_HEADERS="signoz-access-token=SIGNOZ_INGESTION_KEY"：
-
-這個環境變數設置了 OTLP Exporter 的 HTTP 標頭，其中 SIGNOZ_INGESTION_KEY 是你的 Signoz 數據傳送密鑰。這個密鑰用於授權數據的傳送。
-
-OTEL_EXPORTER_OTLP_PROTOCOL=grpc：
-
-這個環境變數設置了 OTLP Exporter 使用的協議，這裡設置為 gRPC 協議。
-
-opentelemetry-instrument <your_run_command>：
-
-最後，使用 opentelemetry-instrument 命令來啟用 OpenTelemetry 監控和追踪功能，並指定你要運行的命令 <your_run_command>。
 
 ## 程式碼內應用
 
@@ -98,5 +114,47 @@ signoz = Signoz(app)
 # 這將自動將 OpenTelemetry 相關中間件添加到 Flask 應用中，開始收集和傳遞數據。
 signoz.instrument(app)
 ```
+# 範例
 
+## Python 3.6.15 Dockerfile 範例
 
+```Dockerfile
+FROM python:3.6.15-buster
+WORKDIR /usr/src/app
+COPY . .
+
+RUN apt-get update; exit 0
+RUN apt-get install vim net-tools iftop -y
+
+RUN pip install --upgrade pip
+RUN pip install opentelemetry-distro==0.33b0
+RUN pip install opentelemetry-exporter-otlp==1.12.0
+RUN pip install -r requirements.txt
+RUN opentelemetry-bootstrap --action=install
+```
+
+```env
+# SignOz
+# 自建後台 Send Traces to Self-Hosted SigNoz
+OTEL_RESOURCE_ATTRIBUTES="service.name=<server_name>"
+OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317"
+OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+```
+
+```yml
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: av-crawler
+    container_name: api
+    hostname: api-container
+    env_file: sample.env
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 81:81
+    command: bash -c 'opentelemetry-instrument gunicorn -b 0.0.0.0:81 -c config/gunicorn.py "app:create_application()" & celery worker -A app.celery -l info -E -P gevent --purge -n worker%i@%h'
+```
