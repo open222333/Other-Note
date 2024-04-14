@@ -10,7 +10,8 @@ Signoz 是一款針對監控和排除分散式系統問題而設計的工具。
 - [Signoz 筆記](#signoz-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-    - [Docker相關](#docker相關)
+    - [OpenTelemetry 相關](#opentelemetry-相關)
+    - [Docker 相關](#docker-相關)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
@@ -22,7 +23,13 @@ Signoz 是一款針對監控和排除分散式系統問題而設計的工具。
 
 [signoz github](https://github.com/signoz/signoz)
 
-### Docker相關
+### OpenTelemetry 相關
+
+[opentelemetry 官方網站](https://opentelemetry.io/)
+
+[opentelemetry Configuration](https://opentelemetry.io/docs/collector/configuration/)
+
+### Docker 相關
 
 [signoz github docker基本文檔](https://github.com/SigNoz/signoz/blob/develop/deploy/docker/clickhouse-setup/docker-compose.yaml)
 
