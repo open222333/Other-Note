@@ -56,6 +56,9 @@ systemctl enable nginx
 # 查詢啟動狀態
 systemctl status nginx
 # 重啟
+# 完全重啟 Nginx 伺服器，即停止目前執行的 Nginx 進程並重新啟動新的進程。
+# 執行這個命令後，會重新載入 Nginx 的設定文件，並且會中斷正在處理的所有連接，然後再次接受新的連接。
+# 這個指令會導致 Nginx 伺服器短暫的停止服務，因為需要重新啟動新的進程。
 systemctl restart nginx
 # 停止
 systemctl stop nginx
@@ -71,7 +74,12 @@ ln -s /etc/nginx/sites-available/deploy-at-root-uwsgi-pass.conf /etc/nginx/sites
 nginx -t
 
 # 重啟
+# 重新載入配置，而不是重啟整個伺服器進程。
+# 執行這個指令後，Nginx 程序會重新載入設定文件，但不會中斷正在處理的連接，只會在新的連接上使用新的設定。
+# 這個指令不會導致 Nginx 伺服器停止服務，因為只是重新載入設定而已，目前的連線不會受到影響。
+# nginx reload 是一種縮寫形式，等同於 nginx -s reload 指令
 nginx -s reload
+nginx reload
 
 # 對外開放 80 port
 # --permanent 指定為永久設定，否則在 firewalld重啟或是重新讀取設定，就會失效
