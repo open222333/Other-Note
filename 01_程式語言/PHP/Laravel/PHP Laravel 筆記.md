@@ -3,19 +3,22 @@
 ## 目錄
 
 - [PHP Laravel 筆記](#php-laravel-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-	- [使用docker-compose 架設 laravel環境](#使用docker-compose-架設-laravel環境)
-	- [安裝步驟](#安裝步驟)
-		- [安裝laravel 以及 相關套件](#安裝laravel-以及-相關套件)
-	- [.env.example](#envexample)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+  - [使用docker-compose 架設 laravel環境](#使用docker-compose-架設-laravel環境)
+  - [安裝步驟](#安裝步驟)
+    - [安裝 composer](#安裝-composer)
+    - [docker-compose 部署](#docker-compose-部署)
+  - [配置文檔](#配置文檔)
+    - [.env.example](#envexample)
 - [Laravel 指令](#laravel-指令)
-	- [由資源控制器處理的行為](#由資源控制器處理的行為)
+  - [](#)
+  - [由資源控制器處理的行為](#由資源控制器處理的行為)
 - [Laravel 技巧](#laravel-技巧)
-	- [開啟debug](#開啟debug)
-	- [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
-	- [命令](#命令)
-	- [任務排程](#任務排程)
+  - [開啟debug](#開啟debug)
+  - [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
+  - [命令](#命令)
+  - [任務排程](#任務排程)
 
 ## 參考資料
 
@@ -43,13 +46,15 @@
 
 [laravel-admin文檔](https://laravel-admin.org/docs/zh/1.x)
 
+[Laravel 資料庫 遷移](https://laravel.tw/docs/5.2/migrations)
+
 ## 使用docker-compose 架設 laravel環境
 
 [Deploying Laravel, Nginx, and MySQL with Docker Compose](https://www.cloudsigma.com/deploying-laravel-nginx-and-mysql-with-docker-compose/)
 
 ## 安裝步驟
 
-### 安裝laravel 以及 相關套件
+### 安裝 composer
 
 ```bash
 # 下載compser安裝檔
@@ -67,18 +72,60 @@ sudo mv composer.phar {/usr/bin/composer}
 # 移除compser安裝檔
 php -r "unlink('composer-setup.php');"
 
-# 創建laravel
-composer create-project --prefer-dist laravel/laravel  "Laravel"  6.*
-
-# storage & cache給予寫入權限
-chmod -R 755 "project_name"/storage
-chmod -R 755 "project_name"/bootstrap/cache
-
 # 觀察系統所有的程序資料
 ps uax
 ```
 
-## .env.example
+### docker-compose 部署
+
+```yml
+version: '3'
+services:
+    nginx:
+        container_name: nginx
+        image: nginx:1.10
+        ports:
+            - 80:80
+        volumes:
+            - ./docker/conf/nginx:/etc/nginx/conf.d
+            - ./local_project_path:/usr/src/project
+    php-fpm:
+        container_name: php-fpm
+        image: php:7.4.3-fpm
+        volumes:
+            - ./local_project_path:/usr/src/project
+    mysql57:
+        container_name: mysql57
+        hostname: mysql-container
+        image: mysql:5.7
+        ports:
+            - 3306:3306
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+        volumes:
+            - ./docker/conf/mysql57:/etc/mysql2/conf.d
+    phpmyadmin:
+        container_name: phpmyadmin
+        hostname: phpmyadmin-container
+        image: phpmyadmin/phpmyadmin
+        volumes:
+            - ./docker/conf/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+        ports:
+            - 8080:80
+        environment:
+            PMA_HOST: mysql57
+            PMA_PORT: 3306
+            PMA_USER: root
+            PMA_PASSWORD: root
+            MYSQL_ROOT_PASSWORD: password
+            UPLOAD_LIMIT: '100M'
+        depends_on:
+            - mysql57
+```
+
+## 配置文檔
+
+### .env.example
 
 ```env
 APP_NAME=Laravel
@@ -140,7 +187,16 @@ mkt_yourls_st=
 
 # Laravel 指令
 
-[Laravel 資料庫 遷移](https://laravel.tw/docs/5.2/migrations)
+```bash
+# 創建laravel專案
+composer create-project --prefer-dist laravel/laravel  "Laravel"  6.*
+
+# storage & cache給予寫入權限
+chmod -R 755 "project_name"/storage
+chmod -R 755 "project_name"/bootstrap/cache
+```
+
+##
 
 ```bash
 ### 資料庫: 遷移 migrations ###

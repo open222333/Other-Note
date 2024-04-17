@@ -117,6 +117,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
     - [自定義 ik 的啟用詞和停用詞](#自定義-ik-的啟用詞和停用詞)
 - [設定檔](#設定檔)
   - [配置文檔 elasticsearch.yml (主要)](#配置文檔-elasticsearchyml-主要)
+    - [Slow Log](#slow-log)
   - [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
   - [配置文檔 override.conf](#配置文檔-overrideconf)
   - [生產環境 建議設定](#生產環境-建議設定)
@@ -127,7 +128,9 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
     - [新增 刪除 別名至索引](#新增-刪除-別名至索引)
     - [創建索引模板(index temple)](#創建索引模板index-temple)
     - [搜尋API(Search API)](#搜尋apisearch-api)
+    - [Slow Log](#slow-log-1)
   - [Kibana(後台)](#kibana後台)
+    - [查看 Slow Log](#查看-slow-log)
   - [Python 基本範例](#python-基本範例)
   - [模板](#模板)
   - [使用 Elasticsearch ILM 自動刪除索引的基本步驟](#使用-elasticsearch-ilm-自動刪除索引的基本步驟)
@@ -1252,6 +1255,52 @@ gateway.expected_nodes: 2
 action.destructive_requires_name: true
 ```
 
+### Slow Log
+
+控制慢日誌（slow log）的閾值的設置
+
+設置控制了查詢操作的慢日誌閾值，分別對應不同的日誌級別（警告、信息、調試、跟蹤）
+
+索引慢日誌（Index Slow Log）：
+
+內容：索引慢日誌記錄了與索引操作（例如添加新文檔或更新文檔）相關的操作的執行時間超過特定閾值的信息。
+這些操作可能包括文檔的索引、更新、刪除等。
+
+觸發條件：索引慢日誌的觸發條件是基於索引操作的執行時間。
+當索引操作的執行時間超過預先設置的閾值時，相應的操作信息就會被記錄到索引慢日誌中。
+
+搜索慢日誌（Search Slow Log）：
+
+內容：搜索慢日誌記錄了與搜索操作（例如執行搜索查詢）相關的操作的執行時間超過特定閾值的信息。
+這些操作通常包括搜索查詢、聚合操作等。
+
+觸發條件：搜索慢日誌的觸發條件是基於搜索操作的執行時間。
+當搜索操作的執行時間超過預先設置的閾值時，相應的操作信息就會被記錄到搜索慢日誌中。
+
+Search Slow Log
+
+```yml
+index.search.slowlog.threshold.query.warn: 10s
+index.search.slowlog.threshold.query.info: 5s
+index.search.slowlog.threshold.query.debug: 2s
+index.search.slowlog.threshold.query.trace: 500ms
+
+index.search.slowlog.threshold.fetch.warn: 1s
+index.search.slowlog.threshold.fetch.info: 800ms
+index.search.slowlog.threshold.fetch.debug: 500ms
+index.search.slowlog.threshold.fetch.trace: 200ms
+```
+
+Index Slow log
+
+```yml
+index.indexing.slowlog.threshold.index.warn: 10s
+index.indexing.slowlog.threshold.index.info: 5s
+index.indexing.slowlog.threshold.index.debug: 2s
+index.indexing.slowlog.threshold.index.trace: 500ms
+index.indexing.slowlog.source: 1000
+```
+
 ## 配置文檔 Java jvm.options
 
 ```
@@ -1833,6 +1882,46 @@ curl -X GET "localhost:9200/{索引名稱}/_search?pretty"  -H 'Content-Type: ap
 }
 ```
 
+### Slow Log
+
+設置 Search Slow Log 閥值(觸發條件)
+
+```bash
+curl -X PUT "localhost:9200/my-index-000001/_settings?pretty" -H 'Content-Type: application/json' -d'
+{
+  "index.search.slowlog.threshold.query.warn": "10s",
+  "index.search.slowlog.threshold.query.info": "5s",
+  "index.search.slowlog.threshold.query.debug": "2s",
+  "index.search.slowlog.threshold.query.trace": "500ms",
+  "index.search.slowlog.threshold.fetch.warn": "1s",
+  "index.search.slowlog.threshold.fetch.info": "800ms",
+  "index.search.slowlog.threshold.fetch.debug": "500ms",
+  "index.search.slowlog.threshold.fetch.trace": "200ms"
+}
+'
+```
+
+設置 Index Slow log 閥值(觸發條件)
+
+```bash
+curl -X PUT "localhost:9200/my-index-000001/_settings?pretty" -H 'Content-Type: application/json' -d'
+{
+  "index.indexing.slowlog.threshold.index.warn": "10s",
+  "index.indexing.slowlog.threshold.index.info": "5s",
+  "index.indexing.slowlog.threshold.index.debug": "2s",
+  "index.indexing.slowlog.threshold.index.trace": "500ms",
+  "index.indexing.slowlog.source": "1000"
+}
+'
+```
+
+查看
+
+```bash
+curl -X GET "localhost:9200/_cat/indices?v"
+curl -X GET "localhost:9200/_cat/indices/my-index-slowlog-2022.04.15?v&s=index&pretty"
+```
+
 ## Kibana(後台)
 
 通過 Kibana 的 Dev Tools 或 Discover 頁面來查看索引映射
@@ -1846,6 +1935,12 @@ GET /your_index/_mapping
 ```
 
 在 Kibana 的 Discover 頁面，選擇要查看的索引，然後選擇左側菜單中的「Index Management」。
+
+### 查看 Slow Log
+
+在左側菜單中找到 "Observability" 或者 "Monitor" 選項，通常可以在 "Logs" 或者 "Elasticsearch" 部分找到相關的日誌查看功能。
+
+在慢日誌查看界面中，可以根據時間範圍、索引、日誌級別等條件來查詢和顯示慢日誌的內容。
 
 ## Python 基本範例
 

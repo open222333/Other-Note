@@ -86,17 +86,37 @@ monstache -f /path/to/config.toml
 # MongoDB實例的主節點訪問地址
 # /?connect=direct 直連
 # https://www.mongodb.com/docs/mongodb-shell/connect/
+# 單機連接
 mongo-url = "mongodb://someuser:password@localhost:40001"
+# 使用管道（pipeline）連接。
+mongo-pipe = "mongodb://localhost:27017/mydb?replicaSet=myReplicaSet"
+
 
 # connect to the Elasticsearch REST API at the following node URLs
 # Elasticsearch的訪問地址。
+# elasticsearch-urls 和 elasticsearch-sniff：用於設置 Elasticsearch 的連接 URL 和是否開啟節點嗅探。
 elasticsearch-urls = ["https://es1:9200", "https://es2:9200"]
+elasticsearch-sniff = true
+
+# 在 Elasticsearch 中，節點嗅探（Node Sniffing）是指客戶端（如 Monstache、Kibana 等）自動發現 Elasticsearch 集群中的節點的過程。當一個 Elasticsearch 集群有多個節點時，節點嗅探可以幫助客戶端動態發現集群中所有的可用節點，以便在發送請求時能夠適當地路由請求到集群中的某個節點上。
+
+# 節點嗅探通常在客戶端初始化時進行，它會向集群中的某個節點發送一個請求，獲取該節點所知道的所有集群節點信息，包括它自己和其他節點的地址、狀態等。客戶端通常會根據這些信息建立一個節點列表，並在後續的請求中使用這個列表來選擇適當的節點來處理請求。
+
+# 節點嗅探的好處在於它可以使客戶端更靈活地處理集群變化，例如當集群中的某個節點宕機或新增一個節點時，客戶端可以動態地更新節點列表，而不需要手動配置新的節點信息。
 
 # frequently required settings
 
+# 同步配置
 # if you need to seed an index from a collection and not just listen and sync changes events
 # you can copy entire collections or views from MongoDB to Elasticsearch
 direct-read-namespaces = ["mydb.mycollection", "db.collection", "test.test", "db2.myview"]
+# 每個批次同步的最大文檔數量
+batch-size = 1000
+
+# 單個文檔的最大大小，單位為字節（Byte）
+max-doc-size = 10485760
+routing = "my_routing_field"
+
 
 # if you want to use MongoDB change streams instead of legacy oplog tailing use change-stream-namespaces
 # change streams require at least MongoDB API 3.6+
@@ -192,6 +212,7 @@ file-highlighting = true
 file-namespaces = ["users.fs.files"]
 
 # print detailed information including request traces
+# 正式站要關閉
 verbose = true
 
 # enable clustering mode
@@ -207,6 +228,11 @@ direct-read-dynamic-exclude-regex = ".*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*)"
 direct-read-dynamic-exclude-regex = "(admin|config|local)\\..*|.*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*|login)"
 direct-read-dynamic-exclude-regex = ".*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*|login)"
 direct-read-split-max = 1
+
+# 日誌配置
+log-stdout = true
+log-pretty = true
+log-level = "info"
 
 # direct-read-split-max 設置確實可能會導致使用大量記憶體，特別是當設置為較大的值時。
 # 這是因為該設置決定了一次處理的最大文件數量，如果設置得太大，系統可能需要同時處理大量的文件，導致記憶體壓力增加。
