@@ -55,6 +55,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
   - [查詢](#查詢)
     - [找重複](#找重複)
     - [欄位是否有值 數量統計](#欄位是否有值-數量統計)
+    - [取得日期範圍內資料](#取得日期範圍內資料)
   - [使用者](#使用者)
     - [mongodb 使用者許可權角色說明](#mongodb-使用者許可權角色說明)
   - [特殊用法範例](#特殊用法範例)
@@ -644,6 +645,18 @@ var result = db[collectionName].aggregate(pipeline);
 result.forEach(function (stat) {
     print("欄位 " + stat._id + " 的非空值數量：" + stat.count);
 });
+```
+
+### 取得日期範圍內資料
+
+```JavaScript
+db.collection.find({"modified_date": {"$gte": ISODate("2024-04-15T00:00:00Z"), "$lt": ISODate("2024-04-16T00:00:00Z")}})
+    .count()
+```
+
+```JavaScript
+db.collection.find({"modified_date": {"$regex": "^2024-04-15"}})
+   .count()
 ```
 
 ## 使用者

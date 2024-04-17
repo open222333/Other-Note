@@ -3,25 +3,30 @@
 ## 目錄
 
 - [PHP 筆記](#php-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-- [安裝步驟 CentOS7](#安裝步驟-centos7)
-- [安裝步驟 MacOS](#安裝步驟-macos)
-- [php 指令](#php-指令)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [特殊 浮點數比較方法](#特殊-浮點數比較方法)
+    - [伺服器變數 $\_SERVER](#伺服器變數-_server)
+    - [ICU4C](#icu4c)
+    - [例外狀況相關](#例外狀況相關)
+- [安裝](#安裝)
+  - [CentOS7](#centos7)
+  - [MacOS](#macos)
+- [指令](#指令)
 - [設定檔](#設定檔)
 - [docker-compose 架設PHP開發環境](#docker-compose-架設php開發環境)
 - [PHP擴展庫 PECL](#php擴展庫-pecl)
 - [基本概念](#基本概念)
-	- [型別轉換](#型別轉換)
-		- [使用 `C 語言`的 type casting 語法](#使用-c-語言的-type-casting-語法)
-		- [使用 `settype` 函數](#使用-settype-函數)
-	- [比較運算子](#比較運算子)
-	- [條件式](#條件式)
-	- [迴圈](#迴圈)
-	- [物件](#物件)
-	- [正則表達式](#正則表達式)
-	- [特殊 浮點數比較方法](#特殊-浮點數比較方法)
-	- [伺服器變數 $_SERVER](#伺服器變數-_server)
+  - [型別轉換](#型別轉換)
+    - [使用 `C 語言`的 type casting 語法](#使用-c-語言的-type-casting-語法)
+    - [使用 `settype` 函數](#使用-settype-函數)
+  - [比較運算子](#比較運算子)
+  - [條件式](#條件式)
+  - [迴圈](#迴圈)
+  - [物件](#物件)
+  - [正則表達式](#正則表達式)
+- [例外狀況](#例外狀況)
+  - [MacOS - dyld\[60237\]: Library not loaded: /usr/local/opt/icu4c/lib/libicuio.70.dylib](#macos---dyld60237-library-not-loaded-usrlocalopticu4cliblibicuio70dylib)
 
 ## 參考資料
 
@@ -49,10 +54,37 @@
 
 [FPM 配置文檔 參數 php-fpm.conf](https://www.php.net/manual/en/install.fpm.configuration.php)
 
-# 安裝步驟 CentOS7
+[使用brew 下載安裝](https://formulae.brew.sh/formula/php#default)
+
+### 特殊 浮點數比較方法
+
+[php 浮點數比較方法](https://www.twblogs.net/a/5c6f8455bd9eee7f07323dbb)
+
+### 伺服器變數 $_SERVER
+
+[$_SERVER內容](https://www.php.net/manual/zh/reserved.variables.server.php)
+
+### ICU4C
+
+```
+Common Component ICU4C 代表適用於 C/C++ 類別庫的 Unicode 國際元件，它提供以 C/C++ 程式設計語言撰寫廣域應用程式的全球化公用程式。 在 AIX® 作業系統上執行的許多產品正在使用 ICU4C 程式庫。
+```
+
+[ICU4C 程式庫](https://www.ibm.com/docs/zh-tw/aix/7.3?topic=programs-icu4c-libraries)
+
+[ICU Documentation](https://unicode-org.github.io/icu/)
+
+[ICU4C Readme](https://unicode-org.github.io/icu/userguide/icu4c/)
+
+### 例外狀況相關
+
+[dyld: Library not loaded: /usr/local/opt/icu4c/lib/libicui18n.62.dylib error running php after installing node with brew on Mac](https://stackoverflow.com/questions/53828891/dyld-library-not-loaded-usr-local-opt-icu4c-lib-libicui18n-62-dylib-error-run)
+
+# 安裝
+
+## CentOS7
 
 ```bash
-
 yum install epel-release -y
 # rpm-gpg-key
 yum install http://rpms.remirepo.net/enterprise/remi-release-7.rpm -y
@@ -90,12 +122,9 @@ firewall-cmd --zone=public --add-port=6379/tcp --permanent
 
 # 重新讀取 firewall 設定
 firewall-cmd --reload
-
 ```
 
-# 安裝步驟 MacOS
-
-[使用brew 下載安裝](https://formulae.brew.sh/formula/php#default)
+## MacOS
 
 ```bash
 # 添加 環境變數到 .bash_profile
@@ -103,7 +132,7 @@ echo 'export PATH="/usr/local/opt/php@{version版本}/bin:$PATH"' >> ~/.bash_pro
 echo 'export PATH="/usr/local/opt/php@{version版本}/sbin:$PATH"' >> ~/.bash_profile
 ```
 
-# php 指令
+# 指令
 
 ```bash
 # 查看PHP版本
@@ -387,10 +416,12 @@ $result = preg_replace($pat, $new, $target);
 preg_split()
 ```
 
-## 特殊 浮點數比較方法
+# 例外狀況
 
-[php 浮點數比較方法](https://www.twblogs.net/a/5c6f8455bd9eee7f07323dbb)
+## MacOS - dyld[60237]: Library not loaded: /usr/local/opt/icu4c/lib/libicuio.70.dylib
 
-## 伺服器變數 $_SERVER
+重新安裝 ICU4C
 
-[$_SERVER內容](https://www.php.net/manual/zh/reserved.variables.server.php)
+```bash
+brew reinstall icu4c
+```
