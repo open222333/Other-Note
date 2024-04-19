@@ -1,6 +1,6 @@
 # Nginx conf 多網站 範例
 
-```nginx
+```conf
 # /etc/nginx/nginx.conf
 user nginx nginx;
 worker_processes auto;
@@ -164,7 +164,7 @@ http {
 }
 ```
 
-```nginx
+```conf
 # /etc/nginx/conf.d/default.conf
 server {
 	status_zone default;
@@ -190,7 +190,7 @@ server {
 }
 ```
 
-```nginx
+```conf
 # /etc/nginx/conf.d/test.com.conf
 server {
 	status_zone test.com;

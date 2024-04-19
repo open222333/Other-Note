@@ -1,6 +1,6 @@
 # Nginx conf php 範例
 
-```nginx
+```conf
 server {
     index index.php index.html;
     server_name php-docker.local;
@@ -31,7 +31,7 @@ server {
 
 [參考文章](https://learnku.com/articles/25861)
 
-```nginx
+```conf
 server {
     # 監聽 HTTP 協議默認的 [80] 端口。
     listen 80;
@@ -107,7 +107,7 @@ HTTP代理用於表示與它產生TCP連線的裝置IP，可能是其他代理�
 
 解析並設定PATH_INFO
 
-```nginx
+```conf
 fastcgi_split_path_info ^(.+?\.php)(/.*)$ ;
 set  $path_info  $fastcgi_path_info ;
 fastcgi_param PATH_INFO $path_info ;
@@ -119,7 +119,7 @@ fastcgi_param SCRIPT_FILENAME $document_root $fastcgi_script_name ;
 
 環境變量
 
-```nginx
+```conf
 fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
 fastcgi_param  QUERY_STRING       $query_string;
 fastcgi_param  REQUEST_METHOD     $request_method;
@@ -154,7 +154,7 @@ fastcgi_param PHP_ADMIN_VALUE "open_basedir=$document_root/:/tmp/:/proc/";
 
 只啟用 php 不開啟pathinfo
 
-```nginx
+```conf
 location ~ [^/]\.php(/|$)
 {
     # try_files $uri =404;
@@ -169,7 +169,7 @@ location ~ [^/]\.php(/|$)
 
 啟用 php 並開啟pathinfo
 
-```nginx
+```conf
 location ~ [^/]\.php(/|$)
 {
     # try_files $uri =404; pathinfo 下绝对是 404
@@ -244,7 +244,7 @@ server {
 
 `enable-php74-pathinfo.conf`
 
-```nginx
+```conf
 location ~ [^/]\.php(/|$)
 {
     # try_files $uri =404;
@@ -257,7 +257,7 @@ location ~ [^/]\.php(/|$)
 
 `enable-php56-pathinfo.conf`
 
-```nginx
+```conf
 location ~ [^/]\.php(/|$)
 {
     # try_files $uri =404;
@@ -270,7 +270,7 @@ location ~ [^/]\.php(/|$)
 
 `enable-php53-pathinfo.conf`
 
-```nginx
+```conf
 location ~ [^/]\.php(/|$)
 {
     # try_files $uri =404;
