@@ -4,7 +4,7 @@
 
 `/etc/nginx/conf.d/web.sample.com.conf`
 
-```nginx
+```conf
 # 正式
 server {
     listen  80;
@@ -68,7 +68,7 @@ server {
 
 `/etc/nginx/conf.d/web-test.sample.com.conf`
 
-```nginx
+```conf
 # 測試
 server {
     listen  8081 ssl http2 default_server;
@@ -141,7 +141,7 @@ server {
 
 `allow_ip.conf`
 
-```nginx
+```conf
 # 設置允許ip
 allow 127.0.0.1;
 
@@ -157,7 +157,7 @@ deny all;
 
 `conf.d/admin.conf`
 
-```nginx
+```conf
 server {
     listen 80;
     listen [::]:80;
@@ -210,7 +210,7 @@ server {
 
 `conf.d/admin-test.conf`
 
-```nginx
+```conf
 server {
     listen 80;
     listen [::]:80;

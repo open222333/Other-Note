@@ -20,6 +20,10 @@
 
 [Nginx 24: Too Many Open Files Error And Solution](https://www.cyberciti.biz/faq/linux-unix-nginx-too-many-open-files/)
 
+### 設定檔相關
+
+[nginx documentation - 參數說明](http://nginx.org/en/docs/)
+
 # 安裝
 
 ## 安裝步驟 MacOS
@@ -170,9 +174,7 @@ nginx -c
 nginx -g
 ```
 
-# 設定檔 conf
-
-[nginx documentation - 參數說明](http://nginx.org/en/docs/)
+# 設定檔說明 conf
 
 預設設定檔位置
 
@@ -185,7 +187,7 @@ nginx -g
 
 `/etc/nginx/mime.types` 媒體類別(多用途網際網路郵件擴展或是MIME類別)是一種表示文件、檔案或各式位元組的標準。
 
-```nginx
+```conf
 # 放置不同域名的 config file
 # 主設定檔中的 http context 加入一行
 include /etc/nginx/conf.d/*.conf;
@@ -193,7 +195,7 @@ include /etc/nginx/conf.d/*.conf;
 # 達成方便管理與修改不同域名設定的特性
 ```
 
-```nginx
+```conf
 ### Module ngx_http_core_module location ###
 location [ = | ~ | ~* | ^~ ] uri { ... }
 location @name { ... }
@@ -339,7 +341,7 @@ upstream 定義將 request proxy 過去的應用
 
 ## try_files
 
-```nginx
+```conf
 # try_files 只能運行於 server, location 之中，有兩種不同的用法：
 file 遵循該 context 中所提供的 root / alias 為根目錄，往後尋找相對路徑的結果
 
@@ -368,16 +370,45 @@ location /images {
 ```
 
 
-```nginx
+```conf
 # 將所有的 HTTP 路由，在目標路徑找不到時，重導向去回應 index.html 的檔案，進而使 SPA 在抓取其路徑進行渲染，並使用 History API 來控制各種頁面的跳轉與資料的傳遞。
 try_files $uri /$uri /index.html;
 ```
 
-## 範例
+# 範例
 
-### 從 HTTP 重定向到 HTTPS
+##
 
-```nginx
+```
+server {
+    listen 80;
+    server_name sample.com;
+
+    # Redirect HTTP requests to HTTPS
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name sample.com;
+
+    # SSL configuration goes here
+
+    location / {
+        proxy_pass http://127.0.0.1:10180;  # 將 10180 改為你的應用程序的實際端口號
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+## 從 HTTP 重定向到 HTTPS
+
+```conf
 server {
     listen 80 default_server;
     server_name _;
