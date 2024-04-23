@@ -422,6 +422,8 @@ docker build
 	-t <Docker image 名稱>
 	--build-arg <變數1=... 變數2=...>
 
+docker build -t <Docker image 名稱> PATH
+
 # 刪除 Docker image
 docker rmi [Image ID]
 	-f 強制

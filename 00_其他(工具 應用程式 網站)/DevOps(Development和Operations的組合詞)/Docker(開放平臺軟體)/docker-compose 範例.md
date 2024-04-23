@@ -12,6 +12,8 @@
       - [網路 心得相關](#網路-心得相關)
     - [Docker Hub相關](#docker-hub相關)
     - [範例相關](#範例相關)
+    - [例外狀況](#例外狀況)
+      - [PHP相關](#php相關)
 - [範例](#範例)
   - [Dockerfile](#dockerfile)
   - [docker-compose](#docker-compose)
@@ -97,6 +99,18 @@
 [docker-compose command 官方文檔](https://docs.docker.com/compose/compose-file/05-services/#command)
 
 [Dockerfile CMD 官方文檔](https://docs.docker.com/engine/reference/builder/#cmd)
+
+### 例外狀況
+
+#### PHP相關
+
+[Cron does not run in a PHP Docker container - crontab 無法在 php-fpm container 內執行](https://forums.docker.com/t/cron-does-not-run-in-a-php-docker-container/103897)
+
+[Docker and cron is broken: can't lock /var/run/crond.pid](https://unix.stackexchange.com/questions/620452/docker-and-cron-is-broken-cant-lock-var-run-crond-pid)
+
+[在 Docker container 中使用 Cron](https://bingdoal.github.io/others/2021/04/crontab-on-docker-container/)
+
+[[Day4] Linux 排程工具 Crontab，也有Docker 的範例喔](https://ithelp.ithome.com.tw/m/articles/10293218)
 
 # 範例
 
