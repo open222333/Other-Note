@@ -9,6 +9,7 @@
     - [伺服器變數 $\_SERVER](#伺服器變數-_server)
     - [ICU4C](#icu4c)
     - [例外狀況相關](#例外狀況相關)
+      - [docker-compose 相關](#docker-compose-相關)
 - [安裝](#安裝)
   - [CentOS7](#centos7)
   - [MacOS](#macos)
@@ -79,6 +80,16 @@ Common Component ICU4C 代表適用於 C/C++ 類別庫的 Unicode 國際元件�
 ### 例外狀況相關
 
 [dyld: Library not loaded: /usr/local/opt/icu4c/lib/libicui18n.62.dylib error running php after installing node with brew on Mac](https://stackoverflow.com/questions/53828891/dyld-library-not-loaded-usr-local-opt-icu4c-lib-libicui18n-62-dylib-error-run)
+
+#### docker-compose 相關
+
+[Cron does not run in a PHP Docker container - crontab 無法在 php-fpm container 內執行](https://forums.docker.com/t/cron-does-not-run-in-a-php-docker-container/103897)
+
+[Docker and cron is broken: can't lock /var/run/crond.pid](https://unix.stackexchange.com/questions/620452/docker-and-cron-is-broken-cant-lock-var-run-crond-pid)
+
+[在 Docker container 中使用 Cron](https://bingdoal.github.io/others/2021/04/crontab-on-docker-container/)
+
+[[Day4] Linux 排程工具 Crontab，也有Docker 的範例喔](https://ithelp.ithome.com.tw/m/articles/10293218)
 
 # 安裝
 
