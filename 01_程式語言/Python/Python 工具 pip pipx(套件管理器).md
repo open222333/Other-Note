@@ -7,10 +7,12 @@
   - [參考資料](#參考資料)
     - [指令心得相關](#指令心得相關)
     - [狀況相關](#狀況相關)
+      - [無法連線pypi](#無法連線pypi)
 - [安裝](#安裝)
+  - [Linux](#linux)
 - [指令](#指令)
+  - [pipx](#pipx)
 - [狀況](#狀況)
-  - [無法連線pypi](#無法連線pypi)
   - [錯誤訊息 It is a distutils installed project](#錯誤訊息-it-is-a-distutils-installed-project)
 
 ## 參考資料
@@ -37,18 +39,28 @@
 
 [Python module not found even though "Requirement Already satisfied in Pip"](https://stackoverflow.com/questions/45345377/python-module-not-found-even-though-requirement-already-satisfied-in-pip)
 
+#### 無法連線pypi
+
+[Python pip离线安装package方法总结（以TensorFlow为例）](https://imshuai.com/python-pip-install-package-offline-tensorflow?fbclid=IwAR3PzgsWlO36VkWjDr0UafrpuiyqL7l3D10XEK4lffQgllroZswA4DG4sfs)
+
 # 安裝
 
+## Linux
+
+CentOS7
+
 ```bash
-### CentOS7 ###
 yum update
 yum install epel-release
 # Python2
 yum –y install python2-pip
 # Python3
 yum –y install python3-pip
+```
 
-### Ubuntu ###
+Ubuntu
+
+```bash
 # Python3
 apt update
 apt install python3-pip
@@ -104,11 +116,11 @@ pip install $package==
 pip install --upgrade $package==version
 pip install -U $package==version
 
-# 移除安裝過的套件
-pip uninstall $package
-
 # 更新套件
 pip install -U $package
+
+# 移除安裝過的套件
+pip uninstall $package
 
 # 只下載不安裝
 pip download
@@ -120,11 +132,39 @@ whereis pip
 where pip
 ```
 
+## pipx
+
+安裝一個 Python 程序
+
+```bash
+pipx install package_name
+```
+
+卸載一個已安裝的程序
+
+```bash
+pipx uninstall package_name
+```
+
+升級已安裝的程序到最新版本
+
+```bash
+pipx upgrade package_name
+```
+
+列出已安裝的所有程序
+
+```bash
+pipx list
+```
+
+運行已安裝的程序中的命令
+
+```bash
+pipx run package_name command
+```
+
 # 狀況
-
-## 無法連線pypi
-
-[Python pip离线安装package方法总结（以TensorFlow为例）](https://imshuai.com/python-pip-install-package-offline-tensorflow?fbclid=IwAR3PzgsWlO36VkWjDr0UafrpuiyqL7l3D10XEK4lffQgllroZswA4DG4sfs)
 
 ## 錯誤訊息 It is a distutils installed project
 
