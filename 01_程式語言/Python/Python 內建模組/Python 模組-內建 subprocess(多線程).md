@@ -7,11 +7,12 @@
 ## 目錄
 
 - [Python 模組-內建 subprocess(多線程)](#python-模組-內建-subprocess多線程)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [用法](#用法)
-	- [run函式](#run函式)
-	- [判斷檔案是否存在於遠端伺服器](#判斷檔案是否存在於遠端伺服器)
+  - [run函式](#run函式)
+  - [判斷檔案是否存在於遠端伺服器](#判斷檔案是否存在於遠端伺服器)
+  - [取得Wi-Fi網路介面的IP位址](#取得wi-fi網路介面的ip位址)
 
 ## 參考資料
 
@@ -55,4 +56,24 @@ if resp == 0:
 	print (f'{file} exists')
 else:
 	print (f'{file} does not exist')
+```
+
+## 取得Wi-Fi網路介面的IP位址
+
+```Python
+import subprocess
+import re
+
+def get_wifi_ip():
+    import subprocess
+    try:
+        result = subprocess.run(['ipconfig', 'getifaddr', 'en0'], capture_output=True, text=True)
+        if result.returncode == 0:
+            ip_address = result.stdout.strip()
+            return ip_address
+        else:
+            return f"Error: {result.stderr}"
+    except Exception as e:
+        print("Error:", e)
+        return None
 ```
