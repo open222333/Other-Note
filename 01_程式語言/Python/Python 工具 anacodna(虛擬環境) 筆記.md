@@ -28,6 +28,10 @@
 
 [Installing on Linux](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 
+### 例外狀況
+
+[解決 CommandNotFoundError：正確配置 Shell 以使用“conda activate”](https://saturncloud.io/blog/solving-the-commandnotfounderror-properly-configuring-your-shell-to-use-conda-activate/)
+
 # 安裝
 
 ```bash
@@ -44,7 +48,7 @@ source ~/.bashrc
 
 ```PowerShell
 # 開啟檔案總管
-# 對 本機 按右鍵 > 內容 > 進階系統設定 > 進階 > 環境變數 >點擊系統變數的 Path > 編輯 > 新增 > 
+# 對 本機 按右鍵 > 內容 > 進階系統設定 > 進階 > 環境變數 >點擊系統變數的 Path > 編輯 > 新增 >
 # C:\Path\to\Anaconda3
 # C:\Path\to\Anaconda3\Scripts
 # C:\Path\to\Anaconda3\Library\bin
@@ -262,4 +266,55 @@ while read requirement; do conda install --yes $requirement; done < requirements
 
 # 在conda命令無效時使用pip命令來代替
 while read requirement; do conda install --yes $requirement || pip install $requirement; done < requirements.txt
+```
+
+# 例外狀況
+
+## CommandNotFoundError: Properly Configuring Your Shell to Use 'conda activate'
+
+確認使用的 shell
+
+```
+echo $SHELL
+```
+
+編輯 Shell 的啟動文件
+
+For bash, edit ~/.bashrc or ~/.bash_profile
+For zsh, edit ~/.zshrc
+For fish, edit ~/.config/fish/config.fish
+
+將 /path/to/anaconda3 替換為 Anaconda 安裝的實際路徑。
+
+如果不確定路徑，可以透過在終端機中輸入 which conda 來找到它
+
+```bash
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/path/to/anaconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/path/to/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/path/to/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/path/to/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+```
+
+Shell 的啟動文件
+
+For bash or zsh, type:
+
+```bash
+source ~/.bashrc  # or source ~/.zshrc for zsh
+```
+
+For fish, type:
+
+```bash
+source ~/.config/fish/config.fish
 ```
