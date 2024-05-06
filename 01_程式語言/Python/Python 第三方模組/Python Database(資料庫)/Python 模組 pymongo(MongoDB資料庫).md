@@ -34,6 +34,7 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
   - [index](#index)
   - [Query](#query)
   - [Update](#update)
+  - [實現 join](#實現-join)
   - [聚合aggregate](#聚合aggregate)
   - [使用ObjectID搜尋資料](#使用objectid搜尋資料)
   - [slaveOk 更換寫法](#slaveok-更換寫法)
@@ -278,6 +279,134 @@ update = {"$unset": {"field_to_remove": 1}}
 
 # 執行更新操作
 collection.update_many(query, update)
+```
+
+## 實現 join
+
+```Python
+client = MongoClient('mongodb://localhost:27017/?readPreference=primaryPreferred&appname=MongoDB%20Compass&ssl=false')
+result = client['db']['collection1'].aggregate([
+    {
+        '$lookup': {
+            'from': 'collection2',
+            'localField': '$collection1field_commom',
+            'foreignField': '$collection2field_commom',
+            'as': 'joinedResult'
+        }
+    }
+])
+```
+
+只取 collection2 部分欄位
+
+```Python
+from pymongo import MongoClient
+
+# 連接到MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['your_database']
+
+# 使用$lookup進行連接，並只取collection2中的部分字段
+result = db.collection1.aggregate([
+    {
+        '$lookup': {
+            'from': 'collection2',
+            'let': {'field1_value': '$field1'},  # 定義變數field1_value，值為collection1中的field1欄位值
+            'pipeline': [
+                {'$match': {'$expr': {'$eq': ['$field2', '$$field1_value']}}},  # 根據field2與field1_value才能進行匹配
+                {'$project': {'_id': 0, 'field2': 1, 'field3': 1}}  # 只取field2和field3字段，可依需求調整
+            ],
+            'as': 'joined_data'  # 結果存放的現場名稱
+        }
+    }
+])
+
+# 打印连接后的结果
+for doc in result:
+    print(doc)
+```
+
+將其他集合的欄位 添加至當前集合的欄位
+
+```Python
+# 使用$lookup和pipeline進行連接，並將多個字段合併為一個字段
+result = db.orders.aggregate([
+    {
+        '$lookup': {
+            'from': 'customers',
+            'localField': 'customer_id',
+            'foreignField': '_id',
+            'as': 'customer_info'
+        }
+    },
+    # 展開customer_info字段，將其變成一個對象
+    {
+        '$unwind': '$customer_info'
+    },
+    # $concat是MongoDB中用於字串拼接的運算符，它可以將多個字串連接成一個字串。
+    # 例如，如果$customer_info.customer_id的值為"123"，$customer_info.product_id的值為"456"，那麼經過$concat運算後，combined_field欄位的值就會是"123-456"。
+    {
+        '$addFields': {
+            'combined_field': {'$concat': ['$customer_info.customer_id', '-', '$customer_info.product_id']}
+        }
+    },
+    # 保留 bool 型態
+    {
+        '$addFields': {
+            'combined_field': {
+                '$concat': [
+                    {'$cond': {'if': {'$eq': ['$customer_info.customer_id', True]}, 'then': 'true', 'else': 'false'}}
+                ]
+            }
+        }
+    },
+    # 去除customer_info字段，只保留combined_field字段
+    {
+        '$project': {
+            'customer_info': 0
+        }
+    }
+])
+```
+
+combined_field 轉換成 bool 型態
+
+```Python
+result = db.orders.aggregate([
+    {
+        '$lookup': {
+            'from': 'customers',
+            'localField': 'customer_id',
+            'foreignField': '_id',
+            'as': 'customer_info'
+        }
+    },
+    {
+        '$unwind': '$customer_info'
+    },
+    {
+        '$addFields': {
+            'combined_field': {
+                '$concat': [
+                    {'$cond': {'if': {'$eq': ['$customer_info.customer_id', True]}, 'then': 'true', 'else': 'false'}}
+                ]
+            }
+        }
+    },
+    {
+        '$addFields': {
+            'combined_field_bool': {
+                '$cond': {'if': {'$eq': ['$combined_field', 'true']}, 'then': True, 'else': False}
+            }
+        }
+    },
+    {
+        '$project': {
+            'customer_info': 0,  # 去除customer_info字段
+            'combined_field': 0  # 去除combined_field字段，保留combined_field_bool字段
+        }
+    }
+])
 ```
 
 ## 聚合aggregate
