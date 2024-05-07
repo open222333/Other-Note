@@ -19,15 +19,15 @@ class AmazonS3():
             region_name=region_name
         )
 
-    def upload_file(self, file_path_in_local, file_path_in_S3, bucket='ngs-avdata-upload'):
+    def upload_file(self, file_path_in_local, file_path_in_S3, bucket='bucket_name'):
         self.s3.Bucket(bucket).upload_file(
             file_path_in_local, file_path_in_S3)
 
-    def upload_fileobj(self, file_obj, file_path_in_S3, bucket='ngs-avdata-upload'):
+    def upload_fileobj(self, file_obj, file_path_in_S3, bucket='bucket_name'):
         self.s3.Bucket(bucket).upload_fileobj(
             file_obj, file_path_in_S3)
 
-    def check_file_exists(self, file_path_in_s3, bucket='ngs-avdata-upload'):
+    def check_file_exists(self, file_path_in_s3, bucket='bucket_name'):
         try:
             self.s3.Object(bucket, file_path_in_s3).load()
         except botocore.exceptions.ClientError as e:
