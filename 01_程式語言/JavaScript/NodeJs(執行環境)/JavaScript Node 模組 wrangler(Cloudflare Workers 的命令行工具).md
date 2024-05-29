@@ -12,7 +12,7 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [指令](#指令)
-- [用法](#用法)
+- [範例](#範例)
 
 ## 參考資料
 
@@ -23,16 +23,14 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
 # 指令
 
 ```bash
-# 安裝
-npm install wrangler
-
-yarn add wrangler
+# 安裝 Node.js 版本至少 16.x
+npm install -g wrangler
 
 # 更新
-npm install wrangler@latest
+npm install -g wrangler@latest
 ```
 
-# 用法
+# 範例
 
 ```JavaScript
 ```
