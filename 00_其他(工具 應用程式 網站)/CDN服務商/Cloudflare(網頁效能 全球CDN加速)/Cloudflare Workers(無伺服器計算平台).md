@@ -48,6 +48,8 @@ Cloudflare Workers 的一些關鍵特點和用途：
 
 [官方文檔](https://developers.cloudflare.com/workers/)
 
+[教學](https://developers.cloudflare.com/workers/get-started/guide/)
+
 ### 範例相關
 
 [Sign requests](https://developers.cloudflare.com/workers/examples/signing-requests/)
