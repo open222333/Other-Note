@@ -13,6 +13,7 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
   - [參考資料](#參考資料)
 - [指令](#指令)
 - [範例](#範例)
+  - [在 Cloudflare Workers 中將請求回源](#在-cloudflare-workers-中將請求回源)
 
 ## 參考資料
 
@@ -32,5 +33,28 @@ npm install -g wrangler@latest
 
 # 範例
 
+## 在 Cloudflare Workers 中將請求回源
+
 ```JavaScript
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+})
+
+async function handleRequest(request) {
+  // 原始伺服器的 URL
+  const originUrl = 'https://example.com' + new URL(request.url).pathname
+
+  // 設定回源的選項
+  const fetchOptions = {
+    method: request.method,
+    headers: request.headers,
+    body: request.method === 'POST' ? request.body : null
+  }
+
+  // 將請求發送回原始伺服器
+  const response = await fetch(originUrl, fetchOptions)
+
+  // 返回原始伺服器的響應
+  return response
+}
 ```
