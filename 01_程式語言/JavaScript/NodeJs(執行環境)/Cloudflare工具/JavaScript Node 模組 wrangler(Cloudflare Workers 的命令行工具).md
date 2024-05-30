@@ -12,10 +12,12 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [指令相關](#指令相關)
+    - [範例相關](#範例相關)
 - [安裝](#安裝)
 - [指令](#指令)
 - [範例](#範例)
   - [在 Cloudflare Workers 中將請求回源](#在-cloudflare-workers-中將請求回源)
+  - [自動將 .dev.vars 環境變數部署到 cloudflare](#自動將-devvars-環境變數部署到-cloudflare)
 
 ## 參考資料
 
@@ -30,6 +32,10 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
 ### 指令相關
 
 [wrangler deploy](https://developers.cloudflare.com/workers/wrangler/commands/#deploy)
+
+### 範例相關
+
+[JavaScript-CloudflareWorkers](https://github.com/open222333/JavaScript-CloudflareWorkers)
 
 # 安裝
 
@@ -69,7 +75,6 @@ wrangler deploy
         啟用 Node.js 相容性。
 ```
 
-
 # 範例
 
 ## 在 Cloudflare Workers 中將請求回源
@@ -96,4 +101,41 @@ async function handleRequest(request) {
   // 返回原始伺服器的響應
   return response
 }
+```
+
+## 自動將 .dev.vars 環境變數部署到 cloudflare
+
+安裝 dotenv
+
+```bash
+npm install -g dotenv-cli
+```
+
+.dev.vars
+
+```ini
+ORIGIN_URL_HOST=https://example.com/
+SECRET_KEY=SECRET_KEY
+```
+
+wrangler.toml
+
+```toml
+name = "your-worker-name"
+type = "javascript"
+
+[env.dev]
+vars = { ORIGIN_URL_HOST = "${ORIGIN_URL_HOST}", SECRET_KEY = "${SECRET_KEY}" }
+
+# 或者以下寫法
+
+[env.dev.vars]
+ORIGIN_URL_HOST = "${ORIGIN_URL_HOST}"
+SECRET_KEY = "${SECRET_KEY}"
+```
+
+將變數部署到 Cloudflare Workers
+
+```bash
+dotenv -- wrangler deploy --env dev
 ```
