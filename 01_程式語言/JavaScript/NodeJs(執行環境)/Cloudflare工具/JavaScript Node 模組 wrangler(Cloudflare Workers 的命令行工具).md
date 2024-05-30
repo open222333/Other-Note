@@ -11,6 +11,8 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
 - [JavaScript Node 模組 wrangler(Cloudflare Workers 的命令行工具)](#javascript-node-模組-wranglercloudflare-workers-的命令行工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [指令相關](#指令相關)
+- [安裝](#安裝)
 - [指令](#指令)
 - [範例](#範例)
   - [在 Cloudflare Workers 中將請求回源](#在-cloudflare-workers-中將請求回源)
@@ -25,8 +27,11 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
 
 [wrangler.toml 配置](https://developers.cloudflare.com/workers/wrangler/configuration/)
 
+### 指令相關
 
-# 指令
+[wrangler deploy](https://developers.cloudflare.com/workers/wrangler/commands/#deploy)
+
+# 安裝
 
 ```bash
 # 安裝 Node.js 版本至少 16.x
@@ -35,6 +40,35 @@ npm install -g wrangler
 # 更新
 npm install -g wrangler@latest
 ```
+
+# 指令
+
+初始化專案
+
+```bash
+wrangler init js-work
+```
+
+部署到 cloudflare
+
+```bash
+wrangler deploy
+    SCRIPT
+        您的 Worker 的入口點的路徑。
+        僅當您wrangler.toml不包含密鑰時才需要main（例如main = "index.js"）。
+    --name  自選
+        名稱。
+    --env  自選
+        在特定環境下執行。
+    --compatibility-flags, --compatibility-flag  自選
+        用於相容性檢查的標誌。
+    --routes, --route  自選
+        將部署此 Worker 的路線。
+        例如：--route example.com/*。
+    --node-compat  自選
+        啟用 Node.js 相容性。
+```
+
 
 # 範例
 
