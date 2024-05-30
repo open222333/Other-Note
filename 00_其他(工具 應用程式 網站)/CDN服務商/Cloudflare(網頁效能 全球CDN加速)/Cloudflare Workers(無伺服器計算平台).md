@@ -41,6 +41,8 @@ Cloudflare Workers 的一些關鍵特點和用途：
 - [指令](#指令)
 - [範例](#範例)
   - [基本](#基本)
+- [Cloudflare Workers 操作](#cloudflare-workers-操作)
+  - [設置路由](#設置路由)
 
 ## 參考資料
 
@@ -50,13 +52,21 @@ Cloudflare Workers 的一些關鍵特點和用途：
 
 [教學](https://developers.cloudflare.com/workers/get-started/guide/)
 
+[wrangler 指令](https://developers.cloudflare.com/workers/wrangler/commands/)
+
+[wrangler.toml 配置](https://developers.cloudflare.com/workers/wrangler/configuration/)
+
 ### 範例相關
+
+[Modify request property](https://developers.cloudflare.com/workers/examples/modify-request-property/)
 
 [Sign requests](https://developers.cloudflare.com/workers/examples/signing-requests/)
 
 [HTTP Basic Authentication](https://developers.cloudflare.com/workers/examples/basic-auth/)
 
 [JavaScript Node 模組 wrangler(Cloudflare Workers 的命令行工具)](https://github.com/open222333/Other-Note/blob/main/01_%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/JavaScript/NodeJs(%E5%9F%B7%E8%A1%8C%E7%92%B0%E5%A2%83)/JavaScript%20Node%20%E6%A8%A1%E7%B5%84%20wrangler(Cloudflare%20Workers%20%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7).md)
+
+[Enable Node.js with Pages Functions - ](https://developers.cloudflare.com/workers/runtime-apis/nodejs/#enable-nodejs-with-pages-functions)
 
 # 安裝
 
@@ -196,9 +206,48 @@ async function handleRequest(request) {
 配置 wrangler.toml 文件
 
 ```toml
+# https://developers.cloudflare.com/workers/wrangler/configuration/
 name = "my-worker"
-type = "javascript"
 
+type = "javascript"
 account_id = "your-cloudflare-account-id"
 workers_dev = true
+
+main = "src/index.js"
+compatibility_date = "2024-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+route = { pattern = "example.org/*", zone_name = "example.org" }
+
+# 不同環境
+[env.staging]
+name = "my-worker-staging"
+route = { pattern = "staging.example.org/*", zone_name = "example.org" }
+
+kv_namespaces = [
+  { binding = "<MY_NAMESPACE>", id = "<STAGING_KV_ID>" }
+]
+
+# 環境變數
+[vars]
+ORIGIN_URL_HOST = "https://example.com/"
+SECRET_KEY = "key"
+```
+
+# Cloudflare Workers 操作
+
+## 設置路由
+
+```
+Workers & Pages
+
+Overview
+
+進入 worker 頁面
+
+Settings
+
+Triggers
+
+Routes
 ```
