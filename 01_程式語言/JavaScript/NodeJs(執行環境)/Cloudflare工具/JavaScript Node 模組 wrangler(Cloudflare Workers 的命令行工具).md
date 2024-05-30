@@ -21,6 +21,11 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
 
 [wrangler 文檔](https://developers.cloudflare.com/workers/wrangler/)
 
+[wrangler 指令](https://developers.cloudflare.com/workers/wrangler/commands/)
+
+[wrangler.toml 配置](https://developers.cloudflare.com/workers/wrangler/configuration/)
+
+
 # 指令
 
 ```bash
