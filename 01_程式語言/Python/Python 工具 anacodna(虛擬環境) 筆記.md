@@ -1,6 +1,7 @@
 # Python 工具 anacodna(虛擬環境) 筆記
 
 ```
+Conda 主要用於管理 Python 和 R 的環境及依賴，但它也能安裝一些其他語言的軟件包。
 ```
 
 ## 目錄
@@ -73,7 +74,7 @@ if (!(Test-Path -Path $PROFILE)) {
 notepad $PROFILE
 ```
 
-## 安裝步驟 CentOS7 Miniconda(輕量化)
+## CentOS7 Miniconda(輕量化)
 
 ```bash
 # https://docs.conda.io/en/latest/miniconda.html 取得下載網址
@@ -83,6 +84,14 @@ wget 下載網址
 bash Miniconda3-latest-Linux-x86_64.sh
 
 source ~/.bashrc
+```
+
+```bash
+# 下載 Miniconda 安裝腳本
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+# 執行安裝腳本
+bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
 ## 卸載
