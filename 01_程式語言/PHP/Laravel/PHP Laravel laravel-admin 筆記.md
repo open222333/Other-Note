@@ -6,22 +6,24 @@
 ## 目錄
 
 - [PHP Laravel laravel-admin 筆記](#php-laravel-laravel-admin-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [常用指令](#常用指令)
-	- [安裝laravel-admin](#安裝laravel-admin)
-		- [修改mysql連接資訊(資料庫須先建好)](#修改mysql連接資訊資料庫須先建好)
-	- [git clone 專案後使用](#git-clone-專案後使用)
-	- [常用指令](#常用指令-1)
-	- [自定義 批量操作](#自定義-批量操作)
+  - [安裝laravel-admin](#安裝laravel-admin)
+    - [修改mysql連接資訊(資料庫須先建好)](#修改mysql連接資訊資料庫須先建好)
+  - [git clone 專案後使用](#git-clone-專案後使用)
+  - [常用指令](#常用指令-1)
+  - [自定義 批量操作](#自定義-批量操作)
 - [Console 自製終端機命令](#console-自製終端機命令)
-	- [自製命令範例](#自製命令範例)
-	- [狀況處理筆記](#狀況處理筆記)
+  - [自製命令範例](#自製命令範例)
+  - [狀況處理筆記](#狀況處理筆記)
 - [model 建立](#model-建立)
-	- [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
+  - [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
 - [慣例 筆記(非必要)](#慣例-筆記非必要)
 
 ## 參考資料
+
+[官網](https://laravel-admin.org/)
 
 [文檔](https://laravel-admin.org/docs/zh/1.x)
 

@@ -89,6 +89,12 @@ brew search 名稱
 # 升級
 brew upgrade 名稱
 
+# 將安裝的所有套件更新到最新版本，如果有依賴關係也會一併升級
+brew upgrade
+
+# 清理掉不再需要的舊版本套件以及其他暫存檔案並釋放空間
+brew cleanup
+
 # 安裝
 brew install 名稱
 
