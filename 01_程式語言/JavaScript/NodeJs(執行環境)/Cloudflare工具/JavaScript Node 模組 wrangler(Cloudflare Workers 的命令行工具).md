@@ -40,7 +40,7 @@ Wrangler 是一個用於管理和部署 Cloudflare Workers 的命令行工具。
 # 安裝
 
 ```bash
-# 安裝 Node.js 版本至少 16.x
+# 安裝 wrangler, Node.js 版本至少 16.x
 npm install -g wrangler
 
 # 更新
@@ -73,6 +73,13 @@ wrangler deploy
         例如：--route example.com/*。
     --node-compat  自選
         啟用 Node.js 相容性。
+```
+
+```bash
+wrangler init $dir
+cd $dir
+npm run start
+npm run deploy
 ```
 
 # 範例

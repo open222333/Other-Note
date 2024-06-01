@@ -58,6 +58,8 @@ Cloudflare Workers 的一些關鍵特點和用途：
 
 ### 範例相關
 
+[Secrets - 密鑰](https://developers.cloudflare.com/workers/configuration/secrets/)
+
 [Modify request property](https://developers.cloudflare.com/workers/examples/modify-request-property/)
 
 [Sign requests](https://developers.cloudflare.com/workers/examples/signing-requests/)
