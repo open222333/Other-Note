@@ -14,6 +14,7 @@
 - [安裝](#安裝)
   - [CentOS7](#centos7)
   - [MacOS](#macos)
+    - [安裝 php@7.4 (從第三方)](#安裝-php74-從第三方)
 - [指令](#指令)
 - [設定檔](#設定檔)
 - [docker-compose 架設PHP開發環境](#docker-compose-架設php開發環境)
@@ -142,6 +143,23 @@ firewall-cmd --reload
 
 ## MacOS
 
+查看有哪些版本
+
+```bash
+brew search php
+```
+
+```bash
+brew install php@8.1
+```
+
+### 安裝 php@7.4 (從第三方)
+
+```bash
+brew tap shivammathur/php
+brew install shivammathur/php/php@7.4
+```
+
 ```bash
 # 添加 環境變數到 .bash_profile
 echo 'export PATH="/usr/local/opt/php@{version版本}/bin:$PATH"' >> ~/.bash_profile
@@ -168,6 +186,12 @@ brew services start php@7.2
 brew services restart php@7.4
 # 停止服務
 brew services stop php@7.2
+```
+
+```bash
+# 切換版本
+brew unlink php
+brew link --overwrite --force php@8.1
 ```
 
 # 設定檔
