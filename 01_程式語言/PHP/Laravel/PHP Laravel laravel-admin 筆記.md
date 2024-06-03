@@ -3,23 +3,36 @@
 ```
 ```
 
+路由慣例 筆記(非必要)
+
+```
+對外
+laravel 控制器 在 app/Http/Controllers
+路由 在 routes/
+
+對內
+laravel-admin 控制器 在 app/Admin/Controllers
+路由 在 app/Admin/routes.php
+
+* 可同時用
+```
+
 ## 目錄
 
 - [PHP Laravel laravel-admin 筆記](#php-laravel-laravel-admin-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [範例相關](#範例相關)
+    - [狀況處理相關](#狀況處理相關)
+- [安裝](#安裝)
 - [常用指令](#常用指令)
-  - [安裝laravel-admin](#安裝laravel-admin)
-    - [修改mysql連接資訊(資料庫須先建好)](#修改mysql連接資訊資料庫須先建好)
-  - [git clone 專案後使用](#git-clone-專案後使用)
-  - [常用指令](#常用指令-1)
-  - [自定義 批量操作](#自定義-批量操作)
-- [Console 自製終端機命令](#console-自製終端機命令)
+- [用法](#用法)
+  - [Console 自製終端機命令](#console-自製終端機命令)
   - [自製命令範例](#自製命令範例)
-  - [狀況處理筆記](#狀況處理筆記)
-- [model 建立](#model-建立)
+  - [配置任務排程](#配置任務排程)
+- [狀況處理](#狀況處理)
+  - [降版本處理](#降版本處理)
   - [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
-- [慣例 筆記(非必要)](#慣例-筆記非必要)
 
 ## 參考資料
 
@@ -27,9 +40,19 @@
 
 [文檔](https://laravel-admin.org/docs/zh/1.x)
 
-# 常用指令
+### 範例相關
 
-## 安裝laravel-admin
+[自定義 批量操作](https://laravel-admin.org/docs/zh/1.x/model-grid-custom-actions#%E6%89%B9%E9%87%8F%E6%93%8D%E4%BD%9C)
+
+[數據模型詳情 - model 建立](https://laravel-admin.org/docs/zh/1.x/model-show)
+
+### 狀況處理相關
+
+[降版本處理 Class 'Doctrine\DBAL\Driver\PDOMySql\Driver' not found](https://laracasts.com/discuss/channels/laravel/class-doctrinedbaldriverpdomysqldriver-not-found)
+
+[Setting a foreign key bigInteger to bigIncrements](https://stackoverflow.com/questions/42442498/setting-a-foreign-key-biginteger-to-bigincrements-in-laravel-5-4)
+
+# 安裝
 
 ```bash
 # 進入專案資料夾
@@ -45,7 +68,7 @@ php artisan vendor:publish --provider="Encore\Admin\AdminServiceProvider"
 php artisan admin:install
 ```
 
-### 修改mysql連接資訊(資料庫須先建好)
+修改mysql連接資訊(資料庫須先建好)
 
 ```bash
 vi .env
@@ -60,22 +83,7 @@ DB_USERNAME="mysqlusername"
 DB_PASSWORD="mysqlpasswd"
 ```
 
-## git clone 專案後使用
-
-```bash
-# 安裝composer.json內紀錄的框架所需套件
-composer install
-
-# 將資源複製到指定的發佈位置
-php artisan vendor:publish --provider="Encore\Admin\AdminServiceProvider"
-
-# 給予權限 (若使用nginx 給予nginx使用者帳號權限)
-cd "project_name"
-chown -R nginx.nginx storage
-chown -R nginx.nginx bootstrap/cache
-```
-
-## 常用指令
+# 常用指令
 
 ```bash
 # 透過artisan產生一組網站專屬密鑰
@@ -114,9 +122,22 @@ php artisan migrate
 php artisan admin:generate-menu
 ```
 
-## 自定義 批量操作
+git clone 專案後使用
 
-[自定義 批量操作](https://laravel-admin.org/docs/zh/1.x/model-grid-custom-actions#%E6%89%B9%E9%87%8F%E6%93%8D%E4%BD%9C)
+```bash
+# 安裝composer.json內紀錄的框架所需套件
+composer install
+
+# 將資源複製到指定的發佈位置
+php artisan vendor:publish --provider="Encore\Admin\AdminServiceProvider"
+
+# 給予權限 (若使用nginx 給予nginx使用者帳號權限)
+cd "project_name"
+chown -R nginx.nginx storage
+chown -R nginx.nginx bootstrap/cache
+```
+
+自定義 批量操作
 
 ```bash
 # 生成批量操作類 文件 app/Admin/Actions/Post/Batch.php
@@ -126,7 +147,9 @@ php artisan admin:action Post\\Batch --grid-batch --name="批量操作"
 php artisan admin:action Post\\ImportPost --name="導入數據"
 ```
 
-# Console 自製終端機命令
+# 用法
+
+## Console 自製終端機命令
 
 ```php
 <?php
@@ -176,18 +199,26 @@ class Kernel extends ConsoleKernel
 
 ## 自製命令範例
 
+創建一個自定義 Artisan 命令。使用以下命令創建一個新命令
+
+```bash
+php artisan make:command DailyClickStats
+```
+
 ```php
 <?php
-namespace App\Console\Commands;
-use Illuminate\Console\Command;
 
-class Test extends Command
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use DB;
+
+class DailyClickStats extends Command
 {
     // 命令名稱
-    protected $signature = 'test:test';
-
+    protected $signature = 'stats:daily-click {--Y} {--R} {--r}';
     // 說明文字
-    protected $description = 'test';
+    protected $description = 'Generate daily click statistics';
 
     public function __construct()
     {
@@ -197,22 +228,125 @@ class Test extends Command
     // Console 執行的程式
     public function handle()
     {
-		// ......
+        // 獲取選項
+        $yearly = $this->option('Y');
+        $monthly = $this->option('R');
+        $recursive = $this->option('r');
+
+        // 實現統計邏輯
+        if ($yearly) {
+            $this->info('Generating yearly click statistics...');
+            // 添加年統計邏輯
+        }
+
+        if ($monthly) {
+            $this->info('Generating monthly click statistics...');
+            // 添加月統計邏輯
+        }
+
+        if ($recursive) {
+            $this->info('Generating recursive statistics...');
+            // 添加遞歸統計邏輯
+        }
+
+        // 示例查詢
+        $clicks = DB::table('clicks')
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as clicks'))
+            ->groupBy('date')
+            ->get();
+
+        foreach ($clicks as $click) {
+            $this->info("Date: {$click->date}, Clicks: {$click->clicks}");
+        }
+
+        $this->info('Daily click statistics generated successfully!');
     }
 }
 ```
 
-## 狀況處理筆記
+打開 app/Console/Kernel.php 並在 commands 屬性中註冊命令
 
-[降版本處理 Class 'Doctrine\DBAL\Driver\PDOMySql\Driver' not found](https://laracasts.com/discuss/channels/laravel/class-doctrinedbaldriverpdomysqldriver-not-found)
+```php
+protected $commands = [
+    \App\Console\Commands\DailyClickStats::class,
+];
+```
+
+運行自定義 Artisan 命令
+
+```bash
+php artisan stats:daily-click -Y -R -r
+```
+
+## 配置任務排程
+
+打開 App\Console\Kernel.php 文件
+
+```php
+<?php
+
+namespace App\Console;
+
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+
+class Kernel extends ConsoleKernel
+{
+    /**
+     * The Artisan commands provided by your application.
+     *
+     * @var array
+     */
+    protected $commands = [
+        // 在這裡註冊您的命令
+        \App\Console\Commands\DailyClickStats::class,
+    ];
+
+    /**
+     * Define the application's command schedule.
+     *
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
+     */
+    protected function schedule(Schedule $schedule)
+    {
+        // 排程每日運行 stats:daily-click 命令
+        $schedule->command('stats:daily-click -Y -R -r')->daily();
+    }
+
+    /**
+     * Register the commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
+    }
+}
+```
+
+Laravel 的任務排程依賴於系統的定時任務（如 cron）來驅動。您需要在服務器上設置一個定時任務來調用 Laravel 的排程器。
+
+```bash
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+手動運行一次排程來測試配置是否正確
+
+```bash
+php artisan schedule:run
+```
+
+# 狀況處理
+
+## 降版本處理
 
 ```bash
 composer require doctrine/dbal:^2.12.1
 ```
-
-# model 建立
-
-[數據模型詳情](https://laravel-admin.org/docs/zh/1.x/model-show)
 
 ## Setting a foreign key bigInteger to bigIncrements
 
@@ -221,22 +355,4 @@ bigIncrements bigInteger
 設置 foreign key
 
 當外鍵有參照到自動增量時，記得設定外鍵為 unsigned 型態。
-```
-
-[Setting a foreign key bigInteger to bigIncrements](https://stackoverflow.com/questions/42442498/setting-a-foreign-key-biginteger-to-bigincrements-in-laravel-5-4)
-
-# 慣例 筆記(非必要)
-
-* 控制器
-
-```
-對外
-laravel 控制器 在 app/Http/Controllers
-路由 在 routes/
-
-對內
-laravel-admin 控制器 在 app/Admin/Controllers
-路由 在 app/Admin/routes.php
-
-* 可同時用
 ```
