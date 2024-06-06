@@ -12,7 +12,7 @@
   - [配置文檔](#配置文檔)
     - [.env.example](#envexample)
 - [Laravel 指令](#laravel-指令)
-  - [](#)
+  - [遷移資料庫](#遷移資料庫)
   - [由資源控制器處理的行為](#由資源控制器處理的行為)
 - [Laravel 技巧](#laravel-技巧)
   - [開啟debug](#開啟debug)
@@ -196,34 +196,90 @@ chmod -R 755 "project_name"/storage
 chmod -R 755 "project_name"/bootstrap/cache
 ```
 
-##
+## 遷移資料庫
 
 ```bash
 ### 資料庫: 遷移 migrations ###
+# 遷移資料庫
+# 用於 Laravel（一個 PHP 框架）的命令，用來執行資料庫遷移。
+# 遷移是一種以版本控制方式定義和管理資料庫結構的方法，使能夠修改和共享應用程式的資料庫結構定義。
+php artisan migrate
 # 建立遷移 預設路徑 database/migrations/{$datetime_now}_{$name}.php
+# 會在 database/migrations 目錄中建立一個新的遷移檔。
+php artisan make:migration create_users_table
 php artisan make:migration $name
 	--table
 		指定資料表的名稱
 	--create
 		遷移會建立新的資料表
+```
 
+打開新建立的遷移檔，並定義表格的結構。
+
+```php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateUsersTable extends Migration
+{
+    /**
+     * 執行遷移。
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * 回滾遷移。
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('users');
+    }
+}
+```
+
+```bash
 # 執行所有未完成的遷移
 php artisan migrate
 	--force
 		強制執行遷移
 
+# rollback 「回滾」指的是撤銷或還原之前已經執行的遷移操作。這通常用於恢復資料庫到遷移之前的狀態。
 # 還原遷移至上一個「操作」 批次
 php artisan migrate:rollback
+# 指定要回滾多少批次的遷移
+php artisan migrate:rollback --step=2
 
-# 還原所有遷移
+
+# 回滾所有遷移
 php artisan migrate:reset
 
+# 回滾並重新執行所有遷移 refresh
 # 首先會還原資料庫的所有遷移，接著再執行 migrate 指令。
 # 此指令能有效的重新建立整個資料庫。
 php artisan migrate:refresh
 
-# 運行 /database/seeds/DatabaseSeeder.php 和其中定義的所有 Seeder
+# 回滾並重新執行所有遷移 運行 /database/seeds/DatabaseSeeder.php 和其中定義的所有 Seeder
 php artisan migrate:refresh --seed
+# 指定要回滾並重新執行的批次數
+php artisan migrate:refresh --step=2
 
 ### Laravel 基本設置 ###
 # 透過artisan產生一組網站專屬密鑰
