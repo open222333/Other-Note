@@ -6,11 +6,12 @@
   - [目錄](#目錄)
   - [參考資料](#參考資料)
   - [使用docker-compose 架設 laravel環境](#使用docker-compose-架設-laravel環境)
-  - [安裝步驟](#安裝步驟)
-    - [安裝 composer](#安裝-composer)
-    - [docker-compose 部署](#docker-compose-部署)
-  - [配置文檔](#配置文檔)
-    - [.env.example](#envexample)
+- [安裝](#安裝)
+  - [安裝 composer](#安裝-composer)
+  - [docker-compose 部署](#docker-compose-部署)
+- [配置文檔](#配置文檔)
+  - [.env.example](#envexample)
+  - [nginx 設定檔](#nginx-設定檔)
 - [Laravel 指令](#laravel-指令)
   - [遷移資料庫](#遷移資料庫)
   - [由資源控制器處理的行為](#由資源控制器處理的行為)
@@ -52,9 +53,9 @@
 
 [Deploying Laravel, Nginx, and MySQL with Docker Compose](https://www.cloudsigma.com/deploying-laravel-nginx-and-mysql-with-docker-compose/)
 
-## 安裝步驟
+# 安裝
 
-### 安裝 composer
+## 安裝 composer
 
 ```bash
 # 下載compser安裝檔
@@ -76,7 +77,7 @@ php -r "unlink('composer-setup.php');"
 ps uax
 ```
 
-### docker-compose 部署
+## docker-compose 部署
 
 ```yml
 version: '3'
@@ -123,9 +124,9 @@ services:
             - mysql57
 ```
 
-## 配置文檔
+# 配置文檔
 
-### .env.example
+## .env.example
 
 ```env
 APP_NAME=Laravel
@@ -161,28 +162,118 @@ MAIL_PASSWORD=null
 MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=null
 MAIL_FROM_NAME="${APP_NAME}"
+```
 
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_DEFAULT_REGION=us-east-1
-AWS_BUCKET=
-AWS_FILEPATH=
+## nginx 設定檔
 
-PRODCTION_PATH=
+```conf
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+    return 301 https://$server_name$request_uri;
+}
 
-PUSHER_APP_ID=
-PUSHER_APP_KEY=
-PUSHER_APP_SECRET=
-PUSHER_APP_CLUSTER=mt1
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
 
-MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
-MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+    add_header Cache-Control no-cache;
 
-SHARE_URL =
+    index index.php index.html;
+    server_name example.com;
 
-MKT_YOURLS_IP=
-mkt_yourls_dh=
-mkt_yourls_st=
+    error_log /var/log/nginx/example_error.log;
+    access_log /var/log/nginx/example_access.log;
+
+    ssl_certificate /etc/letsencrypt/live/iavnight.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/iavnight.com/privkey.pem;
+
+    root /usr/share/nginx/html/example.com/public;
+    include allow_ip.conf;
+
+    set $app_debug false;
+
+    if ($is_ip_whitelist){
+        set $app_debug true;
+    }
+
+    location ~ \.php$ {
+        try_files $uri = 404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param APP_DEBUG $app_debug;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+
+    location / {
+    	try_files $uri $uri/ /index.php?$query_string;
+    }
+}
+```
+
+```conf
+server {
+    listen 80;
+    server_name your_domain.com; # Replace with your domain or IP address
+
+    root /var/www/laravel/public; # Replace with the path to your Laravel project's public directory
+
+    index index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock; # Replace with your PHP-FPM version and path
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    error_log /var/log/nginx/laravel_error.log;
+    access_log /var/log/nginx/laravel_access.log;
+}
+
+server {
+    listen 443 ssl;
+    server_name your_domain.com; # Replace with your domain or IP address
+
+    ssl_certificate /etc/nginx/ssl/your_domain.com.crt; # Replace with the path to your SSL certificate
+    ssl_certificate_key /etc/nginx/ssl/your_domain.com.key; # Replace with the path to your SSL certificate key
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    root /var/www/laravel/public; # Replace with the path to your Laravel project's public directory
+
+    index index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock; # Replace with your PHP-FPM version and path
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    error_log /var/log/nginx/laravel_error.log;
+    access_log /var/log/nginx/laravel_access.log;
+}
 ```
 
 # Laravel 指令
@@ -203,6 +294,7 @@ chmod -R 755 "project_name"/bootstrap/cache
 # 遷移資料庫
 # 用於 Laravel（一個 PHP 框架）的命令，用來執行資料庫遷移。
 # 遷移是一種以版本控制方式定義和管理資料庫結構的方法，使能夠修改和共享應用程式的資料庫結構定義。
+# 注意資料庫是否已存在
 php artisan migrate
 # 建立遷移 預設路徑 database/migrations/{$datetime_now}_{$name}.php
 # 會在 database/migrations 目錄中建立一個新的遷移檔。
