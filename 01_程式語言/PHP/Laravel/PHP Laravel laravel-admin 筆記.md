@@ -115,6 +115,8 @@ php artisan admin:reset-password
 php artisan admin:generate-menu
 
 # 遷移資料庫
+# 用於 Laravel（一個 PHP 框架）的命令，用來執行資料庫遷移。
+# 遷移是一種以版本控制方式定義和管理資料庫結構的方法，使能夠修改和共享應用程式的資料庫結構定義。
 php artisan migrate
 
 ## git pull 有新增 Contrallor
