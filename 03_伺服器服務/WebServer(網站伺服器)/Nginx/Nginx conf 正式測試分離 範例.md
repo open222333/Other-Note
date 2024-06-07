@@ -58,10 +58,10 @@ server {
         #include allow_ip.conf;
         fastcgi_param  APP_URL $scheme://$http_host;
         fastcgi_param  APP_DEBUG $app_debug;
-	fastcgi_pass   127.0.0.1:9000;
-	fastcgi_index  index.php;
-	fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
-	include        fastcgi_params;
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include        fastcgi_params;
     }
 }
 ```
@@ -197,7 +197,7 @@ server {
         fastcgi_pass 127.0.0.1:9000;
         fastcgi_index index.php;
         include fastcgi_params;
-	fastcgi_param APP_DEBUG $app_debug;
+	    fastcgi_param APP_DEBUG $app_debug;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param PATH_INFO $fastcgi_path_info;
     }
@@ -249,8 +249,8 @@ server {
         fastcgi_pass 127.0.0.1:9000;
         fastcgi_index index.php;
         include fastcgi_params;
-	fastcgi_param APP_DEBUG $app_debug;
-	fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param APP_DEBUG $app_debug;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param PATH_INFO $fastcgi_path_info;
     }
 

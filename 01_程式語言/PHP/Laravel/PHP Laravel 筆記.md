@@ -5,14 +5,16 @@
 - [PHP Laravel 筆記](#php-laravel-筆記)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-  - [使用docker-compose 架設 laravel環境](#使用docker-compose-架設-laravel環境)
+    - [心得相關](#心得相關)
+    - [安裝相關](#安裝相關)
 - [安裝](#安裝)
   - [安裝 composer](#安裝-composer)
   - [docker-compose 部署](#docker-compose-部署)
 - [配置文檔](#配置文檔)
   - [.env.example](#envexample)
   - [nginx 設定檔](#nginx-設定檔)
-- [Laravel 指令](#laravel-指令)
+- [指令](#指令)
+  - [創建專案(基本起始步驟)](#創建專案基本起始步驟)
   - [遷移資料庫](#遷移資料庫)
   - [由資源控制器處理的行為](#由資源控制器處理的行為)
 - [Laravel 技巧](#laravel-技巧)
@@ -27,9 +29,11 @@
 免費的開源 PHP Web 框架，旨在實作的Web軟體的MVC架構
 ```
 
-[laravel Youtube教程](https://www.youtube.com/watch?v=EU7PRmCpx-0&t=1s&ab_channel=TraversyMedia)
+[packagist - Composer 官方](https://packagist.org/packages/laravel/laravel)
 
-[目錄結構](https://laravel.tw/docs/5.3/structure#the-root-app-directory)
+[Command Bus](https://laravel.tw/docs/5.0/bus#creating-commands)
+
+[Artisan 指令列](https://laravel.tw/docs/5.2/artisan#writing-commands)
 
 [中文官網](https://laravel.tw/)
 
@@ -41,17 +45,19 @@
 
 [Laravel API文檔](https://laravel.com/api/9.x/)
 
+[目錄結構](https://laravel.tw/docs/5.3/structure#the-root-app-directory)
+
 [Eloquent ORM(資料庫)](https://laravel.tw/docs/5.0/eloquent)
-
-[laravel-admin官網 (建構管理後台)](https://laravel-admin.org/)
-
-[laravel-admin文檔](https://laravel-admin.org/docs/zh/1.x)
 
 [Laravel 資料庫 遷移](https://laravel.tw/docs/5.2/migrations)
 
-## 使用docker-compose 架設 laravel環境
+### 心得相關
 
-[Deploying Laravel, Nginx, and MySQL with Docker Compose](https://www.cloudsigma.com/deploying-laravel-nginx-and-mysql-with-docker-compose/)
+[laravel Youtube教程](https://www.youtube.com/watch?v=EU7PRmCpx-0&t=1s&ab_channel=TraversyMedia)
+
+### 安裝相關
+
+[Deploying Laravel, Nginx, and MySQL with Docker Compose - 使用 docker-compose 架設 laravel環境](https://www.cloudsigma.com/deploying-laravel-nginx-and-mysql-with-docker-compose/)
 
 # 安裝
 
@@ -104,13 +110,13 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: password
         volumes:
-            - ./docker/conf/mysql57:/etc/mysql2/conf.d
+            - ./conf/mysql57:/etc/mysql2/conf.d
     phpmyadmin:
         container_name: phpmyadmin
         hostname: phpmyadmin-container
         image: phpmyadmin/phpmyadmin
         volumes:
-            - ./docker/conf/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+            - ./conf/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
         ports:
             - 8080:80
         environment:
@@ -136,6 +142,8 @@ APP_DEBUG=true
 APP_URL=http://localhost
 
 LOG_CHANNEL=stack
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=debug
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -146,6 +154,7 @@ DB_PASSWORD=
 
 BROADCAST_DRIVER=log
 CACHE_DRIVER=file
+FILESYSTEM_DRIVER=local
 QUEUE_CONNECTION=sync
 SESSION_DRIVER=file
 SESSION_LIFETIME=120
@@ -155,18 +164,98 @@ REDIS_PASSWORD=null
 REDIS_PORT=6379
 
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.mailtrap.io
-MAIL_PORT=2525
+MAIL_HOST=mailhog
+MAIL_PORT=1025
 MAIL_USERNAME=null
 MAIL_PASSWORD=null
 MAIL_ENCRYPTION=null
 MAIL_FROM_ADDRESS=null
 MAIL_FROM_NAME="${APP_NAME}"
+
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=
+
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_HOST=
+PUSHER_PORT=443
+PUSHER_SCHEME=https
+PUSHER_APP_CLUSTER=mt1
+
+MIX_PUSHER_APP_KEY="${PUSHER_APP_KEY}"
+MIX_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
+```
+
+```
+基本應用設置
+APP_NAME：應用的名稱。
+APP_ENV：應用的運行環境（如 local, production）。
+APP_KEY：應用的加密密鑰，用於加密數據，使用 php artisan key:generate 生成。
+APP_DEBUG：是否啟用調試模式（true 或 false）。
+APP_URL：應用的基礎 URL。
+
+日誌配置
+LOG_CHANNEL：日誌頻道。
+LOG_DEPRECATIONS_CHANNEL：棄用警告的日誌頻道。
+LOG_LEVEL：日誌級別。
+
+數據庫配置
+DB_CONNECTION：數據庫連接類型（如 mysql, pgsql）。
+DB_HOST：數據庫伺服器地址。
+DB_PORT：數據庫伺服器端口。
+DB_DATABASE：數據庫名稱。
+DB_USERNAME：數據庫用戶名。
+DB_PASSWORD：數據庫密碼。
+
+緩存和隊列配置
+BROADCAST_DRIVER：廣播驅動（如 log, pusher）。
+CACHE_DRIVER：緩存驅動（如 file, redis）。
+FILESYSTEM_DRIVER：文件系統驅動（如 local, s3）。
+QUEUE_CONNECTION：隊列連接（如 sync, database）。
+SESSION_DRIVER：會話驅動（如 file, cookie）。
+SESSION_LIFETIME：會話生命周期（分鐘）。
+
+Redis 配置
+REDIS_HOST：Redis 伺服器地址。
+REDIS_PASSWORD：Redis 密碼（如果有）。
+REDIS_PORT：Redis 伺服器端口。
+
+郵件配置
+MAIL_MAILER：郵件發送驅動（如 smtp, sendmail）。
+MAIL_HOST：郵件伺服器地址。
+MAIL_PORT：郵件伺服器端口。
+MAIL_USERNAME：郵件伺服器用戶名。
+MAIL_PASSWORD：郵件伺服器密碼。
+MAIL_ENCRYPTION：郵件加密方式（如 tls, ssl）。
+MAIL_FROM_ADDRESS：郵件發送地址。
+MAIL_FROM_NAME：郵件發送名稱。
+
+AWS 配置
+AWS_ACCESS_KEY_ID：AWS 訪問密鑰 ID。
+AWS_SECRET_ACCESS_KEY：AWS 秘密訪問密鑰。
+AWS_DEFAULT_REGION：AWS 預設區域。
+AWS_BUCKET：S3 存儲桶名稱。
+
+Pusher 配置
+PUSHER_APP_ID：Pusher 應用 ID。
+PUSHER_APP_KEY：Pusher 應用密鑰。
+PUSHER_APP_SECRET：Pusher 應用密碼。
+PUSHER_HOST：Pusher 伺服器地址。
+PUSHER_PORT：Pusher 伺服器端口。
+PUSHER_SCHEME：Pusher 連接方案（如 http, https）。
+PUSHER_APP_CLUSTER：Pusher 應用集群。
+
+前端混合（Mix）配置
+MIX_PUSHER_APP_KEY：前端使用的 Pusher 應用密鑰。
+MIX_PUSHER_APP_CLUSTER：前端使用的 Pusher 應用集群。
 ```
 
 ## nginx 設定檔
 
-```conf
+```
 server {
     listen 80;
     listen [::]:80;
@@ -276,15 +365,74 @@ server {
 }
 ```
 
-# Laravel 指令
+# 指令
+
+查看 laravel/laravel 包的可用版本
 
 ```bash
-# 創建laravel專案
+composer show laravel/laravel --all | grep versions
+```
+
+## 創建專案(基本起始步驟)
+
+```bash
+# 創建laravel專案, 使用 Composer 創建一個新的 Laravel 專案
+composer create-project --prefer-dist laravel/laravel your_project_name version
 composer create-project --prefer-dist laravel/laravel  "Laravel"  6.*
 
-# storage & cache給予寫入權限
+# 環境文件：將 .env.example 文件複製為 .env，並配置你的環境變量
+cp .env.example .env
+
+# 生成應用程序密鑰：生成一個新的應用程序密鑰，用於加密。
+php artisan key:generate
+
+# storage & cache給予寫入權限 文件權限：確保 storage 和 bootstrap/cache 目錄可寫。
 chmod -R 755 "project_name"/storage
 chmod -R 755 "project_name"/bootstrap/cache
+
+chown -R www-data:www-data /var/www/your_project_name/storage /var/www/your_project_name/bootstrap/cache
+chmod -R 775 /var/www/your_project_name/storage /var/www/your_project_name/bootstrap/cache
+
+# 遷移數據庫
+php artisan migrate
+
+# 使用 Artisan 提供的內建 PHP 伺服器
+php artisan serve
+```
+
+生產環境 配置 Nginx
+
+```conf
+server {
+    listen 80;
+    server_name your_domain.com; # 替換為你的域名或 IP 地址
+
+    root /var/www/your_project_name/public; # 替換為你的 Laravel 專案 public 目錄的路徑
+
+    index index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/var/run/php/php7.4-fpm.sock; # 替換為你的 PHP-FPM 版本和路徑
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    error_log /var/log/nginx/laravel_error.log;
+    access_log /var/log/nginx/laravel_access.log;
+}
+```
+
+```bash
+sudo ln -s /etc/nginx/sites-available/your_project_name /etc/nginx/sites-enabled/
 ```
 
 ## 遷移資料庫
@@ -452,10 +600,6 @@ bigIncrements bigInteger
 [bigincrements foreign key laravel](https://stackoverflow.com/questions/42442498/setting-a-foreign-key-biginteger-to-bigincrements-in-laravel-5-4)
 
 ## 命令
-
-[Command Bus](https://laravel.tw/docs/5.0/bus#creating-commands)
-
-[Artisan 指令列](https://laravel.tw/docs/5.2/artisan#writing-commands)
 
 預設生成路徑
 

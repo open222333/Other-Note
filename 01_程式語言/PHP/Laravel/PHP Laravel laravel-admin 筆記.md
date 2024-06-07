@@ -36,9 +36,9 @@ laravel-admin 控制器 在 app/Admin/Controllers
 
 ## 參考資料
 
-[官網](https://laravel-admin.org/)
+[laravel-admin官網 (建構管理後台)](https://laravel-admin.org/)
 
-[文檔](https://laravel-admin.org/docs/zh/1.x)
+[laravel-admin文檔](https://laravel-admin.org/docs/zh/1.x)
 
 ### 範例相關
 

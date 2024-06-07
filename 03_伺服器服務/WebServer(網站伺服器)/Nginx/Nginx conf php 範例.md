@@ -35,6 +35,7 @@ server {
 server {
     # 監聽 HTTP 協議默認的 [80] 端口。
     listen 80;
+    listen 443 ssl http2;
     # 綁定主機名 [example.com]。
     server_name example.com;
     # 服務器站點根目錄 [/example.com/public]。
@@ -99,6 +100,133 @@ HTTP協議沒有IP的概念， Remote Address 來自於TCP連線，表示與服�
 
 X-Real-IP：
 HTTP代理用於表示與它產生TCP連線的裝置IP，可能是其他代理，也可能是真正的請求端。
+```
+
+# php laraver-admin 自行配置 20220401
+
+```conf
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+
+    add_header Cache-Control no-cache;
+
+    index index.php index.html;
+    server_name example.com;
+
+    error_log /var/log/nginx/project_name_error.log;
+    access_log /var/log/nginx/project_name_access.log;
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    root /usr/share/nginx/html/project_name/public;
+    include allow_ip.conf;
+
+    set $app_debug false;
+    if ($is_ip_whitelist){
+        set $app_debug true;
+    }
+
+    location ~ \.php$ {
+        try_files $uri = 404;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param APP_DEBUG $app_debug;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+    }
+
+    location / {
+    	try_files $uri $uri/ /index.php?$query_string;
+    }
+}
+```
+
+allow_ip.conf
+
+```conf
+allow 255.255.255.255;
+
+deny all;
+```
+
+# php laraver-admin 自行配置 20220126
+
+```conf
+server {
+    listen 80;
+    listen 443 ssl http2;
+    server_name example.com;
+    
+    access_log /var/log/nginx/project_name_log;
+    error_log  /var/log/nginx/project_name_error.log;
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    root /usr/share/nginx/laravel-admin/public;
+    index index.html index.htm index.php;
+
+    set $app_debug false;
+
+    if ($is_ip_whitelist){
+        set $app_debug true;
+    }
+
+    #charset koi8-r;
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \/$ {
+        return 200 OK;
+    }
+
+    location ~ /\.git {
+        deny all;
+    }
+
+    location ~ /admin {
+        include allow_ip.conf;
+        try_files $uri $uri/ /index.php?$query_string;
+        location ~ \.php$ {
+            fastcgi_param  APP_URL $scheme://$http_host;
+            fastcgi_param  APP_DEBUG $app_debug;
+            fastcgi_pass   127.0.0.1:9000;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+    }
+
+    location ~ \.php$ {
+        #include allow_ip.conf;
+        fastcgi_param  APP_URL $scheme://$http_host;
+        fastcgi_param  APP_DEBUG $app_debug;
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}
+```
+
+allow_ip.conf
+
+```conf
+allow 255.255.255.255;
+
+deny all;
 ```
 
 # nginx 配置php / pathinfo 模式/ php 多版本服務
