@@ -377,7 +377,7 @@ try_files $uri /$uri /index.html;
 
 # 範例
 
-##
+## 從 HTTP 重定向到 HTTPS
 
 ```
 server {
