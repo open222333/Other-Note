@@ -6,16 +6,17 @@
 ## 目錄
 
 - [Linux 工具 sample(num)()](#linux-工具-samplenum)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [安裝](#安裝)
-	- [Debian (Ubuntu)](#debian-ubuntu)
-	- [RedHat (CentOS)](#redhat-centos)
-	- [Homebrew (MacOS)](#homebrew-macos)
-	- [配置文檔](#配置文檔)
-		- [基本範例](#基本範例)
+  - [docker-compose 部署](#docker-compose-部署)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+  - [RedHat (CentOS)](#redhat-centos)
+  - [Homebrew (MacOS)](#homebrew-macos)
+  - [配置文檔](#配置文檔)
+    - [基本範例](#基本範例)
 - [指令](#指令)
-	- [服務操作](#服務操作)
+  - [服務操作](#服務操作)
 
 ## 參考資料
 
@@ -24,6 +25,11 @@
 [sample(num) — Linux manual page](https://www.man7.org/linux/man-pages/man1/sample.num.html)
 
 # 安裝
+
+## docker-compose 部署
+
+```yml
+```
 
 ## Debian (Ubuntu)
 
