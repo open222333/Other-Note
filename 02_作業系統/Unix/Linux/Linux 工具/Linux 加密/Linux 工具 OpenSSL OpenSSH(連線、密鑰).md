@@ -13,6 +13,7 @@
     - [設定檔相關](#設定檔相關)
     - [深入學習相關](#深入學習相關)
     - [範例相關](#範例相關)
+    - [例外相關](#例外相關)
 - [安裝](#安裝)
   - [CentOS7](#centos7)
 - [指令](#指令)
@@ -69,6 +70,10 @@
 [Automated ssh-keygen without passphrase - 自動生成不要passphrase,相同檔名處理](https://unix.stackexchange.com/questions/69314/automated-ssh-keygen-without-passphrase-how)
 
 [ssh 跳過第一次指紋確認](https://stackoverflow.com/questions/21383806/how-can-i-force-ssh-to-accept-a-new-host-fingerprint-from-the-command-line)
+
+### 例外相關
+
+[SSH Key: “Permissions 0644 for 'id_rsa.pub' are too open.” on mac - SSH 金鑰：id_rsa.pub 的權限 0644 過於開放。 蘋果電腦](https://stackoverflow.com/questions/29933918/ssh-key-permissions-0644-for-id-rsa-pub-are-too-open-on-mac)
 
 # 安裝
 

@@ -6,20 +6,20 @@
 ## 目錄
 
 - [Linux 工具 certbot(https憑證)](#linux-工具-certbothttps憑證)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [安裝相關](#安裝相關)
-		- [撤銷證書相關](#撤銷證書相關)
-		- [範例相關](#範例相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [安裝相關](#安裝相關)
+    - [撤銷證書相關](#撤銷證書相關)
+    - [範例相關](#範例相關)
 - [安裝](#安裝)
-	- [CentOS](#centos)
+  - [CentOS](#centos)
 - [指令](#指令)
-	- [建立](#建立)
-	- [刷新](#刷新)
-	- [測試檢查 查看](#測試檢查-查看)
-	- [撤銷](#撤銷)
+  - [建立](#建立)
+  - [刷新](#刷新)
+  - [測試檢查 查看](#測試檢查-查看)
+  - [撤銷](#撤銷)
 - [配置文件](#配置文件)
-	- [CloudFlare ini文檔](#cloudflare-ini文檔)
+  - [CloudFlare ini文檔](#cloudflare-ini文檔)
 
 ## 參考資料
 
@@ -51,12 +51,12 @@
 
 ```bash
 # 安裝EPEL
-	# CentOS 8
-	dnf install epel-release
-	dnf upgrade
+# CentOS 8
+dnf install epel-release
+dnf upgrade
 
-	# CentOS 7
-	yum install epel-release
+# CentOS 7
+yum install epel-release
 
 # 安裝 snapd(軟體部署和軟體套件管理系統)
 yum install snapd
