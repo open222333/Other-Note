@@ -1,6 +1,8 @@
 # Linux 工具 certbot(https憑證)
 
 ```
+Certbot 是由 Electronic Frontier Foundation (EFF) 提供的一個自動化工具，用於從 Let’s Encrypt 獲取和更新 SSL/TLS 證書。
+這些證書可以用來加密網站的流量。
 ```
 
 ## 目錄
@@ -20,6 +22,7 @@
   - [撤銷](#撤銷)
 - [配置文件](#配置文件)
   - [CloudFlare ini文檔](#cloudflare-ini文檔)
+  - [自動更新證書](#自動更新證書)
 
 ## 參考資料
 
@@ -59,29 +62,45 @@ dnf upgrade
 yum install epel-release
 
 # 安裝 snapd(軟體部署和軟體套件管理系統)
+# 在某些情況下，可能會使用 snapd 來安裝 Certbot。
+# snapd 是一個由 Canonical 提供的包管理系統，允許你安裝和管理 Snap 包。
+# 在一些 Linux 發行版上，特別是較新的版本，使用 Snap 來安裝 Certbot 是一種推薦的方法。
 yum install snapd
-
 # 啟用
 systemctl enable --now snapd.socket
-
 # 建立連結
 ln -s /var/lib/snapd/snap /snap
-
 # 確認snapd版本為最新
 snap install core
 snap refresh core
+```
 
-# 刪除certbot(若有在之前使用其他軟體套件管理系統安裝過certbot)
+安裝 certbot
+
+```bash
+yum install certbot -y
+```
+
+Certbot 的 Nginx 插件
+
+```bash
+yum install python3-certbot-nginx -y
+```
+
+安裝 Python 3 版本的 Cloudflare DNS 插件
+
+對於需要通過 DNS-01 挑戰來驗證域名的用戶非常有用
+
+```bash
+yum install python3-certbot-dns-cloudflare -y
+```
+
+刪除certbot(若有在之前使用其他軟體套件管理系統安裝過certbot)
+
+```bash
 apt-get remove certbot
 dnf remove certbot
 yum remove certbot
-
-###################################
-# 安裝 letsencrypt 的 certbot 套件 (for nginx)
-# certbot 為 epel-release 套件庫所提供
-yum install epel-release -y
-yum install certbot python2-certbot-nginx -y
-yum install python2-certbot-dns-cloudflare -y
 ```
 
 # 指令
@@ -214,4 +233,14 @@ dns-cloudflare-credentials = /etc/letsencrypt/dnscloudflare.ini
 # server = https://acme-staging-v02.api.letsencrypt.org/directory
 # Production ACME v2 API endpoint
 server = https://acme-v02.api.letsencrypt.org/directory
+```
+
+## 自動更新證書
+
+```bash
+crontab -e
+```
+
+```
+0 0,12 * * * /usr/bin/certbot renew --quiet
 ```

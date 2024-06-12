@@ -375,6 +375,34 @@ location /images {
 try_files $uri /$uri /index.html;
 ```
 
+## set 宣告變數
+
+```conf
+http {
+    server {
+        listen 80;
+
+        # 宣告變數
+        set $my_variable 'Hello, World!';
+
+        location / {
+            # 使用變數
+            add_header X-My-Variable $my_variable;
+        }
+    }
+}
+```
+
+## 預定義變數
+
+```
+$host：請求的主機名。
+$remote_addr：客戶端的 IP 地址。
+$request_uri：包含參數的完整原始請求 URI。
+$document_root：當前請求的根目錄或別名。
+$query_string 或 $args：請求中的參數字符串。
+```
+
 # 範例
 
 ## 從 HTTP 重定向到 HTTPS
