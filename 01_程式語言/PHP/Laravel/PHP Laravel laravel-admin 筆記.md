@@ -108,6 +108,9 @@ php artisan make:model 'Path\To\Model'
 # 建立 admin controller，傳入一個model 預設路徑 app/Admin/Controllers/{$controller_name}.php
 php artisan admin:make {$controller_name} --model='Path\To\Model'
 
+# 建立一個admin用戶
+php artisan admin:create-user
+
 # 指定用戶重置密碼
 php artisan admin:reset-password
 
