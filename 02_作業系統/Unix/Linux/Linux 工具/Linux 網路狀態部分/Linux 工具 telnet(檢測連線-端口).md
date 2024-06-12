@@ -11,6 +11,10 @@
 - [Linux 工具 telnet(檢測連線-端口)](#linux-工具-telnet檢測連線-端口)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+- [安裝](#安裝)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+  - [RedHat (CentOS)](#redhat-centos)
+  - [Homebrew (MacOS)](#homebrew-macos)
 - [指令](#指令)
 
 ## 參考資料
@@ -18,6 +22,27 @@
 [telnet(1) - Linux man page](https://linux.die.net/man/1/telnet)
 
 [Linux telnet命令](https://www.runoob.com/linux/linux-comm-telnet.html)
+
+# 安裝
+
+## Debian (Ubuntu)
+
+```bash
+apt update
+apt install telnet
+```
+
+## RedHat (CentOS)
+
+```bash
+yum install telnet -y
+```
+
+## Homebrew (MacOS)
+
+```bash
+brew install telnet
+```
 
 # 指令
 

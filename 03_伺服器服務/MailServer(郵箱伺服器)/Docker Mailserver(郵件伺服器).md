@@ -16,6 +16,7 @@ Docker Mailserver 本身是一個後端郵件伺服器，主要通過配置文�
   - [RedHat (CentOS)](#redhat-centos)
 - [指令](#指令)
   - [docker-compose 啟動](#docker-compose-啟動)
+  - [測試](#測試)
 
 ## 參考資料
 
@@ -130,6 +131,17 @@ MX 記錄
 優先級：10（或根據需要設置的優先級）
 ```
 
+防火牆狀態（基於 Ubuntu）
+
+```bash
+ufw status
+
+# 允許 SMTP 端口
+ufw allow 25
+ufw allow 587
+ufw allow 993
+```
+
 # 指令
 
 ## docker-compose 啟動
@@ -148,4 +160,114 @@ docker exec -it mailserver setup email add user@example.com
 
 ```bash
 docker exec -it mailserver setup email passwd user@example.com
+```
+
+## 測試
+
+使用 telnet 連接到 Docker Mailserver 的 SMTP 端口
+
+```bash
+telnet mail.example.com 25
+```
+
+成功連接，會看到類似於以下的響應
+
+```
+Trying 192.168.1.1...
+Connected to mail.example.com.
+Escape character is '^]'.
+220 mail.example.com ESMTP Postfix
+```
+
+在 telnet 會話中，輸入以下命令來發送測試郵件
+
+```bash
+HELO mail.example.com
+MAIL FROM:<test@example.com>
+RCPT TO:<user@example.com>
+DATA
+Subject: Test Email
+
+This is a test email.
+.
+QUIT
+```
+
+避免 SMTP Command Pipelining 問題，逐行發送 SMTP 命令：
+
+```
+HELO mail.lovecutesealbaby.com
+```
+
+收到回應：
+
+```
+250 mail.lovecutesealbaby.com
+```
+
+發送 MAIL FROM 命令：
+
+```
+MAIL FROM:<test@lovecutesealbaby.com>
+```
+
+收到回應：
+
+```
+250 2.1.0 Ok
+```
+
+發送 RCPT TO 命令：
+
+```
+RCPT TO:<user@lovecutesealbaby.com>
+```
+
+收到回應：
+
+```
+250 2.1.5 Ok
+```
+
+發送 DATA 命令：
+
+```
+DATA
+```
+
+收到回應：
+
+```
+354 End data with <CR><LF>.<CR><LF>
+```
+
+輸入郵件內容，並以單獨一行的 . 結束：
+
+```
+Subject: Test Email
+
+This is a test email.
+.
+```
+
+收到回應：
+
+```
+250 2.0.0 Ok: queued as 12345
+```
+
+發送 QUIT 命令：
+
+```
+QUIT
+```
+
+查看伺服器日誌以查找可能的錯誤或警告
+
+```bash
+docker logs mailserver
+```
+
+```
+stored mail into mailbox 'INBOX'
 ```

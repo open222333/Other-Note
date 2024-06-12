@@ -26,6 +26,7 @@ laravel-admin 控制器 在 app/Admin/Controllers
     - [狀況處理相關](#狀況處理相關)
 - [安裝](#安裝)
 - [常用指令](#常用指令)
+  - [git clone 專案後使用](#git-clone-專案後使用)
 - [用法](#用法)
   - [Console 自製終端機命令](#console-自製終端機命令)
   - [自製命令範例](#自製命令範例)
@@ -64,8 +65,11 @@ composer require encore/laravel-admin
 # 運行下面的命令來發布資源：
 php artisan vendor:publish --provider="Encore\Admin\AdminServiceProvider"
 
-# 安裝 laravel-admin
+# 安裝 laravel-admin (建立 admin 用戶)
 php artisan admin:install
+
+# 根據路由創建選單(需修正內容 標題 路徑)
+php artisan admin:generate-menu
 ```
 
 修改mysql連接資訊(資料庫須先建好)
@@ -114,9 +118,6 @@ php artisan admin:create-user
 # 指定用戶重置密碼
 php artisan admin:reset-password
 
-# 根據路由創建選單(需修正內容 標題 路徑)
-php artisan admin:generate-menu
-
 # 遷移資料庫
 # 用於 Laravel（一個 PHP 框架）的命令，用來執行資料庫遷移。
 # 遷移是一種以版本控制方式定義和管理資料庫結構的方法，使能夠修改和共享應用程式的資料庫結構定義。
@@ -127,7 +128,17 @@ php artisan migrate
 php artisan admin:generate-menu
 ```
 
-git clone 專案後使用
+自定義 批量操作
+
+```bash
+# 生成批量操作類 文件 app/Admin/Actions/Post/Batch.php
+php artisan admin:action Post\\Batch --grid-batch --name="批量操作"
+
+# 創建一個普通的操作類 文件 app/Admin/Actions/Post/ImportPost.php
+php artisan admin:action Post\\ImportPost --name="導入數據"
+```
+
+## git clone 專案後使用
 
 ```bash
 # 安裝composer.json內紀錄的框架所需套件
@@ -137,19 +148,14 @@ composer install
 php artisan vendor:publish --provider="Encore\Admin\AdminServiceProvider"
 
 # 給予權限 (若使用nginx 給予nginx使用者帳號權限)
-cd "project_name"
 chown -R nginx.nginx storage
 chown -R nginx.nginx bootstrap/cache
-```
 
-自定義 批量操作
+# 安裝 laravel-admin (建立 admin 用戶)
+php artisan admin:install
 
-```bash
-# 生成批量操作類 文件 app/Admin/Actions/Post/Batch.php
-php artisan admin:action Post\\Batch --grid-batch --name="批量操作"
-
-# 創建一個普通的操作類 文件 app/Admin/Actions/Post/ImportPost.php
-php artisan admin:action Post\\ImportPost --name="導入數據"
+# 根據路由創建選單(需修正內容 標題 路徑)
+php artisan admin:generate-menu
 ```
 
 # 用法
