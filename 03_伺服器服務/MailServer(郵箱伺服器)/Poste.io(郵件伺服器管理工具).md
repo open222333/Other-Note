@@ -71,3 +71,14 @@ services:
 反垃圾郵件和防病毒：Poste.io 已集成這些功能，可以在管理界面中進行配置和調整。
 備份和恢復：定期備份 ./data 目錄，以確保數據安全。
 ```
+
+```
+管理後台
+https://example.com/admin/box/
+
+郵箱
+https://example.com/webmail/
+
+api文檔
+https://example.com/admin/api/doc
+```
