@@ -18,6 +18,8 @@ Poste.io 是一個功能豐富的郵件伺服器管理工具，內置簡單的 W
 
 [官方網站](https://poste.io/)
 
+[Poste.io API](https://admin%40poste.io:admin@demo.poste.io/admin/api/doc)
+
 [poste.io 文檔](https://poste.io/doc/)
 
 [poste dockerhub](https://hub.docker.com/r/analogic/poste.io/)
@@ -27,6 +29,8 @@ Poste.io 是一個功能豐富的郵件伺服器管理工具，內置簡單的 W
 [poste.io 範例](https://poste.io/demo)
 
 [poste.io 範例網站 - 瀏覽器儲存帳密](https://demo.poste.io/admin/login#admin@poste.io;admin)
+
+[Frequently asked questions - 常見問題](https://poste.io/doc/faq)
 
 ### 測試相關
 
@@ -53,6 +57,17 @@ services:
     volumes:
       - ./data:/data
     restart: always
+```
+
+```
+25，SMTP server for incoming emails
+110, POP3 server (STARTTLS required)
+143, IMAP server (STARTTLS required)
+443，Administration and webmail HTTPS server
+587, Submission server(STARTTLS SMTP server for clients)
+993, IMAP server(implicit TLS)
+995, POP3 server(implicit TLS)
+4190，Sieve server(optional)
 ```
 
 ```
