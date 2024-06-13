@@ -18,6 +18,12 @@ RainLoop 是一個現代、輕量級的 Web 郵件客戶端，支持多語言，
 
 [官方文檔](https://www.rainloop.net/docs/)
 
+[官方文檔 - 設定](https://www.rainloop.net/docs/configuration/)
+
+[dockerhub - rainloop](https://hub.docker.com/r/hardware/rainloop/)
+
+[Github - Host your own rainloop instance using docker](https://github.com/wernerfred/docker-rainloop)
+
 # 安裝
 
 ## docker-compose 部署
@@ -40,7 +46,8 @@ services:
 
 初始設置
 點擊界面底部的 "Admin Panel" 進入管理面板。
-使用默認的管理員帳戶登錄（默認帳號和密碼都是 admin）。
+使用默認的管理員帳戶登錄
+Default login is "admin", password is "12345".
 
 配置郵件伺服器
 在管理面板中，添加郵件伺服器配置，例如 IMAP 和 SMTP 服務器地址。

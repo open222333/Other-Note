@@ -1,4 +1,4 @@
-# Docker Mailserver(後端郵件伺服器)
+# docker-mailserver(後端郵件伺服器)
 
 ```
 Docker Mailserver 是一個易於部署且可配置的完整郵件伺服器套件。
@@ -8,7 +8,7 @@ Docker Mailserver 本身是一個後端郵件伺服器，主要通過配置文�
 
 ## 目錄
 
-- [Docker Mailserver(後端郵件伺服器)](#docker-mailserver後端郵件伺服器)
+- [docker-mailserver(後端郵件伺服器)](#docker-mailserver後端郵件伺服器)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [](#)
@@ -23,6 +23,10 @@ Docker Mailserver 本身是一個後端郵件伺服器，主要通過配置文�
 [docker-mailserver Github](https://github.com/docker-mailserver/docker-mailserver)
 
 [docker-mailserver 文檔](https://docker-mailserver.github.io/docker-mailserver/latest/)
+
+[docker-mailserver 文檔 - 環境變數](https://docker-mailserver.github.io/docker-mailserver/latest/config/environment/)
+
+[dockerhub](https://hub.docker.com/r/mailserver/docker-mailserver/)
 
 ###
 
