@@ -28,6 +28,8 @@ Docker Mailserver 本身是一個後端郵件伺服器，主要通過配置文�
 
 [dockerhub](https://hub.docker.com/r/mailserver/docker-mailserver/)
 
+[docker-mailserver 文檔 - 基本安裝教學](https://docker-mailserver.github.io/docker-mailserver/latest/examples/tutorials/basic-installation/)
+
 ###
 
 [MXToolbox - 檢查 MX 記錄](https://mxtoolbox.com/)
@@ -100,25 +102,29 @@ mkdir -p config/{ssl,postfix,opendkim,opendmarc,postscreen}
 docker-compose.yml
 
 ```yml
-version: '3.8'
-
 services:
   mailserver:
-    image: docker.io/mailserver/docker-mailserver:latest
-    hostname: mail
-    domainname: example.com
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
+    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
+    hostname: mail.example.com
     ports:
       - "25:25"
-      - "143:143"
+      - "465:465"
       - "587:587"
       - "993:993"
     volumes:
-      - ./config:/tmp/docker-mailserver
-    env_file: .env
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - ENABLE_RSPAMD=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_FAIL2BAN=1
     cap_add:
-      - NET_ADMIN
-      - SYS_PTRACE
+      - NET_ADMIN # For Fail2Ban to work
     restart: always
 ```
 
@@ -135,6 +141,18 @@ MX 記錄
 優先級：10（或根據需要設置的優先級）
 ```
 
+```
+$ORIGIN example.com
+@     IN  A      10.11.12.13
+mail  IN  A      10.11.12.13
+
+; mail server for example.com
+@     IN  MX  10 mail.example.com.
+
+; Add SPF record
+@     IN  TXT    "v=spf1 mx -all"
+```
+
 防火牆狀態（基於 Ubuntu）
 
 ```bash
@@ -147,6 +165,27 @@ ufw allow 993
 ```
 
 # 指令
+
+命令setup將在容器內運行。
+
+產生 DKIM 金鑰
+
+```bash
+setup config dkim
+```
+
+/tmp/docker-mailserver/opendkim/keys/example.com/mail.txt
+
+別名可確保發送至這些帳戶的任何電子郵件都會轉發到第三方電子郵件地址 ( external-account@gmail.com)，並在其中檢索它們（例如：透過第三方網路或行動應用程式），而不是直接docker-mailserer使用POP3 / IMAP 連接。
+
+```bash
+setup email add admin@example.com passwd123
+setup email add info@example.com passwd123
+setup alias add admin@example.com external-account@gmail.com
+setup alias add info@example.com external-account@gmail.com
+setup email list
+setup alias list
+```
 
 ## docker-compose 啟動
 
