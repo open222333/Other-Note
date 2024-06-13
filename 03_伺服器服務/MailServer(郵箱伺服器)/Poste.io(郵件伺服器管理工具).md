@@ -10,12 +10,27 @@ Poste.io 是一個功能豐富的郵件伺服器管理工具，內置簡單的 W
 - [Poste.io(郵件伺服器管理工具)](#posteio郵件伺服器管理工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [測試相關](#測試相關)
 - [安裝](#安裝)
   - [docker-compose 部署](#docker-compose-部署)
 
 ## 參考資料
 
 [官方網站](https://poste.io/)
+
+[poste.io 文檔](https://poste.io/doc/)
+
+[poste dockerhub](https://hub.docker.com/r/analogic/poste.io/)
+
+[poste.io 文檔 - docker 範例](https://poste.io/open)
+
+[poste.io 範例](https://poste.io/demo)
+
+[poste.io 範例網站 - 瀏覽器儲存帳密](https://demo.poste.io/admin/login#admin@poste.io;admin)
+
+### 測試相關
+
+[測試 MX 指向工具](https://mxtoolbox.com/SuperTool.aspx)
 
 # 安裝
 
