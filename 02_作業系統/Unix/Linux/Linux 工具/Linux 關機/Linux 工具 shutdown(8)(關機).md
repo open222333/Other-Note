@@ -17,7 +17,7 @@ shutdown 在關機時會把系統的服務都關閉之後，才關閉電腦
 
 [shutdown(8) — Linux man page](https://linux.die.net/man/8/shutdown)
 
-[shutdown(8) — Linux manual page](https://www.man7.org/linux/man-pages/man1/shutdown.8.html)
+[shutdown(8) — Linux manual page](https://man7.org/linux/man-pages/man1/shutdown.8.html)
 
 [Linux 關機指令（shutdown、halt 與 poweroff）教學與範例](https://blog.gtwang.org/linux/how-to-shutdown-linux/)
 

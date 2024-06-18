@@ -59,13 +59,13 @@ dnf install epel-release
 dnf upgrade
 
 # CentOS 7
-yum install epel-release
+yum install epel-release -y
 
 # 安裝 snapd(軟體部署和軟體套件管理系統)
 # 在某些情況下，可能會使用 snapd 來安裝 Certbot。
 # snapd 是一個由 Canonical 提供的包管理系統，允許你安裝和管理 Snap 包。
 # 在一些 Linux 發行版上，特別是較新的版本，使用 Snap 來安裝 Certbot 是一種推薦的方法。
-yum install snapd
+yum install snapd -y
 # 啟用
 systemctl enable --now snapd.socket
 # 建立連結
@@ -100,7 +100,7 @@ yum install python3-certbot-dns-cloudflare -y
 ```bash
 apt-get remove certbot
 dnf remove certbot
-yum remove certbot
+yum remove certbot 
 ```
 
 # 指令

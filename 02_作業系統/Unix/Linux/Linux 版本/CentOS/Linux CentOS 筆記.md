@@ -1,19 +1,21 @@
 # Linux CentOS 筆記
 
 ```
+
 ```
 
 ## 目錄
 
 - [Linux CentOS 筆記](#linux-centos-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [linux 工具 yum(軟體套件管理工具)](#linux-工具-yum軟體套件管理工具)
 - [大流量網站使用 linux CentOS7 BBR](#大流量網站使用-linux-centos7-bbr)
 - [SELinux工具程式](#selinux工具程式)
 - [CentOS 7 網路指令](#centos-7-網路指令)
 - [例外狀況](#例外狀況)
-	- [curl: (35) Cannot communicate securely with peer: no common encryption algorithm(s).](#curl-35-cannot-communicate-securely-with-peer-no-common-encryption-algorithms)
+  - [curl: (35) Cannot communicate securely with peer: no common encryption algorithm(s).](#curl-35-cannot-communicate-securely-with-peer-no-common-encryption-algorithms)
+- [專案放置建議](#專案放置建議)
 
 ## 參考資料
 
@@ -226,3 +228,58 @@ nmcli networking on
 ```bash
 yum update curl -y
 ```
+
+# 專案放置建議
+
+```
+生產環境: 建議使用 /opt 或 /srv，因為這些目錄通常用於生產環境中的附加應用和服務數據，能夠與系統應用分開管理，便於備份和維護。
+開發或測試環境: 可以使用 /home/$USER 來便於快速訪問和管理，但請注意權限和安全問題。
+```
+
+/opt:
+
+用途: 常用於安裝附加軟件或自包含的應用程式，這些應用程式通常與系統軟件分開管理。
+
+優點: 專案目錄與系統目錄分離，便於管理和維護。
+
+/srv:
+
+用途: 通常用於存放服務器數據，如網頁、數據庫、版本控制庫等。
+
+優點: 與服務相關的數據和應用程式通常放在此目錄，便於組織和管理。
+
+/home/$USER:
+
+用途: 用戶的主目錄下，適合個人或開發環境中的專案。
+
+優點: 便於用戶直接訪問和管理，不需要額外的許可權設置。
+
+/data（如果存在）:
+
+用途: 專用於存放應用數據的目錄，可能需要手動創建。
+
+優點: 便於集中管理應用數據和專案目錄。
+
+/var/www:
+
+這是 Web 服務器（例如 Apache 或 Nginx）的默認根目錄。通常用於存放網站和 Web 應用程式的文件。
+例如，將專案放置在 /var/www/html/your_project。
+/opt:
+
+這個目錄通常用於安裝附加軟件或自包含的應用程式。自定義軟件包或第三方軟件可以放在這裡。
+例如，將專案放置在 /opt/your_project。
+
+/usr/local:
+
+用於安裝本地編譯和安裝的軟件，這些軟件通常不由系統包管理器（如 yum 或 dnf）管理。
+例如，將專案放置在 /usr/local/your_project。
+
+/home:
+
+專案如果是由特定用戶開發或管理，可以放在用戶的主目錄下。
+例如，將專案放置在 /home/username/your_project。
+
+自定義目錄:
+
+根據需要，你也可以在根目錄下創建一個自定義目錄來存放專案。
+例如，將專案放置在 /srv/your_project 或 /data/your_project。

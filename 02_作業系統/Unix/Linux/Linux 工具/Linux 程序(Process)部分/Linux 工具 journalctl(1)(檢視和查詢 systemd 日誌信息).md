@@ -14,7 +14,7 @@
 
 ## 參考資料
 
-[journalctl(1) — Linux manual page](https://www.man7.org/linux/man-pages/man1/journalctl.1.html)
+[journalctl(1) — Linux manual page](https://man7.org/linux/man-pages/man1/journalctl.1.html)
 
 # 指令
 

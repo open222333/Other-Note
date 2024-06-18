@@ -45,7 +45,7 @@
 
 [sshpass(1) - Linux man page](https://linux.die.net/man/1/sshpass)
 
-[ssh-keygen(1) — Linux manual page](https://www.man7.org/linux/man-pages/man1/ssh-keygen.1.html)
+[ssh-keygen(1) — Linux manual page](https://man7.org/linux/man-pages/man1/ssh-keygen.1.html)
 
 [ssh-copy-id - Man Page](https://www.mankier.com/1/ssh-copy-id)
 

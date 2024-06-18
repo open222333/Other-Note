@@ -1,11 +1,11 @@
-# Linux 工具 sample(num)()
+# Linux 工具 sample($num)()
 
 ```
 ```
 
 ## 目錄
 
-- [Linux 工具 sample(num)()](#linux-工具-samplenum)
+- [Linux 工具 sample($num)()](#linux-工具-sample$num)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
@@ -20,9 +20,9 @@
 
 ## 參考資料
 
-[sample(num) — Linux man page](https://linux.die.net/man/num/sample)
+[sample($num) — Linux man page](https://linux.die.net/man/$num/sample)
 
-[sample(num) — Linux manual page](https://www.man7.org/linux/man-pages/man1/sample.num.html)
+[sample($num) — Linux manual page](https://man7.org/linux/man-pages/man$num/sample.$num.html)
 
 # 安裝
 
