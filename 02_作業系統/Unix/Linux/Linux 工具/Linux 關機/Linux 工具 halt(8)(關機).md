@@ -16,7 +16,7 @@ shutdown 在關機時會把系統的服務都關閉之後，才關閉電腦，�
 
 [halt(8) — Linux man page](https://linux.die.net/man/8/halt)
 
-[halt(8) — Linux manual page](https://www.man7.org/linux/man-pages/man1/halt.8.html)
+[halt(8) — Linux manual page](https://man7.org/linux/man-pages/man1/halt.8.html)
 
 # 指令
 

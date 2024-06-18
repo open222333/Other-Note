@@ -13,7 +13,7 @@
 
 ## 參考資料
 
-[file(1) — Linux manual page](https://www.man7.org/linux/man-pages/man1/file.1.html)
+[file(1) — Linux manual page](https://man7.org/linux/man-pages/man1/file.1.html)
 
 # 指令
 

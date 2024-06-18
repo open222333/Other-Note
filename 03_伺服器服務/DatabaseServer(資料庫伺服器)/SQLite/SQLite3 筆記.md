@@ -23,7 +23,7 @@
 
 [sqlite3(num) — Linux man page](https://linux.die.net/man/num/sqlite3)
 
-[sqlite3(num) — Linux manual page](https://www.man7.org/linux/man-pages/man1/sqlite3.num.html)
+[sqlite3(num) — Linux manual page](https://man7.org/linux/man-pages/man1/sqlite3.num.html)
 
 ### 圖形化介面相關
 

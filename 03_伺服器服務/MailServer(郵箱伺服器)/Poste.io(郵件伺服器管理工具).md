@@ -14,6 +14,7 @@ Poste.io 是一個功能豐富的郵件伺服器管理工具，內置簡單的 W
     - [測試相關](#測試相關)
 - [安裝](#安裝)
   - [docker-compose 部署](#docker-compose-部署)
+- [DNS 指向](#dns-指向)
 - [腳本](#腳本)
   - [管理後台 過濾信件功能 SIEVE filter](#管理後台-過濾信件功能-sieve-filter)
   - [定期刪除腳本(伺服器)](#定期刪除腳本伺服器)
@@ -99,13 +100,37 @@ services:
 
 ```
 管理後台
-https://example.com/admin/box/
+https://admin.example.com/admin/box/
 
 郵箱
-https://example.com/webmail/
+https://admin.example.com/webmail/
 
 api文檔
-https://example.com/admin/api/doc
+https://admin.example.com/admin/api/doc
+```
+
+# DNS 指向
+
+```
+$ORIGIN example.com
+@     IN  A      10.11.12.13
+mail  IN  A      10.11.12.13
+
+; mail server for example.com
+@     IN  MX  10 mail.example.com.
+
+; Add SPF record
+@     IN  TXT    "v=spf1 mx -all"
+```
+
+```
+;; A Records
+admin.example.com.	1	IN	A	xxx.xxx.xxx.xxx
+mail.example.com.	1	IN	A	xxx.xxx.xxx.xxx
+
+;; MX Records
+example.com.	1	IN	MX	10 mail.example.com.
+mail.example.com.	1	IN	MX	10 mail.example.com.
 ```
 
 # 腳本

@@ -19,7 +19,7 @@
 
 [iconv(1) — Linux man page](https://linux.die.net/man/1/iconv)
 
-[iconv(1) — Linux manual page](https://www.man7.org/linux/man-pages/man1/iconv.1.html)
+[iconv(1) — Linux manual page](https://man7.org/linux/man-pages/man1/iconv.1.html)
 
 # 安裝
 

@@ -19,7 +19,7 @@ poweroff 指令也是類似的狀況，它也允許你不管系統的狀況，�
 
 [poweroff(8) — Linux man page](https://linux.die.net/man/8/poweroff)
 
-[poweroff(8) — Linux manual page](https://www.man7.org/linux/man-pages/man1/poweroff.8.html)
+[poweroff(8) — Linux manual page](https://man7.org/linux/man-pages/man1/poweroff.8.html)
 
 # 指令
 
