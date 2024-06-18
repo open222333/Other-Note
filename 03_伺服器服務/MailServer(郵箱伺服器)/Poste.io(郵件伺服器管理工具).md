@@ -10,9 +10,13 @@ Poste.io 是一個功能豐富的郵件伺服器管理工具，內置簡單的 W
 - [Poste.io(郵件伺服器管理工具)](#posteio郵件伺服器管理工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [郵箱腳本功能](#郵箱腳本功能)
     - [測試相關](#測試相關)
 - [安裝](#安裝)
   - [docker-compose 部署](#docker-compose-部署)
+- [腳本](#腳本)
+  - [管理後台 過濾信件功能 SIEVE filter](#管理後台-過濾信件功能-sieve-filter)
+  - [定期刪除腳本(伺服器)](#定期刪除腳本伺服器)
 
 ## 參考資料
 
@@ -31,6 +35,12 @@ Poste.io 是一個功能豐富的郵件伺服器管理工具，內置簡單的 W
 [poste.io 範例網站 - 瀏覽器儲存帳密](https://demo.poste.io/admin/login#admin@poste.io;admin)
 
 [Frequently asked questions - 常見問題](https://poste.io/doc/faq)
+
+### 郵箱腳本功能
+
+[Sieve（郵件過濾語言）](http://en.wikipedia.org/wiki/Sieve_(mail_filtering_language))
+
+[Sieve Tutorial](https://www.tty1.net/blog/2011/sieve-tutorial_en.html)
 
 ### 測試相關
 
@@ -96,4 +106,79 @@ https://example.com/webmail/
 
 api文檔
 https://example.com/admin/api/doc
+```
+
+# 腳本
+
+## 管理後台 過濾信件功能 SIEVE filter
+
+路徑
+
+`https://admin.example.com/admin/my/show`
+
+```sieve
+require ["fileinto", "vacation", "variables", "copy"];
+
+# 垃圾郵件過濾規則
+if header :contains "subject" "*****SPAM*****" {
+    fileinto "Junk";
+    stop;
+}
+
+# 自動回信規則
+if header :matches "Subject" "*" {
+    set "subjwas" "${1}";
+}
+vacation
+  :days 1
+  :addresses ["收件郵箱@mail.example.com"]
+  :subject "Re: ${subjwas}"
+  "自動轉寄內容";
+
+# 郵件副本重定向規則
+if true {
+    redirect :copy "轉寄郵箱@mail.example.com";
+}
+```
+
+## 定期刪除腳本(伺服器)
+
+刪除超過30天的郵件
+
+使用 find 命令來查找並刪除舊郵件
+
+```sh
+#!/bin/bash
+
+# 設定郵件存放目錄，根據你的實際路徑調整
+MAIL_DIR="/path/to/maildir"
+
+# 刪除超過30天的郵件
+find "$MAIL_DIR" -type f -mtime +30 -exec rm -f {} \;
+
+echo "Old emails deleted."
+```
+
+設置腳本權限
+
+```sh
+chmod +x clean_old_emails.sh
+```
+
+設置定時任務
+
+```sh
+crontab -e
+```
+
+每天凌晨3點運行腳本
+
+```
+0 3 * * * /path/to/clean_old_emails.sh
+```
+
+手動運行腳本 測試
+
+```sh
+./clean_old_emails.sh
 ```
