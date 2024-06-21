@@ -36,6 +36,7 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
   - [Update](#update)
   - [實現 join](#實現-join)
   - [聚合aggregate](#聚合aggregate)
+    - [並行連接兩個集合](#並行連接兩個集合)
   - [使用ObjectID搜尋資料](#使用objectid搜尋資料)
   - [slaveOk 更換寫法](#slaveok-更換寫法)
 
@@ -405,6 +406,17 @@ result = db.orders.aggregate([
             'customer_info': 0,  # 去除customer_info字段
             'combined_field': 0  # 去除combined_field字段，保留combined_field_bool字段
         }
+    },
+    {
+        '$sort': {
+            'customer_info.modified_date': -1  # 按照modified_date降序排序，如果需要升序，將-1改成1
+        }
+    },
+    {
+        "$match": {
+            "field1": value1,
+            "field2": value2,
+        }
     }
 ])
 ```
@@ -434,6 +446,61 @@ pipeline = [
         "$match": {"$or":[{"created_updated_days_divide": {"$lte": 30}}, {"now_updated_days_divide": {"$lte": 30}}]}
     }
 ]
+```
+
+### 並行連接兩個集合
+
+假設有兩個集合 collection1 和 collection2，它們都有一個名為 field_name 的字段，要找到兩個集合中 field_name 字段相同的文件。
+
+```Python
+from pymongo import MongoClient
+
+def get_common_field_documents(db, collection1_name, collection2_name, field_name):
+    """使用 $lookup 比較兩個集合中的特定欄位，取出相同值的文件
+
+    Args:
+        db: MongoDB 數據庫對象
+        collection1_name (str): 第一個集合名稱
+        collection2_name (str): 第二個集合名稱
+        field_name (str): 要比較的欄位名稱
+
+    Returns:
+        list: 包含共同欄位值的文件列表
+    """
+    pipeline = [
+        {
+            '$lookup': {
+                'from': collection2_name,
+                'localField': field_name,
+                'foreignField': field_name,
+                'as': 'matched_docs'
+            }
+        },
+        {
+            '$match': {
+                'matched_docs': {'$ne': []}
+            }
+        }
+    ]
+
+    collection1 = db[collection1_name]
+    result = list(collection1.aggregate(pipeline))
+    return result
+
+# 連接到 MongoDB
+client = MongoClient('mongodb://localhost:27017/')
+db = client['your_database_name']
+
+# 設置集合名稱和欄位名稱
+collection1_name = 'collection1'
+collection2_name = 'collection2'
+field_name = 'field_name'
+
+# 比較並取得共同的文件
+common_documents = get_common_field_documents(db, collection1_name, collection2_name, field_name)
+
+for doc in common_documents:
+    print(doc)
 ```
 
 ## 使用ObjectID搜尋資料
