@@ -23,6 +23,7 @@
 - [指令](#指令)
   - [服務](#服務)
   - [docker](#docker)
+    - [匯出 log](#匯出-log)
     - [docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小](#docker-slim-容量優化工具-一些工具可以分析和優化-docker-映像的大小)
     - [docker inspect 取得有關 Docker 物件的詳細信息](#docker-inspect-取得有關-docker-物件的詳細信息)
     - [image](#image)
@@ -478,6 +479,12 @@ docker images -a --no-trunc | grep '<none>' | awk '{ print $3 }' | xargs -r dock
 # grep '<none>': 選擇那些標籤為 <none> 的映像。
 # awk '{ print $3 }': 提取每行的第三個欄位，即映像 ID。
 # xargs -r docker rmi: 使用 xargs 將取得的映像 ID 傳遞給 docker rmi 命令，以刪除這些映像。
+```
+
+### 匯出 log
+
+```bash
+docker logs my_container &> my_container.log
 ```
 
 ### docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小
