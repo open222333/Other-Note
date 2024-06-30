@@ -151,7 +151,12 @@ php artisan vendor:publish --provider="Encore\Admin\AdminServiceProvider"
 chown -R nginx.nginx storage
 chown -R nginx.nginx bootstrap/cache
 
-# 安裝 laravel-admin (建立 admin 用戶)
+# 檢查是否有未運行的遷移：
+php artisan migrate:status
+# 如果有未運行的遷移，運行以下命令來運行它們：
+php artisan migrate
+
+# 安裝 laravel-admin (建立 admin 用戶)(非必要)
 php artisan admin:install
 
 # 根據路由創建選單(需修正內容 標題 路徑)
