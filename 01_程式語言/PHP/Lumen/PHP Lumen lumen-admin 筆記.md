@@ -6,10 +6,10 @@
 ## 目錄
 
 - [PHP Lumen lumen-admin 筆記](#php-lumen-lumen-admin-筆記)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [安裝步驟](#安裝步驟)
-- [LumenCMS](#lumencms)
+- [指令](#指令)
 
 ## 參考資料
 
@@ -32,15 +32,37 @@ chmod -R 755 storage
 
 # 複製.env
 cp .env.example .env
+vim .env
 
 # 資料庫遷移
 php artisan migrate
-
-# 添加數據
-php artisan db:seed
 ```
 
-# LumenCMS
+```conf
+APP_NAME=Lumen
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+APP_TIMEZONE=UTC
+
+LOG_CHANNEL=stack
+LOG_SLACK_WEBHOOK_URL=
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=homestead
+DB_USERNAME=homestead
+DB_PASSWORD=secret
+
+CACHE_DRIVER=file
+QUEUE_CONNECTION=sync
+```
+
+# 指令
+
+LumenCMS
 
 ```
 LumenCMS是一個輕量級的CMS系統，也可以作為一個通用的後台管理框架使用。
@@ -59,4 +81,7 @@ npm run serve
 
 # 生產環境構建項目
 npm run build
+
+# 添加數據
+php artisan db:seed
 ```
