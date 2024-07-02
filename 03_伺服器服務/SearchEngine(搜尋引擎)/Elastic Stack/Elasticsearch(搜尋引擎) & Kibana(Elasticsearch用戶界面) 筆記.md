@@ -134,6 +134,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [Python 基本範例](#python-基本範例)
   - [模板](#模板)
   - [使用 Elasticsearch ILM 自動刪除索引的基本步驟](#使用-elasticsearch-ilm-自動刪除索引的基本步驟)
+- [同步資料 MySQL](#同步資料-mysql)
 - [同步資料 Mongodb](#同步資料-mongodb)
   - [Python - mongo-connector](#python---mongo-connector-1)
     - [配置文檔 config.json](#配置文檔-configjson)
@@ -2016,6 +2017,74 @@ es.indices.create(index=index_name, body=mapping_definition)
 定義刪除策略：在索引生命週期策略中，可以定義一個刪除階段，並設置相應的條件來指示 Elasticsearch 在符合條件時自動刪除索引或文檔。
 
 監控和調整：定期監控索引的生命週期管理情況，並根據需求調整相應的策略和條件。
+
+# 同步資料 MySQL
+
+將MySQL資料同步到Elasticsearch，有幾個常用的工具可以幫助實現這一目標。以下是一些常見的選擇：
+
+`Elasticsearch JDBC River (Deprecated)`
+
+儘管這個工具已經被淘汰，但它曾經是用來將MySQL資料導入Elasticsearch的一個常見方法。
+
+`Logstash`
+
+Logstash 是 Elastic Stack 的一部分，可以使用 JDBC 插件來同步 MySQL 資料到 Elasticsearch。
+配置示例：
+
+```bash
+input {
+  jdbc {
+    jdbc_driver_library => "/path/to/mysql-connector-java.jar"
+    jdbc_driver_class => "com.mysql.jdbc.Driver"
+    jdbc_connection_string => "jdbc:mysql://localhost:3306/mydb"
+    jdbc_user => "username"
+    jdbc_password => "password"
+    statement => "SELECT * FROM mytable"
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["localhost:9200"]
+    index => "myindex"
+  }
+}
+```
+
+`Debezium`
+
+Debezium 是一個分散式的資料變更捕獲 (CDC) 平台，它可以捕捉 MySQL 的資料變更並將其發送到 Elasticsearch。
+使用 Debezium 需要 Kafka 作為中間層。
+
+`ElasticSearch-Hadoop (ES-Hadoop)`
+
+ES-Hadoop 可以將 MySQL 資料通過 Hadoop 集群同步到 Elasticsearch。
+適合大規模資料處理。
+
+`Apache Nifi`
+
+Apache Nifi 是一個強大的資料流處理工具，可以使用其內置的 MySQL 和 Elasticsearch processors 來同步資料。
+
+`Transporter`
+
+Transporter 是一個開源工具，可以用來同步 MySQL 資料到 Elasticsearch。
+
+配置簡單，支持多種資料源和目標。
+
+以下是 Transporter 的簡單配置示例：
+
+```yaml
+nodes:
+  source:
+    type: mysql
+    uri: "mysql://username:password@localhost:3306/mydb"
+  sink:
+    type: elasticsearch
+    uri: "http://localhost:9200/myindex"
+
+pipeline:
+  source -> sink
+```
 
 # 同步資料 Mongodb
 
