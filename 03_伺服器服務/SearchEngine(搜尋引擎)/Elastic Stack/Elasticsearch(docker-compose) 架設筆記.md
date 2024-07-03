@@ -400,6 +400,61 @@ iptables -A INPUT -p tcp --dport 5601 -j ACCEPT
 iptables -A INPUT -p tcp --dport 9200 -j ACCEPT
 ```
 
+## 優化 自動安裝 IK 分詞插件
+
+優化後的 docker-compose.yml 設定檔以及相關的 Dockerfile，用於自動安裝 IK 分詞插件
+
+```yml
+version: '3'
+services:
+  elasticsearch:
+    build: ./elasticsearch
+    container_name: elasticsearch
+    privileged: true
+    environment:
+      - "cluster.name=elasticsearch"
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx2g"
+      - bootstrap.memory_lock=true
+    volumes:
+      - ./es/plugins:/usr/share/elasticsearch/plugins
+      - ./es/data:/usr/share/elasticsearch/data
+      - ./es/logs:/usr/share/elasticsearch/logs
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  kibana:
+    image: kibana:7.13.3
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      I18N_LOCALE: zh-CN
+    ports:
+      - 5601:5601
+```
+
+```Dockerfile
+FROM elasticsearch:7.13.3
+
+RUN elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip
+```
+
+確保在專案目錄下建立以下目錄和文件
+
+```
+your_project/
+├── docker-compose.yml
+├── elasticsearch/
+│   └── Dockerfile
+├── es/
+    ├── plugins/
+    ├── data/
+    └── logs/
+```
+
 ## 配置文檔 Java jvm.options
 
 ```
