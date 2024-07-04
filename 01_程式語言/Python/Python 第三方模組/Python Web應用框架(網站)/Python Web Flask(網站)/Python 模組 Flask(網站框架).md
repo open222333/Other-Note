@@ -51,6 +51,7 @@
   - [全域（global）的容器對象](#全域global的容器對象)
   - [實作 flask與pymysql](#實作-flask與pymysql)
     - [`講解 _app_ctx_stack.top`](#講解-_app_ctx_stacktop)
+  - [](#)
 
 ## 參考資料
 
@@ -1246,4 +1247,39 @@ AppContext類有一個_enter方法，當with語句運行的時候，會調用_en
 
 ```Python
 from flask import current_app
+```
+
+## 
+
+```Python
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/example', methods=['GET', 'POST'])
+def example():
+    # 所有請求資料
+    request_data = request.data  # 字節形式的請求資料
+    request_json = request.get_json()  # JSON 資料
+    request_form = request.form  # 表單資料
+    request_args = request.args  # URL 參數
+    request_headers = request.headers  # 請求標頭
+    request_files = request.files  # 上傳的文件
+    request_cookies = request.cookies  # 請求的 Cookie
+
+    # 將所有資料放入一個字典中
+    all_data = {
+        "data": request_data,
+        "json": request_json,
+        "form": request_form,
+        "args": request_args,
+        "headers": dict(request_headers),
+        "files": request_files,
+        "cookies": request_cookies
+    }
+
+    return all_data
+
+if __name__ == '__main__':
+    app.run(debug=True)
 ```
