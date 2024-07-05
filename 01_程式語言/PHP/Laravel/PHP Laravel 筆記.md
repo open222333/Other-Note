@@ -309,7 +309,7 @@ server {
     listen 80;
     server_name your_domain.com; # Replace with your domain or IP address
 
-    root /var/www/laravel/public; # Replace with the path to your Laravel project's public directory
+    root /path/to/laravel/public; # Replace with the path to your Laravel project's public directory
 
     index index.php index.html index.htm;
 
@@ -341,7 +341,7 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
-    root /var/www/laravel/public; # Replace with the path to your Laravel project's public directory
+    root /path/to/laravel/public; # Replace with the path to your Laravel project's public directory
 
     index index.php index.html index.htm;
 
@@ -390,8 +390,8 @@ php artisan key:generate
 chmod -R 755 "project_name"/storage
 chmod -R 755 "project_name"/bootstrap/cache
 
-chown -R www-data:www-data /var/www/your_project_name/storage /var/www/your_project_name/bootstrap/cache
-chmod -R 775 /var/www/your_project_name/storage /var/www/your_project_name/bootstrap/cache
+chown -R www-data:www-data /path/to/your_project_name/storage /path/to/your_project_name/bootstrap/cache
+chmod -R 775 /path/to/your_project_name/storage /path/to/your_project_name/bootstrap/cache
 
 # 遷移數據庫
 php artisan migrate
@@ -407,7 +407,7 @@ server {
     listen 80;
     server_name your_domain.com; # 替換為你的域名或 IP 地址
 
-    root /var/www/your_project_name/public; # 替換為你的 Laravel 專案 public 目錄的路徑
+    root /path/to/your_project_name/public; # 替換為你的 Laravel 專案 public 目錄的路徑
 
     index index.php index.html index.htm;
 

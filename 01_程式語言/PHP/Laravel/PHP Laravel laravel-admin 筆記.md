@@ -28,6 +28,7 @@ laravel-admin 控制器 在 app/Admin/Controllers
 - [常用指令](#常用指令)
   - [git clone 專案後使用](#git-clone-專案後使用)
 - [用法](#用法)
+  - [Route API](#route-api)
   - [Console 自製終端機命令](#console-自製終端機命令)
   - [自製命令範例](#自製命令範例)
   - [配置任務排程](#配置任務排程)
@@ -164,6 +165,34 @@ php artisan admin:generate-menu
 ```
 
 # 用法
+
+## Route API
+
+```php
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+
+Route::match(['get', 'post'], '/example', function (Request $request) {
+    $requestData = [
+        "data" => $request->getContent(),
+        "json" => $request->json()->all(),
+        "form" => $request->all(),
+        "args" => $request->query(),
+        "headers" => $request->headers->all(),
+        "files" => $request->files->all(),
+        "cookies" => $request->cookies->all(),
+    ];
+
+    // 將請求內容記錄到日誌
+    Log::info('Request Data: ', $requestData);
+
+    // 返回 JSON 響應
+    return response()->json($requestData);
+});
+```
 
 ## Console 自製終端機命令
 
