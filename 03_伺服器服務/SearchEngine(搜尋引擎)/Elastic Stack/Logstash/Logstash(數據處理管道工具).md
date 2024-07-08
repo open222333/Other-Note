@@ -28,8 +28,12 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
   - [參考資料](#參考資料)
     - [docker-compose 相關](#docker-compose-相關)
     - [心得相關](#心得相關)
+- [安裝](#安裝)
+  - [CentOS7](#centos7)
   - [配置文檔](#配置文檔)
 - [指令](#指令)
+  - [服務操作](#服務操作)
+  - [自建 docker-compose](#自建-docker-compose)
   - [Github deviantony/docker-elk](#github-deviantonydocker-elk)
 
 ## 參考資料
@@ -51,6 +55,14 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
 [ElasticSearch7.3学习(三十二)----logstash三大插件（input、filter、output）及其综合示例](https://www.cnblogs.com/xiaoyh/p/16270516.html)
 
 [ELK中Logstash的配置和用法](https://blog.csdn.net/rxbook/article/details/132405459)
+
+# 安裝
+
+## CentOS7
+
+```bash
+yum install logstash
+```
 
 ## 配置文檔
 
@@ -186,6 +198,94 @@ bin/logstash -f /path/to/your/logstash.conf
 bin/logstash-plugin list
 ```
 
+## 服務操作
+
+```bash
+# 啟動服務
+systemctl start logstash
+
+# 查詢啟動狀態
+systemctl status logstash
+
+# 重新啟動
+systemctl restart logstash
+
+# 停止服務
+systemctl stop logstash
+
+# 開啟開機自動啟動
+systemctl enable logstash
+
+# 關閉開機自動啟動
+systemctl disable logstash
+```
+
+## 自建 docker-compose
+
+```yml
+version: '3'
+services:
+  elasticsearch:
+    image: elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch
+    privileged: true
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx1096m" # 設置使用jvm內存大小
+      - "ES_HEAP_SIZE=512m"
+      - "MAX_OPEN_FILES=65535"
+      - "MAX_LOCKED_MEMORY=unlimited"
+    volumes:
+      - ./es/plugins:/usr/share/elasticsearch/plugins
+      - ./es/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./es/data:/usr/share/elasticsearch/data:rw # 數據文件掛載
+      - ./es/logs:/usr/share/elasticsearch/logs:rw
+    ports:
+      - 9200:9200
+  kibana:
+    image: kibana:${STACK_VERSION}
+    container_name: kibana
+    depends_on:
+      - elasticsearch # kibana在elasticsearch啟動之後再啟動
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200 # 設置訪問elasticsearch的地址
+      I18N_LOCALE: zh-CN
+    ports:
+      - 5601:5601
+  logstash:
+    image: logstash:${STACK_VERSION}
+    container_name: logstash
+    depends_on:
+      - elasticsearch # logstash在elasticsearch啟動之後再啟動
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro # 將 Logstash pipeline 配置文件掛載到容器中
+    ports:
+      - 5044:5044 # 預設 Logstash 的 Beats input port
+    environment:
+      - "XPACK_MONITORING_ELASTICSEARCH_HOSTS=http://elasticsearch:9200" # 設置監控地址
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf # 設置 Logstash 配置文件
+```
+
+專案結構
+
+```
+project-root/
+├── docker-compose.yml
+├── es/
+│   ├── config/
+│   │   └── elasticsearch.yml
+│   ├── data/
+│   ├── logs/
+│   └── plugins/
+├── kibana/
+│   └── config/
+│       └── kibana.yml
+└── logstash/
+    ├── config/
+    │   └── logstash.yml
+    └── pipeline/
+        └── logstash.conf
+```
+
 ## Github deviantony/docker-elk
 
 ```yml
@@ -224,7 +324,7 @@ services:
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
       METRICBEAT_INTERNAL_PASSWORD: ${METRICBEAT_INTERNAL_PASSWORD:-}
-      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
       HEARTBEAT_INTERNAL_PASSWORD: ${HEARTBEAT_INTERNAL_PASSWORD:-}
       MONITORING_INTERNAL_PASSWORD: ${MONITORING_INTERNAL_PASSWORD:-}
       BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
