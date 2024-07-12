@@ -532,8 +532,38 @@ POLYGON
 
 ### 查看 MySQL 使用容量
 
+```
+使用 MySQL Workbench
+可以通過以下步驟查看資料庫大小：
+
+    打開 MySQL Workbench 並連接到你的 MySQL 服務器。
+    在左側的 Navigator 窗格中，右鍵點擊想查看大小的資料庫，然後選擇 "Schema Inspector"。
+    在彈出的窗口中，可以查看資料庫的大小。
+```
+
+```
+使用 PHPMyAdmin
+可以通過以下步驟查看資料庫大小：
+
+    登錄 PHPMyAdmin。
+    選擇要查看的資料庫。
+    在右側的 "Database" 頁面中，可以看到資料庫的總大小
+```
+
 ```bash
 du -h /var/lib/mysql
+```
+
+```bash
+du -sh /var/lib/mysql/your_database_name
+```
+
+```sql
+-- 顯示每個資料庫的大小（以 MB 為單位）
+SELECT table_schema AS 'Database',
+       ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS 'Size (MB)'
+FROM information_schema.tables
+GROUP BY table_schema;
 ```
 
 ## 服務操作
