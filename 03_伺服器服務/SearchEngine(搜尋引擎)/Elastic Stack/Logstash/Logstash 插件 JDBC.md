@@ -5,6 +5,14 @@ Logstash 自身並不具備持續同步 MySQL 數據庫的功能，但可以使�
 這個插件可以定期查詢 MySQL 數據庫，並將新數據導入 Elasticsearch 或其他目標存儲。
 ```
 
+MySQL Connector/J
+
+```
+MySQL Connector/J 是 MySQL 的官方 JDBC 驅動程序，用於讓 Java 應用程序與 MySQL 數據庫進行通信。
+JDBC（Java Database Connectivity）是一個 Java API，提供了一種通用的方式來連接和操作各種數據庫。
+MySQL Connector/J 實現了這個 API，使得 Java 應用程序可以使用 JDBC 來連接到 MySQL 數據庫。
+```
+
 ## 目錄
 
 - [Logstash 插件 JDBC](#logstash-插件-jdbc)
@@ -23,6 +31,7 @@ Logstash 自身並不具備持續同步 MySQL 數據庫的功能，但可以使�
 
 [如何使用 Logstash 和 JDBC 确保 Elasticsearch 与关系型数据库保持同步](https://www.elastic.co/cn/blog/how-to-keep-elasticsearch-synchronized-with-a-relational-database-using-logstash)
 
+[MySQL Connector/J 下載頁面](https://dev.mysql.com/downloads/connector/j/)
 
 # 安裝
 
