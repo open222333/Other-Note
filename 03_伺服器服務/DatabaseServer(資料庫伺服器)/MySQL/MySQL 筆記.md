@@ -45,6 +45,12 @@ RDBMS
   - [匯出匯入](#匯出匯入)
     - [匯出 - mysqldump](#匯出---mysqldump)
     - [匯入](#匯入)
+    - [匯出資料到 CSV 檔案](#匯出資料到-csv-檔案)
+      - [使用 MySQL 命令行工具](#使用-mysql-命令行工具)
+      - [使用 mysqldump 命令](#使用-mysqldump-命令)
+      - [使用 Python 程式碼](#使用-python-程式碼)
+      - [使用 phpMyAdmin](#使用-phpmyadmin)
+      - [使用 MySQL Workbench](#使用-mysql-workbench)
   - [測試用](#測試用)
     - [模擬長時間連線](#模擬長時間連線)
       - [引入延遲（睡眠）](#引入延遲睡眠)
@@ -54,6 +60,7 @@ RDBMS
 - [例外狀況](#例外狀況)
   - [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
   - [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
+  - [mysqldump: Got error: 1290: The MySQL server is running with the --secure-file-priv option so it cannot execute this statement when executing 'SELECT INTO OUTFILE'](#mysqldump-got-error-1290-the-mysql-server-is-running-with-the---secure-file-priv-option-so-it-cannot-execute-this-statement-when-executing-select-into-outfile)
 
 ## 參考資料
 
@@ -1037,6 +1044,116 @@ mysql -u$username -p < $name.sql
 mysql -h(ip) -uroot -p(password) databasename< database.sql
 ```
 
+### 匯出資料到 CSV 檔案
+
+#### 使用 MySQL 命令行工具
+
+```sql
+SELECT * INTO OUTFILE '/path/to/yourfile.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+FROM your_table;
+```
+
+```
+FIELDS TERMINATED BY ',' 指定欄位之間使用逗號分隔。
+ENCLOSED BY '"' 指定欄位用引號包裹。
+LINES TERMINATED BY '\n' 指定每行數據用換行符結束。
+```
+
+#### 使用 mysqldump 命令
+
+```sql
+SHOW VARIABLES LIKE 'secure_file_priv';
+```
+
+```bash
+mysqldump --tab=/path/to/dir --fields-terminated-by=',' --fields-enclosed-by='"' --lines-terminated-by='\n' --no-create-info --user=yourusername --password=yourpassword yourdatabase yourtable
+```
+
+```bash
+mysqldump --tab=/var/lib/mysql-files --fields-terminated-by=',' --fields-enclosed-by='"' --lines-terminated-by='\n' --no-create-info --user=yourusername --password=yourpassword yourdatabase yourtable
+```
+
+轉換 .txt 文件為 JSON 格式
+
+```Python
+import json
+
+input_file = '/var/lib/mysql-files/post.txt'
+output_file = '/var/lib/mysql-files/post.json'
+
+data_list = []
+
+with open(input_file, 'r') as file:
+    for line in file:
+        id, content, created_at = line.strip().split(',')
+        data_list.append({
+            "id": int(id),
+            "content": content.strip('"'),
+            "created_at": created_at.strip('"')
+        })
+
+with open(output_file, 'w') as json_file:
+    for data in data_list:
+        json_file.write(json.dumps({"index": {}}) + "\n")
+        json_file.write(json.dumps(data) + "\n")
+
+print(f"Data has been converted and saved to {output_file}")
+```
+
+#### 使用 Python 程式碼
+
+```Python
+import mysql.connector
+import csv
+
+# 連接到 MySQL 資料庫
+conn = mysql.connector.connect(
+    host="your_host",
+    user="your_username",
+    password="your_password",
+    database="your_database"
+)
+cursor = conn.cursor()
+
+# 執行查詢
+cursor.execute("SELECT * FROM your_table")
+
+# 取得查詢結果
+rows = cursor.fetchall()
+
+# 寫入 CSV 文件
+with open('/path/to/yourfile.csv', 'w', newline='') as csvfile:
+    csvwriter = csv.writer(csvfile)
+    csvwriter.writerow([i[0] for i in cursor.description])  # 寫入表頭
+    csvwriter.writerows(rows)
+
+# 關閉連接
+cursor.close()
+conn.close()
+```
+
+#### 使用 phpMyAdmin
+
+```
+登錄到 phpMyAdmin 並選擇你要匯出的資料庫。
+點擊你要匯出的表。
+點擊 "Export" 標籤。
+選擇 "CSV" 格式，然後點擊 "Go" 下載 CSV 文件。
+```
+
+#### 使用 MySQL Workbench
+
+MySQL Workbench 是一個圖形化的管理工具，可以用來匯出 CSV 文件。
+
+```
+打開 MySQL Workbench 並連接到你的資料庫。
+在左側導航面板中，右鍵點擊你要匯出的表，選擇 "Table Data Export Wizard"。
+選擇 CSV 格式並設置文件路徑，然後按照指示完成匯出。
+```
+
 ## 測試用
 
 ### 模擬長時間連線
@@ -1161,3 +1278,20 @@ cp /path/to/mysql/data/mysql-bin.* /path/to/backup/
 -- 檢查原因
 mysql> check table db.table;
 ```
+
+## mysqldump: Got error: 1290: The MySQL server is running with the --secure-file-priv option so it cannot execute this statement when executing 'SELECT INTO OUTFILE'
+
+檢查 MySQL 的 secure-file-priv 配置，查看允許的文件匯出路徑。
+
+```sql
+SHOW VARIABLES LIKE 'secure_file_priv';
+```
+
+修改 MySQL 配置文件（通常是 my.cnf 或 my.ini），設置 secure-file-priv 路徑：
+
+```ini
+[mysqld]
+secure-file-priv="/path/to/allowed/directory"
+```
+
+保存配置文件並重新啟動 MySQL 伺服器，使更改生效。
