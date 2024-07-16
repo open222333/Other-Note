@@ -35,6 +35,10 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
   - [服務操作](#服務操作)
   - [自建 docker-compose](#自建-docker-compose)
   - [Github deviantony/docker-elk](#github-deviantonydocker-elk)
+- [範例](#範例)
+  - [將已經匯出的 MySQL 資料檔案（例如 CSV 檔案）導入 Elasticsearch](#將已經匯出的-mysql-資料檔案例如-csv-檔案導入-elasticsearch)
+  - [使用 Python 將 sql 檔建立 index](#使用-python-將-sql-檔建立-index)
+  - [使用 Python 將 csv 檔建立 index](#使用-python-將-csv-檔建立-index)
 
 ## 參考資料
 
@@ -403,4 +407,171 @@ networks:
 
 volumes:
   elasticsearch:
+```
+
+# 範例
+
+## 將已經匯出的 MySQL 資料檔案（例如 CSV 檔案）導入 Elasticsearch
+
+將 MySQL 資料匯出為 CSV 檔案：假設已經完成這一步。
+
+設定 Logstash 的配置檔：配置 Logstash 以從 CSV 檔案讀取資料並將其發送到 Elasticsearch。
+
+啟動 Logstash：啟動 Logstash 以執行配置檔並將資料匯入 Elasticsearch。
+
+```conf
+input {
+  file {
+    path => "/path/to/data.csv"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+  }
+}
+
+filter {
+  csv {
+    separator => ","
+    columns => ["id", "name", "age"]
+  }
+
+  mutate {
+    ; integer ：整數
+    ; float ：浮點數
+    ; string ：字符串
+    ; boolean ：布爾值（true 或 false）
+    ; array ：數組
+    convert => {
+      "id" => "integer"
+      "age" => "integer"
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://localhost:9200"]
+    index => "your_index_name"
+    document_id => "%{id}"
+  }
+  stdout {
+    codec => rubydebug
+  }
+}
+```
+
+```
+input
+
+    path: CSV 檔案的路徑。
+    start_position: 指定從檔案的開頭開始讀取。
+    sincedb_path: 指定 sincedb 路徑（在這裡使用 /dev/null 以防止 Logstash 記住文件位置，適合於測試）。
+
+filter
+
+    csv: 用於解析 CSV 資料。
+    separator: 指定 CSV 的分隔符號。
+    columns: 指定 CSV 的欄位名稱。
+    mutate: 用於轉換資料類型。
+    convert: 將 id 和 age 欄位轉換為整數。
+
+output
+
+    elasticsearch: 發送資料到 Elasticsearch。
+    hosts: Elasticsearch 伺服器的地址。
+    index: 在 Elasticsearch 中創建的索引名稱。
+    document_id: Elasticsearch 中文件的 ID，這裡假設表中有一個 id 欄位。
+    stdout: 將處理後的資料輸出到控制台（用於調試）。
+```
+
+```bash
+logstash -f /path/to/logstash.conf
+```
+
+## 使用 Python 將 sql 檔建立 index
+
+```Python
+import sqlparse
+import json
+from elasticsearch import Elasticsearch
+
+# 讀取 .sql 檔案
+with open('data.sql', 'r') as file:
+    sql_content = file.read()
+
+# 解析 .sql 檔案內容
+parsed = sqlparse.parse(sql_content)
+
+# 提取列名和數據
+columns = ['id', 'name', 'age']  # 根據你的 .sql 檔案中的表結構
+data = []
+for statement in parsed:
+    if statement.get_type() == 'INSERT':
+        values = statement.get_values()
+        data.append(dict(zip(columns, values)))
+
+# 將數據轉換為 JSON
+json_data = json.dumps(data, indent=2)
+
+# 連接到 Elasticsearch
+es = Elasticsearch(['http://localhost:9200'])
+
+# 將數據插入 Elasticsearch 索引
+index_name = 'your_index_name'
+for doc in data:
+    es.index(index=index_name, body=doc)
+
+print('Data imported successfully')
+```
+
+## 使用 Python 將 csv 檔建立 index
+
+匯出資料為 CSV
+
+```sql
+SELECT * INTO OUTFILE '/path/to/yourfile.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+FROM your_table;
+```
+
+將 CSV 轉換為 JSON
+
+```Python
+import csv
+import json
+
+csv_file_path = '/path/to/yourfile.csv'
+json_file_path = '/path/to/yourfile.json'
+
+# 讀取 CSV 並轉換為 JSON
+with open(csv_file_path, mode='r', encoding='utf-8') as csv_file:
+    csv_reader = csv.DictReader(csv_file)
+    rows = list(csv_reader)
+
+with open(json_file_path, mode='w', encoding='utf-8') as json_file:
+    json.dump(rows, json_file, indent=2)
+```
+
+將 JSON 資料導入 Elasticsearch
+
+```Python
+from elasticsearch import Elasticsearch
+import json
+
+# 連接到 Elasticsearch
+es = Elasticsearch(['http://localhost:9200'])
+
+index_name = 'your_index_name'
+json_file_path = '/path/to/yourfile.json'
+
+# 讀取 JSON 檔案
+with open(json_file_path, mode='r', encoding='utf-8') as json_file:
+    data = json.load(json_file)
+
+# 將資料插入 Elasticsearch 索引
+for doc in data:
+    es.index(index=index_name, body=doc)
+
+print('Data imported successfully')
 ```
