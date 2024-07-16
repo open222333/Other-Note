@@ -60,6 +60,8 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
 
 [ELK中Logstash的配置和用法](https://blog.csdn.net/rxbook/article/details/132405459)
 
+[筆記 Github conf 範例](https://github.com/open222333/Other-Elasticstack/tree/main/single-node-01/logstash/pipeline)
+
 # 安裝
 
 ## CentOS7
