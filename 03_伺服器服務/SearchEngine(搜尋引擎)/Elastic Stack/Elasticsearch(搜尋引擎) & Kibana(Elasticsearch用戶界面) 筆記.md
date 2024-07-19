@@ -158,6 +158,8 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 
 [分析与分析器 - 2.x 官方分詞器](https://www.elastic.co/guide/cn/elasticsearch/guide/current/analysis-intro.html)
 
+[Index modules - 索引映射設定 7.13](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/index-modules.html)
+
 [Mapping parameters - 官方映射 映射參數](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-params.html)
 
 [Dynamic templates - 官方映射 索引模板 動態映射](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/dynamic-templates.html#dynamic-templates)
