@@ -77,3 +77,65 @@ finally:
     # 關閉連接
     connection.close()
 ```
+
+```Python
+import mysql.connector
+
+def get_table_structure(host, user, password, database, table_name):
+    # 連接到 MySQL 資料庫
+    conn = mysql.connector.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+
+    # 創建游標
+    cursor = conn.cursor()
+
+    # 執行查詢，取得資料表結構
+    query = f"DESCRIBE {table_name}"
+    cursor.execute(query)
+
+    # 獲取結果
+    table_structure = cursor.fetchall()
+
+    # 關閉游標和連接
+    cursor.close()
+    conn.close()
+
+    return table_structure
+
+# 設定資料庫連接參數
+host = 'your_host'
+user = 'your_username'
+password = 'your_password'
+database = 'your_database'
+table_name = 'your_table_name'
+
+# 取得表結構
+structure = get_table_structure(host, user, password, database, table_name)
+for column in structure:
+    print(column)
+```
+
+取得表結構
+
+```Python
+import mysql.connector
+
+def get_table_structure(host, user, password, database, table_name):
+    conn = mysql.connector.connect(
+        host=host,
+        user=user,
+        password=password,
+        database=database
+    )
+    cursor = conn.cursor()
+    query = f"DESCRIBE {table_name}"
+    cursor.execute(query)
+    table_structure = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return table_structure
+```
