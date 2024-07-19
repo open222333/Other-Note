@@ -27,6 +27,10 @@
   - [配置文檔](#配置文檔)
 - [腳本範例(放在 toml 檔 \[\[script\]\])](#腳本範例放在-toml-檔-script)
   - [自動生成別名](#自動生成別名)
+- [狀況](#狀況)
+  - [Failed to parse with all enclosed parsers](#failed-to-parse-with-all-enclosed-parsers)
+  - [ERROR 2024/07/19 04:50:26 Bulk response item: {"\_index":"index","\_type":"\_doc","\_id":"65f2a46e063d9e005e655f2c","status":400,"error":{"type":"illegal\_argument\_exception","reason":"Limit of total fields \[1000\] has been exceeded"}}](#error-20240719-045026-bulk-response-item-_indexindex_type_doc_id65f2a46e063d9e005e655f2cstatus400errortypeillegal_argument_exceptionreasonlimit-of-total-fields-1000-has-been-exceeded)
+  - [處理特定字段的數據轉換](#處理特定字段的數據轉換)
 
 ## 參考資料
 
@@ -347,4 +351,126 @@ module.exports = function (doc, ns, raw) {
 
   return doc;
 }
+```
+
+# 狀況
+
+## Failed to parse with all enclosed parsers
+
+```
+ERROR 2024/07/19 05:06:31 Bulk response item: {"_index":"index","_type":"_doc","_id":"5f8d497b0f8cdb000757f048","status":400,"error":{"type":"mapper_parsing_exception","reason":"failed to parse field [release_date] of type [date] in document with id '5f8d497b0f8cdb000757f048'. Preview of field's value: '0000-00-00'","caused_by":{"caused_by":{"reason":"Failed to parse with all enclosed parsers","type":"date_time_parse_exception"},"reason":"failed to parse date field [0000-00-00] with format [strict_date_optional_time||epoch_millis]","type":"illegal_argument_exception"}}}
+```
+
+錯誤訊息顯示 Elasticsearch 無法解析字段 release_date，因為它的值是 0000-00-00，這不是一個有效的日期格式。
+
+```
+數據清理：
+    確保數據庫中的日期字段使用有效的日期格式。如果不能更改數據，可以使用 Monstache 的轉換功能來清理數據。
+更新 Elasticsearch 映射：
+    如果 release_date 字段中可能包含無效日期，可以更新 Elasticsearch 映射，使其接受這些值作為字符串，而不是日期。
+```
+
+更新數據
+
+```bash
+PUT /index/_mapping
+{
+  "properties": {
+    "release_date": {
+      "type": "text"
+    }
+  }
+}
+```
+
+編輯 Monstache 配置文件，添加一個 script 過濾器來過濾無效日期
+
+```yml
+scripts:
+  - path: /path/to/filter.js
+```
+
+```js
+module.exports = function(doc, ns) {
+  if (doc.release_date === "0000-00-00") {
+    delete doc.release_date;
+  }
+  return doc;
+}
+```
+
+```toml
+[[script]]
+namespace = "yourdb.yourcollection"
+script = """
+module.exports = function (doc, ns) {
+  var index = "index." + ns.split(".")[1];
+
+  // 檢查和處理無效日期
+  if (doc.release_date === "0000-00-00") {
+    // 過濾無效日期，可以選擇刪除該字段或設置為 null
+    delete doc.release_date;
+    // 或者設置為其他有效的默認值
+    // doc.release_date = null;
+  }
+
+  doc._meta_monstache = { index: index };
+  return doc;
+}
+"""
+```
+
+## ERROR 2024/07/19 04:50:26 Bulk response item: {"_index":"index","_type":"_doc","_id":"65f2a46e063d9e005e655f2c","status":400,"error":{"type":"illegal_argument_exception","reason":"Limit of total fields [1000] has been exceeded"}}
+
+```
+Elasticsearch 字段數量限制
+錯誤訊息顯示 Elasticsearch 索引 index 的字段數量超過了 1000 的限制。
+```
+
+```bash
+curl -X PUT "http://localhost:9200/index/_settings" -H 'Content-Type: application/json' -d'
+{
+  "index.mapping.total_fields.limit": 2000
+}
+'
+```
+
+## 處理特定字段的數據轉換
+
+```js
+module.exports = function (doc, ns) {
+    // 檢查並轉換 source.240 字段
+    if (doc.source && doc.source[240]) {
+        // 將數據轉換為字符串
+        doc.source[240] = JSON.stringify(doc.source[240]);
+    }
+
+    return doc;
+}
+```
+
+```json
+# monstache.toml
+
+# 配置第一個腳本，設置文檔的索引
+[[script]]
+script = """
+module.exports = function (doc, ns) {
+  var index = "index." + ns.split(".")[1];
+  doc._meta_monstache = { index: index };
+  return doc;
+}
+"""
+
+# 配置第二個腳本，將特定字段的數據轉換為字符串格式
+[[script]]
+script = """
+module.exports = function (doc, ns) {
+  if (doc.source && doc.source[240]) {
+    doc.source[240] = JSON.stringify(doc.source[240]);
+  }
+  return doc;
+}
+"""
+
 ```
