@@ -38,7 +38,11 @@ mysql-connector-python 是 MySQL 官方提供的 Python 客戶端模組，用於
 
 [mysql-connector-python pypi](https://pypi.org/project/mysql-connector-python/)
 
+[MySQL 官方文檔](https://dev.mysql.com/doc/)
+
 [MySQL Connector/Python Developer Guide - MySQL 連接器/Python 開發人員指南](https://dev.mysql.com/doc/connector-python/en/)
+
+[7.1 Connector/Python Connection Arguments](https://dev.mysql.com/doc/connector-python/en/connector-python-connectargs.html)
 
 # 指令
 
