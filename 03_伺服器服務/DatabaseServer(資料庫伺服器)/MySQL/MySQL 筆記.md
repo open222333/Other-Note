@@ -1076,6 +1076,17 @@ mysqldump --tab=/path/to/dir --fields-terminated-by=',' --fields-enclosed-by='"'
 mysqldump --tab=/var/lib/mysql-files --fields-terminated-by=',' --fields-enclosed-by='"' --lines-terminated-by='\n' --no-create-info --user=yourusername --password=yourpassword yourdatabase yourtable
 ```
 
+mysqldump 指令 說明
+
+```
+--tab=/var/lib/mysql-files：指定匯出的資料檔案存放的位置。
+--fields-terminated-by=','：指定各個欄位之間使用逗號 , 分隔。
+--fields-enclosed-by='"'：指定各個欄位的值用雙引號 " 包圍。
+--lines-terminated-by='\n'：指定每一行結束符為換行符號 \n。
+--no-create-info：僅匯出資料而不包括建立資料表的 SQL 語句。
+--user=root：使用 root 使用者進行資料庫連接。
+```
+
 轉換 .txt 文件為 JSON 格式
 
 ```Python
