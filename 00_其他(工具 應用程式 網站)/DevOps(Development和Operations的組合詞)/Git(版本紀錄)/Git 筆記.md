@@ -55,6 +55,8 @@
   - [Git Blame 逐條程式碼Log](#git-blame-逐條程式碼log)
   - [設定永遠快取密碼，則可執行以下指令進行設定](#設定永遠快取密碼則可執行以下指令進行設定)
   - [設置git忽略](#設置git忽略)
+- [狀況](#狀況)
+  - [不想合併，但又需要解決這些未追蹤檔案的問題](#不想合併但又需要解決這些未追蹤檔案的問題)
 - [範例](#範例)
   - [Python 更改資料夾內所有專案設定](#python-更改資料夾內所有專案設定)
   - [Git pull 錯誤操作](#git-pull-錯誤操作)
@@ -1002,6 +1004,82 @@ config/database.yml
 
 # 當然你要忽略自己也可以，只是通常不會這麼做
 .gitignore
+```
+
+# 狀況
+
+## 不想合併，但又需要解決這些未追蹤檔案的問題
+
+`方法一`：暫時將這些檔案加到 .gitignore
+
+這樣可以讓 Git 忽略這些檔案：
+
+將檔案名稱加入 .gitignore：
+
+```sh
+echo "docker-compose.yml" >> .gitignore
+echo "dir/file1.toml" >> .gitignore
+echo "dir/file2.toml" >> .gitignore
+echo "dir/file3.toml" >> .gitignore
+```
+
+更新 Git 索引：
+
+```sh
+git add .gitignore
+git commit -m "Temporarily ignore untracked files"
+```
+
+這樣可以繼續進行其他操作而不會受到未追蹤檔案的影響。
+
+`方法二`：將檔案暫時移動到其他目錄
+
+創建一個臨時目錄來存放這些檔案：
+
+```sh
+mkdir temp_backup
+```
+
+將未追蹤的檔案移動到臨時目錄：
+
+```sh
+mv docker-compose.yml temp_backup/
+mv dir/file1.toml temp_backup/
+mv dir/file2.toml temp_backup/
+mv dir/file3.toml temp_backup/
+```
+
+進行需要的操作（不包含合併）
+
+將檔案移回原來的位置：
+
+```sh
+mv temp_backup/docker-compose.yml .
+mv temp_backup/file1.toml dir/
+mv temp_backup/file2.toml dir/
+mv temp_backup/file3.toml dir/
+```
+
+刪除臨時目錄：
+
+```sh
+rmdir temp_backup
+```
+
+`方法三`：使用 Git stash
+
+將未追蹤的檔案暫存起來：
+
+```sh
+git stash push --include-untracked
+```
+
+進行需要的操作（不包含合併）
+
+取回暫存的檔案：
+
+```sh
+git stash pop
 ```
 
 # 範例
