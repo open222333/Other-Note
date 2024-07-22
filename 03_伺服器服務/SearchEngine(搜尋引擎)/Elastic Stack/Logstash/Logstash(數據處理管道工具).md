@@ -28,6 +28,7 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
   - [參考資料](#參考資料)
     - [docker-compose 相關](#docker-compose-相關)
     - [心得相關](#心得相關)
+    - [狀況相關](#狀況相關)
 - [安裝](#安裝)
   - [CentOS7](#centos7)
   - [配置文檔](#配置文檔)
@@ -61,6 +62,12 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
 [ELK中Logstash的配置和用法](https://blog.csdn.net/rxbook/article/details/132405459)
 
 [筆記 Github conf 範例](https://github.com/open222333/Other-Elasticstack/tree/main/single-node-01/logstash/pipeline)
+
+### 狀況相關
+
+[LogStash::ConfigurationError”, :message=>”需要 [ \\t\\r\\n], \”#\”, \”if\”, [A-Za-z0-9_-], ' 之一\”'、\”'\”、\”}\”](https://discuss.elastic.co/t/logstash-configurationerror-message-expected-one-of-t-r-n-if-a-za-z0-9/312402)
+
+[Expected one of [ \\t\\r\\n], \”#\”, \”=>\” at line](https://discuss.elastic.co/t/expected-one-of-t-r-n-at-line/248050/3)
 
 # 安裝
 
