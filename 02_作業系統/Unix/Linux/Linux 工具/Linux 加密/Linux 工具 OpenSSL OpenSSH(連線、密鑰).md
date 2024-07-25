@@ -26,6 +26,7 @@
     - [常用建立連線設定步驟](#常用建立連線設定步驟)
   - [公鑰(.pub 文件)傳送到另一個電腦使用](#公鑰pub-文件傳送到另一個電腦使用)
   - [連線設定1](#連線設定1)
+  - [腳本 自動化生成 SSH 密鑰對並配置 SSH 連接](#腳本-自動化生成-ssh-密鑰對並配置-ssh-連接)
 
 ## 參考資料
 
@@ -487,3 +488,48 @@ firewall-cmd --reload
 openssl x509 -in certificate.crt -text -noout
 ```
 
+## 腳本 自動化生成 SSH 密鑰對並配置 SSH 連接
+
+```
+生成 SSH 密鑰對，文件名為 ~/.ssh/$host_name。
+將生成的公鑰複製到指定的遠程主機。
+在本地的 SSH 配置文件 ~/.ssh/config 中添加配置條目。
+```
+
+setup_ssh.sh
+
+```bash
+#!/bin/bash
+
+# 檢查是否提供了主機名和 IP
+if [ -z "$1" ] || [ -z "$2" ]; then
+  echo "Usage: $0 <host_name> <host_ip>"
+  exit 1
+fi
+
+host_name=$1
+host_ip=$2
+
+# 生成 SSH 密鑰對
+ssh-keygen -f ~/.ssh/$host_name -N ""
+
+# 複製公鑰到遠程主機
+ssh-copy-id -i ~/.ssh/$host_name.pub root@$host_ip
+
+# 更新 SSH 配置文件
+echo -e "\nHost $host_name\n    User root\n    HostName $host_ip\n    ServerAliveInterval 60\n    IdentityFile ~/.ssh/$host_name" >> ~/.ssh/config
+
+echo "SSH configuration for $host_name ($host_ip) has been set up."
+```
+
+使腳本可執行
+
+```sh
+chmod +x setup_ssh.sh
+```
+
+執行腳本並提供主機名和 IP 地址
+
+```bash
+./setup_ssh.sh jp-elasticsearch-dev 172.0.0.1
+```
