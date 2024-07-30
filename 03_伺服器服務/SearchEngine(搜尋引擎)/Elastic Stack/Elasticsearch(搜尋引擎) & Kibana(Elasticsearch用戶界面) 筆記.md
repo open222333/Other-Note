@@ -121,6 +121,8 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
   - [配置文檔 override.conf](#配置文檔-overrideconf)
   - [生產環境 建議設定](#生產環境-建議設定)
+  - [參數說明](#參數說明)
+    - [ES\_JAVA\_OPTS(取代ES\_HEAP\_SIZE)](#es_java_opts取代es_heap_size)
 - [集群 Cluster](#集群-cluster)
 - [操作](#操作)
   - [指令 API](#指令-api)
@@ -342,6 +344,12 @@ Elasticsearch Index Lifecycle Management（ILM）是一個功能強大的工具�
 [elasticsearch優化總結](https://www.796t.com/content/1541971520.html)
 
 [Elasticsearch 基本原理及規劃](https://jeff-yen.medium.com/elasticsearch-%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86%E5%8F%8A%E8%A6%8F%E5%8A%83-e1763b856a08)
+
+[Heap size check - Elasticsearch 建議 JVM 最小記憶體設置為 1 GB](https://www.elastic.co/guide/en/elasticsearch/reference/current/_heap_size_check.html)
+
+[安裝和設定 Elasticsearch](https://www.netiq.com/zh-tw/documentation/sentinel-80/s80_install/data/b1kqg6xp.html)
+
+[JVM heap dump path setting - 7.13 ](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/important-settings.html#heap-dump-path)
 
 # 安裝方式
 
@@ -1467,6 +1475,65 @@ thread_pool.bulk.queue_size: 3000
 thread_pool.index.queue_size: 2000
 thread_pool.search.queue_size: 1000
 thread_pool.get.queue_size: 1000
+```
+
+## 參數說明
+
+### ES_JAVA_OPTS(取代ES_HEAP_SIZE)
+
+```
+在較新的 Elasticsearch 版本中，自 5.0 版本起，ES_HEAP_SIZE 設置已被棄用，建議改用 ES_JAVA_OPTS 來設置 JVM 堆內存大小​ (Elastic)​​ (Elastic)​。目前的最佳實踐是使用 ES_JAVA_OPTS 變量來設定堆內存大小，例如 -Xms1g -Xmx1g 表示最小和最大堆內存大小均設為 1 GB​ (Elastic)​。
+
+若同時存在 ES_HEAP_SIZE 和 ES_JAVA_OPTS 兩者設置，ES_JAVA_OPTS 會優先於 ES_HEAP_SIZE。由於 ES_HEAP_SIZE 已不再被推薦使用，建議僅使用 ES_JAVA_OPTS 來避免混淆和潛在的配置衝突​ (Elastic)​​ (Elastic)​。
+
+ES_JAVA_OPTS 是用來設置 Elasticsearch 使用的 JVM (Java Virtual Machine) 參數的環境變量。這些參數可以控制 Elasticsearch 進程的行為，包括內存分配、垃圾回收機制等。
+
+以下是一些常用的 ES_JAVA_OPTS 參數及其說明：
+
+內存相關參數：
+    -Xms：設置 JVM 初始化時的堆內存大小。Elasticsearch 建議設置為系統物理內存的一半，且不超過 32 GB。例如：-Xms2g 表示初始化分配 2 GB 堆內存。
+    -Xmx：設置 JVM 最大堆內存大小。這個值通常應該與 -Xms 設置為相同，以避免 JVM 在運行過程中進行內存擴展和壓縮。例如：-Xmx2g 表示最大堆內存 2 GB。
+垃圾回收（GC）參數：
+    -XX:+UseG1GC：使用 G1 垃圾收集器，這是適合大多數現代應用的收集器，尤其是在需要低暫停時間的情況下。
+    -XX:InitiatingHeapOccupancyPercent=75：設置在堆使用率達到 75% 時開始垃圾回收。
+    -XX:MaxGCPauseMillis=200：設置最大 GC 暫停時間為 200 毫秒。
+其他常用參數：
+    -Djava.awt.headless=true：設置 JVM 為無頭模式，通常在服務器環境中使用。
+    -Dfile.encoding=UTF-8：設置文件編碼為 UTF-8。
+    -XX:+HeapDumpOnOutOfMemoryError：在內存溢出時生成堆轉儲文件，便於調試。
+
+Elasticsearch 的 JVM 最小記憶體設置應該至少為 1 GB。這是官方建議的最小配置，以確保 Elasticsearch 能夠正常運行並提供基本的功能。以下是一些具體的建議：
+
+最低內存設置：至少 1 GB (-Xms1g -Xmx1g)。
+推薦內存設置：在實際應用中，尤其是處理大量數據或高並發請求時，建議分配更多的內存。例如，2 GB (-Xms2g -Xmx2g) 或更高。
+
+environment:
+    - "ES_JAVA_OPTS=-Xms1g -Xmx1g" # 將最小和最大內存設置為1 GB
+
+內存設置的一致性：為了避免 JVM 進行內存擴展和壓縮的開銷，通常將最小內存 (-Xms) 和最大內存 (-Xmx) 設置為相同值。
+物理內存的一半：最大內存應該設置為物理內存的一半，最多不超過 32 GB。這是因為 JVM 有一個叫做堆外內存（off-heap memory），當超過 32 GB 時，性能可能會下降。
+系統資源：在調整內存設置時，確保你的系統有足夠的資源來支持 Elasticsearch 和其他應用程序的運行。
+總結來說，1 GB 是 Elasticsearch 的最小內存需求，但實際應用中，根據你的數據量和查詢需求，可能需要分配更多的內存以確保良好的性能。
+```
+
+`設置範例`
+
+假設希望設置 Elasticsearch 使用 4 GB 的內存並使用 G1 垃圾收集器，可以這樣配置
+
+```yml
+elasticsearch:
+  image: elasticsearch:7.13.3
+  container_name: elasticsearch
+  environment:
+    - "ES_JAVA_OPTS=-Xms4g -Xmx4g -XX:+UseG1GC -XX:InitiatingHeapOccupancyPercent=75 -XX:MaxGCPauseMillis=200"
+```
+
+```
+配置說明如下：
+    -Xms4g：設置初始堆內存大小為 4 GB。
+    -Xmx4g：設置最大堆內存大小為 4 GB。
+    -XX:+UseG1GC：使用 G1 垃圾收集器。
+    -XX:InitiatingHeapOccupancyPercent=75：在堆使用率達到 75% 時開始垃圾回收。
 ```
 
 # 集群 Cluster
