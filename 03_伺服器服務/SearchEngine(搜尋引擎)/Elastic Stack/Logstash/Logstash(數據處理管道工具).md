@@ -40,6 +40,7 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
   - [將已經匯出的 MySQL 資料檔案（例如 CSV 檔案）導入 Elasticsearch](#將已經匯出的-mysql-資料檔案例如-csv-檔案導入-elasticsearch)
   - [使用 Python 將 sql 檔建立 index](#使用-python-將-sql-檔建立-index)
   - [使用 Python 將 csv 檔建立 index](#使用-python-將-csv-檔建立-index)
+  - [逐步測試步驟](#逐步測試步驟)
 
 ## 參考資料
 
@@ -583,4 +584,69 @@ for doc in data:
     es.index(index=index_name, body=doc)
 
 print('Data imported successfully')
+```
+
+## 逐步測試步驟
+
+使用以下步驟來測試和調試：
+
+簡單測試輸入配置：
+
+```conf
+input {
+  file {
+    path => "/usr/mysql_backup/csv/mysql-files/ff_vod.txt"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+  }
+}
+
+output {
+  stdout { codec => rubydebug }
+}
+```
+
+逐步添加過濾器：
+
+確保每一步都正常工作後，逐步添加過濾器。例如，先添加 mutate 過濾器：
+
+```conf
+filter {
+  mutate {
+    gsub => [
+      "[@metadata][source_file]", "/usr/mysql_backup/csv/mysql-files/", "",
+      "[@metadata][source_file]", ".txt", ""
+    ]
+  }
+}
+```
+
+添加 CSV 過濾器：
+
+確保 CSV 過濾器的配置正確且數據能夠被正確解析：
+
+```conf
+filter {
+  if [@metadata][source_file] == "ff_vod" {
+    csv {
+      separator => ","
+      columns => ["vod_id", "vod_cid", "vod_recommend", ...]  # 省略其餘列名
+    }
+  }
+}
+```
+
+最終配置
+
+當所有部分都正常工作後，再配置 Elasticsearch 輸出：
+
+```conf
+output {
+  elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "ptv-20240729.ff_vod"
+    document_id => "%{vod_id}"
+  }
+  stdout { codec => rubydebug }
+}
 ```

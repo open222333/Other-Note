@@ -126,10 +126,13 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 - [集群 Cluster](#集群-cluster)
 - [操作](#操作)
   - [指令 API](#指令-api)
+    - [index(索引)](#index索引)
     - [alias(別名)](#alias別名)
     - [新增 刪除 別名至索引](#新增-刪除-別名至索引)
     - [創建索引模板(index temple)](#創建索引模板index-temple)
     - [搜尋API(Search API)](#搜尋apisearch-api)
+      - [取得所有資料](#取得所有資料)
+      - [隨機取資料](#隨機取資料)
     - [Slow Log](#slow-log-1)
   - [Kibana(後台)](#kibana後台)
     - [查看 Slow Log](#查看-slow-log)
@@ -1641,6 +1644,78 @@ curl -X GET "localhost:9200/_cluster/health?wait_for_status=yellow&timeout=50s&p
 curl -X PUT localhost:9200/_cluster/settings -H "Content-Type: application/json" -d '{ "persistent": { "cluster.max_shards_per_node": "5000" } }'
 ```
 
+### index(索引)
+
+使用 _cat/indices 查看所有索引資訊
+
+這個 API 可以列出所有索引及其基本信息：
+
+```sh
+GET /_cat/indices?v
+```
+
+這會返回類似以下的結果：
+
+```plaintext
+health status index    uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+green  open   my_index 9OVV7JYETeKPS1NxdU0hKw   1   1       1000            0     45.3kb         22.6kb
+```
+
+使用 _cat/indices 查看特定索引資訊
+
+指定索引名稱來查看該索引的資訊：
+
+```sh
+GET /_cat/indices/your_index?v
+```
+
+使用 _cat API 查看索引健康狀態
+
+```sh
+GET /_cat/health?v
+```
+
+使用 _cat/shards 查看分片資訊
+
+```sh
+GET /_cat/shards/your_index?v
+```
+
+使用 _stats 查看索引的統計資訊
+
+這個 API 提供了更多細節：
+
+```sh
+GET /your_index/_stats
+```
+
+這會返回關於文檔數量、存儲大小、索引狀態等的詳細信息。
+
+使用 _settings 查看索引設置
+
+```sh
+GET /your_index/_settings
+```
+
+使用 _mapping 查看索引的映射
+
+```sh
+GET /your_index/_mapping
+```
+
+使用 _cluster/health 查看集群健康狀態
+
+```sh
+GET /_cluster/health
+```
+
+```bash
+curl -X GET "localhost:9200/_cat/indices?v"
+curl -X GET "localhost:9200/your_index/_stats"
+curl -X GET "localhost:9200/your_index/_settings"
+curl -X GET "localhost:9200/your_index/_mapping"
+```
+
 ### alias(別名)
 
 ```bash
@@ -1950,6 +2025,44 @@ curl -X GET "localhost:9200/{索引名稱}/_search?pretty"  -H 'Content-Type: ap
     }
   }
 }
+```
+
+#### 取得所有資料
+
+```bash
+curl -X GET "localhost:9200/ptv-20240729.ff_vod/_search" -H 'Content-Type: application/json' -d'
+{
+  "size": 10,
+  "query": {
+    "match_all": {}
+  }
+}'
+```
+
+#### 隨機取資料
+
+```bash
+curl -X GET "localhost:9200/your_index/_search" -H 'Content-Type: application/json' -d'
+{
+  "size": 10,
+  "query": {
+    "function_score": {
+      "functions": [
+        {
+          "random_score": {
+            "seed": "your_seed_value"
+          }
+        }
+      ]
+    }
+  }
+}'
+```
+
+```
+size: 指定返回的文檔數量。
+your_index: 替換為你的索引名稱。
+seed: 用於生成隨機數的種子值。這個值可以是任意字符串或數字。如果使用相同的 seed 值，每次查詢返回的結果順序會是一致的；如果希望每次結果都不同，可以動態生成這個 seed 值。
 ```
 
 ### Slow Log
