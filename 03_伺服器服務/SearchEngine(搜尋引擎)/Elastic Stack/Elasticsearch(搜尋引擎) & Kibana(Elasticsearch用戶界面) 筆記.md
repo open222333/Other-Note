@@ -115,6 +115,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
     - [docker 安裝 ik分詞器](#docker-安裝-ik分詞器)
     - [自定義 ik 的啟用詞和停用詞](#自定義-ik-的啟用詞和停用詞)
+    - [驗證 ik 分詞器](#驗證-ik-分詞器)
 - [設定檔](#設定檔)
   - [配置文檔 elasticsearch.yml (主要)](#配置文檔-elasticsearchyml-主要)
     - [Slow Log](#slow-log)
@@ -1113,6 +1114,81 @@ docker-compose restart es02
     <!-- 配置遠程擴展停止詞字典 -->
     <!-- <entry key="remote_ext_stopwords">words_location</entry> -->
 </properties>
+```
+
+### 驗證 ik 分詞器
+
+確認 IK 分詞器是否正確安裝
+
+用 curl 發送請求來檢查 IK 分詞器是否已正確安裝
+
+```sh
+curl -X POST "localhost:9200/_analyze" -H 'Content-Type: application/json' -d'
+{
+  "analyzer": "ik_max_word",
+  "text": "IK分词器是一个用于Elasticsearch的中文分词工具"
+}'
+```
+
+創建索引並使用 IK 分詞器
+
+用 curl 創建索引並配置 IK 分詞器
+
+```sh
+curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "ik_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word",
+          "filter": ["lowercase"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "content": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "search_analyzer": "ik_smart"
+      }
+    }
+  }
+}'
+```
+
+確認數據正確寫入
+
+用 curl 檢查數據是否正確寫入 Elasticsearch
+
+```sh
+curl -X GET "localhost:9200/my_index/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "match_all": {}
+  }
+}'
+```
+
+執行搜索
+
+用 curl 執行搜索，並指定使用 IK 分詞器
+
+```sh
+curl -X GET "localhost:9200/my_index/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "match": {
+      "content": {
+        "query": "你的搜索詞",
+        "analyzer": "ik_max_word"
+      }
+    }
+  }
+}'
 ```
 
 # 設定檔
