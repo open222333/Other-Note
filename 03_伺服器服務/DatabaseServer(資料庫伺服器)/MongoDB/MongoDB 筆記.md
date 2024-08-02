@@ -194,7 +194,7 @@ rpm -qa |grep mongodb
 rpm -ql mongodb-org-server
 
 # 開啟MongoDB
-sudo service mongod start
+sudo service mongod restart
 systemctl start mongod.service
 
 # 啟動服務
