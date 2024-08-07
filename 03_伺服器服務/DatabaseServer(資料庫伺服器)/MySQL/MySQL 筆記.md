@@ -61,6 +61,7 @@ RDBMS
   - [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
   - [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
   - [mysqldump: Got error: 1290: The MySQL server is running with the --secure-file-priv option so it cannot execute this statement when executing 'SELECT INTO OUTFILE'](#mysqldump-got-error-1290-the-mysql-server-is-running-with-the---secure-file-priv-option-so-it-cannot-execute-this-statement-when-executing-select-into-outfile)
+  - [ERROR 1805 (HY000): Column count of mysql.user is wrong. Expected 45, found 48. The table is probably corrupted](#error-1805-hy000-column-count-of-mysqluser-is-wrong-expected-45-found-48-the-table-is-probably-corrupted)
 
 ## 參考資料
 
@@ -163,6 +164,8 @@ RDBMS
 [MySQL崩潰-如何修復損壞的innodb：innodb_force_recovery](https://www.twblogs.net/a/5b8201762b71772165af295d)
 
 [解决 MySQL 报错 “ Column count of mysql.user is wrong...”](https://cloud.tencent.com/developer/article/1662598)
+
+[ERROR 1805 (HY000): Column count of mysql.user is wrong. Expected 45, found 48. The table is probably corrupted](https://stackoverflow.com/questions/46744259/error-1805-hy000-column-count-of-mysql-user-is-wrong-expected-45-found-48)
 
 # 安裝步驟
 
@@ -1306,3 +1309,82 @@ secure-file-priv="/path/to/allowed/directory"
 ```
 
 保存配置文件並重新啟動 MySQL 伺服器，使更改生效。
+
+## ERROR 1805 (HY000): Column count of mysql.user is wrong. Expected 45, found 48. The table is probably corrupted
+
+`請注意，在進行任何修復操作之前，務必備份數據庫以防止數據丟失。`
+
+```sh
+mysql> SELECT User FROM mysql.user;
++------+
+| User |
++------+
+| root |
+| root |
+| root |
++------+
+```
+
+```
+這個錯誤表明 mysql.user 表的列數與 MySQL 期望的不一致，這通常是因為 MySQL 版本升級後，數據庫表結構沒有正確更新。
+```
+
+檢查當前 MySQL 版本：
+
+```bash
+mysql --version
+```
+
+運行 mysql_upgrade：
+
+mysql_upgrade 工具可以檢查所有數據庫並嘗試修復表結構。
+
+```bash
+mysql_upgrade
+```
+
+運行 mysql_upgrade 之後，重啟 MySQL 服務：
+
+```bash
+systemctl restart mysql
+```
+
+檢查 mysql.user 表結構：
+
+如果 mysql_upgrade 無法修復問題，可以手動檢查 mysql.user 表結構並進行修復。
+
+然後檢查 mysql.user 表的列數：
+
+```sql
+DESCRIBE mysql.user;
+```
+
+`手動更新表結構（如果必要）`：
+
+如果 mysql.user 表結構仍然不正確，可以手動更新表結構。
+
+這個步驟比較複雜，建議在進行之前備份數據庫。
+
+首先，備份數據庫：
+
+```bash
+mysqldump -u root -p --all-databases > all_databases_backup.sql
+```
+
+然後根據 MySQL 官方文檔或你當前版本的表結構更新 mysql.user 表。
+
+具體操作因版本不同而異，建議參考對應版本的官方文檔。
+
+重新創建 mysql.user 表（如果必要）：
+
+如果手動更新失敗，可能需要重新創建 mysql.user 表。
+
+這是最後的手段，請務必確保已經備份數據庫。
+
+重新載入權限：
+
+最後，無論使用哪種方法修復表結構，都需要重新載入權限：
+
+```sql
+FLUSH PRIVILEGES;
+```

@@ -61,6 +61,9 @@ input {
     schedule => "*/5 * * * *"  # 每 5 分鐘運行一次
     clean_run => false
     last_run_metadata_path => "/path/to/.logstash_jdbc_last_run"
+
+    jdbc_paging_enabled => true
+    jdbc_page_size => 10000  # 每次查詢 10000 條數據
   }
 }
 ```
@@ -71,10 +74,26 @@ jdbc_user 和 jdbc_password：MySQL 用戶名和密碼。
 jdbc_driver_library：MySQL 驅動程序的路徑。
 jdbc_driver_class：MySQL 驅動程序類。
 statement：SQL 查詢語句。:sql_last_value 是 Logstash 跟踪上次運行的時間戳。
-use_column_value 和 tracking_column：跟踪列的設置。
-schedule：定期運行的時間表，這裡設置為每 5 分鐘運行一次。
 clean_run：設置為 false 以保持上次運行的狀態。
 last_run_metadata_path：存儲上次運行狀態的文件路徑。
+
+use_column_value： 設置為 true，表示將使用 tracking_column 指定的列值來跟踪數據變更。
+tracking_column： 設置為 updated_at，表示將使用這個時間戳列來判斷哪些數據是新的或更新的。
+tracking_column_type： 設置為 timestamp，表示跟踪列的數據類型是時間戳。
+last_run_metadata_path： 指定了一個文件路徑，用來存儲上次查詢的跟踪列值。
+schedule： 設置了查詢的調度計劃。定期運行的時間表，這裡設置為每 5 分鐘運行一次。
+
+工作原理
+    首次運行：Logstash 將執行查詢，選擇所有符合條件的數據（updated_at > :sql_last_value）。
+    保存狀態：查詢完成後，Logstash 將保存最新的 updated_at 值到 last_run_metadata_path 指定的文件中。
+    後續運行：Logstash 在後續的查詢中，將使用保存的 updated_at 值作為基準，只選擇更新或新增的數據。
+```
+
+Logstash 會自動分批加載數據，直到所有數據都被處理完畢，從而減少內存壓力和提高查詢性能。
+
+```
+jdbc_paging_enabled 設置為 true，啟用分頁查詢。
+jdbc_page_size 設置為 10000，每次查詢返回 10000 條數據。
 ```
 
 ```conf
