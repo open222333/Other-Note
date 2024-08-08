@@ -37,6 +37,8 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
   - [自建 docker-compose](#自建-docker-compose)
   - [Github deviantony/docker-elk](#github-deviantonydocker-elk)
 - [範例](#範例)
+  - [elasticsearch template](#elasticsearch-template)
+    - [ik 分詞器](#ik-分詞器)
   - [將已經匯出的 MySQL 資料檔案（例如 CSV 檔案）導入 Elasticsearch](#將已經匯出的-mysql-資料檔案例如-csv-檔案導入-elasticsearch)
   - [使用 Python 將 sql 檔建立 index](#使用-python-將-sql-檔建立-index)
   - [使用 Python 將 csv 檔建立 index](#使用-python-將-csv-檔建立-index)
@@ -420,6 +422,58 @@ volumes:
 ```
 
 # 範例
+
+## elasticsearch template
+
+### ik 分詞器
+
+ignore_above: 內容長度
+
+```json
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": "2"
+      }
+    },
+    "mappings": {
+      "dynamic": "true",
+      "dynamic_date_formats": [
+        "strict_date_optional_time",
+        "yyyy/MM/dd HH:mm:ss Z||yyyy/MM/dd Z"
+      ],
+      "dynamic_templates": [
+        {
+          "strings": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "analyzer": "ik_max_word",
+              "fields": {
+                "keyword": {
+                  "ignore_above": 256,
+                  "type": "keyword"
+                }
+              },
+              "search_analyzer": "ik_max_word",
+              "type": "text"
+            }
+          }
+        }
+      ],
+      "date_detection": true,
+      "numeric_detection": true,
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time"
+        }
+      }
+    },
+    "aliases": {}
+  }
+}
+```
 
 ## 將已經匯出的 MySQL 資料檔案（例如 CSV 檔案）導入 Elasticsearch
 

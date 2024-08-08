@@ -25,6 +25,8 @@ MySQL Connector/J 實現了這個 API，使得 Java 應用程序可以使用 JDB
     - [基本範例](#基本範例)
 - [指令](#指令)
 - [範例](#範例)
+  - [elasticsearch template](#elasticsearch-template)
+    - [ik 分詞器](#ik-分詞器)
   - [docker-compose 部署](#docker-compose-部署)
   - [假設有兩個 MySQL 資料表 table1 和 table2，將它們的數據分別發送到帶有前綴 prefix\_ 的不同 Elasticsearch 索引中](#假設有兩個-mysql-資料表-table1-和-table2將它們的數據分別發送到帶有前綴-prefix_-的不同-elasticsearch-索引中)
 
@@ -135,6 +137,58 @@ bin/logstash-plugin list
 ```
 
 # 範例
+
+## elasticsearch template
+
+### ik 分詞器
+
+ignore_above: 內容長度
+
+```json
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": "2"
+      }
+    },
+    "mappings": {
+      "dynamic": "true",
+      "dynamic_date_formats": [
+        "strict_date_optional_time",
+        "yyyy/MM/dd HH:mm:ss Z||yyyy/MM/dd Z"
+      ],
+      "dynamic_templates": [
+        {
+          "strings": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "analyzer": "ik_max_word",
+              "fields": {
+                "keyword": {
+                  "ignore_above": 256,
+                  "type": "keyword"
+                }
+              },
+              "search_analyzer": "ik_max_word",
+              "type": "text"
+            }
+          }
+        }
+      ],
+      "date_detection": true,
+      "numeric_detection": true,
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time"
+        }
+      }
+    },
+    "aliases": {}
+  }
+}
+```
 
 ## docker-compose 部署
 
