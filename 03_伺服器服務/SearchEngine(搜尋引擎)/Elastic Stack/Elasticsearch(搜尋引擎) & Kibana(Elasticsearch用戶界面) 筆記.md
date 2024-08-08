@@ -125,6 +125,9 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [參數說明](#參數說明)
     - [ES\_JAVA\_OPTS(取代ES\_HEAP\_SIZE)](#es_java_opts取代es_heap_size)
 - [集群 Cluster](#集群-cluster)
+- [解說](#解說)
+  - [\_source 字段](#_source-字段)
+  - [\_meta 字段](#_meta-字段)
 - [操作](#操作)
   - [指令 API](#指令-api)
     - [index(索引)](#index索引)
@@ -1627,6 +1630,97 @@ elasticsearch:
 - 使用 elasticsearch.yml 中的 cluster.name 設置指定集群的名稱。
 
 - 啟動彈性搜索。節點自動發現並加入指定的集群。要將節點添加到在多台機器上運行的集群中，還必須設置 discovery.seed_hosts 以便新節點可以發現其集群的其餘部分
+
+# 解說
+
+## _source 字段
+
+作用
+
+```
+_source 字段包含了原始的未處理文檔數據。當你索引一個文檔時，Elasticsearch 會自動存儲這個字段，除非你明確禁用了它。
+_source 字段允許你在查詢時檢索完整的原始文檔，而不僅僅是匹配字段。這對於需要完整文檔內容的應用場景非常有用。
+```
+
+配置
+
+_source 字段可以在索引的映射中配置，比如指定包含或排除哪些字段：
+
+```json
+"mappings": {
+  "_source": {
+    "enabled": true,
+    "includes": ["field1", "field2"],
+    "excludes": ["field3"]
+  }
+}
+```
+
+示例 假設有以下文檔：
+
+```json
+{
+  "title": "Elasticsearch Guide",
+  "author": "John Doe",
+  "content": "This is a comprehensive guide to Elasticsearch."
+}
+```
+
+在索引這個文檔時，Elasticsearch 會將整個文檔存儲在 _source 字段中。當你查詢這個索引時，可以使用 _source 字段來獲取完整的文檔內容。
+
+## _meta 字段
+
+作用
+
+```
+_meta 字段用於存儲索引映射的元數據，這些元數據不會影響文檔的索引和搜索過程，但可以用來存儲一些輔助信息，比如版本號、創建時間等。
+_meta 字段的數據不會被索引或搜索，它僅僅是存儲在映射中的一部分，用於幫助你管理和理解索引的結構和用途。
+```
+
+配置
+
+_meta 字段可以在索引的映射中配置：
+
+```json
+"mappings": {
+  "_meta": {
+    "version": "1.0",
+    "description": "This is the mapping for the Elasticsearch Guide index."
+  }
+}
+```
+
+示例 假設有以下映射配置：
+
+```json
+{
+  "mappings": {
+    "_meta": {
+      "version": "1.0",
+      "description": "This is the mapping for the Elasticsearch Guide index."
+    },
+    "properties": {
+      "title": {
+        "type": "text"
+      },
+      "author": {
+        "type": "text"
+      },
+      "content": {
+        "type": "text"
+      }
+    }
+  }
+}
+```
+
+在這個例子中，_meta 字段包含了關於映射的一些輔助信息，比如版本號和描述。這些信息可以幫助你管理和追踪索引的變更，但不會影響數據的存儲和檢索。
+
+`綜合解釋`
+
+_source 字段保存了原始的文檔數據，允許在查詢時檢索完整的文檔。
+
+_meta 字段保存了映射的元數據，幫助你管理和理解索引的結構和用途，但不會被索引或搜索。
 
 # 操作
 
