@@ -31,6 +31,7 @@
     - [範例3 - 自動化部署](#範例3---自動化部署)
 - [狀況](#狀況)
   - [錯誤 spawn ENOMEM](#錯誤-spawn-enomem)
+  - [log 佔用硬碟](#log-佔用硬碟)
 
 ## 參考資料
 
@@ -554,4 +555,18 @@ pm2 logs
 
 ```bash
 pm2 monit
+```
+
+## log 佔用硬碟
+
+手動刪除日誌文件
+
+PM2 的日誌通常位於 ~/.pm2/logs 目錄下
+
+```bash
+la -alh ~/.pm2/logs
+```
+
+```bash
+rm -f ~/.pm2/logs/*.log
 ```

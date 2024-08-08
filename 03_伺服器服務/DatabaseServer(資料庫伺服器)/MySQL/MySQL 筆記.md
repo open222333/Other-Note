@@ -23,6 +23,7 @@ RDBMS
       - [解說相關](#解說相關)
     - [架構相關](#架構相關)
     - [錯誤處理相關](#錯誤處理相關)
+      - [ERROR 1805 (HY000)](#error-1805-hy000)
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
   - [MacOS](#macos)
@@ -165,7 +166,15 @@ RDBMS
 
 [解决 MySQL 报错 “ Column count of mysql.user is wrong...”](https://cloud.tencent.com/developer/article/1662598)
 
+#### ERROR 1805 (HY000)
+
 [ERROR 1805 (HY000): Column count of mysql.user is wrong. Expected 45, found 48. The table is probably corrupted](https://stackoverflow.com/questions/46744259/error-1805-hy000-column-count-of-mysql-user-is-wrong-expected-45-found-48)
+
+[mysql1085报错：ERROR 1805 (HY000): Column count of mysql.user is wrong. Expected 45, found 46. The tabl](https://blog.csdn.net/CN_TangZheng/article/details/115861657)
+
+[ERROR 1805 (HY000): Column count of mysql.user is wrong. Table is probably corrupted](https://nixcp.com/error-1805-hy000-column-count-of-mysql-user-is-wrong/)
+
+[MySQL 5.7 创建用户报错 ERROR 1805 (HY000): Column count](https://blog.51cto.com/chaichuan/4379145)
 
 # 安裝步驟
 

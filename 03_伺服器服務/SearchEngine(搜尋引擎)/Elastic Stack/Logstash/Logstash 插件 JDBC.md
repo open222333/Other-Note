@@ -18,6 +18,7 @@ MySQL Connector/J 實現了這個 API，使得 Java 應用程序可以使用 JDB
 - [Logstash 插件 JDBC](#logstash-插件-jdbc)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [心得相關](#心得相關)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [配置文檔](#配置文檔)
@@ -32,6 +33,14 @@ MySQL Connector/J 實現了這個 API，使得 Java 應用程序可以使用 JDB
 [如何使用 Logstash 和 JDBC 确保 Elasticsearch 与关系型数据库保持同步](https://www.elastic.co/cn/blog/how-to-keep-elasticsearch-synchronized-with-a-relational-database-using-logstash)
 
 [MySQL Connector/J 下載頁面](https://dev.mysql.com/downloads/connector/j/)
+
+### 心得相關
+
+[安装 Logstash 并配置 ik 分词器](https://blog.csdn.net/qq_32029605/article/details/109715465)
+
+[利用ik分词器 + kibana + logstash 向es 中导入mysql数据，并索引](https://blog.51cto.com/u_15692960/5406684)
+
+[Logstash连接Mysql数据源，从mysql数据库同步到es,并设置IK分词器](https://blog.csdn.net/u014373554/article/details/107349426)
 
 # 安裝
 

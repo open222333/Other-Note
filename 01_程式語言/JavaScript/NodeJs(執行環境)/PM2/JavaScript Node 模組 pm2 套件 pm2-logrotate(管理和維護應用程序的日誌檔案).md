@@ -92,6 +92,42 @@ module_conf.json設定檔參數
 
 # 用法
 
+`查看 pm2-logrotate 的目前設置`
+
+```bash
+pm2 conf | grep pm2-logrotate
+```
+
+`在設定完成後，可能需要重新啟動 PM2 以確保設定生效`
+
+```bash
+pm2 reload all
+```
+
+`設定日誌檔案的最大大小，當日誌檔案達到此大小時，將會建立新的日誌檔案。`
+
+```bash
+pm2 set pm2-logrotate:max_size 10M
+```
+
+`設定保留的歷史日誌檔案的數量`
+
+```bash
+pm2 set pm2-logrotate:retain 7
+```
+
+`啟用日誌壓縮功能，以節省儲存空間。`
+
+```bash
+pm2 set pm2-logrotate:compress true
+```
+
+`設定日誌輪換的時間間隔`
+
+```bash
+pm2 set pm2-logrotate:rotateInterval "0 0 * * *"
+```
+
 `設定輪轉規則`
 
 ```bash
