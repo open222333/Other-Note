@@ -137,8 +137,13 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
     - [Slow Log](#slow-log-1)
   - [Kibana(後台)](#kibana後台)
     - [查看 Slow Log](#查看-slow-log)
+    - [設定](#設定)
+      - [索引設定](#索引設定)
+      - [動態映射](#動態映射)
   - [Python 基本範例](#python-基本範例)
   - [模板](#模板)
+    - [模板範例](#模板範例)
+      - [ik 分詞器](#ik-分詞器)
   - [使用 Elasticsearch ILM 自動刪除索引的基本步驟](#使用-elasticsearch-ilm-自動刪除索引的基本步驟)
 - [同步資料 MySQL](#同步資料-mysql)
 - [同步資料 Mongodb](#同步資料-mongodb)
@@ -2201,6 +2206,107 @@ GET /your_index/_mapping
 
 在慢日誌查看界面中，可以根據時間範圍、索引、日誌級別等條件來查詢和顯示慢日誌的內容。
 
+### 設定
+
+#### 索引設定
+
+```json
+{
+  "index": {
+    "number_of_shards": "2",
+    "number_of_replicas": "0",
+    "refresh_interval": "24h"
+  }
+}
+```
+
+```
+number_of_shards
+作用：這個設置指定索引被劃分為多少個主分片。每個分片是數據的一部分，Elasticsearch 可以並行處理分片，從而提高性能。
+影響：
+分片數量越多，寫入和搜索操作的並行性越高，但這也增加了集群管理的複雜性。
+設置為 2 意味著這個索引會有兩個主分片。這適用於數據量中等的情況，既能夠分散負載，也不會過度增加管理成本。
+
+number_of_replicas
+作用：這個設置指定每個主分片有多少個副本分片。副本分片用於提高數據的高可用性和搜索性能。
+影響：
+設置為 0 意味著每個主分片沒有副本。這可以提高寫入性能，因為不需要將數據複製到副本分片。但這也意味著如果某個節點故障，數據將不可用。
+默認值為 1，這意味著每個主分片有一個副本，這提高了數據的容錯能力和搜索性能。
+
+refresh_interval
+作用：這個設置控制數據從寫入到可搜索之間的刷新間隔。刷新間隔越短，數據越快能夠被搜索到，但這也增加了系統的負擔。
+影響：
+設置為 24h 意味著數據寫入後，直到24小時之後才會被刷新並可供搜索。這大大減少了刷新操作的頻率，適合對實時搜索需求不高，但寫入性能要求高的場景。
+默認值為 1s，這意味著數據幾乎是實時可搜索的，但會增加系統負擔，尤其是在大量數據寫入的情況下。
+```
+
+#### 動態映射
+
+```
+動態映射（Dynamic Mapping）是 Elasticsearch 中的一個功能，它允許在首次索引文檔時自動生成映射（Mapping）。
+當 Elasticsearch 遇到新字段時，會根據檢測到的數據類型自動創建適當的映射。
+這對於快速上手和處理結構不穩定的數據特別有用。
+```
+
+```json
+[
+  {
+    "strings": {
+      "mapping": {
+        "search_analyzer": "ik_max_word",
+        "analyzer": "ik_max_word",
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "ignore_above": 256,
+            "type": "keyword"
+          }
+        }
+      },
+      "match_mapping_type": "string"
+    }
+  }
+]
+```
+
+```
+"strings" 模板名稱
+
+    "strings" 是模板的名稱，這個名稱是用來描述這個模板的作用的，並沒有實際上的功能影響。
+
+"match_mapping_type": "string"
+
+    "match_mapping_type": "string" 指定這個模板僅適用於新出現的字符串類型字段。也就是說，當 Elasticsearch 遇到新字符串字段時，將使用這個模板來進行映射。
+
+"mapping" 部分
+
+    "mapping" 部分定義了新字符串字段應如何映射。
+
+    "search_analyzer": "ik_max_word": 指定該字段在搜索時使用 ik_max_word 分析器。這個分析器通常用於中文分詞。
+
+    "analyzer": "ik_max_word": 指定該字段在索引時使用 ik_max_word 分析器。這意味著在將文檔數據寫入索引時，將使用這個分析器來處理字段值。
+
+    "type": "text": 將字段映射為 text 類型，表示這個字段的值將被分詞並索引，以便於全文檢索。
+
+    "fields": 定義了多字段（multi-fields）配置。
+
+    "keyword": 為這個 text 字段添加了一個子字段，名稱為 keyword。
+
+    "ignore_above": 256": 設置了一個長度限制，如果字符串長度超過 256 個字符，該字符串將不會被索引到 keyword 子字段中。這有助於防止過長的字符串佔用過多索引空間。
+
+    "type": "keyword": 將子字段映射為 keyword 類型，這意味著該子字段將不被分詞並可以用於精確匹配。
+
+綜合解釋
+
+    這個動態模板的作用是，當 Elasticsearch 遇到新的字符串字段時：
+
+        將其主字段映射為 text 類型，並使用 ik_max_word 分析器來進行分詞和索引。
+
+        同時創建一個子字段，名稱為 keyword，該子字段的類型為 keyword，並且設置了 ignore_above: 256 來防止過長的字符串被索引到這個子字段中。
+
+這樣的配置使得新字符串字段既可以進行全文檢索，也可以進行精確匹配，並且對過長的字符串進行適當的處理以節省索引空間。
+```
+
 ## Python 基本範例
 
 ```Python
@@ -2264,6 +2370,52 @@ mapping_definition = {
 }
 
 es.indices.create(index=index_name, body=mapping_definition)
+```
+
+### 模板範例
+
+#### ik 分詞器
+
+```json
+{
+  "template": {
+    "settings": {
+      "index": {
+        "number_of_shards": "2",
+        "number_of_replicas": "0",
+        "refresh_interval": "24h"
+      }
+    },
+    "mappings": {
+      "dynamic": "true",
+      "dynamic_date_formats": [
+        "strict_date_optional_time",
+        "yyyy/MM/dd HH:mm:ss Z||yyyy/MM/dd Z"
+      ],
+      "dynamic_templates": [
+        {
+          "strings": {
+            "match_mapping_type": "string",
+            "mapping": {
+              "analyzer": "ik_max_word",
+              "fields": {
+                "keyword": {
+                  "ignore_above": 256,
+                  "type": "keyword"
+                }
+              },
+              "search_analyzer": "ik_max_word",
+              "type": "text"
+            }
+          }
+        }
+      ],
+      "date_detection": true,
+      "numeric_detection": true
+    },
+    "aliases": {}
+  }
+}
 ```
 
 ## 使用 Elasticsearch ILM 自動刪除索引的基本步驟
