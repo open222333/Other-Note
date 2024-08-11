@@ -38,7 +38,7 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
   - [Github deviantony/docker-elk](#github-deviantonydocker-elk)
 - [範例](#範例)
   - [elasticsearch template](#elasticsearch-template)
-    - [ik 分詞器](#ik-分詞器)
+    - [ik 分詞器 模板](#ik-分詞器-模板)
   - [將已經匯出的 MySQL 資料檔案（例如 CSV 檔案）導入 Elasticsearch](#將已經匯出的-mysql-資料檔案例如-csv-檔案導入-elasticsearch)
   - [使用 Python 將 sql 檔建立 index](#使用-python-將-sql-檔建立-index)
   - [使用 Python 將 csv 檔建立 index](#使用-python-將-csv-檔建立-index)
@@ -425,9 +425,11 @@ volumes:
 
 ## elasticsearch template
 
-### ik 分詞器
+### ik 分詞器 模板
 
 ignore_above: 內容長度
+
+"refresh_interval": "24h" 使用會不正常(20240809測出)
 
 ```json
 {
