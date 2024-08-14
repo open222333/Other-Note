@@ -104,6 +104,8 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
       - [Golang - monstache](#golang---monstache)
     - [例外狀況](#例外狀況)
       - [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit)
+      - [Retrying individual bulk actions that failed or were rejected by the previous bulk request](#retrying-individual-bulk-actions-that-failed-or-were-rejected-by-the-previous-bulk-request)
+      - [ik 分詞器 null\_pointer\_exception](#ik-分詞器-null_pointer_exception)
     - [優化相關](#優化相關)
 - [安裝方式](#安裝方式)
   - [安裝步驟 docker-compose cluster](#安裝步驟-docker-compose-cluster)
@@ -154,6 +156,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [Python - mongo-connector](#python---mongo-connector-1)
     - [配置文檔 config.json](#配置文檔-configjson)
 - [例外狀況](#例外狀況-1)
+  - [ik 分詞器 null\_pointer\_exception](#ik-分詞器-null_pointer_exception-1)
   - [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit-1)
   - [Validation Failed: 1: this action would add \[5\] shards, but this cluster currently has \[5000\]/\[5000\] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
   - [kibana 發生 search\_phase\_execution\_exception 錯誤](#kibana-發生-search_phase_execution_exception-錯誤)
@@ -349,6 +352,16 @@ Elasticsearch Index Lifecycle Management（ILM）是一個功能強大的工具�
 [官方解決方案](https://www.elastic.co/guide/en/elasticsearch/reference/master/disk-usage-exceeded.html)
 
 [集群級分片分配和路由設置(Cluster-level shard allocation and routing settings)](https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-cluster.html)
+
+#### Retrying individual bulk actions that failed or were rejected by the previous bulk request
+
+[Retrying individual bulk actions that failed or were rejected by the previous bulk request](https://discuss.elastic.co/t/retrying-individual-bulk-actions-that-failed-or-were-rejected-by-the-previous-bulk-request/138419)
+
+#### ik 分詞器 null_pointer_exception
+
+[【ElasticSearch】新增文档时，IK空指针报错match(char[], int, int) is null](https://blog.csdn.net/m0_51929611/article/details/109333136)
+
+[分词时发生 NullPointerException](https://github.com/infinilabs/analysis-ik/issues/808)
 
 ### 優化相關
 
@@ -1010,6 +1023,7 @@ firewall-cmd --reload
 cd /usr/share/elasticsearch/plugins/
 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
 
+elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip
 
 # 創建mapping
 curl -XPOST http://localhost:9200/index/_mapping?pretty -H 'Content-Type:application/json' -d'
@@ -2747,6 +2761,46 @@ pipeline:
 ```
 
 # 例外狀況
+
+## ik 分詞器 null_pointer_exception
+
+檢查並重置 IK 分詞器配置文件
+
+```bash
+# 確認配置文件所在目錄，一般位於 Elasticsearch 安裝目錄下的 plugins/ik/ 中
+cd /path/to/elasticsearch/plugins/ik/
+
+# 查看配置文件是否存在
+ls -l IKAnalyzer.cfg.xml
+
+# 查看字典文件是否存在
+ls -l config/
+
+# 如果文件缺失或損壞，可以從原始插件包中重新拷貝
+# 假設你有原始 IK 分詞器包
+cp /path/to/original/ik/config/* ./config/
+```
+
+下載並重新安裝 IK 分詞器插件
+
+```bash
+# 進入 Elasticsearch 插件目錄
+cd /path/to/elasticsearch/
+
+# 移除現有的 IK 分詞器插件
+bin/elasticsearch-plugin remove analysis-ik
+
+# 重新安裝 IK 分詞器插件
+bin/elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.0/analysis-ik-7.10.0.zip
+
+# 安裝完成後，重啟 Elasticsearch
+systemctl restart elasticsearch
+```
+
+```bash
+# 查看 Elasticsearch 日誌
+tail -f /var/log/elasticsearch/elasticsearch.log
+```
 
 ## Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit
 
