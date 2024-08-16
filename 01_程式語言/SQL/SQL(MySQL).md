@@ -12,6 +12,7 @@
 - [用法](#用法)
   - [取得資料庫中表格的架構資訊（包括列名、資料類型、約束等）](#取得資料庫中表格的架構資訊包括列名資料類型約束等)
   - [使用 SQL 查詢來計算符合條件的資料行數](#使用-sql-查詢來計算符合條件的資料行數)
+  - [使用 LIKE 或 REGEXP（正規表達式）來查詢包含特定字元或字串的欄位內容](#使用-like-或-regexp正規表達式來查詢包含特定字元或字串的欄位內容)
 
 ## 參考資料
 
@@ -83,4 +84,22 @@ FROM 'your_table_name';
 NOW() - INTERVAL 1 YEAR
 -- 半年
 NOW() - INTERVAL 6 MONTH
+```
+
+## 使用 LIKE 或 REGEXP（正規表達式）來查詢包含特定字元或字串的欄位內容
+
+查詢某個欄位包含字元 'a' 的所有記錄
+
+```sql
+SELECT *
+FROM your_table_name
+WHERE your_column_name LIKE '%a%';
+```
+
+需要更複雜的字元匹配，可以使用 REGEXP。例如，查詢包含字元 'a' 的所有記錄
+
+```sql
+SELECT *
+FROM your_table_name
+WHERE your_column_name REGEXP 'a';
 ```
