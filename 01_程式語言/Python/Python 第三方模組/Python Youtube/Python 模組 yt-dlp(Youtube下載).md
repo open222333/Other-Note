@@ -6,13 +6,14 @@
 ## 目錄
 
 - [Python 模組 yt-dlp(Youtube下載)](#python-模組-yt-dlpyoutube下載)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [範例相關](#範例相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [範例相關](#範例相關)
+    - [狀況相關](#狀況相關)
 - [指令](#指令)
 - [用法](#用法)
-	- [提取資訊](#提取資訊)
-	- [下載影片](#下載影片)
+  - [提取資訊](#提取資訊)
+  - [下載影片](#下載影片)
 
 ## 參考資料
 
@@ -25,6 +26,12 @@
 ### 範例相關
 
 [YT-DLP download range not working for youtube links](https://stackoverflow.com/questions/73921240/yt-dlp-download-range-not-working-for-youtube-links)
+
+[YT-DLP Error: "Sign in to confirm you’re not a bot. This helps protect our community". Proxy recommendation](https://www.reddit.com/r/youtubedl/comments/1e6bzu4/ytdlp_error_sign_in_to_confirm_youre_not_a_bot/?rdt=46892)
+
+### 狀況相關
+
+[[youtube] Sign in to confirm you’re not a bot. This helps protect our community](https://github.com/yt-dlp/yt-dlp/issues/10128)
 
 # 指令
 
