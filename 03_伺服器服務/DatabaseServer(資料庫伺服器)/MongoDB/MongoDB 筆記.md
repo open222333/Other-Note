@@ -54,6 +54,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
   - [刪除](#刪除)
   - [查詢](#查詢)
     - [找重複](#找重複)
+    - [比對字元](#比對字元)
     - [欄位是否有值 數量統計](#欄位是否有值-數量統計)
     - [取得日期範圍內資料](#取得日期範圍內資料)
   - [使用者](#使用者)
@@ -600,6 +601,78 @@ db.collection.aggregate()
 	// 篩選出 count 欄位值大於 1 的文檔，即表示有重複的 id 值
     .match({count:{ $gt : 1 }})
 	.sort({id: -1})
+```
+
+### 比對字元
+
+```JavaScript
+db.long_video.find({
+    "$and": [
+        {"video_translation.language_code": {"$nin": ["zh-CN"]}},
+        {"video_translation.language_code": {"$in": ["zh-TW"]}}
+    ],
+    "$expr": {
+        "$gte": [{"$strLenCP": "description"}, 10]
+    }
+})
+    .projection({})
+    .sort({modified_date:-1})
+    .limit(100)
+    // .count()
+```
+
+```
+$expr: 用於執行複雜的查詢表達式，可以在單個文件中同時比較多個欄位。
+$and: 將多個條件組合在一起，要求所有條件都滿足。
+```
+
+```JavaScript
+db.long_video.find({
+    "$and": [
+        { "video_translation.language_code": { "$nin": ["zh-CN"] } },
+        { "video_translation.language_code": { "$in": ["zh-TW"] } },
+        {
+            $where: function() {
+                for (var i = 0; i < this.video_translation.length; i++) {
+                    var translation = this.video_translation[i];
+                    if (translation.title.length > 20) {
+                        return true;
+                    }
+                }
+            },
+        }
+    ]
+}).count()
+```
+
+```JavaScript
+var textSumLength = 0;
+var elementCount = 0;
+db.long_video.find({
+    "$and": [
+        { "video_translation.language_code": { "$nin": ["zh-CN"] } },
+        { "video_translation.language_code": { "$in": ["zh-TW"] } },
+    ]
+}).forEach(function(myDoc) {
+    elementCount++;
+    if (myDoc.video_translation) {
+        var max_title_length = 0;
+        var max_description_length = 0;
+        for (var i = 0; i < myDoc.video_translation.length; i++) {
+            var translation = myDoc.video_translation[i];
+
+            if (translation.title && translation.title.length > max_title_length) {
+                max_title_length = translation.title.length;
+            }
+            if (translation.description && translation.description.length > max_description_length) {
+                max_description_length = translation.description.length;
+            }
+        }
+    }
+
+    textSumLength = textSumLength + (max_title_length + max_description_length);
+    console.log(myDoc.avkey + ' - ' + elementCount + ' -' + textSumLength);
+})
 ```
 
 ### 欄位是否有值 數量統計
