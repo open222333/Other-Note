@@ -6,17 +6,18 @@
 ## 目錄
 
 - [Python 模組 requests(http工具)](#python-模組-requestshttp工具)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [指令](#指令)
 - [用法](#用法)
-	- [POST](#post)
-	- [GET](#get)
-	- [Proxy](#proxy)
-	- [Send raw data in a POST - 送出 raw data](#send-raw-data-in-a-post---送出-raw-data)
-	- [使用HTTP2](#使用http2)
+  - [POST](#post)
+  - [GET](#get)
+  - [Proxy](#proxy)
+  - [Send raw data in a POST - 送出 raw data](#send-raw-data-in-a-post---送出-raw-data)
+  - [使用HTTP2](#使用http2)
+  - [模擬登錄並獲取 cookies](#模擬登錄並獲取-cookies)
 - [狀況](#狀況)
-	- [InsecureRequestWarning](#insecurerequestwarning)
+  - [InsecureRequestWarning](#insecurerequestwarning)
 
 ## 參考資料
 
@@ -201,6 +202,38 @@ s.mount('https://', HTTP20Adapter())
 r = s.get('https://cloudflare.com/')
 print(r.status_code)
 print(r.url)
+```
+
+## 模擬登錄並獲取 cookies
+
+```Python
+import requests
+
+# 設置登錄的 URL 和登錄資料
+login_url = 'https://www.example.com/login'
+login_data = {
+    'username': 'your_username',
+    'password': 'your_password'
+}
+
+# 建立會話
+session = requests.Session()
+
+# 發送 POST 請求進行登錄
+response = session.post(login_url, data=login_data)
+
+# 檢查是否登錄成功
+if response.status_code == 200:
+    print("登錄成功")
+
+    # 獲取 cookies 並保存到文件
+    with open('cookies.txt', 'w') as file:
+        for cookie in session.cookies:
+            file.write(f"{cookie.name}={cookie.value};")
+
+    print("Cookies 已經保存到 cookies.txt 文件中。")
+else:
+    print("登錄失敗")
 ```
 
 # 狀況
