@@ -14,6 +14,7 @@
 - [用法](#用法)
   - [提取資訊](#提取資訊)
   - [下載影片](#下載影片)
+- [例外狀況](#例外狀況)
 
 ## 參考資料
 
@@ -95,4 +96,63 @@ def download_youtube(urls, dir_path, temp_path=None, username=None, password=Non
 
     with YoutubeDL(params=params) as ydl:
         ydl.download(urls)
+```
+
+# 例外狀況
+
+```
+這是一個很好的方法來處理YouTube的cookie，特別是當你需要通過yt_dlp來下載私人或受限的內容時。以下是你所描述的步驟的繁體中文說明：
+
+使用 Get cookies.txt LOCALLY 擴展程式導出 cookies：
+在瀏覽器中安裝並啟用 Get cookies.txt LOCALLY 擴展程式。這個擴展程式可以幫助你導出當前網站的所有 cookies。
+
+登錄你的 YouTube 帳號並運行擴展程式：
+確保你已經登錄到 YouTube 帳號，然後在擴展程式中選擇“Export all cookies”來導出 cookies。
+
+點擊“Export all cookies”以保存 cookies 到 .txt 文件：
+導出完成後，你會得到一個包含所有 cookies 的 .txt 文件。
+
+將此 .txt 文件保存到與你的程式碼相同的文件夾中：
+確保將導出的 cookies 文件（例如 cookies.txt）放在與你執行程式碼的目錄相同的位置。
+
+更新你的 yt_dlp 設定以包含 cookies：
+在你的程式碼中設置 yt_dlp 的選項，將 cookiefile 選項指向你保存的 cookies 文件。以下是一個範例設定：
+```
+
+```python
+ydl_opts = {
+    'format': 'bestaudio/best',
+    'quiet': True,
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+    'cookiefile': 'cookies.txt'
+}
+```
+
+```Python
+import yt_dlp
+
+# 設定 yt_dlp 的選項
+ydl_opts = {
+    'format': 'bestaudio/best',
+    'quiet': True,
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+    'cookiefile': 'cookies.txt'  # 指定 cookies.txt 檔案的位置
+}
+
+# 要下載的 YouTube 影片 URL
+url = 'https://www.youtube.com/watch?v=YOUR_VIDEO_ID'
+
+# 使用 yt_dlp 進行下載
+with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+    ydl.download([url])
+
+print("下載完成！")
 ```
