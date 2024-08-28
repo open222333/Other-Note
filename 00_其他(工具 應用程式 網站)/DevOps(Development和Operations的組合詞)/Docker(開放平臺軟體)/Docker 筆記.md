@@ -1319,6 +1319,8 @@ cat /dev/null > *-json.log
 
 ### 清理 Log Script
 
+clean_docker_containers_log.sh
+
 ```bash
 path=/var/lib/docker/containers/
 echo ""
@@ -1334,6 +1336,33 @@ do
 		echo 0
     fi
 done
+echo "========== Clean Docker Containers Log =========="
+echo ""
+```
+
+```sh
+#!/bin/bash
+
+path="/var/lib/docker/containers/"
+echo ""
+echo "========== Clean Docker Containers Log =========="
+echo "Path: $path"
+cd "$path" || exit
+
+for file in *; do
+    if [ -d "$file" ]; then
+        log_file="$file/$file-json.log"
+        if [ -f "$log_file" ]; then
+            echo "Cleaning $log_file"
+            : > "$log_file"
+        else
+            echo "Log file $log_file does not exist."
+        fi
+    else
+        echo "$file is not a directory."
+    fi
+done
+
 echo "========== Clean Docker Containers Log =========="
 echo ""
 ```

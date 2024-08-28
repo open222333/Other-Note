@@ -37,6 +37,7 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
   - [自建 docker-compose](#自建-docker-compose)
   - [Github deviantony/docker-elk](#github-deviantonydocker-elk)
 - [範例](#範例)
+  - [conf 設定檔範例](#conf-設定檔範例)
   - [elasticsearch template](#elasticsearch-template)
     - [ik 分詞器 模板](#ik-分詞器-模板)
   - [將已經匯出的 MySQL 資料檔案（例如 CSV 檔案）導入 Elasticsearch](#將已經匯出的-mysql-資料檔案例如-csv-檔案導入-elasticsearch)
@@ -422,6 +423,54 @@ volumes:
 ```
 
 # 範例
+
+## conf 設定檔範例
+
+```conf
+input {
+  file {
+    path => "/usr/mysql_backup/csv/mysql-files/table_name.txt"
+    start_position => "beginning"
+    sincedb_path => "/dev/null"
+    codec => plain {
+      charset => "UTF-8"
+    }
+    add_field => { "[@metadata][source_file]" => "%{path}" }
+  }
+}
+
+filter {
+  mutate {
+    gsub => [
+      "[@metadata][source_file]", "/usr/mysql_backup/csv/mysql-files/", "",
+      "[@metadata][source_file]", ".txt", ""
+    ]
+  }
+
+  if [@metadata][source_file] == "table_name" {
+    csv {
+      separator => "\t"  # 指定分隔符為 Tab
+      columns => ["vod_id", "vod_name"]  # 根據你的 CSV 文件的欄位名設置
+      quote_char => '"'  # 指定引號字符
+    }
+    mutate {
+      convert => {
+        "vod_id" => "integer"
+        "vod_name" => "string"
+      }
+    }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["http://elasticsearch:9200"]
+    index => "ptv-ik-20240828.ff_vod"
+    document_id => "%{vod_id}"
+  }
+  stdout { codec => rubydebug }
+}
+```
 
 ## elasticsearch template
 
