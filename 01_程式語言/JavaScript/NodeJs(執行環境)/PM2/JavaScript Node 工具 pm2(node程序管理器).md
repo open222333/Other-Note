@@ -564,7 +564,7 @@ pm2 monit
 PM2 的日誌通常位於 ~/.pm2/logs 目錄下
 
 ```bash
-la -alh ~/.pm2/logs
+ls -alh ~/.pm2/logs
 ```
 
 ```bash

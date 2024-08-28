@@ -35,6 +35,7 @@ RDBMS
 - [資料型態](#資料型態)
 - [指令](#指令)
   - [查看資訊](#查看資訊)
+    - [查看 目前 ssl-mode 設定](#查看-目前-ssl-mode-設定)
     - [查看 MySQL 使用容量](#查看-mysql-使用容量)
   - [服務操作](#服務操作)
   - [SQL 指令](#sql-指令)
@@ -58,7 +59,11 @@ RDBMS
       - [確保在某個事務中選定的行在該事務完成之前不會被其他事務修改](#確保在某個事務中選定的行在該事務完成之前不會被其他事務修改)
       - [START TRANSACTION;](#start-transaction)
 - [重大備份](#重大備份)
-- [例外狀況](#例外狀況)
+- [狀況](#狀況)
+  - [匯出時, 查詢結果過大, 批次處理](#匯出時-查詢結果過大-批次處理)
+  - [將 NULL 改成字串 "NULL"](#將-null-改成字串-null)
+  - [匯出 csv 時, null 直不進行匯出的處理](#匯出-csv-時-null-直不進行匯出的處理)
+  - [避免過多的連線嘗試引發錯誤](#避免過多的連線嘗試引發錯誤)
   - [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
   - [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
   - [mysqldump: Got error: 1290: The MySQL server is running with the --secure-file-priv option so it cannot execute this statement when executing 'SELECT INTO OUTFILE'](#mysqldump-got-error-1290-the-mysql-server-is-running-with-the---secure-file-priv-option-so-it-cannot-execute-this-statement-when-executing-select-into-outfile)
@@ -287,6 +292,12 @@ sort_buffer_size=32M
 thread_cache_size=120
 # 默認為60
 query_cache_size=32M
+
+# 停用 SSL/TLS 連接
+# 適用場景
+# 開發環境：在本機或開發環境中測試時，如果不需要 SSL 安全連接，可以使用這個選項來簡化連接過程。
+# 非敏感資料傳輸：如果你確信資料傳輸不需要加密（例如，資料傳輸在受控網路環境中），可以考慮停用 SSL。
+ssl-mode=DISABLED
 
 ; 5.7版本設置變量
 ; https://dev.mysql.com/doc/refman/5.7/en/program-variables.html
@@ -549,6 +560,12 @@ POLYGON
 
 ## 查看資訊
 
+### 查看 目前 ssl-mode 設定
+
+```sql
+SHOW VARIABLES LIKE 'ssl_mode';
+```
+
 ### 查看 MySQL 使用容量
 
 ```
@@ -615,6 +632,17 @@ service mysqld reload
 
 # 登入MySQL
 mysql -u root -p (password)
+    # 停用 SSL/TLS 連接
+    # 適用場景
+    # 開發環境：在本機或開發環境中測試時，如果不需要 SSL 安全連接，可以使用這個選項來簡化連接過程。
+    # 非敏感資料傳輸：如果你確信資料傳輸不需要加密（例如，資料傳輸在受控網路環境中），可以考慮停用 SSL。
+
+    DISABLED: 不使用 SSL，即使伺服器支援 SSL。
+    PREFERRED: （預設值）如果伺服器支援 SSL，使用 SSL；否則，使用未加密連線。
+    REQUIRED: 強制使用 SSL。如果伺服器不支援 SSL，連線將失敗。
+    VERIFY_CA: 使用 SSL，並驗證伺服器憑證的授權單位。如果證書無效，連線將失敗。
+    VERIFY_IDENTITY: 使用 SSL，驗證伺服器憑證的核發機構，並驗證伺服器的主機名稱與憑證中的主機名稱相符。如果驗證失敗，連線將失敗。
+    --ssl-mode=DISABLED
 ```
 
 ## SQL 指令
@@ -1074,6 +1102,41 @@ ENCLOSED BY '"' 指定欄位用引號包裹。
 LINES TERMINATED BY '\n' 指定每行數據用換行符結束。
 ```
 
+```sh
+mysql -u root -p -e "
+SELECT vod_id, vod_name
+FROM database.table;
+" --batch --silent > /var/lib/mysql-files/table.txt
+
+
+mysql -u root -p -e "
+SELECT
+    CONCAT('\"', vod_id, '\"', ',', '\"', REPLACE(vod_name, '\"', '\"\"'), '\"') AS formatted_output
+FROM database.table;
+" --batch --silent --disable-column-names > /var/lib/mysql-files/table.csv
+
+
+mysql -u root -p -e "
+SELECT CONCAT(vod_id, ', \"', vod_name, '\"') AS formatted_output
+FROM database.table;
+" --batch --silent > /var/lib/mysql-files/table.txt
+
+mysql -u root -p -e "
+SELECT CONCAT(vod_id, ', \"', vod_name, '\"') AS formatted_output
+FROM database.table;
+" --batch --silent --skip-column-names > /var/lib/mysql-files/table.txt
+
+mysql -u root -p -e "
+SELECT CONCAT(vod_id, ', \"', TRIM(vod_name), '\"') AS formatted_output
+FROM database.table;
+" --batch --silent > /var/lib/mysql-files/table.txt
+
+mysql -u root -p -e "
+SELECT CONCAT(vod_id, ', \"', REPLACE(vod_name, '\t ', ''), '\"') AS formatted_output
+FROM database.table;
+" --batch --silent > /var/lib/mysql-files/table.txt
+```
+
 #### 使用 mysqldump 命令
 
 ```sql
@@ -1275,7 +1338,137 @@ cp /path/to/mysql/data/mysql-bin.* /path/to/backup/
 
 確保備份文件存儲在一個安全的位置，最好是離數據庫伺服器足夠遠的地方。使用日期或描述性的標籤命名備份文件，以便在需要時能夠方便地識別和還原。
 
-# 例外狀況
+# 狀況
+
+## 匯出時, 查詢結果過大, 批次處理
+
+自動匯出所有數據，直到沒有更多數據為止
+
+mysql_batch_export.sh
+
+```sh
+#!/bin/bash
+
+OFFSET=0
+BATCH_SIZE=1000
+
+while true; do
+    FILENAME="/var/lib/mysql-files/ff_vod_part${OFFSET}.txt"
+    mysql -u root -p -e "
+    SELECT *,
+        IFNULL(column1, 'NULL') AS column1,
+        IFNULL(column2, 'NULL') AS column2
+    FROM database.table
+    LIMIT ${BATCH_SIZE} OFFSET ${OFFSET};
+    " --batch --silent > ${FILENAME}
+
+    # 如果输出文件为空，说明没有更多数据
+    if [ ! -s ${FILENAME} ]; then
+        rm ${FILENAME}
+        break
+    fi
+
+    OFFSET=$((OFFSET + BATCH_SIZE))
+done
+```
+
+將 MySQL 資料分批匯出並合併成一個檔案
+
+```sh
+#!/bin/bash
+
+# 設定初始參數
+OFFSET=0
+BATCH_SIZE=1000
+OUTPUT_FILE="/var/lib/mysql-files/ff_vod_combined.txt"
+
+# 清空或創建輸出檔案
+> $OUTPUT_FILE
+
+while true; do
+    TEMP_FILE="/var/lib/mysql-files/ff_vod_part${OFFSET}.txt"
+
+    # 執行查詢並匯出資料
+    mysql -u root -p -e "
+    SELECT *,
+        IFNULL(vod_recommended_time, 'NULL') AS vod_recommended_time,
+        IFNULL(vod_scenario, 'NULL') AS vod_scenario,
+        IFNULL(vod_extend, 'NULL') AS vod_extend
+    FROM feifeicms.ff_vod
+    LIMIT ${BATCH_SIZE} OFFSET ${OFFSET};
+    " --batch --silent > ${TEMP_FILE}
+
+    # 如果臨時檔案為空，表示沒有更多資料，退出迴圈
+    if [ ! -s ${TEMP_FILE} ]; then
+        rm ${TEMP_FILE}
+        break
+    fi
+
+    # 將臨時檔案內容追加到最終輸出檔案
+    cat ${TEMP_FILE} >> $OUTPUT_FILE
+
+    # 刪除臨時檔案
+    rm ${TEMP_FILE}
+
+    # 更新偏移量
+    OFFSET=$((OFFSET + BATCH_SIZE))
+done
+
+echo "資料匯出完成，結果保存在 $OUTPUT_FILE"
+```
+
+```
+腳本說明
+    OUTPUT_FILE: 定義最終合併結果的輸出檔案路徑。
+    TEMP_FILE: 定義每個批次匯出資料的臨時檔案路徑。
+    cat ${TEMP_FILE} >> $OUTPUT_FILE: 這行指令將每個臨時檔案的內容追加到最終的輸出檔案中。
+    rm ${TEMP_FILE}: 刪除每個批次的臨時檔案以節省空間。
+使用方式
+    將腳本存為 mysql_batch_export_and_merge.sh 或其他你喜歡的名稱。
+    使用 chmod +x mysql_batch_export_and_merge.sh 指令為腳本添加執行權限。
+    執行腳本：./mysql_batch_export_and_merge.sh。
+```
+
+## 將 NULL 改成字串 "NULL"
+
+```sql
+UPDATE `tablename` SET columnname= '' where columnname is null
+```
+
+## 匯出 csv 時, null 直不進行匯出的處理
+
+```sh
+mysql -u root -p database -e "
+SELECT
+    IFNULL(column1, 'NULL') AS column1,
+    IFNULL(column2, 'NULL') AS column2,
+    -- 列出其他需要的字段
+    ...
+FROM table
+" --batch --silent > /var/lib/mysql-files/table.csv
+```
+
+```Python
+import pandas as pd
+
+# 讀取 CSV 檔案
+df = pd.read_csv('/path/to/your/file.csv')
+
+# 替換 NULL 值為字串 'NULL'
+df.fillna('NULL', inplace=True)
+
+# 儲存為新的 CSV 檔案
+df.to_csv('/path/to/your/processed_file.csv', index=False)
+```
+
+## 避免過多的連線嘗試引發錯誤
+
+```sql
+```
+
+```sql
+SET GLOBAL max_connect_errors = 10000000;
+```
 
 ## [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
 
