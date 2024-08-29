@@ -1368,14 +1368,38 @@ export_data_and_cleanup.sh
 
 描述：匯出資料並清理相關資料表。
 
+`column1 column2 需更改成需要的欄位`
+
 ```sh
 #!/bin/bash
 
-# MySQL 連線資訊
-MYSQL_USER="root"
-MYSQL_PASSWORD="your_password"
-MYSQL_DATABASE="database_name"
-EXPORT_PATH="/var/lib/mysql-files/table_name_temp.csv"
+# 預設參數值
+MYSQL_HOST="127.0.0.1"
+MYSQL_PORT="3306"
+
+# 使用 getopts 處理命令行參數
+while getopts "u:p:d:t:h:P:" opt; do
+    case $opt in
+        u) MYSQL_USER="$OPTARG" ;;
+        p) MYSQL_PASSWORD="$OPTARG" ;;
+        d) MYSQL_DATABASE="$OPTARG" ;;
+        t) MYSQL_TABLE="$OPTARG" ;;
+        h) MYSQL_HOST="$OPTARG" ;;
+        P) MYSQL_PORT="$OPTARG" ;;
+        *)
+            echo "Usage: $0 -u <mysql_user> -p <mysql_password> -d <mysql_database> -t <mysql_table> [-h <mysql_host>] [-P <mysql_port>]"
+            exit 1
+            ;;
+    esac
+done
+
+# 檢查必需的參數
+if [ -z "$MYSQL_USER" ] || [ -z "$MYSQL_PASSWORD" ] || [ -z "$MYSQL_DATABASE" ] || [ -z "$MYSQL_TABLE" ]; then
+    echo "Usage: $0 -u <mysql_user> -p <mysql_password> -d <mysql_database> -t <mysql_table> [-h <mysql_host>] [-P <mysql_port>]"
+    exit 1
+fi
+
+EXPORT_PATH="/var/lib/mysql-files/${MYSQL_TABLE}_temp.txt"
 
 # 確保導出路徑的目錄存在，並且 MySQL 有寫入權限
 if [ ! -d "$(dirname "$EXPORT_PATH")" ]; then
@@ -1385,10 +1409,10 @@ fi
 
 # 1. 創建新資料表
 echo "Creating temporary table..."
-mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -e "
-CREATE TABLE ${MYSQL_DATABASE}.table_name_temp AS
+mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -h $MYSQL_HOST -P $MYSQL_PORT -e "
+CREATE TABLE ${MYSQL_DATABASE}.${MYSQL_TABLE}_temp AS
 SELECT column1, column2
-FROM ${MYSQL_DATABASE}.table_name;
+FROM ${MYSQL_DATABASE}.${MYSQL_TABLE};
 "
 
 if [ $? -ne 0 ]; then
@@ -1398,9 +1422,77 @@ fi
 
 # 2. 匯出新資料表為 CSV 文件
 echo "Exporting data to CSV..."
-mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -e "
+# mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -h $MYSQL_HOST -P $MYSQL_PORT -e "
+# SELECT column1, column2
+# FROM ${MYSQL_DATABASE}.${MYSQL_TABLE}_temp
+# INTO OUTFILE '$EXPORT_PATH'
+# FIELDS TERMINATED BY ','
+# ENCLOSED BY '\"'
+# LINES TERMINATED BY '\n';
+# "
+mysqldump --tab=/var/lib/mysql-files --fields-terminated-by=',' --fields-enclosed-by='"' --lines-terminated-by='\n' --no-create-info --user=$MYSQL_USER --password=$MYSQL_PASSWORD $MYSQL_DATABASE $MYSQL_TABLE
+
+if [ $? -ne 0 ]; then
+    echo "Error exporting data to CSV."
+    exit 1
+fi
+
+# 3. 刪除資料表
+echo "Dropping temporary table..."
+mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -h $MYSQL_HOST -P $MYSQL_PORT -e "
+DROP TABLE ${MYSQL_DATABASE}.${MYSQL_TABLE}_temp;
+"
+
+if [ $? -ne 0 ]; then
+    echo "Error dropping temporary table."
+    exit 1
+fi
+
+echo "Process completed successfully."
+```
+
+```sh
+#!/bin/bash
+
+# 檢查是否提供了所需的參數
+if [ "$#" -lt 4 ] || [ "$#" -gt 6 ]; then
+    echo "Usage: $0 <mysql_user> <mysql_password> <mysql_database> <mysql_table> [mysql_host] [mysql_port]"
+    exit 1
+fi
+
+# 接收參數
+MYSQL_USER="$1"
+MYSQL_PASSWORD="$2"
+MYSQL_DATABASE="$3"
+MYSQL_TABLE="$4"
+MYSQL_HOST="${5:-127.0.0.1}"  # 預設值為 127.0.0.1
+MYSQL_PORT="${6:-3306}"        # 預設值為 3306
+EXPORT_PATH="/var/lib/mysql-files/${MYSQL_TABLE}_temp.txt"
+
+# 確保導出路徑的目錄存在，並且 MySQL 有寫入權限
+if [ ! -d "$(dirname "$EXPORT_PATH")" ]; then
+    echo "Export path directory does not exist: $(dirname "$EXPORT_PATH")"
+    exit 1
+fi
+
+# 1. 創建新資料表
+echo "Creating temporary table..."
+mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -h $MYSQL_HOST -P $MYSQL_PORT -e "
+CREATE TABLE ${MYSQL_DATABASE}.${MYSQL_TABLE}_temp AS
 SELECT column1, column2
-FROM ${MYSQL_DATABASE}.table_name_temp
+FROM ${MYSQL_DATABASE}.${MYSQL_TABLE};
+"
+
+if [ $? -ne 0 ]; then
+    echo "Error creating temporary table."
+    exit 1
+fi
+
+# 2. 匯出新資料表為 CSV 文件
+echo "Exporting data to CSV..."
+mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -h $MYSQL_HOST -P $MYSQL_PORT -e "
+SELECT column1, column2
+FROM ${MYSQL_DATABASE}.${MYSQL_TABLE}_temp
 INTO OUTFILE '$EXPORT_PATH'
 FIELDS TERMINATED BY ','
 ENCLOSED BY '\"'
@@ -1414,8 +1506,8 @@ fi
 
 # 3. 刪除資料表
 echo "Dropping temporary table..."
-mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -e "
-DROP TABLE ${MYSQL_DATABASE}.table_name_temp;
+mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -h $MYSQL_HOST -P $MYSQL_PORT -e "
+DROP TABLE ${MYSQL_DATABASE}.${MYSQL_TABLE}_temp;
 "
 
 if [ $? -ne 0 ]; then
