@@ -60,6 +60,7 @@ RDBMS
       - [START TRANSACTION;](#start-transaction)
 - [重大備份](#重大備份)
 - [狀況](#狀況)
+  - [複製 mysql table 指定欄位並匯出 csv 後刪除 table](#複製-mysql-table-指定欄位並匯出-csv-後刪除-table)
   - [匯出時, 查詢結果過大, 批次處理](#匯出時-查詢結果過大-批次處理)
   - [將 NULL 改成字串 "NULL"](#將-null-改成字串-null)
   - [匯出 csv 時, null 直不進行匯出的處理](#匯出-csv-時-null-直不進行匯出的處理)
@@ -1339,6 +1340,91 @@ cp /path/to/mysql/data/mysql-bin.* /path/to/backup/
 確保備份文件存儲在一個安全的位置，最好是離數據庫伺服器足夠遠的地方。使用日期或描述性的標籤命名備份文件，以便在需要時能夠方便地識別和還原。
 
 # 狀況
+
+## 複製 mysql table 指定欄位並匯出 csv 後刪除 table
+
+命名建議
+mysql_export_and_cleanup.sh
+
+描述：匯出 MySQL 資料表至 CSV 並清理臨時資料表。
+適用場景：當你需要匯出資料並在完成後刪除原始資料表時。
+export_table_to_csv.sh
+
+描述：將 MySQL 資料表匯出為 CSV 文件。
+適用場景：專門處理資料表匯出為 CSV 文件的情況。
+create_export_temp_table.sh
+
+描述：創建臨時資料表，匯出資料為 CSV，然後刪除臨時表。
+適用場景：當腳本的主要功能是創建、匯出和刪除臨時資料表時。
+backup_table_to_csv.sh
+
+描述：將 MySQL 資料表備份到 CSV 文件並刪除原始資料表。
+適用場景：用於資料表備份操作。
+mysql_table_backup_and_delete.sh
+
+描述：備份 MySQL 資料表為 CSV 文件並刪除原始資料表。
+適用場景：包括資料表備份和刪除的完整過程。
+export_data_and_cleanup.sh
+
+描述：匯出資料並清理相關資料表。
+
+```sh
+#!/bin/bash
+
+# MySQL 連線資訊
+MYSQL_USER="root"
+MYSQL_PASSWORD="your_password"
+MYSQL_DATABASE="database_name"
+EXPORT_PATH="/var/lib/mysql-files/table_name_temp.csv"
+
+# 確保導出路徑的目錄存在，並且 MySQL 有寫入權限
+if [ ! -d "$(dirname "$EXPORT_PATH")" ]; then
+    echo "Export path directory does not exist: $(dirname "$EXPORT_PATH")"
+    exit 1
+fi
+
+# 1. 創建新資料表
+echo "Creating temporary table..."
+mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -e "
+CREATE TABLE ${MYSQL_DATABASE}.table_name_temp AS
+SELECT column1, column2
+FROM ${MYSQL_DATABASE}.table_name;
+"
+
+if [ $? -ne 0 ]; then
+    echo "Error creating temporary table."
+    exit 1
+fi
+
+# 2. 匯出新資料表為 CSV 文件
+echo "Exporting data to CSV..."
+mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -e "
+SELECT column1, column2
+FROM ${MYSQL_DATABASE}.table_name_temp
+INTO OUTFILE '$EXPORT_PATH'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '\"'
+LINES TERMINATED BY '\n';
+"
+
+if [ $? -ne 0 ]; then
+    echo "Error exporting data to CSV."
+    exit 1
+fi
+
+# 3. 刪除資料表
+echo "Dropping temporary table..."
+mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -e "
+DROP TABLE ${MYSQL_DATABASE}.table_name_temp;
+"
+
+if [ $? -ne 0 ]; then
+    echo "Error dropping temporary table."
+    exit 1
+fi
+
+echo "Process completed successfully."
+```
 
 ## 匯出時, 查詢結果過大, 批次處理
 
