@@ -28,6 +28,8 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
     - [查詢相關](#查詢相關)
     - [指令相關](#指令相關)
     - [教學相關](#教學相關)
+    - [狀況相關](#狀況相關)
+      - [ImportError: cannot import name 'MutableMapping' from 'collections'](#importerror-cannot-import-name-mutablemapping-from-collections)
 - [指令](#指令)
 - [用法](#用法)
   - [Insert](#insert)
@@ -39,6 +41,8 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
     - [並行連接兩個集合](#並行連接兩個集合)
   - [使用ObjectID搜尋資料](#使用objectid搜尋資料)
   - [slaveOk 更換寫法](#slaveok-更換寫法)
+- [狀況](#狀況)
+  - [ImportError: cannot import name 'MutableMapping' from 'collections' (/usr/local/anaconda3/envs/py311/lib/python3.11/collections/__init__.py)](#importerror-cannot-import-name-mutablemapping-from-collections-usrlocalanaconda3envspy311libpython311collectionsinitpy)
 
 ## 參考資料
 
@@ -77,6 +81,16 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
 ### 教學相關
 
 [Mongodb的使用方法&與python的互動](https://www.itread01.com/content/1541467390.html)
+
+### 狀況相關
+
+#### ImportError: cannot import name 'MutableMapping' from 'collections'
+
+[报错cannot import name ‘MutableMapping‘ from ‘collections‘解决方法](https://blog.csdn.net/yc11223344/article/details/135431039)
+
+[cannot import name 'MutableMapping' from 'collections' [duplicate]](https://stackoverflow.com/questions/70870041/cannot-import-name-mutablemapping-from-collections)
+
+[ImportError: cannot import name 'MutableMapping' from 'collections'](https://stackoverflow.com/questions/59636631/importerror-cannot-import-name-mutablemapping-from-collections)
 
 # 指令
 
@@ -533,4 +547,12 @@ if pymongo.version >= "2.3":
 			authSource=auth_db,
 			read_preference=pymongo.ReadPreference.SECONDARY_PREFERRED
 		)
+```
+
+# 狀況
+
+## ImportError: cannot import name 'MutableMapping' from 'collections' (/usr/local/anaconda3/envs/py311/lib/python3.11/collections/__init__.py)
+
+```bash
+pip install --upgrade pymongo
 ```
