@@ -60,6 +60,9 @@ RDBMS
       - [START TRANSACTION;](#start-transaction)
 - [重大備份](#重大備份)
 - [狀況](#狀況)
+  - [mysql: \[Warning\] Using a password on the command line interface can be insecure.](#mysql-warning-using-a-password-on-the-command-line-interface-can-be-insecure)
+    - [使用 MySQL 配置檔案 (my.cnf)](#使用-mysql-配置檔案-mycnf)
+    - [使用環境變數](#使用環境變數)
   - [複製 mysql table 指定欄位並匯出 csv 後刪除 table](#複製-mysql-table-指定欄位並匯出-csv-後刪除-table)
   - [匯出時, 查詢結果過大, 批次處理](#匯出時-查詢結果過大-批次處理)
   - [將 NULL 改成字串 "NULL"](#將-null-改成字串-null)
@@ -1340,6 +1343,40 @@ cp /path/to/mysql/data/mysql-bin.* /path/to/backup/
 確保備份文件存儲在一個安全的位置，最好是離數據庫伺服器足夠遠的地方。使用日期或描述性的標籤命名備份文件，以便在需要時能夠方便地識別和還原。
 
 # 狀況
+
+## mysql: [Warning] Using a password on the command line interface can be insecure.
+
+### 使用 MySQL 配置檔案 (my.cnf)
+
+在主目錄下創建一個 .my.cnf 檔案
+
+```ini
+[client]
+user=your_username
+password=your_password
+host=localhost
+```
+
+設定檔案的權限，確保只有自己能讀取該檔案
+
+```sh
+chmod 600 ~/.my.cnf
+```
+
+```sh
+mysql --defaults-file=~/.my.cnf your_database_name
+```
+
+### 使用環境變數
+
+將密碼存儲在環境變數中，然後在執行命令時從環境變數中讀取密碼
+
+`注意：使用這個方法仍然有風險，因為其他使用者可以通過檢視環境變數來獲取密碼。`
+
+```sh
+export MYSQL_PWD='your_password'
+mysql -u your_username -h localhost your_database_name
+```
 
 ## 複製 mysql table 指定欄位並匯出 csv 後刪除 table
 
