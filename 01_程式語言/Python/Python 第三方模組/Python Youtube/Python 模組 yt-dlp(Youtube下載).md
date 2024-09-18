@@ -10,11 +10,13 @@
   - [參考資料](#參考資料)
     - [範例相關](#範例相關)
     - [狀況相關](#狀況相關)
+      - [\[youtube\] Sign in to confirm you’re not a bot. This helps protect our community](#youtube-sign-in-to-confirm-youre-not-a-bot-this-helps-protect-our-community)
 - [指令](#指令)
 - [用法](#用法)
   - [提取資訊](#提取資訊)
   - [下載影片](#下載影片)
 - [例外狀況](#例外狀況)
+  - [不使用 cookies](#不使用-cookies)
 
 ## 參考資料
 
@@ -32,7 +34,11 @@
 
 ### 狀況相關
 
+#### [youtube] Sign in to confirm you’re not a bot. This helps protect our community
+
 [[youtube] Sign in to confirm you’re not a bot. This helps protect our community](https://github.com/yt-dlp/yt-dlp/issues/10128)
+
+[Extractors - Passing Visitor Data without cookies](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#passing-visitor-data-without-cookies)
 
 # 指令
 
@@ -155,4 +161,50 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:
     ydl.download([url])
 
 print("下載完成！")
+```
+
+## 不使用 cookies
+
+```Python
+def download_youtube(urls, dir_path, temp_path=None, username=None, password=None, start_time:int = 0, end_time:int = None, po_token=None, visitor_data=None):
+    '''下載 youtube影片 以及 圖片
+
+    YoutubeDL選項
+    https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/YoutubeDL.py
+
+    dir_path: 輸出資料夾
+    temp_path: 下載時，暫存資料夾
+    start_time: 開始時間
+    end_time: 結束時間
+    username: 登入帳號
+    password: 登入密碼
+    po_token: PO_TOKEN值
+    visitor_data: VISITOR_DATA值
+    '''
+    if not temp_path:
+        temp_path = dir_path
+
+    params = {
+        'username': username,
+        'password': password,
+        'writethumbnail': True,
+        # home 輸出路徑 temp 暫存路徑
+        'paths': {'home': dir_path, 'temp': temp_path},
+        'outtmpl': '%(id)s.%(ext)s',
+        'extractor_args': {
+            'youtube': {
+                'player-client': 'web,default',
+                'player-skip': 'webpage,configs',
+                'po_token': f'web+{po_token}',
+                'visitor_data': visitor_data
+            }
+        }
+    }
+
+    # 只抓片段
+    if end_time:
+        params['download_ranges'] = download_range_func(None, [(start_time, end_time)])
+
+    with YoutubeDL(params=params) as ydl:
+        ydl.download(urls)
 ```
