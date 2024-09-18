@@ -16,13 +16,15 @@
 ## 目錄
 
 - [Python 模組 selenium(爬蟲)](#python-模組-selenium爬蟲)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [範例相關](#範例相關)
-		- [下載器相關](#下載器相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [範例相關](#範例相關)
+    - [下載器相關](#下載器相關)
 - [指令](#指令)
 - [用法](#用法)
-	- [各種瀏覽器 背景執行](#各種瀏覽器-背景執行)
+  - [各種瀏覽器 背景執行](#各種瀏覽器-背景執行)
+  - [使用 Selenium 配置 Chrome 無頭模式](#使用-selenium-配置-chrome-無頭模式)
+  - [使用 Selenium 自動化登入並提取 Cookies](#使用-selenium-自動化登入並提取-cookies)
 
 ## 參考資料
 
@@ -121,4 +123,92 @@ driver = webdriver.Chrome(options=chrome_options)
 
 # 關閉瀏覽器
 driver.quit()
+```
+
+## 使用 Selenium 配置 Chrome 無頭模式
+
+```Python
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+# 設置 Chrome 無頭模式
+chrome_options = Options()
+chrome_options.add_argument("--headless")
+chrome_options.add_argument("--no-sandbox")
+chrome_options.add_argument("--disable-dev-shm-usage")
+
+# 設置 ChromeDriver 路徑
+driver = webdriver.Chrome(service=Service("/usr/local/bin/chromedriver"), options=chrome_options)
+
+# 開啟 YouTube
+driver.get("https://www.youtube.com/")
+print(driver.title)
+
+driver.quit()
+```
+
+## 使用 Selenium 自動化登入並提取 Cookies
+
+```Python
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+import time
+import json
+
+def get_youtube_cookies():
+    # 設置 Chrome 無頭模式
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    # 啟動 ChromeDriver
+    driver = webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+
+    # 開啟 YouTube 登入頁面
+    driver.get("https://accounts.google.com/ServiceLogin?service=youtube")
+
+    # 自動化登入
+    # 輸入 Google 帳號
+    email_input = driver.find_element(By.ID, "identifierId")
+    email_input.send_keys("your-email@example.com")
+    driver.find_element(By.ID, "identifierNext").click()
+
+    time.sleep(5)  # 等待頁面加載
+
+    # 輸入密碼
+    password_input = driver.find_element(By.NAME, "password")
+    password_input.send_keys("your-password")
+    driver.find_element(By.ID, "passwordNext").click()
+
+    # 等待登入完成
+    time.sleep(10)
+
+    # 等待手動登入或使用自動化登入（這裡等你手動輸入帳號密碼，或實現自動化）
+    # time.sleep(60)  # 停留 60 秒以進行手動登入
+
+    # 取得 Cookies
+    cookies = driver.get_cookies()
+
+    # 保存 Cookies 為 JSON 文件
+    with open("youtube_cookies.json", "w") as file:
+        json.dump(cookies, file)
+
+    driver.quit()
+
+def convert_cookies_to_txt():
+    with open("youtube_cookies.json", "r") as json_file:
+        cookies = json.load(json_file)
+
+    with open("cookies.txt", "w") as txt_file:
+        for cookie in cookies:
+            txt_file.write(f"{cookie['domain']}\tTRUE\t{cookie['path']}\tFALSE\t{cookie['expiry']}\t{cookie['name']}\t{cookie['value']}\n")
+
+if __name__ == "__main__":
+    get_youtube_cookies()
+    print("Cookies 已保存到 youtube_cookies.json")
+    convert_cookies_to_txt()
 ```
