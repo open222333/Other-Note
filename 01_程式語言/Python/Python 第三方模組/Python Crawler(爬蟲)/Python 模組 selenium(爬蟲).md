@@ -25,6 +25,7 @@
   - [各種瀏覽器 背景執行](#各種瀏覽器-背景執行)
   - [使用 Selenium 配置 Chrome 無頭模式](#使用-selenium-配置-chrome-無頭模式)
   - [使用 Selenium 自動化登入並提取 Cookies](#使用-selenium-自動化登入並提取-cookies)
+  - [使用 Selenium 來驅動瀏覽器並執行 JavaScript 來提取資料](#使用-selenium-來驅動瀏覽器並執行-javascript-來提取資料)
 
 ## 參考資料
 
@@ -211,4 +212,53 @@ if __name__ == "__main__":
     get_youtube_cookies()
     print("Cookies 已保存到 youtube_cookies.json")
     convert_cookies_to_txt()
+```
+
+## 使用 Selenium 來驅動瀏覽器並執行 JavaScript 來提取資料
+
+```JavaScript
+// 取得 po_token
+var po_token = null;
+try {
+    po_token = ytInitialPlayerResponse.playbackTracking.poTokenParams.token;
+    console.log("po_token:", po_token);
+} catch (error) {
+    console.error("po_token 未找到:", error);
+}
+
+// 取得 visitor_data
+var visitor_data = null;
+try {
+    visitor_data = window.ytInitialData.responseContext.visitorData;
+    console.log("visitor_data:", visitor_data);
+} catch (error) {
+    console.error("visitor_data 未找到:", error);
+}
+```
+
+```Python
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
+# 設定 Chrome 驅動
+service = Service(ChromeDriverManager().install())
+options = webdriver.ChromeOptions()
+options.add_argument('--headless')
+
+# 啟動瀏覽器
+driver = webdriver.Chrome(service=service, options=options)
+
+# 開啟 YouTube 網頁
+driver.get('https://www.youtube.com/watch?v=YOUR_VIDEO_ID')
+
+# 執行 JavaScript 來獲取 po_token 和 visitor_data
+po_token = driver.execute_script('return ytInitialPlayerResponse.playbackTracking.poTokenParams.token;')
+visitor_data = driver.execute_script('return window.ytInitialData.responseContext.visitorData;')
+
+print(f"po_token: {po_token}")
+print(f"visitor_data: {visitor_data}")
+
+# 關閉瀏覽器
+driver.quit()
 ```
