@@ -17,6 +17,8 @@
   - [下載影片](#下載影片)
 - [例外狀況](#例外狀況)
   - [不使用 cookies](#不使用-cookies)
+- [測試](#測試)
+  - [取得 cookies](#取得-cookies)
 
 ## 參考資料
 
@@ -207,4 +209,42 @@ def download_youtube(urls, dir_path, temp_path=None, username=None, password=Non
 
     with YoutubeDL(params=params) as ydl:
         ydl.download(urls)
+```
+
+# 測試
+
+## 取得 cookies
+
+```sh
+curl -I -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36"  https://www.youtube.com/watch?v=Owke6Quk7T0
+```
+
+cookies
+
+```
+GPS=1; Domain=.youtube.com; Expires=Thu, 19-Sep-2024 02:37:26 GMT; Path=/; Secure; HttpOnly;YSC=XVtDBsMQfHE; Domain=.youtube.com; Path=/; Secure; HttpOnly; SameSite=none; Partitioned;VISITOR_INFO1_LIVE=vQ-beCaqavw; Domain=.youtube.com; Expires=Tue, 18-Mar-2025 02:07:26 GMT; Path=/; Secure; HttpOnly; SameSite=none; Partitioned;VISITOR_PRIVACY_METADATA=CgJUVxIEGgAgNw%3D%3D; Domain=.youtube.com; Expires=Tue, 18-Mar-2025 02:07:26 GMT; Path=/; Secure; HttpOnly; SameSite=none; Partitioned
+```
+
+```
+# Netscape HTTP Cookie File
+# http://curl.haxx.se/rfc/cookie_spec.html
+# This is a generated file!  Do not edit.
+
+.youtube.com	TRUE	/	TRUE	1760968434	PREF	f7=4100&tz=Asia.Taipei&f6=40000000
+.youtube.com	TRUE	/	TRUE	1758272060	LOGIN_INFO	AFmmF2swRAIgHjunQuF7FF1A9LqJX_FilYMrirtStw1hxUeDd6ng5X0CIG1Atvr6_PpUBFwSlUTy8eMKNKtLhnHB5b1OvhmFtQbX:QUQ3MjNmeHZ6QkdLc2xKV2RKYkc2TFBieTJndkFFVm56cWU5UzRPSzViS3NLVjloSDZpSzBfYjlLSklPUnp1aEpRanBDOUVRbHR5T1A1TnNnU2VMcWZjR3cxVzNrZl9FTXdzTmhRRTMxX0Faeld5Zk5GdHdlY3UtQ214aDZzNGd5T3ZScUpBbHpyaVVXamRFZENucWtUTXdjT3lkN0o5ZXFn
+.youtube.com	TRUE	/	FALSE	1759888876	SID	g.a000nghEikIkg18u0mVCUu2aPo5pwp9BQFi5CYCeuTu9QcEzLREHi15r-WMdJwBkUNuWDVpZDgACgYKATwSARcSFQHGX2MiMNBwoWE65j-emcHUslyxkxoVAUF8yKq5_Jq-bQ695lFD3nDQKLS80076
+.youtube.com	TRUE	/	TRUE	1756864876	__Secure-1PSIDTS	sidts-CjEBUFGohzY-6jKuvM-p094m7e8ICbPkmILk4R276MGo_rt6k5irqq5XihC6CtDwqeu7EAA
+.youtube.com	TRUE	/	TRUE	1756864876	__Secure-3PSIDTS	sidts-CjEBUFGohzY-6jKuvM-p094m7e8ICbPkmILk4R276MGo_rt6k5irqq5XihC6CtDwqeu7EAA
+.youtube.com	TRUE	/	TRUE	1759888876	__Secure-1PSID	g.a000nghEikIkg18u0mVCUu2aPo5pwp9BQFi5CYCeuTu9QcEzLREH0c-ux6B1DmqaJqvYMJXNMgACgYKAeISARcSFQHGX2Mi0nLRCuH1LA9zrkpDjeSX_BoVAUF8yKoIwl1YiOKvt-B3MeFcY9Hh0076
+.youtube.com	TRUE	/	TRUE	1759888876	__Secure-3PSID	g.a000nghEikIkg18u0mVCUu2aPo5pwp9BQFi5CYCeuTu9QcEzLREHTIlugvi96ofV2Gv7iHoa6wACgYKAeISARcSFQHGX2MimPrKtx7IA4w-UiGelWh6bxoVAUF8yKovFU6ZHPv7VaFT-r8Y8NKH0076
+.youtube.com	TRUE	/	FALSE	1759888876	HSID	AH_qJk2EvFUIapxJd
+.youtube.com	TRUE	/	TRUE	1759888876	SSID	AqnRnoSp4RWxDWflV
+.youtube.com	TRUE	/	FALSE	1759888876	APISID	tOzZzsdgUSk6mc3e/A5Z3Yck0TE7-W4FOs
+.youtube.com	TRUE	/	TRUE	1759888876	SAPISID	SbodpptYobyBbZ5b/APLZkQ5F9hV7f9Khx
+.youtube.com	TRUE	/	TRUE	1759888876	__Secure-1PAPISID	SbodpptYobyBbZ5b/APLZkQ5F9hV7f9Khx
+.youtube.com	TRUE	/	TRUE	1759888876	__Secure-3PAPISID	SbodpptYobyBbZ5b/APLZkQ5F9hV7f9Khx
+.youtube.com	TRUE	/	FALSE	1726408440	ST-tladcw	session_logininfo=AFmmF2swRAIgHjunQuF7FF1A9LqJX_FilYMrirtStw1hxUeDd6ng5X0CIG1Atvr6_PpUBFwSlUTy8eMKNKtLhnHB5b1OvhmFtQbX%3AQUQ3MjNmeHZ6QkdLc2xKV2RKYkc2TFBieTJndkFFVm56cWU5UzRPSzViS3NLVjloSDZpSzBfYjlLSklPUnp1aEpRanBDOUVRbHR5T1A1TnNnU2VMcWZjR3cxVzNrZl9FTXdzTmhRRTMxX0Faeld5Zk5GdHdlY3UtQ214aDZzNGd5T3ZScUpBbHpyaVVXamRFZENucWtUTXdjT3lkN0o5ZXFn
+.youtube.com	TRUE	/	FALSE	1757944438	SIDCC	AKEyXzUgrhsTAbJX1UzVL7smQp-T_YwCll0AFQk1pV_Tw-9-rgXlwGspPr5h9ImL7FOQ6a93
+.youtube.com	TRUE	/	TRUE	1757944438	__Secure-1PSIDCC	AKEyXzXiYXUgisaD1tmRVc22nMGoyHlEb5E1vGi5zvT98Y64yboqcVIthXYFMQruwLbsAaaApFw
+.youtube.com	TRUE	/	TRUE	1757944438	__Secure-3PSIDCC	AKEyXzUIVtckuuuIxr9zPW7Hqxqr0qQQhKSAWwUgF9TI2pb9y77rU9oS6e0u37rhDqWSGPp3CBc
 ```
