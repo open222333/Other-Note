@@ -100,11 +100,11 @@ yum clean, yum clean all
 uname -r
 
 # 安裝 ELRepo 存儲庫 , Install the ELRepo repo
-sudo rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-sudo rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm
 
 # Install the 4.9.0 kernel using the ELRepo repo (使用 ELRepo 存儲庫安裝 4.9.0 內核):
-sudo yum --enablerepo=elrepo-kernel install kernel-ml -y
+yum --enablerepo=elrepo-kernel install kernel-ml -y
 
 # Confirm the result:
 # The result should resemble (印出以下結果):
