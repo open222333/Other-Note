@@ -14,13 +14,15 @@
     - [狀況相關](#狀況相關)
       - [管理 commit log](#管理-commit-log)
     - [Gitea(Git 私服)](#giteagit-私服)
+    - [例外狀況相關](#例外狀況相關)
 - [Git 基本概念](#git-基本概念)
   - [專案檔案結構](#專案檔案結構)
     - [基本資料夾結構](#基本資料夾結構)
     - [Git 特殊文件](#git-特殊文件)
     - [GitHub 特殊文件和資料夾](#github-特殊文件和資料夾)
 - [安裝](#安裝)
-  - [Linux](#linux)
+  - [Debian(CentOS)](#debiancentos)
+  - [Ubuntu](#ubuntu)
   - [Mac](#mac)
   - [SSH 綁定 創建](#ssh-綁定-創建)
   - [git-credential 個人令牌 token](#git-credential-個人令牌-token)
@@ -55,13 +57,15 @@
   - [Git Blame 逐條程式碼Log](#git-blame-逐條程式碼log)
   - [設定永遠快取密碼，則可執行以下指令進行設定](#設定永遠快取密碼則可執行以下指令進行設定)
   - [設置git忽略](#設置git忽略)
-- [狀況](#狀況)
-  - [不想合併，但又需要解決這些未追蹤檔案的問題](#不想合併但又需要解決這些未追蹤檔案的問題)
 - [範例](#範例)
+  - [不想合併，但又需要解決這些未追蹤檔案的問題](#不想合併但又需要解決這些未追蹤檔案的問題)
   - [Python 更改資料夾內所有專案設定](#python-更改資料夾內所有專案設定)
   - [Git pull 錯誤操作](#git-pull-錯誤操作)
   - [Git submodule 子模組](#git-submodule-子模組)
   - [Git subtree 子樹](#git-subtree-子樹)
+- [例外狀況](#例外狀況)
+  - [fatal: unable to access : Failed to connect to bitbucket.org port 443: Connection timed out](#fatal-unable-to-access--failed-to-connect-to-bitbucketorg-port-443-connection-timed-out)
+  - [TCP connection reset by peer](#tcp-connection-reset-by-peer)
 
 ## 參考資料
 
@@ -121,6 +125,12 @@
 [Gitea 官方網站](https://gitea.io/zh-tw/)
 
 [關於 Gitea](https://docs.gitea.io/zh-tw/)
+
+### 例外狀況相關
+
+[fatal: unable to access : Failed to connect to bitbucket.org port 443: Connection timed out](https://stackoverflow.com/questions/52050241/fatal-unable-to-access-failed-to-connect-to-bitbucket-org-port-443-connectio)
+
+[TCP connection reset by peer](https://blog.csdn.net/bin9wei/article/details/121299033)
 
 # Git 基本概念
 
@@ -206,12 +216,40 @@ PULL_REQUEST_TEMPLATE：當將PULL_REQUEST_TEMPLATE文件添加到存儲庫時�
 
 # 安裝
 
-## Linux
+## Debian(CentOS)
 
 ```bash
-# Debian
-yum install git-all -y
+# 安裝 EPEL
+yum install epel-release -y
+# 添加 Wandisco Git repository
+rpm --import https://packagecloud.io/wandisco/git/gpgkey
+tee /etc/yum.repos.d/wandisco-git.repo << 'EOF'
+[wandisco-git]
+name=Wandisco GIT Repository
+baseurl=https://packages.wandisco.com/centos/7/git/$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=https://packagecloud.io/wandisco/git/gpgkey
+EOF
+```
 
+```bash
+# 關閉
+yum-config-manager --disable wandisco-git
+# 啟動
+yum-config-manager --enable wandisco-git
+```
+
+```bash
+yum install epel-release -y
+# Debian
+yum install git -y
+yum install git-all -y
+```
+
+## Ubuntu
+
+```bash
 # Ubuntu
 apt-get install git-all
 ```
@@ -1006,7 +1044,7 @@ config/database.yml
 .gitignore
 ```
 
-# 狀況
+# 範例
 
 ## 不想合併，但又需要解決這些未追蹤檔案的問題
 
@@ -1082,8 +1120,6 @@ git stash push --include-untracked
 git stash pop
 ```
 
-# 範例
-
 ## Python 更改資料夾內所有專案設定
 
 ```python
@@ -1157,3 +1193,21 @@ git pull -s subtree <remote_name> <branch_name>
 # 推送變更到遠端儲存庫
 git push <remote_name> master
 ```
+
+# 例外狀況
+
+## fatal: unable to access : Failed to connect to bitbucket.org port 443: Connection timed out
+
+```sh
+git --version
+```
+
+更新 git 版本
+
+## TCP connection reset by peer
+
+```sh
+git --version
+```
+
+更新 git 版本

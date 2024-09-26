@@ -8,6 +8,11 @@
   - [ssh遠端設定](#ssh遠端設定)
 - [要確定對方主機某一個埠 TCP port 是否有開啟](#要確定對方主機某一個埠-tcp-port-是否有開啟)
 - [IPv6](#ipv6)
+- [使用 curl 測試連接](#使用-curl-測試連接)
+- [檢測端口](#檢測端口)
+- [檢查防火牆和安全組設置](#檢查防火牆和安全組設置)
+- [檢查網絡路徑](#檢查網絡路徑)
+- [檢查 DNS 設置](#檢查-dns-設置)
 
 ## 參考資料
 
@@ -53,4 +58,44 @@ telnet www.google.com 23
 
 ```bash
 cat /proc/sys/net/ipv6/conf/all/disable_ipv6
+```
+
+# 使用 curl 測試連接
+
+顯示 HTTP 請求的詳細過程，包括請求標頭、響應標頭及任何錯誤訊息。
+
+```sh
+curl -v https://example.com/path
+```
+
+# 檢測端口
+
+```sh
+telnet domain.com 443
+```
+
+# 檢查防火牆和安全組設置
+
+如果系統有防火牆或安全組設置（如 AWS 或其他雲服務），請確保這些設置允許連接
+
+```sh
+iptables -L -n
+```
+
+# 檢查網絡路徑
+
+顯示每一跳的延遲和主機，可以檢查是否有任何跳的延遲或超時
+
+```sh
+traceroute example.com
+```
+
+# 檢查 DNS 設置
+
+DNS 解析
+
+使用 dig 命令檢查 DNS 是否正確 確認返回的 IP 地址是否正確。
+
+```sh
+dig example.com
 ```
