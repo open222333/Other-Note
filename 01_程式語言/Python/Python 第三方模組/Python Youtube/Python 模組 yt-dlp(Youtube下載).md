@@ -42,6 +42,8 @@
 
 [Extractors - Passing Visitor Data without cookies](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#passing-visitor-data-without-cookies)
 
+[coletdjnz/yt-dlp-youtube-oauth2 (可能失效)](https://github.com/coletdjnz/yt-dlp-youtube-oauth2?tab=readme-ov-file#logging-in-)
+
 # 指令
 
 ```bash
