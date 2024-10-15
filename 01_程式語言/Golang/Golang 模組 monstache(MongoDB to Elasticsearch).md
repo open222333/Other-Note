@@ -39,8 +39,18 @@ Elasticsearch Bulk API：
   - [undefined: "sync/atomic".Int64](#undefined-syncatomicint64)
 - [Mapping(映射)](#mapping映射)
 - [pm2 執行守護程式](#pm2-執行守護程式)
-- [direct-read-dynamic-exclude-regex 匹配規則 範例](#direct-read-dynamic-exclude-regex-匹配規則-範例)
-  - [排除指定資料庫以及集合](#排除指定資料庫以及集合)
+- [參數詳細說明](#參數詳細說明)
+  - [direct-read-dynamic-exclude-regex 匹配規則 範例](#direct-read-dynamic-exclude-regex-匹配規則-範例)
+    - [排除指定資料庫以及集合](#排除指定資料庫以及集合)
+  - [change-stream-namespaces 與 direct-read-namespaces 差別](#change-stream-namespaces-與-direct-read-namespaces-差別)
+    - [direct-read-namespaces](#direct-read-namespaces)
+    - [change-stream-namespaces](#change-stream-namespaces)
+    - [兩者的差異](#兩者的差異)
+      - [同步對象](#同步對象)
+      - [使用時機](#使用時機)
+      - [範圍](#範圍)
+    - [如何搭配使用](#如何搭配使用)
+    - [同時存在的運行邏輯](#同時存在的運行邏輯)
 
 ## 參考資料
 
@@ -116,6 +126,8 @@ elasticsearch-urls = ["https://es1:9200", "https://es2:9200"]
 
 # if you need to seed an index from a collection and not just listen and sync changes events
 # you can copy entire collections or views from MongoDB to Elasticsearch
+# MongoDB collection 的同步設置
+direct-read-namespaces = ["mydb.mycollection"]
 direct-read-namespaces = ["mydb.mycollection", "db.collection", "test.test", "db2.myview"]
 
 # if you want to use MongoDB change streams instead of legacy oplog tailing use change-stream-namespaces
@@ -127,7 +139,6 @@ direct-read-namespaces = ["mydb.mycollection", "db.collection", "test.test", "db
 # 如果要使用MongoDB變更流功能，需要指定此參數。啟用此參數後，oplog追踪會被設置為無效
 # MongoDB 版本4以上 可更改 db.collection 使用 db 追蹤整個db
 change-stream-namespaces = ["mydb.mycollection", "db.collection", "test.test"]
-
 # 追蹤全部的
 change-stream-namespaces = [""]
 
@@ -181,6 +192,8 @@ dropped-databases = true
 replay = false
 
 # resume processing from a timestamp saved in a previous run
+# 可選：對 MongoDB 進行增量同步，而不是從頭開始
+# 增量同步（Incremental Sync）是指在資料同步過程中，只同步自上次同步以來的變更，而不是每次都從頭開始同步所有資料。這種方法主要用於優化效能，尤其是當資料量龐大或變更頻繁時，增量同步可以減少不必要的資料傳輸和處理負擔。
 # Monstache會將已成功同步到ES的MongoDB操作的時間戳寫入monstache.monstache集合中。當Monstache因為意外停止時，可通過該時間戳恢復同步任務，避免數據丟失。如果指定了cluster-name，該參數將自動開啟
 resume = true
 
@@ -326,9 +339,11 @@ type = "type2"
 pm2 start filename.json
 ```
 
-# direct-read-dynamic-exclude-regex 匹配規則 範例
+# 參數詳細說明
 
-## 排除指定資料庫以及集合
+## direct-read-dynamic-exclude-regex 匹配規則 範例
+
+### 排除指定資料庫以及集合
 
 Python 可用
 
@@ -338,4 +353,95 @@ Python 可用
 
 ```
 ^(?!admin\\.|config\\.|local\\.).*\\.(m3_u8|m3u8|account|.*log.*)
+```
+
+## change-stream-namespaces 與 direct-read-namespaces 差別
+
+### direct-read-namespaces
+
+用途：
+
+這個參數用於 一次性讀取 MongoDB 資料 並將其同步到 Elasticsearch。當你啟用 direct-read-namespaces 時，Monstache 會在初始同步時將指定的 MongoDB collections 的所有現有資料完整地讀取並同步到 Elasticsearch。
+
+典型場景：
+
+通常用於首次同步或全量同步。如果你希望 Elasticsearch 包含 MongoDB 中某些 collections 的所有資料，可以使用這個參數。
+
+範例：
+
+```toml
+direct-read-namespaces = ["mydb.mycollection"]
+```
+
+這會同步 mydb.mycollection 中的所有現有文件到 Elasticsearch。
+
+`注意事項：direct-read-namespaces 主要針對 MongoDB 現有的資料，一次性進行同步，它不會持續監聽變更。`
+
+### change-stream-namespaces
+
+用途：
+
+這個參數用於 監聽 MongoDB 中的實時資料變更，並將這些變更（插入、更新、刪除）同步到 Elasticsearch。啟用 change-stream-namespaces 後，Monstache 會持續監聽指定的 MongoDB collections 中的變更，並且只將變更的部分同步到 Elasticsearch，而不會讀取現有的全部資料。
+
+典型場景：
+
+用於實時同步。如果你只關注 MongoDB 中發生的變更（例如新增、修改或刪除操作），並希望這些變更能夠實時反映在 Elasticsearch 中，可以使用這個參數。
+
+範例：
+
+```toml
+change-stream-namespaces = ["mydb.mycollection"]
+```
+
+這會監聽 mydb.mycollection 中所有未來的變更，並將變更的文件同步到 Elasticsearch。
+
+`注意事項：change-stream-namespaces 不會同步現有的資料，它僅監聽變更事件。因此，這個參數適合那些只需要同步新資料或變更資料的情況。`
+
+### 兩者的差異
+
+#### 同步對象
+
+direct-read-namespaces：一次性同步現有的所有資料（全量同步）。
+change-stream-namespaces：監聽並同步資料變更（增量同步）。
+
+#### 使用時機
+
+direct-read-namespaces：用於首次同步 MongoDB 現有資料到 Elasticsearch，或需要同步整個資料集時使用。
+change-stream-namespaces：用於持續同步 MongoDB 中的實時變更，而不是同步整個資料集。
+
+#### 範圍
+
+direct-read-namespaces：只能針對現有的資料集。
+change-stream-namespaces：專注於監聽變更事件，實時捕捉資料的更新、刪除和插入操作。
+
+### 如何搭配使用
+
+通常在首次同步時，會使用 direct-read-namespaces 來將整個資料集同步到 Elasticsearch，之後再使用 change-stream-namespaces 來實時監控資料變更，保持 Elasticsearch 與 MongoDB 資料的一致性。這樣既可以獲得完整的資料同步，又可以保持最新的資料變更。
+
+### 同時存在的運行邏輯
+
+direct-read-namespaces 用於在程序啟動時對指定的 collections 進行一次性全量同步，將所有現有資料從 MongoDB 同步到 Elasticsearch。
+
+change-stream-namespaces 用於監聽指定的 collections 的實時變更事件（插入、更新、刪除），並將這些變更同步到 Elasticsearch。
+
+這種組合配置常用於需要同步大量現有資料並保持實時更新的場景，例如數據分析平台、全文檢索系統等，這樣可以兼顧效率和資料一致性。
+
+這種組合在實現 MongoDB 和 Elasticsearch 的同步時非常常見。
+
+```toml
+# 全量同步，將 mydb.mycollection 中所有現有資料同步到 Elasticsearch
+direct-read-namespaces = ["mydb.mycollection"]
+
+# 實時監控 mydb.mycollection，將所有插入、更新、刪除事件同步到 Elasticsearch
+change-stream-namespaces = ["mydb.mycollection"]
+
+# 啟用 oplog 監聽，用於監聽實時變更
+enable-oplog = true
+
+# 其他配置選項
+elasticsearch-urls = ["http://127.0.0.1:9200"]
+gzip = true
+elasticsearch-max-conns = 4
+resume = true
+resume-name = "default"
 ```
