@@ -113,6 +113,17 @@ log_handler.setFormatter(log_formatter)
 logger.addHandler(log_handler)
 ```
 
+```Python
+import logging
+
+logger = logging.getLogger('名稱')
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+```
+
 ## 基本用法 - 指定log檔案大小
 
 ```Python
