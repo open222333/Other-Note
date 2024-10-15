@@ -44,6 +44,8 @@
 
 [coletdjnz/yt-dlp-youtube-oauth2 (可能失效)](https://github.com/coletdjnz/yt-dlp-youtube-oauth2?tab=readme-ov-file#logging-in-)
 
+[【已解决】yt-dlp Sign in to confirm you’re not a bot. 问题](https://d.cellmean.com/p/639ac02d9ab2)
+
 # 指令
 
 ```bash
