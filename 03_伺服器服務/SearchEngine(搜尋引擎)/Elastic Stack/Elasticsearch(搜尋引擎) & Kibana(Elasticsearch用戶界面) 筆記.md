@@ -156,6 +156,28 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [Python - mongo-connector](#python---mongo-connector-1)
     - [配置文檔 config.json](#配置文檔-configjson)
 - [例外狀況](#例外狀況-1)
+  - [資料在 Elasticsearch 中無法搜尋到，但在重啟 Monstache 後又出現的情況](#資料在-elasticsearch-中無法搜尋到但在重啟-monstache-後又出現的情況)
+    - [enable-oplog 設定](#enable-oplog-設定)
+    - [replay 設定](#replay-設定)
+    - [resume 和 resume-name 設定](#resume-和-resume-name-設定)
+    - [namespace-exclude-regex 設定](#namespace-exclude-regex-設定)
+    - [direct-read-namespaces 設定](#direct-read-namespaces-設定)
+    - [Elasticsearch 連接問題](#elasticsearch-連接問題)
+    - [gzip 和 index-stats 設定](#gzip-和-index-stats-設定)
+  - [資料在同步過程中遺失，但在重啟 Monstache 後資料又出現了](#資料在同步過程中遺失但在重啟-monstache-後資料又出現了)
+    - [Monstache 緩衝區溢出或延遲](#monstache-緩衝區溢出或延遲)
+    - [Monstache 配置問題](#monstache-配置問題)
+    - [資料變更流（Change Stream）斷開](#資料變更流change-stream斷開)
+    - [Elasticsearch 暫時不可用](#elasticsearch-暫時不可用)
+    - [資料一致性與延遲](#資料一致性與延遲)
+  - [資料在 Monstache 同步過程中遺失，但重啟 Monstache 後資料出現，後來又遺失](#資料在-monstache-同步過程中遺失但重啟-monstache-後資料出現後來又遺失)
+    - [resume 和進度保存問題](#resume-和進度保存問題)
+    - [direct-read 和 change-stream 衝突](#direct-read-和-change-stream-衝突)
+    - [MongoDB Change Stream 不穩定](#mongodb-change-stream-不穩定)
+    - [Elasticsearch 的索引問題](#elasticsearch-的索引問題)
+    - [direct-read-dynamic-exclude-regex 設定](#direct-read-dynamic-exclude-regex-設定)
+    - [Monstache 並發問題](#monstache-並發問題)
+    - [資料一致性問題](#資料一致性問題)
   - [ik 分詞器 null\_pointer\_exception](#ik-分詞器-null_pointer_exception-1)
   - [Error: disk usage exceeded flood-stage watermark, index has read-only-allow-delete blockedit](#error-disk-usage-exceeded-flood-stage-watermark-index-has-read-only-allow-delete-blockedit-1)
   - [Validation Failed: 1: this action would add \[5\] shards, but this cluster currently has \[5000\]/\[5000\] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
@@ -2761,6 +2783,194 @@ pipeline:
 ```
 
 # 例外狀況
+
+## 資料在 Elasticsearch 中無法搜尋到，但在重啟 Monstache 後又出現的情況
+
+以下幾個設定可能會導致資料在 Elasticsearch 中無法搜尋到，但在重啟 Monstache 後又出現的情況
+
+### enable-oplog 設定
+你啟用了 enable-oplog，這意味著 Monstache 將使用 MongoDB 的 oplog 來監聽變更。這通常是有效的，但如果 MongoDB 的 oplog 大小不足或不夠穩定，可能會導致部分資料未能及時同步到 Elasticsearch。這意味著當資料變更速度過快時，Monstache 可能來不及處理所有變更。
+建議：確保 MongoDB 的 oplog 足夠大，並檢查是否有任何錯誤或警告與 oplog 有關。
+
+### replay 設定
+如果你設置 replay = false，這表示在重啟後不會重新處理舊的變更。這可能導致在首次同步後未能處理的資料無法被補上，尤其是在初始同步完成後發生了變更。
+建議：如果你在進行初始化同步時出現問題，可以考慮暫時設置 replay = true 來確保所有資料都被重新處理。
+
+### resume 和 resume-name 設定
+如果沒有設置 resume = true，Monstache 在重啟後不會記錄上次的進度，這可能導致在不同的執行實例中有不同的狀態。即使有設定 resume，如果 resume-name 沒有正確配置，可能也會影響資料的持久性。
+建議：考慮啟用 resume 並設置 resume-name，以便 Monstache 能夠在重啟後從正確的進度繼續。
+
+### namespace-exclude-regex 設定
+如果有設置任何的 namespace-exclude-regex，這可能導致某些集合在同步時被排除，從而無法被索引。
+建議：檢查是否有任何不小心排除的集合，特別是在你希望同步的集合中。
+
+### direct-read-namespaces 設定
+
+如果你的集合在 direct-read-namespaces 中但同時又不符合其他規則，Monstache 可能在首次同步時失去某些資料。
+建議：確認所有需要的集合都在 direct-read-namespaces 中正確設置。
+
+### Elasticsearch 連接問題
+
+檢查 Elasticsearch 的狀態是否穩定。若 Elasticsearch 在某些時候無法訪問，資料可能會無法即時寫入。
+建議：確保 Elasticsearch 的健康狀態良好，並在 Monstache 的日誌中檢查是否有任何連接錯誤。
+
+### gzip 和 index-stats 設定
+
+雖然這兩個設置不會直接導致資料丟失，但在某些情況下，特別是在高流量的情況下，可能會影響性能，從而影響到資料同步的穩定性。
+建議：可以嘗試禁用 gzip 測試資料的同步情況。
+
+```
+最後的建議
+檢查 Monstache 的日誌，以便獲得更多的錯誤訊息或警告，這可以幫助確定資料遺失的具體原因。
+確保 MongoDB 的 oplog 有足夠的大小以支撐同步的資料量，並且保持資料的一致性和穩定性。
+如果需要進一步的協助，提供 Monstache 的日誌輸出可能會有助於診斷問題的具體原因。
+```
+
+## 資料在同步過程中遺失，但在重啟 Monstache 後資料又出現了
+
+在使用 Monstache 同步 MongoDB 和 Elasticsearch 的過程中，如果你發現資料在同步過程中遺失，但在重啟 Monstache 後資料又出現了，可能是由以下幾個因素導致的：
+
+### Monstache 緩衝區溢出或延遲
+
+Monstache 在同步資料時會有一個緩衝機制，當同步速度趕不上 MongoDB 資料變更的速度時，可能會出現緩衝區溢出或延遲的情況。
+
+這可能導致資料暫時沒有同步到 Elasticsearch，但在重啟 Monstache 時，會重新從變更流中進行同步，這使得資料最終還是被同步。
+
+`解決方法：`
+
+調整 Monstache 的 change-stream 緩衝區大小或同步速率參數。
+確保 MongoDB 變更流不會因為流量過大而導致溢出。
+
+### Monstache 配置問題
+Monstache 的配置檔案可能影響資料的即時性同步。例如，如果 Monstache 的 resume 選項沒有正確配置，可能導致資料遺失或延遲同步。當你重啟 Monstache 時，它會從 resume token 開始繼續同步，這可能會讓之前遺失的資料重新出現。
+
+`解決方法：`
+
+確認你在 Monstache 配置檔案中正確設置了 resume = true 並指定了 resume-name，這樣即使在中途斷開，Monstache 也會從上次的變更流位置繼續同步。
+如果需要，也可以設置 direct-read-namespaces，讓 Monstache 在啟動時直接重新讀取 MongoDB 中的資料。
+
+### 資料變更流（Change Stream）斷開
+MongoDB 的變更流（Change Streams）可能會因為某些原因（例如網路中斷、服務器負載過高等）暫時斷開，導致 Monstache 無法接收資料變更。重啟後，Monstache 會嘗試重新連接變更流，並從斷開的地方繼續同步，因此資料會重新出現。
+
+`解決方法：`
+
+檢查網路連接是否穩定，並確保 Monstache 能夠持續接收來自 MongoDB 的變更流。
+設置 Monstache 的監控和自動重啟機制，以確保它在連接斷開後能夠自動恢復。
+
+### Elasticsearch 暫時不可用
+
+Elasticsearch 有時候可能會出現暫時不可用的情況，導致 Monstache 無法將 MongoDB 中的變更同步到 Elasticsearch。
+
+當 Monstache 重啟後，它會重新嘗試與 Elasticsearch 進行連接，並繼續同步過程，因此之前遺失的資料會出現。
+
+`解決方法：`
+
+檢查 Elasticsearch 集群的狀態，確保它的分片、節點處於健康狀態（可以使用 GET _cluster/health 指令檢查）。
+在 Monstache 的配置中適當調整 Elasticsearch 的重試和超時設定，以防止暫時的連接問題導致資料遺失。
+
+### 資料一致性與延遲
+
+在某些情況下，Monstache 可能會因資料一致性問題導致延遲同步，當你重啟後，它會重新索引從 MongoDB 收到的資料變更。
+
+解決方法：
+
+檢查 Monstache 的錯誤日誌，確認是否有關於資料一致性或連接問題的提示。
+確保 Elasticsearch 的索引設置沒有導致性能瓶頸或資料錯誤的配置。
+
+```
+建議的操作步驟
+查看 Monstache 的日誌檔案，尋找有關資料遺失的具體錯誤訊息或警告。
+驗證 MongoDB 與 Elasticsearch 的連接狀態是否穩定，並檢查 Elasticsearch 集群的健康狀態。
+調整 Monstache 配置以優化同步過程，例如緩衝區大小、延遲等參數。
+```
+
+## 資料在 Monstache 同步過程中遺失，但重啟 Monstache 後資料出現，後來又遺失
+
+### resume 和進度保存問題
+
+Monstache 的 resume 機制是用來保存同步進度的。如果 resume 設置不正確，或 resume-name 沒有正確設置，Monstache 在重啟後可能從不同的進度點重新開始同步，導致資料異常。
+
+`解決方法：`
+
+確保在配置中啟用了 resume = true，並設置唯一的 resume-name，以保存同步的進度。例如：
+
+```toml
+resume = true
+resume-name = "my_unique_resume"
+```
+
+這樣可以確保每次重啟 Monstache 都能從上次同步停止的位置繼續。
+
+### direct-read 和 change-stream 衝突
+
+你同時使用了 direct-read-namespaces 和 enable-oplog 設置，這會導致 Monstache 同時進行資料的批量讀取和變更流監聽。
+
+如果 direct-read 開始後，某些變更可能會在讀取批量資料的同時被忽略，導致資料遺失。
+
+`解決方法：`
+
+可以考慮僅使用其中一種同步方法。如果使用 direct-read-namespaces 來一次性將資料載入 Elasticsearch，完成後應設置 exit-after-direct-reads = true 並將 enable-oplog 關閉，這樣可以避免兩者衝突。
+
+如果你希望即時同步資料，優先使用 enable-oplog = true 或 change-stream-namespaces，然後禁用 direct-read 來避免衝突。
+
+### MongoDB Change Stream 不穩定
+
+如果 MongoDB 的變更流（Change Stream）出現間歇性問題，這可能會導致資料丟失。當 Monstache 重啟時，它會重新接收變更流並捕捉變更，因此資料出現。但如果變更流不穩定或斷開，後續變更可能不會被同步。
+
+`解決方法：`
+
+檢查 MongoDB 伺服器的變更流健康狀態，並確保 MongoDB 集群穩定。你可以通過監控 MongoDB 伺服器的日誌來檢查是否存在變更流斷開或超時的情況。
+
+如果 MongoDB 的變更流不穩定，可以考慮加大 oplog 的大小，這樣可以讓 Monstache 有更多時間去處理變更事件。
+
+### Elasticsearch 的索引問題
+
+Elasticsearch 索引可能存在版本衝突或其他狀態導致資料未能正確儲存。當 Monstache 重啟時，它可能會重新推送資料，這讓資料暫時出現。但如果索引狀態異常或有衝突，後續的資料會再次丟失。
+
+`解決方法：`
+
+在 Elasticsearch 中檢查索引的健康狀態，使用 _cluster/health API 確認所有分片和節點是否健康。你也可以檢查 Monstache 的日誌，查看是否存在任何關於 Elasticsearch 版本衝突的錯誤。
+適當調整 Elasticsearch 的重試和超時配置，確保 Monstache 可以成功寫入資料。
+
+### direct-read-dynamic-exclude-regex 設定
+
+你的 direct-read-dynamic-exclude-regex 設置過於廣泛`（.*\\.(.*m3_u8.*|.*m3u8.*|account|.*log.*)）`，這可能會排除某些資料。如果某些集合或資料被排除了，它們可能在第一次同步時未被載入，而重啟時又被同步進來，這導致資料的不一致性。
+
+`解決方法：`
+
+仔細檢查這個正則表達式，確保它只排除你明確不需要的資料集合。可以暫時移除這個排除規則，觀察是否還會出現資料丟失的情況。
+
+### Monstache 並發問題
+
+Monstache 默認使用多個 Go routines 並發將資料推送到 Elasticsearch（elasticsearch-max-conns = 4）。
+
+如果這些併發操作在處理大批量資料時導致資料順序或狀態不同步，可能會導致某些資料丟失。
+
+`解決方法：`
+
+嘗試減少 elasticsearch-max-conns 的數量，以減輕併發推送對資料一致性的影響。例如：
+
+```toml
+elasticsearch-max-conns = 2
+```
+
+### 資料一致性問題
+
+如果 MongoDB 和 Elasticsearch 之間的資料一致性檢查不足，可能會導致資料短期內丟失。
+
+Monstache 重啟後會重新執行同步，這讓資料暫時出現，但如果在此過程中出現任何同步問題，資料後續會再次丟失。
+
+`解決方法：`
+
+設置 stats = true 並定期檢查 Monstache 的統計資料來監控資料同步的狀況，從而確認是否存在同步中的錯誤或異常。
+
+```
+最終建議：
+確認 resume = true 和 resume-name 是否正確設置，這樣可以確保每次重啟後都從正確的位置繼續。
+檢查 MongoDB 的 oplog 和變更流狀態，確保資料變更沒有丟失。
+驗證 Elasticsearch 的健康狀態，確保其在資料同步時處於穩定狀態。
+檢查 direct-read-dynamic-exclude-regex，確保它不會排除不應排除的資料。
+```
 
 ## ik 分詞器 null_pointer_exception
 
