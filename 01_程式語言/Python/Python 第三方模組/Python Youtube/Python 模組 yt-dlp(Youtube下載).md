@@ -16,6 +16,8 @@
   - [提取資訊](#提取資訊)
   - [下載影片](#下載影片)
 - [例外狀況](#例外狀況)
+  - [yt-dlp-youtube-oauth2 使用](#yt-dlp-youtube-oauth2-使用)
+  - [Get cookies.txt LOCALLY 擴展程式導出 cookies](#get-cookiestxt-locally-擴展程式導出-cookies)
   - [不使用 cookies](#不使用-cookies)
 - [測試](#測試)
   - [取得 cookies](#取得-cookies)
@@ -111,6 +113,39 @@ def download_youtube(urls, dir_path, temp_path=None, username=None, password=Non
 ```
 
 # 例外狀況
+
+## yt-dlp-youtube-oauth2 使用
+
+```
+這段描述的是在使用 yt-dlp 時，如何進行 YouTube OAuth2 驗證以授權 yt-dlp 存取你的 YouTube 帳戶。
+
+步驟詳解：
+首次運行授權：
+
+當你首次運行 yt-dlp 嘗試下載需要授權的 YouTube 影片時，yt-dlp 會提示你需要進行 OAuth2 驗證。
+提供驗證碼：
+
+yt-dlp 會顯示一個授權網址（如 https://www.google.com/device）以及一個驗證碼（如 XXX-YYY-ZZZ）。這是標準的「設備授權流程」，通常用於沒有完整鍵盤輸入的設備（如 YouTube on TV）。
+輸入驗證碼授權：
+
+你需要在瀏覽器中打開這個網址，並輸入 yt-dlp 提供的驗證碼，完成授權。這個過程授權 yt-dlp 存取你的 YouTube 帳戶。
+授權成功：
+
+授權成功後，yt-dlp 會保存你的 OAuth2 token 資料到其緩存中，這樣下次使用時就不需要再次授權。
+處理可能的問題：
+
+如果授權有問題，yt-dlp 會顯示錯誤信息。你可以使用 -v 參數啟用詳細日誌記錄來進行調試，這會顯示詳細的過程。如果你看到日誌中顯示「Loading youtube-oauth2.token_data from cache」，這表示 yt-dlp 嘗試從緩存中加載之前保存的 OAuth2 token。
+避免使用 YouTube cookies：
+
+注意：建議不要同時使用 YouTube cookies 和 OAuth2 token，這可能會引發授權問題，因為這兩種方法是不同的授權方式，可能會產生衝突。
+使用 yt-dlp 進行 OAuth 授權的流程：
+yt-dlp 使用的是 YouTube 的「設備授權流程」，這是一個適合於無鍵盤設備（如電視）的授權方法。這就是為什麼它會顯示「這是 YouTube on TV 客戶端的授權流程」的提示。
+
+在完成這一流程後，OAuth2 token 會被保存，你就可以下載需要授權的影片或進行其他操作了。
+如果遇到問題，可以使用 yt-dlp -v 來查看更詳細的錯誤信息並進行排查。
+```
+
+## Get cookies.txt LOCALLY 擴展程式導出 cookies
 
 ```
 這是一個很好的方法來處理YouTube的cookie，特別是當你需要通過yt_dlp來下載私人或受限的內容時。以下是你所描述的步驟的繁體中文說明：
