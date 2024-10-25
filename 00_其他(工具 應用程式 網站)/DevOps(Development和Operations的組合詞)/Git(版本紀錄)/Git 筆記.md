@@ -340,7 +340,7 @@ git status
 # 設定全域(--global) 帳號名
 git config --global user.name "username"
 # 設定全域 郵箱
-git config --global user.email 'test@email.com'
+git config --global user.email "test@email.com"
 
 # 打開 Git 的 color 顏色設定，如 git status
 
