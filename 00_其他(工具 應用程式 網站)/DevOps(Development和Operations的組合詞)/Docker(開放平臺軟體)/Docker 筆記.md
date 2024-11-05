@@ -15,6 +15,9 @@
 - [安裝](#安裝)
   - [RedHat (CentOS)](#redhat-centos)
   - [Debian (Ubuntu)](#debian-ubuntu)
+  - [Windows 10](#windows-10)
+    - [安裝 Docker Desktop（包含 Docker 和 Docker Compose）](#安裝-docker-desktop包含-docker-和-docker-compose)
+    - [使用 WSL 2 安裝 Docker CLI 和 Docker Compose](#使用-wsl-2-安裝-docker-cli-和-docker-compose)
 - [配置文檔](#配置文檔)
   - [log](#log)
   - [ipv6](#ipv6)
@@ -210,6 +213,55 @@ chmod +x /usr/local/bin/docker-compose
 # 驗證安裝：
 docker-compose --version
 ```
+
+## Windows 10
+
+### 安裝 Docker Desktop（包含 Docker 和 Docker Compose）
+
+下載 Docker Desktop：
+
+前往 Docker 官方網站 下載 Docker Desktop 安裝檔案。
+
+確保選擇適合 Windows 的版本。
+
+安裝 Docker Desktop：
+
+運行下載的 .exe 安裝檔，並依照畫面上的指示完成安裝。
+
+在安裝過程中，請選擇啟用 WSL 2 功能（如果尚未啟用）。
+
+啟動 Docker Desktop：
+
+安裝完成後，開啟 Docker Desktop。初次啟動可能需要一段時間，因為它會初始化 WSL 2 環境。
+
+測試 Docker 是否成功安裝：
+
+開啟命令提示字元（CMD）或 PowerShell，輸入以下指令以檢查 Docker 版本：
+
+```powershell
+docker --version
+docker-compose --version
+```
+
+### 使用 WSL 2 安裝 Docker CLI 和 Docker Compose
+
+安裝 WSL 2（如果尚未安裝）：
+
+打開 PowerShell（以系統管理員身分），輸入以下命令安裝 WSL：
+
+```powershell
+wsl --install
+```
+
+安裝 Linux 發行版（例如 Ubuntu）：
+
+前往 Microsoft Store，搜尋並安裝 Ubuntu。
+
+打開 Ubuntu 應用程式完成初次設置（設定使用者名稱和密碼）。
+
+在 WSL 內安裝 Docker：
+
+開啟 Ubuntu（或其他 WSL 發行版），參照 Debian (Ubuntu) 命令來安裝 Docker
 
 # 配置文檔
 
