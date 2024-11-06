@@ -14,6 +14,10 @@
 
 ## 參考資料
 
+### 筆記本字元
+
+[Notepad++分隔符显示SOH，STX，ETX](https://blog.csdn.net/louzhu_lz/article/details/97154414)
+
 # Windows 搜尋快捷
 
 Windows `win+R` 開始執行指令
