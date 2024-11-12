@@ -21,7 +21,7 @@ Elastic APM 提供應用層的性能監控，能夠詳細跟蹤各請求的響�
 
 ## 參考資料
 
-[]()
+[elastic 官方網站 apm docker image](https://www.docker.elastic.co/r/apm)
 
 # 安裝
 
@@ -178,8 +178,60 @@ logging:
 instrumentation:
   enabled: true
   environment: "production"
-  # 如果您想把 APM Server 自己的指標數據送到其他 APM Server，這裡可以設置 API Endpoint。
+  # 如果想把 APM Server 自己的指標數據送到其他 APM Server，這裡可以設置 API Endpoint。
   # hosts:
+```
+
+### Docker
+
+```yml
+# 連接至 Elasticsearch
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  username: "elastic"            # 設定為 Elasticsearch 使用者名稱
+  password: "your_password"       # 設定為 Elasticsearch 密碼
+
+# APM Server 基本設定
+apm-server:
+  host: "0.0.0.0:8200"            # 監聽所有 IP 地址上的 8200 埠
+
+  # 設定允許的環境
+  rum.enabled: true               # 開啟 RUM 支援，用於前端應用程式追蹤
+
+  # 設置 API 金鑰（選擇性）
+  api_key.enabled: true
+
+# 採樣率設定
+# 控制追蹤的採樣比例，1.0 表示 100% 的請求會被追蹤
+# 可根據需求調整追蹤量，減少負載
+sampling:
+  keep_unsampled: true
+  rate: 1.0                       # 預設為 100% 取樣
+
+# 日誌等級 (DEBUG, INFO, WARN, ERROR)
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: "/var/log/apm-server"
+  name: "apm-server"
+  keepfiles: 7                    # 保留 7 個日誌檔案
+  permissions: 0644               # 設定檔案權限
+
+# 視需求設定資料保護功能
+data_streams.enabled: true        # 使用 Data Streams 發送資料
+data_streams.namespace: "default"
+
+# 其他進階設定
+monitoring:
+  enabled: true                   # 啟用內建的 Elastic 監控
+  logs: true                      # 收集 APM Server 自身的日誌
+  metrics: true                   # 收集 APM Server 自身的指標
+
+queue:
+  mem:
+    events: 4096                  # 設定內存中的事件數量
+    flush.min_events: 512         # 最少事件數量後刷新資料
+    flush.timeout: 1s             # 超過 1 秒後刷新資料
 ```
 
 # 指令
