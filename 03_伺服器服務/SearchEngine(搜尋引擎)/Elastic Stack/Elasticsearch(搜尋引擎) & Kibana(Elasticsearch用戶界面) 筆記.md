@@ -191,6 +191,8 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 
 ## 參考資料
 
+[Docker @ Elastic - Docker 映像的所有資源](https://www.docker.elastic.co/)
+
 [Elasticsearch Guide - 官方教學文檔](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)
 
 [Kibana 介紹 - 官方](https://www.elastic.co/cn/kibana/)
@@ -3415,7 +3417,7 @@ health：
     green：表示所有分片都正常運行，並且有足夠的副本。
     yellow：表示所有的主分片都正常運行，但部分副本分片未分配。
     red：表示有一些主分片無法分配，意味著資料可能無法被訪問。
-    
+
 status：
     索引的狀態，通常有以下幾種：
         open：表示索引是開啟的，資料可以讀寫。
