@@ -183,6 +183,11 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [Validation Failed: 1: this action would add \[5\] shards, but this cluster currently has \[5000\]/\[5000\] maximum normal shards open;](#validation-failed-1-this-action-would-add-5-shards-but-this-cluster-currently-has-50005000-maximum-normal-shards-open)
   - [kibana 發生 search\_phase\_execution\_exception 錯誤](#kibana-發生-search_phase_execution_exception-錯誤)
   - [記憶體用量過大](#記憶體用量過大)
+  - [Elastic Overall Traffic 短時間內的異常高流量原因](#elastic-overall-traffic-短時間內的異常高流量原因)
+    - [檢查查詢記錄](#檢查查詢記錄)
+    - [分析集群健康狀態](#分析集群健康狀態)
+      - [Elasticsearch 需要身份驗證，則可以使用 -u 參數提供使用者名和密碼](#elasticsearch-需要身份驗證則可以使用--u-參數提供使用者名和密碼)
+    - [查看資料索引更新頻率](#查看資料索引更新頻率)
 
 ## 參考資料
 
@@ -3134,3 +3139,350 @@ Elasticsearch 的虛擬記憶體（Virtual memory）使用量增加時，可能�
     從 MongoDB 檢索資料：在此過程中，需要使用到 Physical Memory（實體記憶體）和 Network Memory（網絡記憶體）來存儲和處理從 MongoDB 檢索到的數據，以及在網絡上傳輸數據。
 
     將數據索引到 Elasticsearch：在此過程中，需要使用到 Physical Memory（實體記憶體）來存儲正在處理的數據和索引的中間結果，以及 Disk Storage（磁盤存儲）來永久存儲索引數據。
+
+## Elastic Overall Traffic 短時間內的異常高流量原因
+
+要了解 Elastic Overall Traffic 短時間內的異常高流量原因，可以從以下幾個方面著手排查：
+
+1. 檢查查詢記錄
+在 Elastic 中可以使用 Slow Logs 或 Monitoring 去檢查是否有頻繁的查詢請求，尤其是可能消耗資源的大量範圍查詢（如 _all 索引查詢）或是高頻率的聚合查詢。
+可以在 Kibana 中查看相關的查詢記錄，特別留意那些持續佔用資源的查詢。
+
+2. 分析集群健康狀態
+使用 /_cluster/health API 檢查集群的健康情況，確認是否有節點不可用或出現異常狀況。
+使用 /_nodes/stats API 獲取各節點的 CPU、記憶體使用率，以查看是否因為某些節點過載而導致大量流量分配到其他節點。
+
+3. 查看資料索引更新頻率
+如果流量激增出現在資料索引更新或大量寫入期間，這可能是因為新資料的批次寫入或外部應用程式觸發了大量的更新操作。可以檢查資料流的批次操作時間和頻率。
+
+4. 檢查網絡流量來源
+使用防火牆、應用監控工具或 Elastic 自帶的 Security 記錄來檢查網絡請求的 IP 和來源，確保這些流量並非來自異常 IP 或惡意爬蟲。
+如果流量來源是內部應用系統，可以調整應用程式的請求頻率或使用快取來減少重複查詢。
+
+5. 查詢或聚合優化
+檢查是否有一些頻繁使用的大範圍聚合查詢或嵌套查詢導致大量流量。如果有，可以通過修改查詢方式、調整查詢參數、增加快取等來優化。
+可以考慮增加查詢的分片數量或進行查詢快取，減少每次都執行完全查詢。
+
+6. 檢查外部服務
+如果 Elastic 與其他服務（如 Logstash、Beats 等）進行頻繁數據交換，則可能由於這些服務短時間內進行大量數據發送，導致流量突增。可以調整這些服務的發送頻率或批次大小。
+透過以上步驟，可以更清楚地了解和診斷 Elastic 中流量突然激增的原因，並制定相應的優化措施。
+
+### 檢查查詢記錄
+
+`gc.log 文件`
+
+gc.log 文件是 Java 垃圾回收日誌，用來記錄 Java 應用程序在運行過程中垃圾回收（GC）的詳細情況。
+
+這些日誌對於診斷內存問題或性能瓶頸非常有用，特別是在有大量記憶體分配或頻繁垃圾回收的情況下。
+
+通常，這些日誌中包含每次垃圾回收的時間、回收前後的內存使用情況以及回收的時間和類型等。
+
+檢查步驟：
+
+檢查 gc.log 文件中是否有長時間的垃圾回收或頻繁的 Full GC 操作，這會導致系統的性能下降，特別是在大規模數據操作或長時間運行的情況下。
+
+如果發現有長時間的垃圾回收，應該調整 JVM 參數，例如調整堆內存大小、調整垃圾回收器（GC）的類型或選擇更合適的垃圾回收策略。
+
+使用 grep 命令來快速查找關鍵字（如 Full GC）：
+
+```bash
+grep "Full GC" gc.log
+```
+
+```
+[2024-11-10T06:50:33.929+0000][6][gc,start    ] GC(397504) Pause Young (Normal) (G1 Evacuation Pause)
+[2024-11-10T06:50:33.929+0000][6][gc,task     ] GC(397504) Using 2 workers of 2 for evacuation
+[2024-11-10T06:50:33.929+0000][6][gc,age      ] GC(397504) Desired survivor size 645922816 bytes, new threshold 15 (max threshold 15)
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) Age table with threshold 15 (max threshold 15)
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   1:   16065960 bytes,   16065960 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   2:     830768 bytes,   16896728 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   3:     199200 bytes,   17095928 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   4:     384864 bytes,   17480792 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   5:      61824 bytes,   17542616 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   6:    2255912 bytes,   19798528 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   7:    1709936 bytes,   21508464 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   8:     138808 bytes,   21647272 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age   9:     279800 bytes,   21927072 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age  10:       7152 bytes,   21934224 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age  11:     136920 bytes,   22071144 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age  12:     158976 bytes,   22230120 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age  13:    1101520 bytes,   23331640 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age  14:     206688 bytes,   23538328 total
+[2024-11-10T06:50:33.976+0000][6][gc,age      ] GC(397504) - age  15:     158272 bytes,   23696600 total
+[2024-11-10T06:50:33.976+0000][6][gc,phases   ] GC(397504)   Pre Evacuate Collection Set: 0.8ms
+[2024-11-10T06:50:33.976+0000][6][gc,phases   ] GC(397504)   Merge Heap Roots: 0.2ms
+[2024-11-10T06:50:33.976+0000][6][gc,phases   ] GC(397504)   Evacuate Collection Set: 38.4ms
+[2024-11-10T06:50:33.976+0000][6][gc,phases   ] GC(397504)   Post Evacuate Collection Set: 7.3ms
+[2024-11-10T06:50:33.976+0000][6][gc,phases   ] GC(397504)   Other: 0.6ms
+[2024-11-10T06:50:33.976+0000][6][gc,heap     ] GC(397504) Eden regions: 1225->0(1225)
+[2024-11-10T06:50:33.976+0000][6][gc,heap     ] GC(397504) Survivor regions: 3->3(154)
+[2024-11-10T06:50:33.976+0000][6][gc,heap     ] GC(397504) Old regions: 162->163
+[2024-11-10T06:50:33.976+0000][6][gc,heap     ] GC(397504) Archive regions: 2->2
+[2024-11-10T06:50:33.976+0000][6][gc,heap     ] GC(397504) Humongous regions: 0->0
+[2024-11-10T06:50:33.976+0000][6][gc,metaspace] GC(397504) Metaspace: 125476K(127104K)->125476K(127104K) NonClass: 110267K(111168K)->110267K(111168K) Class: 15209K(15936K)->15209K(15936K)
+[2024-11-10T06:50:33.976+0000][6][gc          ] GC(397504) Pause Young (Normal) (G1 Evacuation Pause) 11126M->1328M(16384M) 47.332ms
+[2024-11-10T06:50:33.976+0000][6][gc,cpu      ] GC(397504) User=0.09s Sys=0.00s Real=0.05s
+[2024-11-10T06:50:33.976+0000][6][safepoint   ] Safepoint "G1CollectForAllocation", Time since last: 226531245878 ns, Reaching safepoint: 94932 ns, At safepoint: 47485701 ns, Total: 47580633 ns
+```
+
+```
+這是一個 Java 程式的垃圾回收 (GC) 事件，具體來說是 G1 垃圾回收。以下是關鍵部分的詳細說明：
+
+GC 暫停資訊
+GC 暫停類型: Pause Young (Normal) (G1 Evacuation Pause)
+這表示在年輕代垃圾回收期間發生的暫停，並且在此期間，年輕代中的物件會被搬遷到老年代。
+
+GC 任務細節
+工作執行緒: Using 2 workers of 2 for evacuation
+這表示有兩個工作執行緒被用來進行物件的搬遷操作。
+
+年齡表
+生還者區域大小: Desired survivor size 645922816 bytes, new threshold 15 (max threshold 15)
+這是垃圾回收器設定的生還者區域目標大小。年齡閾值 (threshold) 設定為 15，表示最多可以將 15 次 GC 後仍然存活的物件移到生還者區域。
+
+其他 GC 階段
+回收階段:
+Pre Evacuate Collection Set: 0.8ms
+Merge Heap Roots: 0.2ms
+Evacuate Collection Set: 38.4ms
+Post Evacuate Collection Set: 7.3ms
+Other: 0.6ms
+這些是不同階段所花費的時間，表明整個垃圾回收過程中，物件的搬遷和清理所需的時間。
+
+堆區資訊
+堆區狀態:
+Eden regions: 1225->0(1225)
+Survivor regions: 3->3(154)
+Old regions: 162->163
+Archive regions: 2->2
+Humongous regions: 0->0
+這些是記錄堆區中各個區域的變化，顯示 GC 之後，Eden 區域的物件已被清除，老年代區域略有增長。
+
+CPU 時間
+CPU 使用時間:
+User=0.09s
+Sys=0.00s
+Real=0.05s
+這表示用戶進程和系統時間的消耗，並且整個 GC 過程的實際時間為 47.332ms。
+
+SafePoint 資訊
+SafePoint:
+Safepoint "G1CollectForAllocation", Time since last: 226531245878 ns, Reaching safepoint: 94932 ns, At safepoint: 47485701 ns, Total: 47580633 ns
+這表示達到 safepoint 的時間，這是垃圾回收過程中一個特定的停頓點，用來確保所有的執行緒都已達到一致狀態。
+```
+
+```scss
+GC(397504) Pause Young (Normal) (G1 Evacuation Pause) 11126M->1328M(16384M)
+```
+
+```
+11126M->1328M(16384M) 表示在這次 GC 前後，堆內存的使用情況。原本使用了 11126 MB 的內存，GC 後釋放到 1328 MB，並且最大堆內存設置為 16384 MB（16GB）。
+看起來，系統的最大堆內存設置為 16GB，而實際使用的內存為 11GB，GC 後釋放了一些內存（大約 10GB 的內存被釋放）。
+```
+
+`hs_err_pid.log 文件`
+
+hs_err_pid.log 文件是 Java 虛擬機（JVM）崩潰時生成的錯誤日誌，通常會包含 JVM 崩潰的堆棧跟蹤信息，這有助於識別導致崩潰的根本原因。
+
+當 JVM 發生未處理的異常或崩潰時，這些日誌可以提供崩潰的堆棧信息、內存使用狀況以及系統環境等資訊。
+
+檢查步驟：
+
+查看這些錯誤日誌中的堆棧跟蹤信息，查找是否有任何異常或錯誤指向特定的 Java 類或代碼段。
+
+檢查內存或資源限制設置，確保 JVM 擁有足夠的資源來運行應用，並排除其他可能的問題（如無法訪問某些必要的資源或不當的 JVM 配置）。
+
+```bash
+grep "Error" hs_err_pid*.log
+```
+
+### 分析集群健康狀態
+
+檢查集群健康狀態
+
+使用 curl 發送 GET 請求來檢查集群的健康狀況
+
+pretty 參數使返回的 JSON 格式更易讀。
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_cluster/health?pretty"
+```
+
+```
+{
+  "cluster_name" : "es01",
+  "status" : "yellow",
+  "timed_out" : false,
+  "number_of_nodes" : 1,
+  "number_of_data_nodes" : 1,
+  "active_primary_shards" : 444,
+  "active_shards" : 444,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 47,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 90.4276985743381
+}
+
+集群名稱: es01
+健康狀態: yellow
+- 狀態 "yellow" 表示所有主分片可用，但某些副本分片無法分配。這通常是因為集群只有一個節點，無法分配副本分片。
+- 節點數量: 1
+  - 集群中只有 1 個節點，這也導致副本分片無法分配。
+- 數據節點數量: 1
+  - 只有 1 個數據節點負責存儲和處理數據。
+- 活躍主分片數量: 444
+  - 集群中有 444 個主分片處於活動狀態。
+- 活躍分片數量: 444
+  - 總共有 444 個活動分片（包括主分片）。
+- 副本分片尚未分配: 47
+  - 由於只有 1 個節點，47 個副本分片無法被分配。
+- 延遲未分配的分片數量: 0
+  - 沒有延遲分配的分片。
+- 集群沒有掛起的任務或正在處理的數據請求，所有任務和請求都已完成。
+
+建議:
+- 增加更多的節點以支援副本分片的分配。
+- 如果無法增加節點，考慮將副本分片數量設為 0，以避免未分配的副本問題。
+```
+
+獲取節點統計數據
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_nodes/stats?pretty"
+```
+
+獲取集群的詳細統計數據
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_cluster/stats?pretty"
+```
+
+查詢特定節點健康狀況
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_nodes/node_id/stats?pretty"
+```
+
+測試集群健康狀態
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_cluster/health"
+```
+
+#### Elasticsearch 需要身份驗證，則可以使用 -u 參數提供使用者名和密碼
+
+```sh
+curl -u username:password -X GET "http://your_elasticsearch_host:9200/_cluster/health?pretty"
+```
+
+### 查看資料索引更新頻率
+
+`查看 Elasticsearch 索引的索引統計數據`
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_stats?pretty"
+```
+
+```
+docs.count: 索引中的文檔總數。
+docs.deleted: 被刪除的文檔數量。
+indexing.index_total: 索引中寫入的總文檔數。
+indexing.index_time_in_millis: 索引操作總共消耗的時間（毫秒）。
+indexing.index_current: 當前正處於寫入操作中的文檔數。
+```
+
+查看特定索引的統計資料，可以指定索引名稱
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/your_index_name/_stats?pretty"
+```
+
+`使用 /_cat/indices API 查看索引狀況`
+
+檢查所有索引的狀態
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_cat/indices?v"
+```
+
+```
+health：
+    這是指集群的健康狀態。常見的健康狀態有：
+    green：表示所有分片都正常運行，並且有足夠的副本。
+    yellow：表示所有的主分片都正常運行，但部分副本分片未分配。
+    red：表示有一些主分片無法分配，意味著資料可能無法被訪問。
+    
+status：
+    索引的狀態，通常有以下幾種：
+        open：表示索引是開啟的，資料可以讀寫。
+        closed：表示索引被關閉，無法進行讀寫操作。
+
+index：
+索引的名稱，指的是Elasticsearch中的索引。
+
+uuid：
+索引的唯一識別碼（UUID），每個索引在創建時都會分配一個唯一的UUID。
+
+pri：
+主分片數量。Elasticsearch 中的索引被分割成多個分片（shards），pri 是指主分片的數量。
+
+rep：
+副本分片數量。副本分片是主分片的複本，用於提高冗餘性和查詢性能。這個值顯示索引中的副本分片數量。
+
+docs.count：
+索引中的文檔數量。這是指存儲在該索引中的所有文檔的總數。
+
+docs.deleted：
+被刪除的文檔數量。這是指標誌為已刪除但尚未被實際清理的文檔數量，這些文檔仍占用磁碟空間，直到進行後台的合併和清理。
+
+store.size：
+索引的總存儲大小。這是索引在磁碟上所佔的總空間，包括所有的主分片和副本分片。
+
+pri.store.size：
+主分片的總存儲大小。這是所有主分片的總佔用磁碟空間，不包含副本分片的大小。
+```
+
+查看特定索引的狀況
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_cat/indices/your_index_name?v"
+```
+
+`查看寫入操作的頻率和延遲`
+
+查看節點的寫入統計資料
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_nodes/stats/indexing?pretty"
+```
+
+`檢查索引更新策略`
+
+檢查索引的刷新間隔，該間隔控制了索引多長時間才會將寫入的數據刷新到磁碟
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/your_index_name/_settings?pretty"
+```
+
+`監控批次寫入的操作`
+
+如果懷疑流量激增是由於批次寫入引起的，可以查看批次寫入的操作頻率，這可能包括從外部應用程式發出的寫入請求或批次處理任務。
+
+步驟：
+
+使用 Logstash 或其他資料流工具的監控：
+
+如果使用 Logstash 等資料流工具進行資料寫入，可以檢查 Logstash 的運行日誌，查看是否有大量資料寫入的情況。
+
+例如，可以查閱 Logstash 的日誌文件，查看是否有長時間或高頻率的寫入操作。
+
+監控批次作業的時間和頻率：
+
+通常批次寫入操作會在指定的時間間隔內觸發。可以檢查是否有過於頻繁或大量的批次操作（例如，每次大量的資料批次寫入）。
+
+檢查應用程式的日誌，查找批次操作的時間戳和操作量，以確定是否有異常高的寫入頻率。
+

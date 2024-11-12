@@ -26,6 +26,7 @@
 - [指令](#指令)
   - [常用指令 用於取得系統資訊和狀態](#常用指令-用於取得系統資訊和狀態)
 - [軟體組合 LAMP](#軟體組合-lamp)
+- [dep 和 rpm 是兩種主要的軟體套件管理系統](#dep-和-rpm-是兩種主要的軟體套件管理系統)
 
 ## 參考資料
 
@@ -212,4 +213,11 @@ firewall-cmd --zone=public --add-port=8080/tcp
 
 # 永久開啟 tcp 的 8080 連接埠
 firewall-cmd --zone=public --permanent --add-port=8080/tcp
+```
+
+# dep 和 rpm 是兩種主要的軟體套件管理系統
+
+```
+dep: .deb 是 Debian 系統專用的套件格式。這種格式的包主要適用於基於 Debian 的系統（例如 Ubuntu、Linux Mint）。
+rpm: .rpm 是 Red Hat 系統專用的套件格式，適用於基於 Red Hat 的系統（例如 CentOS、Fedora、RHEL）。
 ```

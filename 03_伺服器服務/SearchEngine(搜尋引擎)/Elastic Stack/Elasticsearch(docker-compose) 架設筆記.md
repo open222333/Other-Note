@@ -160,6 +160,8 @@ docker exec -ti elasticsearch bash
 cd /usr/share/elasticsearch/plugins
 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip
 
+elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v${version}/elasticsearch-analysis-ik-${version}.zip
+
 docker-compose restart elasticsearch
 ```
 
