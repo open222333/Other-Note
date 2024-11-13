@@ -61,7 +61,11 @@ services:
       - 5601:5601
 
   apm-server:
-    image: apm-server:${STACK_VERSION}
+    # 根據 主機架構
+    # x86_64：代表 64 位元的 x86 架構（即 amd64）。
+    # arm64 或 aarch64：代表 64 位元的 ARM 架構。
+    # https://www.docker.elastic.co/r/apm
+    image: docker.elastic.co/apm/apm-server:sha256-ff9bb3eac97600a86976b71f999fb86e2500ae1621a6ee2feb44b8ad646a3ff6
     container_name: apm-server
     depends_on:
       - elasticsearch
@@ -238,4 +242,40 @@ queue:
 
 ```sh
 service apm-server start
+```
+
+# 例外狀況
+
+## exec /usr/bin/tini: exec format error
+
+```
+嘗試運行的映像與主機的架構不相容
+```
+
+確認映像的架構：檢查拉取的 APM Server 映像是否適合主機架構。可以使用以下命令檢查映像的詳細資訊
+
+```bash
+docker image inspect docker.elastic.co/apm/apm-server:${STACK_VERSION}
+```
+
+Linux 或 macOS
+
+x86_64：代表 64 位元的 x86 架構（即 amd64）。
+
+arm64 或 aarch64：代表 64 位元的 ARM 架構。
+
+```sh
+uname -m
+```
+
+Windows PowerShell
+
+```PowerShell
+[System.Environment]::Is64BitOperatingSystem
+```
+
+docker
+
+```
+PowerSdocker info | grep Architecture
 ```
