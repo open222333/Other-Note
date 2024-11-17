@@ -121,6 +121,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 - [設定檔](#設定檔)
   - [配置文檔 elasticsearch.yml (主要)](#配置文檔-elasticsearchyml-主要)
     - [Slow Log](#slow-log)
+    - [Stack Monitoring](#stack-monitoring)
   - [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
   - [配置文檔 override.conf](#配置文檔-overrideconf)
   - [生產環境 建議設定](#生產環境-建議設定)
@@ -190,6 +191,8 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
     - [查看資料索引更新頻率](#查看資料索引更新頻率)
 
 ## 參考資料
+
+[喬叔帶你上手 Elastic Stack](https://training.onedoggo.com/tech-sharing/uncle-joe-teach-es-elasticsearch)
 
 [Docker @ Elastic - Docker 映像的所有資源](https://www.docker.elastic.co/)
 
@@ -1441,6 +1444,12 @@ index.indexing.slowlog.threshold.index.info: 5s
 index.indexing.slowlog.threshold.index.debug: 2s
 index.indexing.slowlog.threshold.index.trace: 500ms
 index.indexing.slowlog.source: 1000
+```
+
+### Stack Monitoring
+
+```yml
+xpack.monitoring.collection.enabled: true
 ```
 
 ## 配置文檔 Java jvm.options
