@@ -85,6 +85,7 @@ MySQL Group Replication 的高可用性和故障轉移機制通常需要至少�
     - [Master-Slave(主從環境)相關](#master-slave主從環境相關)
     - [keepalived(實現高可用性的工具) 相關](#keepalived實現高可用性的工具-相關)
     - [錯誤處理相關](#錯誤處理相關)
+      - [Last\_SQL\_Errno: 1032](#last_sql_errno-1032)
 - [指令](#指令)
   - [基本用法](#基本用法)
   - [keepalived (實作高可用)](#keepalived-實作高可用)
@@ -94,6 +95,7 @@ MySQL Group Replication 的高可用性和故障轉移機制通常需要至少�
   - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
     - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
     - [Last\_Errno: 1594](#last_errno-1594)
+    - [Last\_Errno: 1032](#last_errno-1032)
 
 ## 參考資料
 
@@ -154,6 +156,12 @@ MySQL Group Replication 的高可用性和故障轉移機制通常需要至少�
 [MySQL replication error 1594](https://dba.stackexchange.com/questions/69394/mysql-replication-error-1594)
 
 [MySQL 主从失败报错：Last_SQL_Errno: 1594](https://www.cnblogs.com/cyleon/p/10679341.html)
+
+#### Last_SQL_Errno: 1032
+
+[[MySQL] SQL_ERROR 1032解决办法 ](https://www.cnblogs.com/langdashu/p/5920436.html)
+
+[How to Fix MySQL Error 1032 in Simple Steps](https://10web.io/blog/mysql-error-1032/)
 
 # 指令
 
@@ -516,6 +524,8 @@ show slave status\G
 -- 停止slave
 stop slave;
 -- 手動設定master資料 linode部分 ip可以使用內網ip
+-- master 輸入下面指令取的資訊
+-- show master status;
 change master to
 master_log_file='mysql-bin.004772',
 master_log_pos=516345810;
@@ -555,3 +565,13 @@ mysqlbinlog [Master_Log_File] | less
 根據發現的問題進行修復：
 如果發現二進制日誌損壞，可以嘗試使用主庫上的備份進行還原，或者查找和修復損壞的日誌條目。
 記得在執行任何修復操作之前，確保有充分的數據備份以防萬一。
+
+### Last_Errno: 1032
+
+Last_Error: Could not execute Update_rows event on table avnight.member_log; Can't find record in 'member_log', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event's master log mysql-bin.000077, end_log_pos 309389912
+
+```
+錯誤代碼: 1032
+錯誤描述: Can't find record in 'member_log'
+原因: 從伺服器試圖執行來自主伺服器的一個 UPDATE 或 DELETE 操作，但該操作所要修改或刪除的記錄在從伺服器的 member_log 表中不存在。這可能是因為主伺服器與從伺服器之間的資料不同步。
+```
