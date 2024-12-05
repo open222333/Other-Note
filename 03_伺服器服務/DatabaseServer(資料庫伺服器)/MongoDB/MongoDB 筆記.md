@@ -52,6 +52,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
   - [匯入匯出](#匯入匯出)
 - [資料庫指令](#資料庫指令)
   - [刪除](#刪除)
+    - [刪除符合條件以外的資料](#刪除符合條件以外的資料)
   - [查詢](#查詢)
     - [找重複](#找重複)
     - [比對字元](#比對字元)
@@ -476,6 +477,49 @@ db.users.remove()
 
 // 刪除users集合下name=lecaf的該筆資料
 db.users.remove({"name": "lecaf"})
+```
+
+### 刪除符合條件以外的資料
+
+```
+$not	反向匹配，但需搭配其他條件運算符，例如 { $not: { $eq: "AWTB" } } 才正確。
+$ne	    不等於，例如 { "origin": { $ne: "AWTB" } }，更適合你的需求。
+$nor	保留反向匹配組合條件，例如 { $nor: [{ "origin": "AWTB" }] }，與 $ne 效果類似，但更靈活。
+```
+
+$not 本身是 MongoDB 的一個邏輯運算符，它必須與具體的運算符（例如 $eq, $gte, $regex 等）一起使用，否則會引發錯誤。
+
+改用 $ne（"不等於"）來刪除 origin 不等於 "A" 的所有文件
+
+```JavaScript
+db.users.deleteMany({ "origin": { $ne: "A" } });
+```
+
+```JavaScript
+db.users.deleteMany({
+    $not: { age: { $gte: 30 }, name: "Charlie" }
+});
+```
+
+```JavaScript
+db.users.deleteMany({
+    $expr: { $not: { $and: [{ $gte: ["$age", 30] }, { $eq: ["$name", "Charlie"] }] } }
+});
+```
+
+```JavaScript
+db.users.deleteMany({
+    age: { $not: { $gt: 25 } }
+});
+```
+
+```JavaScript
+db.users.deleteMany({
+    $nor: [
+        { age: { $gte: 30 } },
+        { name: "Bob" }
+    ]
+});
 ```
 
 ## 查詢
