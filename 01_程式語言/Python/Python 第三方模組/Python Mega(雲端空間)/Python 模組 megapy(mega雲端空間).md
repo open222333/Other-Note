@@ -1,4 +1,4 @@
-# Python 模組 mega(mega雲端空間)
+# Python 模組 megapy(mega雲端空間)
 
 ```
 已棄用
@@ -7,7 +7,7 @@ https://github.com/meganz/sdk
 
 ## 目錄
 
-- [Python 模組 mega(mega雲端空間)](#python-模組-megamega雲端空間)
+- [Python 模組 megapy(mega雲端空間)](#python-模組-megapymega雲端空間)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [指令工具相關](#指令工具相關)
