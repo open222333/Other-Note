@@ -13,6 +13,9 @@ Uncomplicated Firewall(UFW)是Ubuntu系統預設的防火牆
   - [查看](#查看)
   - [規則設定](#規則設定)
   - [刪除](#刪除)
+- [範例](#範例)
+  - [DNS 查詢（UDP/53 和 TCP/53）](#dns-查詢udp53-和-tcp53)
+  - [HTTP/HTTPS 流量（TCP/80 和 TCP/443）](#httphttps-流量tcp80-和-tcp443)
 
 ## 參考資料
 
@@ -72,4 +75,20 @@ ufw reload
 ## 刪除
 
 ```bash
+```
+
+# 範例
+
+## DNS 查詢（UDP/53 和 TCP/53）
+
+```sh
+ufw allow out to any port 53 proto udp
+ufw allow out to any port 53 proto tcp
+```
+
+## HTTP/HTTPS 流量（TCP/80 和 TCP/443）
+
+```sh
+ufw allow out to any port 80 proto tcp
+ufw allow out to any port 443 proto tcp
 ```
