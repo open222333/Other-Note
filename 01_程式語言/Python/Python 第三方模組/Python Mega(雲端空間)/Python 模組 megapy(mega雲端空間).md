@@ -22,6 +22,10 @@ https://github.com/meganz/sdk
 
 [mega.py Github](https://github.com/odwyersoftware/mega.py)
 
+[3v1n0/mega.py Github](https://github.com/3v1n0/mega.py)
+
+[meganz/sdk Github](https://github.com/meganz/sdk)
+
 [mega.py API_INFO.md 詳細說明](https://github.com/odwyersoftware/mega.py/blob/master/API_INFO.md)
 
 ### 指令工具相關
