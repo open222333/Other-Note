@@ -45,7 +45,7 @@ TLS 指紋驗證 是一種用於識別客戶端或伺服器在 TLS/SSL 連線中
 
 [破解反爬蟲的方法](https://steam.oxxostudio.tw/category/python/spider/crack-spider.html)
 
-[爬虫：绕过5秒盾Cloudflare和DDoS-GUARD](log.csdn.net/gwb0516/article/details/132446314)
+[爬虫：绕过5秒盾Cloudflare和DDoS-GUARD - 搭配 FlareSolverr](https://blog.csdn.net/gwb0516/article/details/132446314)
 
 [Cloudscraper 项目常见问题解决方案](https://blog.csdn.net/gitblog_07036/article/details/142231852)
 
