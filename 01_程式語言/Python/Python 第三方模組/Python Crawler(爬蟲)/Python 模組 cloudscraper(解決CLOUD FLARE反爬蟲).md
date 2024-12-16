@@ -6,21 +6,27 @@
 ## 目錄
 
 - [Python 模組 cloudscraper(解決CLOUD FLARE反爬蟲)](#python-模組-cloudscraper解決cloud-flare反爬蟲)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [教學相關](#教學相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [教學相關](#教學相關)
 - [指令](#指令)
 - [用法](#用法)
+  - [處理 Cookies 和緩存的工作原理](#處理-cookies-和緩存的工作原理)
+  - [代理支持 proxies](#代理支持-proxies)
 
 ## 參考資料
 
 [cloudscraper pypi](https://pypi.org/project/cloudscraper/)
+
+[cloudscraper Github](https://github.com/venomous/cloudscraper)
 
 ### 教學相關
 
 [(番外篇-爬蟲)[不做怎麼知道系列之Android開發者的30天後端養成故事 Day24] - 來問問你認識的Youtuber的訂閱數吧~ #crawler #python #socialblade](https://ithelp.ithome.com.tw/articles/10230271)
 
 [使用CLOUDSCRAPER捅穿CLOUD FLARE的5秒盾](https://www.cnblogs.com/yoyo1216/p/17356845.html)
+
+[How to Use Cloudscraper in Python: 2024 Guide](https://iproyal.com/blog/cloudscraper/)
 
 # 指令
 
@@ -47,4 +53,67 @@ response = scraper.get(url)
 
 # 打印网页内容
 print(response.text)
+```
+
+## 處理 Cookies 和緩存的工作原理
+
+Cookies:
+
+```
+網站常用 Cookies 作為用戶識別和驗證的手段。
+Cloudscraper 自動處理服務器返回的 Cookies 並在後續請求中帶上它們，模擬連續的瀏覽器會話。
+```
+
+緩存頭（Cache Headers）:
+
+```
+緩存頭用於告訴服務器和客戶端是否可以重用先前的響應數據。
+Cloudscraper 可以模仿瀏覽器的緩存行為，讓請求看起來更自然。
+```
+
+```Python
+import cloudscraper
+
+# 創建 Cloudscraper 會話
+scraper = cloudscraper.create_scraper()
+
+# 發送請求，處理 Cookies 和緩存
+url = "https://example.com"
+response = scraper.get(url)
+
+# 查看自動處理的 Cookies
+print("Cookies:", scraper.cookies)
+
+# 查看響應內容
+print("Response:", response.text)
+```
+
+持久化 Cookies
+
+如果需要在多個請求中共享 Cookies，可以使用 requests.Session 的方式結合 Cloudscraper：
+
+```Python
+import cloudscraper
+
+# 創建持久化會話
+scraper = cloudscraper.create_scraper(sess=True)
+
+# 第一次請求，設置 Cookies
+response = scraper.get("https://example.com")
+print("Initial Cookies:", scraper.cookies)
+
+# 第二次請求，自動攜帶 Cookies
+response = scraper.get("https://example.com/some-page")
+print("Cookies after second request:", scraper.cookies)
+```
+
+## 代理支持 proxies
+
+```
+proxies = {
+    "http": "http://your_proxy_address",
+    "https": "http://your_proxy_address",
+}
+scraper = cloudscraper.create_scraper()
+response = scraper.get("https://example.com", proxies=proxies)
 ```

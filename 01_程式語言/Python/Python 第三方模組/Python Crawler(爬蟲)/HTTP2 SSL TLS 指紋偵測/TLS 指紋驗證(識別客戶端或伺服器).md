@@ -31,9 +31,23 @@ TLS 指紋驗證 是一種用於識別客戶端或伺服器在 TLS/SSL 連線中
 
 [Python爬虫-Cloudflare五秒盾-绕过TLS指纹](https://blog.csdn.net/weixin_50079790/article/details/134261063)
 
-###
+### 工具
 
 [工具（例如 JA3 Fingerprinting）](https://github.com/salesforce/ja3)
+
+[How to Bypass Cloudflare in Python - 如何在 Python 中繞過 Cloudflare](https://www.zenrows.com/blog/bypass-cloudflare-python#curl-cfi)
+
+### 教學
+
+[Cloudflare bypass python -  解決 Cloudflare](https://stackoverflow.com/questions/75714848/cloudflare-bypass-python)
+
+[Евгений Слайковский | Как добывать данные, когда их не хотят отдавать - Cloudflare bypass python 解決 Cloudflare](https://www.youtube.com/watch?v=eA-NzVJ0Tsg&list=LL&t=345s)
+
+[破解反爬蟲的方法](https://steam.oxxostudio.tw/category/python/spider/crack-spider.html)
+
+[爬虫：绕过5秒盾Cloudflare和DDoS-GUARD](log.csdn.net/gwb0516/article/details/132446314)
+
+[Cloudscraper 项目常见问题解决方案](https://blog.csdn.net/gitblog_07036/article/details/142231852)
 
 # 規避 TLS 指紋驗證的常見方法
 
