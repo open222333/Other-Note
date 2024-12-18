@@ -45,9 +45,29 @@ TLS 指紋驗證 是一種用於識別客戶端或伺服器在 TLS/SSL 連線中
 
 [破解反爬蟲的方法](https://steam.oxxostudio.tw/category/python/spider/crack-spider.html)
 
+#### Cloudscraper
+
 [爬虫：绕过5秒盾Cloudflare和DDoS-GUARD - 搭配 FlareSolverr](https://blog.csdn.net/gwb0516/article/details/132446314)
 
 [Cloudscraper 项目常见问题解决方案](https://blog.csdn.net/gitblog_07036/article/details/142231852)
+
+[请教：cloudflare如何跳过 Just a moment](https://linux.do/t/topic/54243/16)
+
+[使用CLOUDSCRAPER捅穿CLOUD FLARE的5秒盾](https://www.cnblogs.com/yoyo1216/p/17356845.html)
+
+[Cloudscraper：Python模块助力绕过Cloudflare反机器人页面](https://cloud.baidu.com/article/3209716)
+
+[Python cloudscraper requests slow, with 403 responses](https://stackoverflow.com/questions/70633736/python-cloudscraper-requests-slow-with-403-responses)
+
+[How to Use Cloudscraper in Python: 2024 Guide](https://iproyal.com/blog/cloudscraper/)
+
+[Anorov/cloudflare-scrape - Getting "just a moment" #77](https://github.com/Anorov/cloudflare-scrape/issues/77)
+
+#### FlareSolverr
+
+[flaresolverr dockerhub](https://hub.docker.com/r/flaresolverr/flaresolverr)
+
+[FlareSolverr Tutorial: Scrape Cloudflare Sites](https://www.zenrows.com/blog/flaresolverr)
 
 # 規避 TLS 指紋驗證的常見方法
 
