@@ -13,7 +13,7 @@
     - [Docker Hub相關](#docker-hub相關)
     - [範例相關](#範例相關)
 - [安裝](#安裝)
-  - [RedHat (CentOS)](#redhat-centos)
+  - [RedHat (CentOS 7)](#redhat-centos-7)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [Windows 10](#windows-10)
     - [安裝 Docker Desktop（包含 Docker 和 Docker Compose）](#安裝-docker-desktop包含-docker-和-docker-compose)
@@ -131,9 +131,12 @@
 
 # 安裝
 
-## RedHat (CentOS)
+## RedHat (CentOS 7)
 
 ```bash
+# 確保 yum 工具本身是最新版本
+yum update -y yum
+
 # 設置存儲庫
 yum install -y yum-utils
 yum-config-manager \

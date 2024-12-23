@@ -21,13 +21,17 @@
 - [Golang monstache(同步 MongoDB 數據到 Elasticsearch 的工具)](#golang-monstache同步-mongodb-數據到-elasticsearch-的工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
+    - [狀況相關](#狀況相關)
+      - [Location17138](#location17138)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
   - [配置文檔](#配置文檔)
+    - [僅記錄失敗的紀錄](#僅記錄失敗的紀錄)
 - [腳本範例(放在 toml 檔 \[\[script\]\])](#腳本範例放在-toml-檔-script)
   - [自動生成別名](#自動生成別名)
 - [狀況](#狀況)
+  - [(Location17138) Invalid input namespace, admin](#location17138-invalid-input-namespace-admin)
   - [Failed to parse with all enclosed parsers](#failed-to-parse-with-all-enclosed-parsers)
   - [ERROR 2024/07/19 04:50:26 Bulk response item: {"\_index":"index","\_type":"\_doc","\_id":"65f2a46e063d9e005e655f2c","status":400,"error":{"type":"illegal\_argument\_exception","reason":"Limit of total fields \[1000\] has been exceeded"}}](#error-20240719-045026-bulk-response-item-_indexindex_type_doc_id65f2a46e063d9e005e655f2cstatus400errortypeillegal_argument_exceptionreasonlimit-of-total-fields-1000-has-been-exceeded)
   - [處理特定字段的數據轉換](#處理特定字段的數據轉換)
@@ -41,6 +45,14 @@
 [Monstache](https://rwynn.github.io/monstache-site/start/)
 
 [從mongodb到elasticsearch的實時同步 - 包含分詞器](https://www.cxyzjd.com/article/zhangyonguu/80914496)
+
+### 狀況相關
+
+#### Location17138
+
+[Error starting change stream #229](https://github.com/rwynn/monstache/issues/229)
+
+[Error with direct-read-namespaces with monstache v6.0.8](https://github.com/rwynn/monstache/issues/247)
 
 # 安裝
 
@@ -254,6 +266,24 @@ module.exports = function (doc, ns) {
 """
 ```
 
+### 僅記錄失敗的紀錄
+
+```ini
+mongo-url = "mongodb://localhost:27017"
+elasticsearch-urls = ["http://localhost:9200"]
+
+# 基本同步設置
+namespace-regex = '^mydb\\.mycollection$'
+verbose = false           # 僅記錄錯誤
+exit-after-direct-reads = false
+
+# 可選：自定義錯誤日誌存放位置
+logfile = "/path/to/failed.log"
+resume = true
+resume-name = "default"
+
+```
+
 # 腳本範例(放在 toml 檔 \[\[script\]\])
 
 ## 自動生成別名
@@ -354,6 +384,20 @@ module.exports = function (doc, ns, raw) {
 ```
 
 # 狀況
+
+## (Location17138) Invalid input namespace, admin
+
+`不支持在 admin 資料庫上啟用變更流`
+
+MongoDB 的變更流（Change Stream）不支持針對 admin 資料庫使用，因為該資料庫主要存儲系統配置。
+
+`權限不足或配置不當`
+
+如果 MongoDB 使用者帳戶權限不足，可能會導致 Monstache 無法正確訪問資料庫。
+
+`無效的命名空間`
+
+如果 direct-read-namespaces 配置的命名空間格式錯誤（例如拼寫錯誤或資料庫名稱不存在），也可能導致類似的錯誤。
 
 ## Failed to parse with all enclosed parsers
 
