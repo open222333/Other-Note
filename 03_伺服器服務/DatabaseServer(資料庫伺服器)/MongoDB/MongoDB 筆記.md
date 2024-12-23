@@ -40,6 +40,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
     - [備份腳本相關](#備份腳本相關)
     - [例外相關](#例外相關)
     - [指令相關](#指令相關)
+    - [升級相關](#升級相關)
 - [安裝](#安裝)
   - [Docker部署](#docker部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
@@ -48,6 +49,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
   - [防火牆設定](#防火牆設定)
     - [CentOS Database tool](#centos-database-tool)
   - [MacOS](#macos)
+- [升級](#升級)
 - [指令](#指令)
   - [匯入匯出](#匯入匯出)
 - [資料庫指令](#資料庫指令)
@@ -119,6 +121,12 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 [mongorestore reference page(文檔) - 匯入](https://docs.mongodb.com/database-tools/mongorestore/#mongodb-binary-bin.mongorestore)
 
 [mongorestore - 匯入 中文文檔](https://www.docs4dev.com/docs/zh/mongodb/v3.6/reference/reference-program-mongorestore.html)
+
+### 升級相關
+
+[MongoDB Versioning](https://www.mongodb.com/zh-cn/docs/v6.0/reference/versioning/#std-label-release-version-numbers)
+
+[升级到MongoDB的最新自我管理补丁版本](https://www.mongodb.com/zh-cn/docs/v6.0/tutorial/upgrade-revision/)
 
 # 安裝
 
@@ -297,6 +305,11 @@ ps -ef|grep mongod
 	27017
 	# 日誌的位置
 	/var/log/mongodb/mongod.log
+```
+
+# 升級
+
+```
 ```
 
 # 指令

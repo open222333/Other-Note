@@ -1,7 +1,8 @@
 # Linux CentOS 筆記
 
 ```
-
+CentOS 7 在 2024 年 6 月已進入維護結束階段，官方不再提供更新。
+如果仍需使用 CentOS 7，請切換到 Vault 存儲庫（已存檔的鏡像源）。
 ```
 
 ## 目錄
@@ -14,8 +15,11 @@
 - [SELinux工具程式](#selinux工具程式)
 - [CentOS 7 網路指令](#centos-7-網路指令)
 - [例外狀況](#例外狀況)
+  - [failure: repodata/repomd.xml from base: \[Errno 256\] No more mirrors to try.](#failure-repodatarepomdxml-from-base-errno-256-no-more-mirrors-to-try)
   - [curl: (35) Cannot communicate securely with peer: no common encryption algorithm(s).](#curl-35-cannot-communicate-securely-with-peer-no-common-encryption-algorithms)
 - [專案放置建議](#專案放置建議)
+- [切換到 Vault 存儲庫(CentOS7 失效)](#切換到-vault-存儲庫centos7-失效)
+- [切換到 vpnforgame 存儲庫](#切換到-vpnforgame-存儲庫)
 
 ## 參考資料
 
@@ -223,6 +227,25 @@ nmcli networking on
 
 # 例外狀況
 
+## failure: repodata/repomd.xml from base: [Errno 256] No more mirrors to try.
+
+```
+CentOS 7 在 2024 年 6 月已進入維護結束階段，官方不再提供更新。
+如果仍需使用 CentOS 7，請切換到 Vault 存儲庫（已存檔的鏡像源）。
+
+failure: repodata/repomd.xml from base: [Errno 256] No more mirrors to try.
+http://mirrors.linode.com/centos/7/os/x86_64/repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found
+```
+
+```
+考慮升級操作系統
+由於 CentOS 7 已停止更新，建議考慮以下選項：
+
+升級到 Rocky Linux 8/9 或 AlmaLinux 8/9：這些是 CentOS 的免費替代品。
+切換到 CentOS Stream：適合需要最新套件的用戶。
+遷移到 RHEL（Red Hat Enterprise Linux）：可以使用 RHEL 的免費開發者訂閱。
+```
+
 ## curl: (35) Cannot communicate securely with peer: no common encryption algorithm(s).
 
 ```bash
@@ -283,3 +306,125 @@ yum update curl -y
 
 根據需要，你也可以在根目錄下創建一個自定義目錄來存放專案。
 例如，將專案放置在 /srv/your_project 或 /data/your_project。
+
+# 切換到 Vault 存儲庫(CentOS7 失效)
+
+編輯 CentOS 的 YUM 配置文件，將官方源替換為 Vault 源：
+
+修改存儲庫文件
+
+將 baseurl 修改為 Vault 地址
+
+檢查存儲庫是否正確設置為 http://vault.centos.org/7/
+
+```
+vault.centos.org
+```
+
+```sh
+sed -i 's|mirrorlist=|#mirrorlist=|g' /etc/yum.repos.d/CentOS-Base.repo
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Base.repo
+```
+
+檢查 CentOS-Base.repo 文件是否正確指向 Vault
+
+```sh
+cat /etc/yum.repos.d/CentOS-Base.repo
+```
+
+應該包含類似以下內容
+
+```ini
+[base]
+name=CentOS-$releasever - Base
+baseurl=http://vault.centos.org/7/os/$basearch/
+enabled=1
+gpgcheck=1
+
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://vault.centos.org/7/updates/$basearch/
+enabled=1
+gpgcheck=1
+
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://vault.centos.org/7/extras/$basearch/
+enabled=1
+gpgcheck=1
+```
+
+```ini
+[base]
+name=CentOS-$releasever - Base
+baseurl=http://vault.centos.org/7/os/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://vault.centos.org/7/updates/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://vault.centos.org/7/extras/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[centosplus]
+name=CentOS-$releasever - Plus
+baseurl=http://vault.centos.org/7/centosplus/$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+```
+
+清除本地快取並重新下載存儲庫數據
+
+```sh
+yum clean all
+yum makecache
+```
+
+確保伺服器可以訪問網絡並解析域名
+
+```sh
+ping -c 4 vault.centos.org
+ping -c 4 mirrors.aliyun.com
+```
+
+使用清華大學的鏡像 (失效)
+
+```sh
+curl -o /etc/yum.repos.d/CentOS-Base.repo https://mirrors.tuna.tsinghua.edu.cn/repos/CentOS-Base.repo
+```
+
+清除本地快取並重新下載存儲庫數據
+
+```sh
+yum clean all
+yum makecache
+```
+
+# 切換到 vpnforgame 存儲庫
+
+檢查鏡像的狀態 執行以下命令，確認是否能正常訪問鏡像源
+
+```sh
+curl -I http://mirrors.vpnforgame.net/centos/7/
+curl -I http://mirrors.vpnforgame.net/epel/7/
+```
+
+```sh
+curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.vpnforgame.net/centos/7/CentOS-Base.repo
+curl -o /etc/yum.repos.d/epel.repo http://mirrors.vpnforgame.net/epel/7/epel.repo
+```
+
+清除本地快取並重新下載存儲庫數據
+
+```sh
+yum clean all
+yum makecache
+```
