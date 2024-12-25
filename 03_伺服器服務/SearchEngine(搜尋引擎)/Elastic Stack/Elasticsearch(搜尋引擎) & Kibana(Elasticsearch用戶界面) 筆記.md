@@ -114,6 +114,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [安裝步驟 docker-compose](#安裝步驟-docker-compose)
   - [安裝步驟 Elasticsearch Docker](#安裝步驟-elasticsearch-docker)
   - [安裝步驟 CentOS7](#安裝步驟-centos7)
+    - [移除 CentOS7](#移除-centos7)
   - [安裝步驟 ik分詞器](#安裝步驟-ik分詞器)
     - [docker 安裝 ik分詞器](#docker-安裝-ik分詞器)
     - [自定義 ik 的啟用詞和停用詞](#自定義-ik-的啟用詞和停用詞)
@@ -1025,7 +1026,7 @@ systemctl enable --now elasticsearch
 curl http://127.0.0.1:9200
 
 # 在 CentOS 7 上安裝 Kibana 7
-yum install kibana-oss logstash
+yum -y install kibana-oss logstash
 
 # 配置 Kibana
 vi /etc/kibana/kibana.yml
@@ -1044,6 +1045,42 @@ iptables -A INPUT -p tcp --dport 9200 -j ACCEPT
 firewall-cmd --add-port=5601/tcp --permanent
 firewall-cmd --add-port=9200/tcp --permanent
 firewall-cmd --reload
+```
+
+### 移除 CentOS7
+
+移除軟件包
+
+```sh
+yum -y remove kibana-oss logstash
+yum -y remove elasticsearch-oss
+```
+
+清理系統緩存
+
+清理系統中相關的緩存和未使用的依賴包
+
+```sh
+yum clean all
+package-cleanup --leaves
+package-cleanup --orphans
+```
+
+刪除配置文件和日誌（可選）
+
+```sh
+rm -rf /etc/kibana /var/log/kibana
+rm -rf /etc/logstash /var/log/logstash /usr/share/logstash
+```
+
+刪除配置文件和數據（可選）
+
+徹底刪除 Elasticsearch 的配置文件和數據，可以執行以下操作（請謹慎操作，確保重要數據已備份）
+
+```sh
+rm -rf /etc/elasticsearch
+rm -rf /var/lib/elasticsearch
+rm -rf /var/log/elasticsearch
 ```
 
 ## 安裝步驟 ik分詞器

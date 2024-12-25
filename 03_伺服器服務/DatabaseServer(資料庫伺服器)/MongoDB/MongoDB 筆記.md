@@ -50,6 +50,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
     - [CentOS Database tool](#centos-database-tool)
   - [MacOS](#macos)
 - [升級](#升級)
+  - [RedHat (CentOS7)](#redhat-centos7)
 - [指令](#指令)
   - [匯入匯出](#匯入匯出)
 - [資料庫指令](#資料庫指令)
@@ -73,6 +74,8 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 [mongodb 手冊](https://www.mongodb.com/docs/manual/)
 
 [mongodb 下載地址](https://www.mongodb.com/download-center#community)
+
+[mongo 官方 dockerhub](https://hub.docker.com/_/mongo)
 
 ### 安裝相關
 
@@ -309,7 +312,52 @@ ps -ef|grep mongod
 
 # 升級
 
+`注意事項`
+
 ```
+版本升級策略：檢查升級指南，確保從當前版本到目標版本的升級路徑是受支持的。例如，從 3.x 到 4.x 的升級可能需要先升級到 4.0，再升級到 4.4。
+
+備份數據：升級前務必備份數據，以防升級失敗導致數據丟失。
+
+升級後測試：升級完成後，測試應用程序與 MongoDB 的兼容性。
+```
+
+## RedHat (CentOS7)
+
+備份數據 在升級之前，務必備份 MongoDB 數據
+
+```sh
+mongodump --out /path/to/backup
+```
+
+編輯 MongoDB 的存儲庫 根據目標版本更新 /etc/yum.repos.d/mongodb-org.repo
+
+```ini
+[mongodb-org-4.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
+```
+
+清理 YUM 緩存
+
+```sh
+yum clean all
+```
+
+升級 MongoDB 軟件包
+
+```sh
+yum update mongodb-org
+```
+
+重啟 MongoDB 並驗證升級
+
+```sh
+systemctl restart mongod
+mongod --version
 ```
 
 # 指令
