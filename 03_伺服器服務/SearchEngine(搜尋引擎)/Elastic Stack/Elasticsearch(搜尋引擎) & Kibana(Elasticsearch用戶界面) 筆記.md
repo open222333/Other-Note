@@ -130,6 +130,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
     - [ES\_JAVA\_OPTS(取代ES\_HEAP\_SIZE)](#es_java_opts取代es_heap_size)
 - [集群 Cluster](#集群-cluster)
 - [解說](#解說)
+  - [](#)
   - [\_source 字段](#_source-字段)
   - [\_meta 字段](#_meta-字段)
   - [段（Segments）和緩存（Cache）](#段segments和緩存cache)
@@ -1726,6 +1727,95 @@ elasticsearch:
 - 啟動彈性搜索。節點自動發現並加入指定的集群。要將節點添加到在多台機器上運行的集群中，還必須設置 discovery.seed_hosts 以便新節點可以發現其集群的其餘部分
 
 # 解說
+
+##
+
+Elasticsearch 的索引數據並不是直接存放在記憶體內，而是以磁碟為主，記憶體為輔的方式進行存儲和操作。以下是詳細說明：
+
+`索引數據的主要存放位置：磁碟`
+
+物理存儲：
+
+Elasticsearch 的索引數據（文檔、倒排索引等）是存儲在磁碟上的。具體來說，數據存放在由 Elasticsearch 配置的 path.data 路徑下，通常為：
+
+```bash
+/var/lib/elasticsearch
+```
+
+Lucene 的存儲：
+
+Elasticsearch 的核心是基於 Apache Lucene，每個索引由多個段（segments）組成。
+
+這些段包含倒排索引、存儲的字段值、以及其他數據結構。
+
+`記憶體的角色：讀取和加速操作`
+
+雖然索引主要存放在磁碟上，但 Elasticsearch 會大量使用記憶體來提升查詢和操作性能。記憶體的用途包括：
+
+```
+(1) 文件系統緩存：
+    文件緩存：
+        操作系統會利用空閒記憶體來緩存經常訪問的索引文件。
+        這樣，查詢數據時可以直接從記憶體中的文件緩存中讀取，而不是每次都從磁碟讀取，從而顯著提高性能。
+        這種緩存是由操作系統自動管理的，並不是 Elasticsearch 的專有功能。
+
+(2) JVM 堆內存（Heap Memory）：
+    數據結構緩存：
+        Elasticsearch 使用 JVM 堆內存來存放一些數據結構，比如：
+            查詢上下文（Query Context）：臨時緩存查詢相關的數據。
+            字段資料緩存（Field Data Cache）：用於支持聚合查詢的字段資料。
+            集群狀態（Cluster State）：存放節點、索引元數據等重要信息。
+
+(3) Elasticsearch 的緩存機制：
+    節點緩存：
+        Elasticsearch 自身提供一些緩存機制，比如：
+            查詢結果緩存：緩存常見查詢的結果。
+            字段資料緩存：用於存儲基於字段值的計算結果。
+    索引緩存：
+        索引的部分數據結構（如倒排索引）可能會被部分載入記憶體，以加快搜尋。
+```
+
+`索引存放在記憶體內的情況`
+
+雖然索引整體不是存放在記憶體中，但有以下情況會使用記憶體進行存儲：
+
+```
+(1) ElasticSearch 的行為：
+熱門數據：經常查詢的數據和索引文件會被操作系統緩存到記憶體中。
+緩存策略：查詢相關的中間結果可能會存放在 JVM 堆內存中。
+
+(2) 使用內存索引：
+如果需要將數據完全放在記憶體中，可以使用 Elasticsearch 提供的內存索引（Memory Index）。
+這種索引是基於 index.store.type 設置為 memory，適合測試或非常高效能但短期存儲的需求（不持久化到磁碟）。
+```
+
+`如何檢查記憶體使用情況`
+
+文件系統緩存： 使用 free -h 或 top 查看系統記憶體的緩存使用。
+
+Elasticsearch 緩存：
+
+查看緩存統計信息：
+
+```bash
+curl -X GET "http://your_elasticsearch_host:9200/_nodes/stats/indices?pretty"
+```
+
+可以查看 fielddata 和 query_cache 的使用情況。
+
+磁碟存儲情況： 使用 _cat/indices 查看各索引的磁碟使用量：
+
+```bash
+curl -X GET "http://your_elasticsearch_host:9200/_cat/indices?v&h=index,store.size"
+```
+
+總結
+
+```
+索引存儲主要在磁碟。
+記憶體用於加速查詢和操作，通過緩存或 JVM 堆內存來提升性能。
+如果完全需要記憶體索引，可以通過特殊配置來實現，但不建議用於持久性需求。
+```
 
 ## _source 字段
 
