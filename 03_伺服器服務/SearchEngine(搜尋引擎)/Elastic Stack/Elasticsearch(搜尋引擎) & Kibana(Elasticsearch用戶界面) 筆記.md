@@ -132,6 +132,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 - [解說](#解說)
   - [\_source 字段](#_source-字段)
   - [\_meta 字段](#_meta-字段)
+  - [段（Segments）和緩存（Cache）](#段segments和緩存cache)
 - [操作](#操作)
   - [指令 API](#指令-api)
     - [index(索引)](#index索引)
@@ -142,6 +143,9 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
       - [取得所有資料](#取得所有資料)
       - [隨機取資料](#隨機取資料)
     - [Slow Log](#slow-log-1)
+    - [查看索引統計數據](#查看索引統計數據)
+    - [檢視索引總大小](#檢視索引總大小)
+    - [查看記憶體使用量](#查看記憶體使用量)
   - [Kibana(後台)](#kibana後台)
     - [查看 Slow Log](#查看-slow-log)
     - [設定](#設定)
@@ -1812,6 +1816,67 @@ _source 字段保存了原始的文檔數據，允許在查詢時檢索完整的
 
 _meta 字段保存了映射的元數據，幫助你管理和理解索引的結構和用途，但不會被索引或搜索。
 
+## 段（Segments）和緩存（Cache）
+
+[查看記憶體使用量 指令](#查看記憶體使用量)
+
+段與緩存的關係
+
+```
+查詢數據時，Elasticsearch 會先嘗試從緩存中讀取結果。
+如果緩存中沒有命中，則會從段中讀取數據並執行查詢，查詢結果可能會緩存起來以供下次使用。
+```
+
+`段 是 Elasticsearch 將索引中的數據儲存於磁碟上的基本單位`
+
+**段的工作原理：**
+
+寫入流程：
+
+```
+當數據被寫入索引時，Elasticsearch 會將數據先寫到 內存中的緩衝區（translog）。
+週期性地將緩衝區中的數據刷新（flush）到磁碟，生成新的段。
+```
+
+段的特性：
+
+```
+每個段是不可變的（Immutable）。
+索引內的分片由多個段組成。
+段在數量多時會觸發段合併（Merge），減少數量、提高查詢效率。
+```
+
+`緩存是 Elasticsearch 用於提升查詢性能的內存機制。`
+
+**緩存類型：**
+
+```
+查詢緩存（Query Cache）
+字段資料緩存（Fielddata Cache）
+節點緩存（Node Cache）
+```
+
+`查詢緩存（Query Cache）`
+
+```
+用於儲存頻繁查詢的結果，適合重複性高的查詢。
+緩存命中率高時可大幅減少磁碟讀取。
+使用情境：範圍查詢、聚合操作等。
+```
+
+`字段資料緩存（Fielddata Cache）`
+
+```
+用於緩存字段的資料結構，特別是需要排序或聚合的字段。
+主要對 text 類型 不起作用（需轉換為 keyword 或使用 doc values）。
+```
+
+`節點緩存（Node Cache）`
+
+```
+包括文件緩存和數據快取，用於加速磁碟 IO 操作。
+```
+
 # 操作
 
 ## 指令 API
@@ -2369,6 +2434,123 @@ curl -X PUT "localhost:9200/my-index-000001/_settings?pretty" -H 'Content-Type: 
 curl -X GET "localhost:9200/_cat/indices?v"
 curl -X GET "localhost:9200/_cat/indices/my-index-slowlog-2022.04.15?v&s=index&pretty"
 ```
+
+### 查看索引統計數據
+
+可以查看索引的存儲大小和內存緩存等詳細信息
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_stats?pretty"
+```
+
+```
+docs.count: 索引中的文檔總數。
+docs.deleted: 被刪除的文檔數量。
+indexing.index_total: 索引中寫入的總文檔數。
+indexing.index_time_in_millis: 索引操作總共消耗的時間（毫秒）。
+indexing.index_current: 當前正處於寫入操作中的文檔數。
+```
+
+```json
+"indices": {
+  "20241225": {
+    "primaries": {
+      "store": {
+        "size_in_bytes": 104857600,     # 索引總大小（主分片）
+        "total_data_set_size_in_bytes": 157286400  # 包含副本的總大小
+      },
+      "segments": {
+        "memory_in_bytes": 5242880,    # 段在內存中的大小
+        "terms_memory_in_bytes": 2097152,   # 詞項數據佔用內存
+        "stored_fields_memory_in_bytes": 1048576,  # 存儲字段佔用內存
+        "norms_memory_in_bytes": 1048576,   # 規範數據佔用內存
+        "doc_values_memory_in_bytes": 1048576 # 文檔值佔用內存
+      }
+    }
+  }
+}
+```
+
+### 檢視索引總大小
+
+```sh
+GET _cat/indices/20241225*?v&h=index,store.size,pri.store.size
+```
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_cat/indices/20241225*?v&h=index,store.size,pri.store.size"
+```
+
+```
+index                   store.size   pri.store.size
+20241225.short 100mb       50mb
+20241225.long  150mb       75mb
+
+store.size：索引的總存儲大小（包含副本）。
+pri.store.size：索引的主分片存儲大小（不含副本）。
+```
+
+### 查看記憶體使用量
+
+[段（Segments）和緩存（Cache） 解說](#段segments和緩存cache)
+
+段記憶體
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/{{index}}/_stats/segments?pretty"
+```
+
+```
+segments.count：段的數量。
+segments.memory_in_bytes：段在內存中的使用大小（以字節為單位）。
+segments.index_writer_memory_in_bytes：寫入段時使用的內存大小。
+segments.version_map_memory_in_bytes：管理版本控制的內存使用。
+```
+
+緩存記憶體
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_nodes/stats/indices?pretty"
+```
+
+查看查詢緩存統計
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_nodes/stats/indices/query_cache?pretty"
+```
+
+```
+query_cache.memory_size_in_bytes：查詢緩存使用的內存大小。
+query_cache.hit_count：緩存命中的次數。
+query_cache.miss_count：緩存未命中的次數。
+```
+
+查看字段資料緩存統計
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_nodes/stats/indices/fielddata?pretty"
+```
+
+```
+fielddata.memory_size_in_bytes：字段資料緩存使用的內存大小。
+fielddata.evictions：字段資料緩存被驅逐的次數。
+```
+
+查看節點記憶體使用狀況
+
+```sh
+curl -X GET "http://your_elasticsearch_host:9200/_nodes/stats?pretty"
+```
+
+```
+os.mem.used_in_bytes：當前節點的內存使用量。
+os.mem.free_in_bytes：可用內存大小。
+```
+
+段與緩存的關係
+
+查詢數據時，Elasticsearch 會先嘗試從緩存中讀取結果。
+如果緩存中沒有命中，則會從段中讀取數據並執行查詢，查詢結果可能會緩存起來以供下次使用。
 
 ## Kibana(後台)
 
@@ -3431,6 +3613,8 @@ curl -u username:password -X GET "http://your_elasticsearch_host:9200/_cluster/h
 
 `查看 Elasticsearch 索引的索引統計數據`
 
+可以查看索引的存儲大小和內存緩存等詳細信息
+
 ```sh
 curl -X GET "http://your_elasticsearch_host:9200/_stats?pretty"
 ```
@@ -3441,6 +3625,26 @@ docs.deleted: 被刪除的文檔數量。
 indexing.index_total: 索引中寫入的總文檔數。
 indexing.index_time_in_millis: 索引操作總共消耗的時間（毫秒）。
 indexing.index_current: 當前正處於寫入操作中的文檔數。
+```
+
+```json
+"indices": {
+  "20241225": {
+    "primaries": {
+      "store": {
+        "size_in_bytes": 104857600,     # 索引總大小（主分片）
+        "total_data_set_size_in_bytes": 157286400  # 包含副本的總大小
+      },
+      "segments": {
+        "memory_in_bytes": 5242880,    # 段在內存中的大小
+        "terms_memory_in_bytes": 2097152,   # 詞項數據佔用內存
+        "stored_fields_memory_in_bytes": 1048576,  # 存儲字段佔用內存
+        "norms_memory_in_bytes": 1048576,   # 規範數據佔用內存
+        "doc_values_memory_in_bytes": 1048576 # 文檔值佔用內存
+      }
+    }
+  }
+}
 ```
 
 查看特定索引的統計資料，可以指定索引名稱
@@ -3533,4 +3737,3 @@ curl -X GET "http://your_elasticsearch_host:9200/your_index_name/_settings?prett
 通常批次寫入操作會在指定的時間間隔內觸發。可以檢查是否有過於頻繁或大量的批次操作（例如，每次大量的資料批次寫入）。
 
 檢查應用程式的日誌，查找批次操作的時間戳和操作量，以確定是否有異常高的寫入頻率。
-
