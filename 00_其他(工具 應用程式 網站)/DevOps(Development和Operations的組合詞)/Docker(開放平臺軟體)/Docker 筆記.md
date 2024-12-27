@@ -51,6 +51,7 @@
     - [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
     - [連線 主機別名](#連線-主機別名)
 - [例外狀況](#例外狀況)
+  - [KeyError: 'ContainerConfig' \[26571\] Failed to execute script docker-compose](#keyerror-containerconfig-26571-failed-to-execute-script-docker-compose)
   - [ERROR: Service 'api' failed to build : Error processing tar file(exit status 1)](#error-service-api-failed-to-build--error-processing-tar-fileexit-status-1)
   - [log造成硬碟沒有空間](#log造成硬碟沒有空間)
     - [Container Log 預設路徑：](#container-log-預設路徑)
@@ -1315,6 +1316,41 @@ services:
 ```
 
 # 例外狀況
+
+## KeyError: 'ContainerConfig' [26571] Failed to execute script docker-compose
+
+可能原因與解決方法
+
+**`Docker 版本不匹配`**
+
+```sh
+docker --version
+docker-compose --version
+```
+
+解決方法：更新 Docker 和 docker-compose
+
+```sh
+yum update -y
+curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+```
+
+**`損壞的容器或數據`**
+
+存在損壞的舊容器或數據，可能會導致此錯誤。
+
+停止並刪除相關容器
+
+```sh
+docker-compose down
+docker ps -a | grep elasticsearch | awk '{print $1}' | xargs docker rm -f
+docker volume prune -f
+```
+
+**`Docker Compose 文件問題`**
+
+**`舊容器的殘留配置`**
 
 ## ERROR: Service 'api' failed to build : Error processing tar file(exit status 1)
 
