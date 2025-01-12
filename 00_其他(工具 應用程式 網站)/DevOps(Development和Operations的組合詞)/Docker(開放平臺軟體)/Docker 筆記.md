@@ -446,7 +446,7 @@ systemctl status docker
 # 重新啟動
 systemctl restart docker
 # 停止服務
-systemctl stop docker
+systemctl stop docker.socket
 # 開機啟動
 systemctl enable docker
 # 停止 Docker 在開機時自動啟動

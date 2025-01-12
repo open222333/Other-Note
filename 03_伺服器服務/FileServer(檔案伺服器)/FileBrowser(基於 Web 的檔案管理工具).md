@@ -118,7 +118,7 @@ filebrowser config set --port 8080 --address 0.0.0.0
 
 ## 配置文檔
 
-通常在 ``
+通常在 `/srv/.filebrowser.json`
 
 ### 基本範例
 
@@ -174,4 +174,77 @@ filebrowser config set --scope /path/to/your/directory
 
 ```sh
 filebrowser config set --cert /path/to/cert.pem --key /path/to/key.pem
+```
+
+## 配置 Filebrowser 的基本驗證和授權
+
+啟動 Filebrowser 並登錄管理後台
+
+使用 docker exec -it <container_id> sh 進入容器。
+
+```sh
+filebrowser users add admin admin --perm.admin
+```
+
+限制匿名訪問
+
+登入 Filebrowser 的 Web 界面。
+
+停用匿名使用者或設置允許的使用者和群組。
+
+## 在 Docker 網絡層面限制 IP
+
+創建 Docker 的自定義網絡
+
+```sh
+docker network create \
+  --subnet=192.168.1.0/24 \
+  restricted_network
+```
+
+將 Filebrowser 加入該網絡
+
+```yml
+version: "3.9"
+services:
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    ports:
+      - "8080:80"
+    networks:
+      restricted_network:
+        ipv4_address: 192.168.1.100
+    volumes:
+      - ./data:/srv
+    restart: unless-stopped
+
+networks:
+  restricted_network:
+    external: true
+```
+
+限制該網絡的流量
+
+使用防火牆（如 iptables）規則限制流量到特定的網絡範圍。
+
+# 自行修改 Filebrowser 源碼
+
+```sh
+git clone https://github.com/filebrowser/filebrowser.git
+cd filebrowser
+```
+
+添加 IP 檢查邏輯 編輯 src/http.go 或類似處理 HTTP 請求的代碼，添加限制邏輯
+
+```go
+func ipFilter(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        allowedIP := "192.168.1.100" // 許可的 IP
+        if !strings.HasPrefix(r.RemoteAddr, allowedIP) {
+            http.Error(w, "Forbidden", http.StatusForbidden)
+            return
+        }
+        next.ServeHTTP(w, r)
+    })
+}
 ```
