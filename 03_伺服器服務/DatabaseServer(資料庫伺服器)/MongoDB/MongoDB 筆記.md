@@ -40,6 +40,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
     - [備份腳本相關](#備份腳本相關)
     - [例外相關](#例外相關)
     - [指令相關](#指令相關)
+      - [鎖定資料庫](#鎖定資料庫)
     - [升級相關](#升級相關)
 - [安裝](#安裝)
   - [Docker部署](#docker部署)
@@ -66,6 +67,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
   - [特殊用法範例](#特殊用法範例)
     - [監視和診斷資料庫效能 db.currentOp()](#監視和診斷資料庫效能-dbcurrentop)
   - [連接字符串URI格式](#連接字符串uri格式)
+  - [使用 fsync 鎖定資料庫](#使用-fsync-鎖定資料庫)
 
 ## 參考資料
 
@@ -125,6 +127,10 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 
 [mongorestore - 匯入 中文文檔](https://www.docs4dev.com/docs/zh/mongodb/v3.6/reference/reference-program-mongorestore.html)
 
+#### 鎖定資料庫
+
+[db.fsyncLock()](https://www.mongodb.com/zh-cn/docs/manual/reference/method/db.fsyncLock/)
+
 ### 升級相關
 
 [MongoDB Versioning](https://www.mongodb.com/zh-cn/docs/v6.0/reference/versioning/#std-label-release-version-numbers)
@@ -152,7 +158,45 @@ services:
 
 ## Debian (Ubuntu)
 
+更新系統套件庫
+
 ```bash
+apt update
+apt upgrade -y
+```
+
+導入 MongoDB 公鑰
+
+```sh
+curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg
+```
+
+添加 MongoDB 軟體來源庫
+
+使用的是 Debian，將 ubuntu 替換為 debian
+
+```sh
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+```
+
+更新軟件包列表 安裝 MongoDB
+
+```sh
+apt update
+apt install -y mongodb-org
+```
+
+```sh
+# 啟動服務
+systemctl start mongod
+# 開機啟動
+systemctl enable mongod
+# 查詢啟動狀態
+systemctl status mongod
+# 重啟
+systemctl restart mongod
+# 停止
+systemctl stop mongod
 ```
 
 ## RedHat (CentOS)
@@ -362,9 +406,25 @@ mongod --version
 
 # 指令
 
+```sh
+# 啟動服務
+systemctl start mongod
+# 開機啟動
+systemctl enable mongod
+# 查詢啟動狀態
+systemctl status mongod
+# 重啟
+systemctl restart mongod
+# 停止
+systemctl stop mongod
+```
+
 ```bash
 # 執行檔mongodb 用來連入DB, 預設port 27017
 # 進入後指令查看下方
+# 從 MongoDB 6.0 開始，官方將 MongoDB Shell 分離為一個單獨的工具，名為 mongosh
+mongosh
+
 mongo [options] [db address] [file names (ending in .js)]
 	# db address can be:
 	# foo                   foo database on local machine
@@ -920,4 +980,20 @@ db.currentOp({
 
 ```
 mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]
+```
+
+## 使用 fsync 鎖定資料庫
+
+鎖定資料庫 (只讀模式)
+
+```JavaScript
+use admin
+db.fsyncLock()
+```
+
+解鎖資料庫
+
+```JavaScript
+use admin
+db.fsyncUnlock()
 ```

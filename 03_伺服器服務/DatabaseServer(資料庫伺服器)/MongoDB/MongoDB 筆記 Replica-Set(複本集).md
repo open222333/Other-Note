@@ -31,9 +31,14 @@ Replica Set（複本集）是MongoDB中的一個機制，用於提供數據的�
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
 - [指令](#指令)
+  - [建立 副本集](#建立-副本集)
+  - [删除](#删除)
   - [key驗證 生成key 將生成的key加入](#key驗證-生成key-將生成的key加入)
   - [MongoDB 實例配置為使用複製集 (replica set)](#mongodb-實例配置為使用複製集-replica-set)
   - [設置 主-讀寫 從-只讀不寫(主掛了不會升為主)](#設置-主-讀寫-從-只讀不寫主掛了不會升為主)
+- [例外狀況](#例外狀況)
+  - [MongoServerError\[InvalidReplicaSetConfig\]: Our replica set config is invalid or we are not a member of it](#mongoservererrorinvalidreplicasetconfig-our-replica-set-config-is-invalid-or-we-are-not-a-member-of-it)
+    - [強制重建副本集](#強制重建副本集)
 
 ## 參考資料
 
@@ -77,18 +82,29 @@ Replica Set（複本集）是MongoDB中的一個機制，用於提供數據的�
 ```bash
 # 修改 mongod.conf
 vim /etc/mongod.conf
+```
 
-# net:
-# 	port: 27017
-# 	bindIp: 0.0.0.0
+```conf
+net:
+	port: 27017
+	bindIp: 0.0.0.0
 
-# replication:
-# 	replSetName: replicaSet_name
+replication:
+	replSetName: replicaSet_name
 
-# // 加入 key驗證 功能(參考 指令 key驗證 生成key)
-# security:
-# 	keyFile: /var/lib/mongodb/mongodb-keyfile
+# 常用
+replication:
+    oplogSizeMB: 15000
+    # MongoServerError[NewReplicaSetConfigurationIncompatible]
+    # 如果名稱不一致 加入節點會提示上方錯誤
+    replSetName: RS
 
+// 加入 key驗證 功能(參考 指令 key驗證 生成key)
+security:
+	keyFile: /var/lib/mongodb/mongodb-keyfile
+```
+
+```sh
 # 生成 MongoDB keyfile
 openssl rand -base64 741 > /path/to/mongodb-keyfile
 
@@ -172,6 +188,8 @@ rs.conf()
 
 # 指令
 
+## 建立 副本集
+
 ```JavaScript
 // 進入mongodb 輸入指令
 // 進入mongo bash 指令
@@ -222,6 +240,12 @@ rs.add({host: "SECONDARY-IP:27018", priority: 0.5})
 
 // add arbiter to replica set 將仲裁器添加到副本集
 rs.addArb("ARBITER-IP:27018")
+```
+
+## 删除
+
+```JavaScript
+rs.remove("mongod3.example.net:27017")
 ```
 
 ## key驗證 生成key 將生成的key加入
@@ -278,7 +302,7 @@ mongosh --host "<hostname>:<port>"
 // 2.Retrieve the Replica Configuration
 cfg = rs.conf();
 // 3.Configure the Member to be Non-Voting
-n是ID
+// n是ID
 cfg.members[n].votes = 0;
 cfg.members[n].priority = 0;
 
@@ -301,4 +325,38 @@ cfg = rs.conf();
 cfg.members[2].votes = 0;
 cfg.members[2].priority = 0;
 rs.reconfig(cfg);
+```
+
+# 例外狀況
+
+## MongoServerError[InvalidReplicaSetConfig]: Our replica set config is invalid or we are not a member of it
+
+```
+MongoServerError[InvalidReplicaSetConfig]: Our replica set config is invalid or we are not a member of it 表示當前的節點配置不屬於副本集，或副本集的配置無效。可能的原因包括：
+
+副本集名稱（replica set name）不匹配。
+當前節點的配置在副本集設定中不存在。
+網絡連線問題導致無法與副本集的其他節點通信。
+```
+
+### 強制重建副本集
+
+停止所有 MongoDB 節點
+
+```sh
+systemctl stop mongod
+```
+
+清除現有的副本集元數據 刪除數據目錄中的所有內容（確保這些節點是全新的或數據不重要）
+
+```sh
+rm -rf /var/lib/mongodb/*
+```
+
+修改 MongoDB 配置
+在每個節點的配置文件（通常是 /etc/mongod.conf）中，設置新的副本集名稱
+
+```yaml
+replication:
+  replSetName: "newReplicaSet"
 ```
