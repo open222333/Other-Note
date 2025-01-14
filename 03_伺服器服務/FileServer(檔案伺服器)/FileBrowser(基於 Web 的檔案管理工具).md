@@ -248,3 +248,7 @@ func ipFilter(next http.Handler) http.Handler {
     })
 }
 ```
+
+# 使用 nginx 限制 ip
+
+[Other-FileBrowser](https://github.com/open222333/Other-FileBrowser)

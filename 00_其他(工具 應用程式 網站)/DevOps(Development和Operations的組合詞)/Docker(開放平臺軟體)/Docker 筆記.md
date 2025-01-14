@@ -51,6 +51,7 @@
     - [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
     - [連線 主機別名](#連線-主機別名)
 - [例外狀況](#例外狀況)
+  - [使用 Docker 容器限制日誌大小](#使用-docker-容器限制日誌大小)
   - [KeyError: 'ContainerConfig' \[26571\] Failed to execute script docker-compose](#keyerror-containerconfig-26571-failed-to-execute-script-docker-compose)
   - [ERROR: Service 'api' failed to build : Error processing tar file(exit status 1)](#error-service-api-failed-to-build--error-processing-tar-fileexit-status-1)
   - [log造成硬碟沒有空間](#log造成硬碟沒有空間)
@@ -1316,6 +1317,38 @@ services:
 ```
 
 # 例外狀況
+
+## 使用 Docker 容器限制日誌大小
+
+```yml
+version: '3.8'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./logs:/var/log/nginx  # 日誌掛載到主機
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"  # 單個日誌文件最大 10MB
+        max-file: "5"    # 保留最多 5 個輪轉日誌文件
+```
+
+使用以下命令重新啟動容器以應用配置：
+
+```sh
+docker-compose up -d
+```
+
+驗證配置是否生效：
+
+```sh
+docker inspect nginx | grep LogConfig -A 5
+```
 
 ## KeyError: 'ContainerConfig' [26571] Failed to execute script docker-compose
 
