@@ -68,6 +68,8 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
     - [監視和診斷資料庫效能 db.currentOp()](#監視和診斷資料庫效能-dbcurrentop)
   - [連接字符串URI格式](#連接字符串uri格式)
   - [使用 fsync 鎖定資料庫](#使用-fsync-鎖定資料庫)
+- [特別工具](#特別工具)
+  - [匯出匯入腳本](#匯出匯入腳本)
 
 ## 參考資料
 
@@ -996,4 +998,74 @@ db.fsyncLock()
 ```JavaScript
 use admin
 db.fsyncUnlock()
+```
+
+# 特別工具
+
+## 匯出匯入腳本
+
+```env
+# 遠端 MongoDB 設定
+REMOTE_HOST=遠端主機IP或主機名
+REMOTE_PORT=27017
+REMOTE_USER=你的用戶名
+REMOTE_PASS=你的密碼
+REMOTE_AUTH_DB=admin
+
+# 本地 MongoDB 設定
+LOCAL_HOST=127.0.0.1
+LOCAL_PORT=27017
+
+# 備份目錄
+DUMP_DIR=/tmp/mongo_backup
+```
+
+`backup_and_restore.sh`
+
+```sh
+#!/bin/bash
+
+# 載入 .env 配置
+if [ -f ".env" ]; then
+    source .env
+else
+    echo ".env 檔案不存在，請確認配置是否正確。"
+    exit 1
+fi
+
+# 建立備份目錄
+mkdir -p "$DUMP_DIR"
+
+echo "=== 開始從遠端主機匯出資料 ==="
+
+# 匯出遠端 MongoDB 資料
+if [ -n "$REMOTE_USER" ] && [ -n "$REMOTE_PASS" ]; then
+    mongodump --host "$REMOTE_HOST" --port "$REMOTE_PORT" --username "$REMOTE_USER" --password "$REMOTE_PASS" --authenticationDatabase "$REMOTE_AUTH_DB" --out "$DUMP_DIR"
+else
+    mongodump --host "$REMOTE_HOST" --port "$REMOTE_PORT" --out "$DUMP_DIR"
+fi
+
+if [ $? -ne 0 ]; then
+    echo "匯出失敗，請檢查連線與參數是否正確。"
+    exit 1
+fi
+
+echo "=== 匯出完成，備份檔案存放於 $DUMP_DIR ==="
+
+echo "=== 開始匯入到本地主機 ==="
+
+# 匯入到本地 MongoDB
+mongorestore --host "$LOCAL_HOST" --port "$LOCAL_PORT" --drop "$DUMP_DIR"
+
+if [ $? -ne 0 ]; then
+    echo "匯入失敗，請檢查本地 MongoDB 是否正在執行。"
+    exit 1
+fi
+
+echo "=== 匯入完成 ==="
+
+# 清理備份資料（選擇性）
+# rm -rf "$DUMP_DIR"
+
+echo "=== 作業完成 ==="
 ```
