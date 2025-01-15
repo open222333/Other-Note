@@ -6,8 +6,15 @@
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [GUI相關](#gui相關)
-- [安裝步驟 CentOS7](#安裝步驟-centos7)
-- [安裝步驟 Mac](#安裝步驟-mac)
+    - [安裝步驟 CentOS7](#安裝步驟-centos7)
+    - [安裝步驟 Mac](#安裝步驟-mac)
+- [安裝](#安裝)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+  - [RedHat (CentOS)](#redhat-centos)
+  - [Mac](#mac)
+- [配置文件](#配置文件)
+- [指令](#指令)
+  - [遠端測試](#遠端測試)
 - [master-slave 配置](#master-slave-配置)
   - [slave 的設定檔](#slave-的設定檔)
 
@@ -31,11 +38,29 @@
 
 [Redis GUI工具 (Mac)](https://github.com/qishibo/AnotherRedisDesktopManager/releases)
 
-# 安裝步驟 CentOS7
+### 安裝步驟 CentOS7
 
 [Centos安裝與配置Redis](https://iter01.com/569100.html)
 
 [Redis系列 - 環境建置篇](https://jed1978.github.io/2018/05/02/Redis-Environment-Installation-Configuration.html)
+
+### 安裝步驟 Mac
+
+[Install Redis on macOS](https://redis.io/docs/getting-started/installation/install-redis-on-mac-os/)
+
+# 安裝
+
+## Debian (Ubuntu)
+
+```bash
+apt update
+```
+
+```sh
+apt install redis-server -y
+```
+
+## RedHat (CentOS)
 
 ```bash
 # 新增EPEL倉庫並更新yum源
@@ -44,17 +69,6 @@ yum update -y
 
 # 安裝Redis資料庫
 yum -y install redis
-
-# 啟動服務
-systemctl start redis
-# 開機啟動
-systemctl enable redis
-# 查詢啟動狀態
-systemctl status redis
-# 重啟
-systemctl restart redis
-# 停止
-systemctl stop redis
 ```
 
 `設定檔`
@@ -74,13 +88,14 @@ equirepass pwd
 
 timeout 10
 
+# 關閉保護模式
+protected-mode no
+
 # 其他拿掉
 save ""
 ```
 
-# 安裝步驟 Mac
-
-[Install Redis on macOS](https://redis.io/docs/getting-started/installation/install-redis-on-mac-os/)
+## Mac
 
 ```bash
 # 安裝
@@ -111,6 +126,51 @@ brew services restart redis
 
 # 進入 redis
 redis-cli
+```
+
+# 配置文件
+
+`/etc/redis/redis.conf`
+
+```conf
+# 註解或改成 0.0.0.0
+bind 127.0.0.1
+bind 0.0.0.0
+
+bind 127.0.0.1 -::1
+# Redis 支援 IPv4 和 IPv6
+bind 0.0.0.0 ::1
+
+port 6379
+
+# 修改密碼
+equirepass pwd
+timeout 10
+
+# 其他拿掉
+save ""
+```
+
+# 指令
+
+```sh
+# 啟動服務
+systemctl start redis
+# 開機啟動
+systemctl enable redis
+systemctl enable redis-server
+# 查詢啟動狀態
+systemctl status redis
+# 重啟
+systemctl restart redis
+# 停止
+systemctl stop redis
+```
+
+## 遠端測試
+
+```sh
+redis-cli -h <Redis-server-IP> -p 6379
 ```
 
 # master-slave 配置

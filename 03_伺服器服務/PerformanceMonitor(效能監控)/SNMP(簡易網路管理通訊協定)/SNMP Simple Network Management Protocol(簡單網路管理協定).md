@@ -47,7 +47,7 @@ snmpwalk -c private -v 2c {IP}
 
 ```bash
 # 安裝套件
-apt install snmpd snmp
+apt install snmpd snmp -y
 
 # 修改配置
 vim /etc/snmp/snmpd.conf

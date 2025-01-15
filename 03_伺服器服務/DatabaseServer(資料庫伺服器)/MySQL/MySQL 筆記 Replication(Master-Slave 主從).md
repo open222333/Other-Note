@@ -184,7 +184,7 @@ show variables like 'log_bin%';
 ```bash
 # 停止mysql
 service mysql stop
-systemctl sstoptart mysqld
+systemctl start mysqld
 ```
 
 ```conf
@@ -345,7 +345,7 @@ CHANGE MASTER TO
 MASTER_HOST='{$master ip}',
 MASTER_PORT=3306,
 MASTER_USER='replication',
-MASTER_PASSWORD='.wFb9A?$9*WN',
+MASTER_PASSWORD='password',
 MASTER_LOG_FILE='{$master bin_log filename}',
 MASTER_LOG_POS={$log position};
 
@@ -419,6 +419,13 @@ RESET SLAVE;
 CHANGE MASTER TO
 MASTER_LOG_FILE='mysql-bin.$binlog_number',
 MASTER_LOG_POS=$postion;
+
+CHANGE MASTER TO
+  MASTER_HOST = 'IP',
+  MASTER_USER = 'replication',
+  MASTER_PASSWORD = 'password',
+  MASTER_LOG_FILE = 'mysql-bin.$binlog_number',
+  MASTER_LOG_POS =  $postion;
 
 -- 啟動 slave
 START SLAVE;
