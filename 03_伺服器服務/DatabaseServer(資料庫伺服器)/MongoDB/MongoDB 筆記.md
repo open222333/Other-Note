@@ -35,6 +35,7 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [安裝相關](#安裝相關)
+      - [解除安裝](#解除安裝)
     - [查詢相關](#查詢相關)
     - [操作相關](#操作相關)
     - [備份腳本相關](#備份腳本相關)
@@ -45,7 +46,9 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 - [安裝](#安裝)
   - [Docker部署](#docker部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
+    - [解除安裝](#解除安裝-1)
   - [RedHat (CentOS)](#redhat-centos)
+    - [解除安裝](#解除安裝-2)
   - [配置檔案設定](#配置檔案設定)
   - [防火牆設定](#防火牆設定)
     - [CentOS Database tool](#centos-database-tool)
@@ -92,6 +95,10 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 [database-tools rpm](https://www.mongodb.com/try/download/database-tools)
 
 [Installing the Database Tools on macOS - 在 macOS 上安裝資料庫工具](https://www.mongodb.com/docs/database-tools/installation/installation-macos/)
+
+#### 解除安裝
+
+[How to Uninstall MongoDB - 官方](https://www.mongodb.com/resources/products/fundamentals/uninstall-mongodb)
 
 ### 查詢相關
 
@@ -170,15 +177,23 @@ apt upgrade -y
 導入 MongoDB 公鑰
 
 ```sh
-curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg
+curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg
 ```
 
 添加 MongoDB 軟體來源庫
 
 使用的是 Debian，將 ubuntu 替換為 debian
 
+MongoDB 6.0 版本 MongoDB 軟體來源庫
+
 ```sh
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+```
+
+MongoDB 5.0 版本 MongoDB 軟體來源庫
+
+```sh
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-5.0.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
 ```
 
 更新軟件包列表 安裝 MongoDB
@@ -188,6 +203,24 @@ apt update
 apt install -y mongodb-org
 ```
 
+```
+mongodb-org 是一個元包（meta-package），它包含以下子套件：
+
+mongodb-org-server
+mongodb-org-mongos
+mongodb-org-shell
+mongodb-org-tools
+
+如果只指定版本為 $version，但沒有為上述子套件指定版本，可能導致：
+
+子套件的版本與 mongodb-org 不匹配。
+系統會自動安裝子套件的最新版本，而不是與 $version 對應的版本。
+```
+
+```sh
+apt install -y mongodb-org=$version mongodb-org-server=$version mongodb-org-shell=$version mongodb-org-mongos=$version mongodb-org-tools=$version
+```
+
 ```sh
 # 啟動服務
 systemctl start mongod
@@ -195,10 +228,31 @@ systemctl start mongod
 systemctl enable mongod
 # 查詢啟動狀態
 systemctl status mongod
-# 重啟
-systemctl restart mongod
-# 停止
+```
+
+### 解除安裝
+
+```sh
 systemctl stop mongod
+```
+
+```sh
+apt purge mongodb-org* -y
+apt autoremove -y
+```
+
+MongoDB 的預設資料和日誌目錄通常位於以下路徑。執行以下命令刪除這些目錄
+
+```sh
+rm -rf /var/lib/mongo
+rm -rf /var/log/mongodb
+```
+
+刪除 MongoDB 的配置檔案
+
+```sh
+rm -rf /etc/mongod.conf
+rm -rf /etc/mongodb.conf
 ```
 
 ## RedHat (CentOS)
@@ -253,7 +307,7 @@ rpm -qa |grep mongodb
 rpm -ql mongodb-org-server
 
 # 開啟MongoDB
-sudo service mongod restart
+service mongod restart
 systemctl start mongod.service
 
 # 啟動服務
@@ -267,15 +321,31 @@ systemctl restart mongod
 # 停止
 systemctl stop mongod
 
-# 解除安裝MongoDB
-sudo yum erase $(rpm -qa | grep mongodb-org)
-# 刪除日誌檔案
-sudo rm -r /var/log/mongodb
-# 刪除資料檔案
-sudo rm -r /var/lib/mongo
-
 # MongoDB預設埠是27017，檢視是否開啟
 netstat -natp | grep 27017
+```
+
+### 解除安裝
+
+```sh
+# 解除安裝MongoDB
+yum erase $(rpm -qa | grep mongodb-org)
+
+yum erase mongodb-org* -y
+```
+
+MongoDB 的預設資料和日誌目錄通常位於以下路徑。執行以下命令刪除這些目錄
+
+```sh
+rm -rf /var/lib/mongo
+rm -rf /var/log/mongodb
+```
+
+刪除 MongoDB 的配置檔案
+
+```sh
+rm -rf /etc/mongod.conf
+rm -rf /etc/mongodb.conf
 ```
 
 ## 配置檔案設定
