@@ -180,6 +180,10 @@ apt upgrade -y
 curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg
 ```
 
+```sh
+curl -fsSL https://www.mongodb.org/static/pgp/server-5.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-5.0.gpg
+```
+
 添加 MongoDB 軟體來源庫
 
 使用的是 Debian，將 ubuntu 替換為 debian
@@ -200,7 +204,7 @@ echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-5.0.gp
 
 ```sh
 apt update
-apt install -y mongodb-org
+apt upgrade -y
 ```
 
 ```
@@ -215,6 +219,17 @@ mongodb-org-tools
 
 子套件的版本與 mongodb-org 不匹配。
 系統會自動安裝子套件的最新版本，而不是與 $version 對應的版本。
+```
+
+mongodb 需要特定版本的 libssl1.1
+
+```sh
+wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+dpkg -i libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+```
+
+```sh
+apt install -y mongodb-org
 ```
 
 ```sh
@@ -246,6 +261,7 @@ MongoDB 的預設資料和日誌目錄通常位於以下路徑。執行以下命
 ```sh
 rm -rf /var/lib/mongo
 rm -rf /var/log/mongodb
+rm -rf /var/lib/mongodb/*
 ```
 
 刪除 MongoDB 的配置檔案
@@ -339,6 +355,7 @@ MongoDB 的預設資料和日誌目錄通常位於以下路徑。執行以下命
 ```sh
 rm -rf /var/lib/mongo
 rm -rf /var/log/mongodb
+rm -rf /var/lib/mongodb/*
 ```
 
 刪除 MongoDB 的配置檔案
