@@ -1095,16 +1095,22 @@ db.fsyncUnlock()
 # 遠端 MongoDB 設定
 REMOTE_HOST=遠端主機IP或主機名
 REMOTE_PORT=27017
-REMOTE_USER=你的用戶名
-REMOTE_PASS=你的密碼
+REMOTE_USER=遠端用戶名
+REMOTE_PASS=遠端密碼
 REMOTE_AUTH_DB=admin
 
 # 本地 MongoDB 設定
 LOCAL_HOST=127.0.0.1
 LOCAL_PORT=27017
+LOCAL_USER=本地用戶名
+LOCAL_PASS=本地密碼
+LOCAL_AUTH_DB=admin
 
 # 備份目錄
 DUMP_DIR=/tmp/mongo_backup
+
+# 啟用清理備份
+CLEAN_BACKUP=true
 ```
 
 `backup_and_restore.sh`
@@ -1112,25 +1118,52 @@ DUMP_DIR=/tmp/mongo_backup
 ```sh
 #!/bin/bash
 
-# 載入 .env 配置
-if [ -f ".env" ]; then
-    source .env
+# 載入 mongo.env 配置
+if [ -f "mongo.env" ]; then
+    source mongo.env
 else
-    echo ".env 檔案不存在，請確認配置是否正確。"
+    echo "mongo.env 檔案不存在，請確認配置是否正確。"
     exit 1
 fi
+
+# 驗證變數是否正確讀取
+# echo "REMOTE_HOST=$REMOTE_HOST"
+# echo "REMOTE_PORT=$REMOTE_PORT"
+# echo "DUMP_DIR=$DUMP_DIR"
+
+# 顯示載入的配置
+echo "=== 配置參數 ==="
+echo "遠端主機：$REMOTE_HOST"
+echo "遠端埠號：$REMOTE_PORT"
+echo "備份目錄：$DUMP_DIR"
+echo "本地主機：$LOCAL_HOST"
+echo "本地埠號：$LOCAL_PORT"
+echo "================="
+
+# 驗證必需變數是否存在
+# if [[ -z "$REMOTE_HOST" || -z "$REMOTE_PORT" || -z "$DUMP_DIR" || -z "$LOCAL_HOST" || -z "$LOCAL_PORT" ]]; then
+#     echo "錯誤：REMOTE_HOST、REMOTE_PORT、DUMP_DIR、LOCAL_HOST 或 LOCAL_PORT 未設定，請檢查 mongo.env。"
+#     exit 1
+# fi
 
 # 建立備份目錄
 mkdir -p "$DUMP_DIR"
 
 echo "=== 開始從遠端主機匯出資料 ==="
 
-# 匯出遠端 MongoDB 資料
+# 構建 mongodump 指令
+MONGO_CMD="mongodump --host $REMOTE_HOST --port $REMOTE_PORT --out $DUMP_DIR"
+
+# 如果有設定用戶名和密碼
 if [ -n "$REMOTE_USER" ] && [ -n "$REMOTE_PASS" ]; then
-    mongodump --host "$REMOTE_HOST" --port "$REMOTE_PORT" --username "$REMOTE_USER" --password "$REMOTE_PASS" --authenticationDatabase "$REMOTE_AUTH_DB" --out "$DUMP_DIR"
-else
-    mongodump --host "$REMOTE_HOST" --port "$REMOTE_PORT" --out "$DUMP_DIR"
+    MONGO_CMD="mongodump --host $REMOTE_HOST --port $REMOTE_PORT --username $REMOTE_USER --password $REMOTE_PASS --authenticationDatabase $REMOTE_AUTH_DB --out $DUMP_DIR"
 fi
+
+# 印出執行的 mongodump 指令
+echo "執行的 mongodump 指令：$MONGO_CMD"
+
+# 執行 mongodump
+$MONGO_CMD
 
 if [ $? -ne 0 ]; then
     echo "匯出失敗，請檢查連線與參數是否正確。"
@@ -1142,7 +1175,18 @@ echo "=== 匯出完成，備份檔案存放於 $DUMP_DIR ==="
 echo "=== 開始匯入到本地主機 ==="
 
 # 匯入到本地 MongoDB
-mongorestore --host "$LOCAL_HOST" --port "$LOCAL_PORT" --drop "$DUMP_DIR"
+MONGO_RESTORE_CMD="mongorestore --host $LOCAL_HOST --port $LOCAL_PORT --drop $DUMP_DIR"
+
+# 如果有設定用戶名和密碼
+if [ -n "$LOCAL_USER" ] && [ -n "$LOCAL_PASS" ]; then
+    MONGO_RESTORE_CMD="mongorestore --host $LOCAL_HOST --port $LOCAL_PORT --username $LOCAL_USER --password $LOCAL_PASS --authenticationDatabase $LOCAL_AUTH_DB --drop $DUMP_DIR"
+fi
+
+# 印出執行的 mongorestore 指令
+echo "執行的 mongorestore 指令：$MONGO_RESTORE_CMD"
+
+# 執行 mongorestore
+$MONGO_RESTORE_CMD
 
 if [ $? -ne 0 ]; then
     echo "匯入失敗，請檢查本地 MongoDB 是否正在執行。"
@@ -1151,8 +1195,14 @@ fi
 
 echo "=== 匯入完成 ==="
 
-# 清理備份資料（選擇性）
-# rm -rf "$DUMP_DIR"
+# 根據環境變數來決定是否清理備份資料
+if [ "$CLEAN_BACKUP" == "true" ]; then
+    echo "=== 清理備份資料 ==="
+    rm -rf "$DUMP_DIR"
+    echo "備份資料已清理"
+else
+    echo "=== 保留備份資料 ==="
+fi
 
 echo "=== 作業完成 ==="
 ```

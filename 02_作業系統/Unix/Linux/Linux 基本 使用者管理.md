@@ -3,15 +3,18 @@
 ## 目錄
 
 - [Linux 基本 使用者管理](#linux-基本-使用者管理)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [新增使用者相關](#新增使用者相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [新增使用者相關](#新增使用者相關)
 - [文檔](#文檔)
-	- [紀錄帳號](#紀錄帳號)
-	- [規範群組名稱與 GID 的對應](#規範群組名稱與-gid-的對應)
-	- [UID/GID密碼參數](#uidgid密碼參數)
+  - [紀錄帳號](#紀錄帳號)
+  - [規範群組名稱與 GID 的對應](#規範群組名稱與-gid-的對應)
+  - [UID/GID密碼參數](#uidgid密碼參數)
 - [指令](#指令)
-	- [新增使用者(useradd passwd)](#新增使用者useradd-passwd)
+  - [新增使用者(useradd passwd)](#新增使用者useradd-passwd)
+    - [新增使用者範例](#新增使用者範例)
+- [範例](#範例)
+  - [可使用 docker docker-compose](#可使用-docker-docker-compose)
 
 ## 參考資料
 
@@ -85,7 +88,7 @@ ENCRYPT_METHOD SHA512    <==密碼加密的機制使用的是 sha512 這一個�
 
 ```bash
 # 新增使用者
-sudo useradd gtwang
+useradd gtwang
 
 	# 選項與參數：
 	# 	-u  ：後面接的是 UID ，是一組數字。直接指定一個特定的 UID 給這個帳號
@@ -117,7 +120,7 @@ useradd -D
 	# 	CREATE_MAIL_SPOOL=yes   <==是否主動幫使用者建立郵件信箱(mailbox)
 
 # 設定密碼
-sudo passwd account_name
+passwd account_name
 
 	# 選項與參數：
 	# 	--stdin ：可以透過來自前一個管線的資料，作為密碼輸入，對 shell script 有幫助！
@@ -131,35 +134,35 @@ sudo passwd account_name
 
 
 # 指定家目錄
-sudo useradd -d /data/gtwang gtwang
+useradd -d /data/gtwang gtwang
 
 # 若要讓 useradd 在新增使用者時不要自動建立家目錄（通常用於某些有安全性考量的系統特殊帳號），可以加上 -M 參數：
 # 不建立家目錄
-sudo useradd -M gtwang
+useradd -M gtwang
 
 # 系統上的使用者都有一個專屬的使用者 ID（UID），在新增使用者時，useradd 預設會自動以遞增的方式指定一個尚未被使用的 ID 給新的使用者
 # 如果我們想要自行指定使用者的 ID，可以使用 -u 參數：
 # 指定使用者 ID
-sudo useradd -u 1500 gtwang
+useradd -u 1500 gtwang
 
 # 每一位 Linux 使用者都會有一個主要的群組，預設的狀況下 useradd 會自動新增一個跟帳號相同名稱的群組，並設定為該帳號主要的群組。
 # 如果要將新的使用者加入既有的群組中，可以加上 -g 參數，並指定群組的名稱或群組 ID：
 # 指定主要群組
-sudo useradd -g team gtwang
+useradd -g team gtwang
 
 # 加上 -e 參數並指定使用的期限：
 # 設定帳號使用期限
-sudo useradd -e 2019-03-17 gtwang
+useradd -e 2019-03-17 gtwang
 
 # 另一個會產生帳號停用的狀況就是密碼過期，-f 參數可以指定在密碼過期多少天之後，才真正停用帳號：
 # 設定帳號使用期限
-sudo useradd -f 45 gtwang
+useradd -f 45 gtwang
 
 # 設定使用者真實姓名
-sudo useradd -c "G. T. Wang" gtwang
+useradd -c "G. T. Wang" gtwang
 
 # 指定登入 Shell
-sudo useradd -s /sbin/nologin gtwang
+useradd -s /sbin/nologin gtwang
 
 
 # 骨架目錄
@@ -168,7 +171,7 @@ sudo useradd -s /sbin/nologin gtwang
 # 系統上預設的骨架目錄是 /etc/skel，若要更改骨架目錄，則可使用 -k 參數：
 
 # 更改骨架目錄
-sudo useradd -k /etc/custom.skel gtwang
+useradd -k /etc/custom.skel gtwang
 
 # 查看shadow使用的加密的機制
 authconfig --test | grep hashing
@@ -190,4 +193,95 @@ ps axjf
 	# 	l ：較長、較詳細的將該 PID 的的資訊列出；
 	# 	j ：工作的格式 (jobs format)
 	# 	-f ：做一個更為完整的輸出。
+```
+
+### 新增使用者範例
+
+```sh
+useradd -m -s /bin/bash $new_user
+```
+
+```
+-m：建立使用者的家目錄。
+-s /bin/bash：指定使用者的預設 Shell。
+new_user：新使用者的名稱。
+```
+
+```sh
+passwd $new_user
+```
+
+將使用者加入群組
+
+```sh
+usermod -aG $group $new_user
+
+usermod -aG testssssss testuser
+```
+
+驗證群組
+
+```sh
+groups $new_user
+```
+
+# 範例
+
+## 可使用 docker docker-compose
+
+設定使用者群組的指令限制與權限
+
+```sh
+visudo
+```
+
+```
+Cmnd_Alias RESTRICTED_COMMAND = /bin/cp, /bin/systemctl, /usr/bin/* /var/app/inhand/*, /usr/local/bin/docker-compose, /usr/bin/docker, /usr/bin/vim, /bin/cat
+Cmnd_Alias RESTRICTED_NO_DOCKER_COMMAND = /usr/bin/* /var/app/inhand/*, /bin/cat
+
+%restricted     ALL=(ALL)       RESTRICTED_COMMAND
+%restricted_no_docker     ALL=(ALL)       RESTRICTED_NO_DOCKER_COMMAND
+```
+
+修正
+
+```
+Cmnd_Alias RESTRICTED_COMMAND = /bin/cp, /bin/systemctl, /usr/local/bin/docker-compose, /usr/bin/docker, /usr/bin/vim, /bin/cat
+Cmnd_Alias RESTRICTED_NO_DOCKER_COMMAND = /bin/cat
+
+%restricted     ALL=(ALL)       NOPASSWD: RESTRICTED_COMMAND
+%restricted_no_docker     ALL=(ALL)       NOPASSWD: RESTRICTED_NO_DOCKER_COMMAND
+```
+
+```
+. Cmnd_Alias 的定義
+Cmnd_Alias 用來定義命令別名，便於管理和重複使用。
+
+RESTRICTED_COMMAND： 包含下列命令：
+
+    /bin/cp（複製檔案）
+    /bin/systemctl（管理系統服務）
+    /usr/bin/* /var/app/project/*（這部分的語法有問題，稍後詳述）
+    /usr/local/bin/docker-compose（Docker Compose 管理工具）
+    /usr/bin/docker（Docker CLI）
+    /usr/bin/vim（文字編輯器 Vim）
+    /bin/cat（檢視檔案內容）
+
+RESTRICTED_NO_DOCKER_COMMAND： 不包含 Docker 相關命令，僅包含：
+
+    /usr/bin/* /var/app/inhand/*（同樣有語法問題）
+    /bin/cat
+```
+
+```
+群組權限
+%restricted 群組：允許執行 RESTRICTED_COMMAND 定義的所有命令。
+%restricted_no_docker 群組：允許執行 RESTRICTED_NO_DOCKER_COMMAND 定義的命令。
+```
+
+新增群組
+
+```sh
+groupadd restricted
+groupadd restricted_no_docker
 ```
