@@ -36,6 +36,8 @@ Replica Set（複本集）是MongoDB中的一個機制，用於提供數據的�
   - [key驗證 生成key 將生成的key加入](#key驗證-生成key-將生成的key加入)
   - [MongoDB 實例配置為使用複製集 (replica set)](#mongodb-實例配置為使用複製集-replica-set)
   - [設置 主-讀寫 從-只讀不寫(主掛了不會升為主)](#設置-主-讀寫-從-只讀不寫主掛了不會升為主)
+  - [修改 rs 主機名成內網ＩＰ](#修改-rs-主機名成內網ｉｐ)
+  - [檢查同步狀態](#檢查同步狀態)
 - [例外狀況](#例外狀況)
   - [MongoServerError\[InvalidReplicaSetConfig\]: Our replica set config is invalid or we are not a member of it](#mongoservererrorinvalidreplicasetconfig-our-replica-set-config-is-invalid-or-we-are-not-a-member-of-it)
     - [強制重建副本集](#強制重建副本集)
@@ -382,6 +384,33 @@ cfg.members[2].priority = 0;
 rs.reconfig(cfg);
 ```
 
+## 修改 rs 主機名成內網ＩＰ
+
+```JavaScript
+cfg = rs.conf();
+cfg.members[n].host = "192.168.148.19:27017";
+rs.reconfig(cfg, { force: true })
+```
+
+確保 n 是正確的索引
+
+在配置中，cfg.members[n] 中的 n 應該是你想要修改的節點索引。
+
+如果你不確定索引值，可以先列出 cfg.members 的內容，來找到正確的索引。
+
+```JavaScript
+cfg = rs.conf();
+cfg.members.forEach((member, index) => {
+    print(`Index: ${index}, Host: ${member.host}`);
+});
+```
+
+## 檢查同步狀態
+
+```JavaScript
+rs.printReplicationInfo();
+```
+
 # 例外狀況
 
 ## MongoServerError[InvalidReplicaSetConfig]: Our replica set config is invalid or we are not a member of it
@@ -419,6 +448,20 @@ replication:
 # 特別工具
 
 ## 匯出匯入腳本
+
+鎖定資料庫 (只讀模式)
+
+```JavaScript
+use admin
+db.fsyncLock()
+```
+
+解鎖資料庫
+
+```JavaScript
+use admin
+db.fsyncUnlock()
+```
 
 ```env
 # 遠端 MongoDB 設定
@@ -458,9 +501,24 @@ else
 fi
 
 # 驗證變數是否正確讀取
-echo "REMOTE_HOST=$REMOTE_HOST"
-echo "REMOTE_PORT=$REMOTE_PORT"
-echo "DUMP_DIR=$DUMP_DIR"
+# echo "REMOTE_HOST=$REMOTE_HOST"
+# echo "REMOTE_PORT=$REMOTE_PORT"
+# echo "DUMP_DIR=$DUMP_DIR"
+
+# 顯示載入的配置
+echo "=== 配置參數 ==="
+echo "遠端主機：$REMOTE_HOST"
+echo "遠端埠號：$REMOTE_PORT"
+echo "備份目錄：$DUMP_DIR"
+echo "本地主機：$LOCAL_HOST"
+echo "本地埠號：$LOCAL_PORT"
+echo "================="
+
+# 驗證必需變數是否存在
+# if [[ -z "$REMOTE_HOST" || -z "$REMOTE_PORT" || -z "$DUMP_DIR" || -z "$LOCAL_HOST" || -z "$LOCAL_PORT" ]]; then
+#     echo "錯誤：REMOTE_HOST、REMOTE_PORT、DUMP_DIR、LOCAL_HOST 或 LOCAL_PORT 未設定，請檢查 mongo.env。"
+#     exit 1
+# fi
 
 # 建立備份目錄
 mkdir -p "$DUMP_DIR"
