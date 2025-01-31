@@ -24,7 +24,9 @@ Windows 子系統 Linux 版 (WSL) 可讓開發人員執行 GNU/Linux 環境，�
 
 [適用於 Linux 的 Windows 子系統文件](https://learn.microsoft.com/zh-tw/windows/wsl/)
 
-###
+### bash 相關
+
+[忘記 WSL 執行個體密碼時，如何重置？](https://www.weithenn.org/2023/02/reset-password-for-wsl-linux.html)
 
 [[Windows] 在 Windows Terminal 新增 Linux Bash Commnadline](https://marcus116.blogspot.com/2019/07/how-to-add-linux-bash-windows-terminal.html)
 
@@ -107,4 +109,14 @@ wsl -u <Username>`, `wsl --user <Username>
 
 # 變更散發套件的預設使用者
 <DistributionName> config --default-user <Username>
+```
+
+## 登入 Linux 執行個體 root
+
+「多個」Linux 執行個體時，如何指定要變更哪個 Linux 執行個體的管理密碼
+
+```PowerShell
+wsl -u root
+
+wsl -d Ubuntu -u root
 ```
