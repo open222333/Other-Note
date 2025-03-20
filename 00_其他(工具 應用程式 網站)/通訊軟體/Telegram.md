@@ -15,6 +15,7 @@
   - [Python](#python)
     - [不使用 Python 的 Python-telegram-bot 函式庫 提取 Chat ID](#不使用-python-的-python-telegram-bot-函式庫-提取-chat-id)
     - [使用 Python 的 Python-telegram-bot 函式庫 提取 Chat ID](#使用-python-的-python-telegram-bot-函式庫-提取-chat-id)
+    - [發送訊息到tg](#發送訊息到tg)
 
 ## 參考資料
 
@@ -109,4 +110,15 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+```
+
+### 發送訊息到tg
+
+```Python
+def telegram_bot_send_message(self, message):
+        '''發送訊息到tg'''
+        bot_token = ''
+        chat_id = ''
+        api_url = f'https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}'
+        requests.get(api_url)
 ```
