@@ -76,6 +76,10 @@
 
 [SSH Key: “Permissions 0644 for 'id_rsa.pub' are too open.” on mac - SSH 金鑰：id_rsa.pub 的權限 0644 過於開放。 蘋果電腦](https://stackoverflow.com/questions/29933918/ssh-key-permissions-0644-for-id-rsa-pub-are-too-open-on-mac)
 
+[How to disable strict host key checking in ssh?](https://askubuntu.com/questions/87449/how-to-disable-strict-host-key-checking-in-ssh)
+
+ssh 連線都會存機器 host identify 機器在更新時會 host identify 會變
+
 # 安裝
 
 ## CentOS7
