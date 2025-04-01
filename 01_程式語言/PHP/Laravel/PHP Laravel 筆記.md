@@ -59,6 +59,8 @@
 
 [Deploying Laravel, Nginx, and MySQL with Docker Compose - 使用 docker-compose 架設 laravel環境](https://www.cloudsigma.com/deploying-laravel-nginx-and-mysql-with-docker-compose/)
 
+[Laravel Development Setup with Docker Compose](https://docs.docker.com/guides/frameworks/laravel/development-setup/)
+
 # 安裝
 
 ## 安裝 composer
