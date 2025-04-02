@@ -16,8 +16,23 @@
 - [指令](#指令)
   - [創建專案(基本起始步驟)](#創建專案基本起始步驟)
   - [遷移資料庫](#遷移資料庫)
-  - [由資源控制器處理的行為](#由資源控制器處理的行為)
+  - [自定義指令](#自定義指令)
+    - [建立自定義指令](#建立自定義指令)
+    - [執行指令](#執行指令)
+  - [排程](#排程)
+    - [測試特定任務](#測試特定任務)
+    - [立即執行所有排程](#立即執行所有排程)
+    - [檢視所有排程](#檢視所有排程)
+- [用法](#用法)
+  - [自定義指令](#自定義指令-1)
+  - [設定任務排程](#設定任務排程)
+    - [設定任務排程的頻率](#設定任務排程的頻率)
+    - [直接執行匿名函數](#直接執行匿名函數)
+    - [指定環境](#指定環境)
+    - [防止任務重複執行](#防止任務重複執行)
+    - [設定錯誤通知](#設定錯誤通知)
 - [Laravel 技巧](#laravel-技巧)
+  - [由資源控制器處理的行為](#由資源控制器處理的行為)
   - [開啟debug](#開啟debug)
   - [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
   - [命令](#命令)
@@ -552,10 +567,192 @@ php artisan make:controller {$controller_name}
 
 # 建立 model 預設路徑 app/{$model_name}.php
 php artisan make:model $model_name
+```
 
+## 自定義指令
+
+### 建立自定義指令
+
+```sh
 # 建立 command 預設路徑 app/Console/Commands/{$command_name}.php
+# 建立自定義指令 生成一個自定義的 Artisan 指令
+php artisan make:command MyCustomCommand
 php artisan make:command $command_name
 ```
+
+### 執行指令
+
+```sh
+php artisan custom:run
+```
+
+## 排程
+
+### 測試特定任務
+
+```sh
+php artisan schedule:test
+```
+
+### 立即執行所有排程
+
+```sh
+php artisan schedule:run
+```
+
+### 檢視所有排程
+
+```sh
+php artisan schedule:list
+```
+
+# 用法
+
+顯示所有 Artisan 指令
+
+```sh
+php artisan list
+```
+
+顯示 Artisan 指令詳細資訊
+
+```sh
+php artisan help your:command
+```
+
+使用 route:list 查看 Artisan 內部結構
+
+```sh
+php artisan route:list
+```
+
+## 自定義指令
+
+```sh
+# 建立 command 預設路徑 app/Console/Commands/{$command_name}.php
+# 建立自定義指令 生成一個自定義的 Artisan 指令
+php artisan make:command MyCustomCommand
+php artisan make:command $command_name
+```
+
+```php
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+
+class MyCustomCommand extends Command
+{
+    /**
+     * 指令名稱，在 Artisan CLI 中執行的命令
+     *
+     * @var string
+     */
+    protected $signature = 'custom:run';
+
+    /**
+     * 指令的描述，會顯示在 `php artisan list`
+     *
+     * @var string
+     */
+    protected $description = '這是一個自定義的 Artisan 指令';
+
+    /**
+     * 指令執行時會執行的邏輯
+     */
+    public function handle()
+    {
+        $this->info("Hello! 這是自定義 Artisan 指令！");
+    }
+}
+```
+
+Laravel 會自動偵測 app/Console/Commands 內的指令
+
+但可以手動在 app/Console/Kernel.php 中註冊
+
+```php
+protected $commands = [
+    \App\Console\Commands\MyCustomCommand::class,
+];
+```
+
+執行指令
+
+```sh
+php artisan custom:run
+```
+
+## 設定任務排程
+
+Laravel 的所有排程任務都會被定義在 app/Console/Kernel.php 檔案內的 schedule() 方法。
+
+```php
+// custom:run 指令就會 每分鐘 執行一次
+protected function schedule(Schedule $schedule)
+{
+    $schedule->command('custom:run')->everyMinute();
+}
+```
+
+Laravel 任務排程需要 Crontab 執行 artisan schedule:run
+
+```sh
+* * * * * php /path-to-your-project/artisan schedule:run >> /dev/null 2>&1
+```
+
+### 設定任務排程的頻率
+
+```
+->everyMinute()	每分鐘執行
+->everyTwoMinutes()	每 2 分鐘執行
+->everyFiveMinutes()	每 5 分鐘執行
+->everyTenMinutes()	每 10 分鐘執行
+->hourly()	每小時執行
+->daily()	每天午夜 00:00 執行
+->dailyAt('13:00')	每天 13:00 執行
+->weekly()	每週執行一次
+->monthly()	每月執行一次
+->yearly()	每年執行一次
+->mondays()	每週一執行
+->weekdays()	週一到週五執行
+->weekends()	週六、週日執行
+```
+
+### 直接執行匿名函數
+
+```php
+protected function schedule(Schedule $schedule)
+{
+    $schedule->call(function () {
+        \Log::info('這是一個 Laravel 任務排程！');
+    })->dailyAt('01:00');
+}
+```
+
+### 指定環境
+
+```php
+$schedule->command('custom:run')->daily()->environments(['production']);
+```
+
+### 防止任務重複執行
+
+```php
+$schedule->command('custom:run')->everyMinute()->withoutOverlapping();
+```
+
+### 設定錯誤通知
+
+```php
+$schedule->command('custom:run')
+    ->daily()
+    ->onFailure(function () {
+        \Log::error("任務失敗！");
+    });
+```
+
+# Laravel 技巧
+
 ## 由資源控制器處理的行為
 
 動詞 | 路徑 | 行為 | 路由名稱
@@ -567,8 +764,6 @@ GET | /test/{test} | show | test.show
 GET | /test/{test}/edit | edit | test.edit
 PUT/PATCH | /test/{test} | update | test.update
 DELETE | /test/{test} | destroy | test.destroy
-
-# Laravel 技巧
 
 ## 開啟debug
 
