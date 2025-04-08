@@ -335,6 +335,15 @@ git status
 
 ## Config 環境設定
 
+```
+常見的 Git 設定檔案位置與範圍
+範圍	位置	說明
+系統層級	/etc/gitconfig	所有使用者、所有專案共用（很少修改）
+使用者層級	~/.gitconfig 或 ~/.config/git/config	特定使用者帳號全域套用
+專案層級	專案資料夾/.git/config	僅作用於該 Git 專案
+任意目錄自訂	透過 GIT_CONFIG_GLOBAL, GIT_CONFIG_SYSTEM, GIT_CONFIG 環境變數指定
+```
+
 ```bash
 ### Config 環境設定 ###
 # 設定全域(--global) 帳號名
@@ -354,6 +363,16 @@ git config credential.helper store
 
 # 移除設定與已存帳密
 git config --unset credential.helper
+```
+
+```sh
+# 全局配置
+git config --global user.name "Global User"
+git config --global user.email "globaluser@example.com"
+
+# 專案配置（進入專案資料夾）
+git config user.name "Project User"
+git config user.email "projectuser@example.com"
 ```
 
 ## Remote – 遠端設定
