@@ -32,6 +32,7 @@ laravel-admin 控制器 在 app/Admin/Controllers
   - [Console 自製終端機命令](#console-自製終端機命令)
   - [自製命令範例](#自製命令範例)
   - [配置任務排程](#配置任務排程)
+  - [搜尋條件（filter）套用 paginate() 查詢](#搜尋條件filter套用-paginate-查詢)
 - [狀況處理](#狀況處理)
   - [降版本處理](#降版本處理)
   - [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
@@ -383,6 +384,43 @@ Laravel 的任務排程依賴於系統的定時任務（如 cron）來驅動。�
 
 ```bash
 php artisan schedule:run
+```
+
+## 搜尋條件（filter）套用 paginate() 查詢
+
+在 DailyClickReport::paginate() 裡補上對 shorturl_name 的搜尋邏輯
+
+```php
+$filter->like('shorturl_name', __('縮網址名稱'));
+```
+
+在 Controller 的 grid() 裡，使用自定義欄位名稱，把使用者輸入的搜尋參數「轉存」到 shorturl_name
+
+```php
+$result = Shorturl::join('daily_click_report', function ($join) {
+	$join->on('shorturl.id', '=', 'daily_click_report.shorturl_id');
+})
+	->selectRaw("shorturl.id, shorturl.name, SUM(daily_click_report.total_click) AS sum_total_click")
+	->where("daily_click_report.date", ">=", $sdate)
+	->where("daily_click_report.date", "<=", $edate);
+
+// 加入 shorturl_name 關鍵字查詢
+$shorturl_name = Request::get('shorturl_name', null);
+if (!is_null($shorturl_name)) {
+	$result = $result->where('shorturl.name', 'like', "%$shorturl_name%");
+}
+
+// 加入 product_id 過濾條件
+$product_id = Request::get('product_id', NULL);
+if (!is_null($product_id)) {
+	$result = $result->where('daily_click_report.product_id', '=', $product_id);
+}
+
+// 排序與群組
+$result = $result
+	->groupBy('daily_click_report.shorturl_id')
+	->orderBy($orderby, $sort_type)
+	->get();
 ```
 
 # 狀況處理
