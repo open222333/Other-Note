@@ -166,6 +166,7 @@ ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
   - [Python - mongo-connector](#python---mongo-connector-1)
     - [配置文檔 config.json](#配置文檔-configjson)
 - [例外狀況](#例外狀況-1)
+  - [檢查索引問題](#檢查索引問題)
   - [資料在 Elasticsearch 中無法搜尋到，但在重啟 Monstache 後又出現的情況](#資料在-elasticsearch-中無法搜尋到但在重啟-monstache-後又出現的情況)
     - [enable-oplog 設定](#enable-oplog-設定)
     - [replay 設定](#replay-設定)
@@ -3159,6 +3160,46 @@ pipeline:
 ```
 
 # 例外狀況
+
+## 檢查索引問題
+
+檢查 health
+
+```sh
+curl -X GET "http://localhost:9200/_cluster/health?pretty"
+```
+
+查看索引設置
+
+```sh
+curl -X GET "http://localhost:9200/_settings?pretty"
+```
+
+生成的文件會包含當天的日期，例如 index_setting_20250417.txt。
+
+```sh
+curl -X GET "http://localhost:9200/_settings?pretty" > "index_setting_$(date +\%Y\%m\%d).txt"
+```
+
+```toml
+# 1. 拿掉 direct-read 限制（或擴充更多 namespaces）
+# direct-read-namespaces = ["avnight.animat_video"]
+
+# 新版本才有
+# 2. 開啟 trace 紀錄 ES 錯誤
+trace = true
+
+# 3. 加上 change stream namespaces（或不指定就監控全部）
+change-stream-namespaces = ["avnight.animat_video"]
+
+# 4. 若要重新 direct-read 整份資料
+exit-after-direct-reads = true
+resume = false
+
+# 讓 monstache 把 Elasticsearch 發生的錯誤 log 出來
+verbose = true
+log-level = "debug"
+```
 
 ## 資料在 Elasticsearch 中無法搜尋到，但在重啟 Monstache 後又出現的情況
 

@@ -28,9 +28,11 @@
   - [RedHat (CentOS)](#redhat-centos)
   - [配置文檔](#配置文檔)
     - [僅記錄失敗的紀錄](#僅記錄失敗的紀錄)
+- [指令](#指令)
 - [腳本範例(放在 toml 檔 \[\[script\]\])](#腳本範例放在-toml-檔-script)
   - [自動生成別名](#自動生成別名)
 - [狀況](#狀況)
+  - [查看同步統計](#查看同步統計)
   - [(Location17138) Invalid input namespace, admin](#location17138-invalid-input-namespace-admin)
   - [Failed to parse with all enclosed parsers](#failed-to-parse-with-all-enclosed-parsers)
   - [ERROR 2024/07/19 04:50:26 Bulk response item: {"\_index":"index","\_type":"\_doc","\_id":"65f2a46e063d9e005e655f2c","status":400,"error":{"type":"illegal\_argument\_exception","reason":"Limit of total fields \[1000\] has been exceeded"}}](#error-20240719-045026-bulk-response-item-_indexindex_type_doc_id65f2a46e063d9e005e655f2cstatus400errortypeillegal_argument_exceptionreasonlimit-of-total-fields-1000-has-been-exceeded)
@@ -38,9 +40,11 @@
 
 ## 參考資料
 
+[rwynn/monstache Github](https://github.com/rwynn/monstache)
+
 [monstache-showcase/docker-compose.sc.yml](https://github.com/rwynn/monstache-showcase/blob/a25cddeedc9e8f1481aa7de19cd634158792b28c/docker-compose.sc.yml#L53)
 
-[monstache Configuration](https://rwynn.github.io/monstache-site/config/)
+[monstache Configuration 官方文檔](https://rwynn.github.io/monstache-site/config/)
 
 [Monstache](https://rwynn.github.io/monstache-site/start/)
 
@@ -284,6 +288,14 @@ resume-name = "default"
 
 ```
 
+# 指令
+
+查看版本
+
+```sh
+monstache -v
+```
+
 # 腳本範例(放在 toml 檔 \[\[script\]\])
 
 ## 自動生成別名
@@ -384,6 +396,45 @@ module.exports = function (doc, ns, raw) {
 ```
 
 # 狀況
+
+## 查看同步統計
+
+```toml
+http-server-addr = ":8080"
+stats = true
+```
+
+用 curl 查詢
+
+```sh
+curl http://localhost:8080/stats
+```
+
+得到像這樣的 JSON 統計資訊
+
+```json
+{
+  "added": 12345,
+  "updated": 678,
+  "removed": 0,
+  "committed": 13023,
+  "queued": 0,
+  "indexed": 13023,
+  "received": 13023,
+  "replayed": 0,
+  "oplog-entry": 13023,
+  "invalid": 0,
+  "processed-by-collection": {
+    "mydb.mycollection": 13023
+  }
+}
+```
+
+要改變 stats server 的 port
+
+```toml
+http-server-addr = ":9090"
+```
 
 ## (Location17138) Invalid input namespace, admin
 
