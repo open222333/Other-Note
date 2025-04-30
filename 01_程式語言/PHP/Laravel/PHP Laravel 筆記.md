@@ -16,6 +16,7 @@
 - [指令](#指令)
   - [創建專案(基本起始步驟)](#創建專案基本起始步驟)
   - [遷移資料庫](#遷移資料庫)
+    - [為資料表新增一個欄位](#為資料表新增一個欄位)
   - [自定義指令](#自定義指令)
     - [建立自定義指令](#建立自定義指令)
     - [執行指令](#執行指令)
@@ -23,6 +24,7 @@
     - [測試特定任務](#測試特定任務)
     - [立即執行所有排程](#立即執行所有排程)
     - [檢視所有排程](#檢視所有排程)
+  - [清除快取](#清除快取)
 - [用法](#用法)
   - [自定義指令](#自定義指令-1)
   - [設定任務排程](#設定任務排程)
@@ -569,6 +571,38 @@ php artisan make:controller {$controller_name}
 php artisan make:model $model_name
 ```
 
+### 為資料表新增一個欄位
+
+為 users 表新增一個 nickname 欄位
+
+產生一個新的 migration 檔案
+
+```sh
+php artisan make:migration add_nickname_to_users_table --table=users
+```
+
+```php
+public function up()
+{
+    Schema::table('users', function (Blueprint $table) {
+        $table->string('nickname')->nullable(); // 新增 nickname 欄位
+    });
+}
+
+public function down()
+{
+    Schema::table('users', function (Blueprint $table) {
+        $table->dropColumn('nickname'); // 回復動作：刪除欄位
+    });
+}
+```
+
+第三步：執行 migration
+
+```sh
+php artisan migrate
+```
+
 ## 自定義指令
 
 ### 建立自定義指令
@@ -604,6 +638,26 @@ php artisan schedule:run
 
 ```sh
 php artisan schedule:list
+```
+
+## 清除快取
+
+變動是 Laravel 應用層級的:
+
+修改 Controller、Model、Route、View 等 PHP 檔案
+
+修改 .env 設定（不過 Laravel 可能要清除快取，見下方）
+
+修改 Laravel 設定（如 config/*.php）→ 建議清除快取
+
+```sh
+php artisan optimize:clear
+```
+
+```sh
+php artisan config:cache
+php artisan route:cache
+php artisan view:clear
 ```
 
 # 用法
