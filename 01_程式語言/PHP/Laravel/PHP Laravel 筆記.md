@@ -16,6 +16,7 @@
 - [指令](#指令)
   - [創建專案(基本起始步驟)](#創建專案基本起始步驟)
   - [遷移資料庫](#遷移資料庫)
+    - [回滾](#回滾)
     - [為資料表新增一個欄位](#為資料表新增一個欄位)
   - [自定義指令](#自定義指令)
     - [建立自定義指令](#建立自定義指令)
@@ -33,7 +34,10 @@
     - [指定環境](#指定環境)
     - [防止任務重複執行](#防止任務重複執行)
     - [設定錯誤通知](#設定錯誤通知)
+  - [路由設定](#路由設定)
+  - [中介層（Middleware）](#中介層middleware)
 - [Laravel 技巧](#laravel-技巧)
+  - [驗證（Validation） 表單請求驗證的寫法](#驗證validation-表單請求驗證的寫法)
   - [由資源控制器處理的行為](#由資源控制器處理的行為)
   - [開啟debug](#開啟debug)
   - [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
@@ -571,6 +575,14 @@ php artisan make:controller {$controller_name}
 php artisan make:model $model_name
 ```
 
+### 回滾
+
+```sh
+php artisan migrate:rollback
+php artisan migrate:reset
+php artisan migrate:fresh
+```
+
 ### 為資料表新增一個欄位
 
 為 users 表新增一個 nickname 欄位
@@ -805,7 +817,46 @@ $schedule->command('custom:run')
     });
 ```
 
+## 路由設定
+
+routes/web.php 與 routes/api.php
+
+```php
+// web.php
+Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+// api.php
+Route::middleware('auth:api')->get('/user', function (Request $request) {
+    return $request->user();
+});
+```
+
+## 中介層（Middleware）
+
+```sh
+php artisan make:middleware CheckRole
+```
+
+```php
+// Kernel.php 註冊
+'role' => \App\Http\Middleware\CheckRole::class,
+
+// 路由套用
+Route::get('/admin', function () {
+    // 管理後台
+})->middleware('role:admin');
+```
+
 # Laravel 技巧
+
+## 驗證（Validation） 表單請求驗證的寫法
+
+```php
+$request->validate([
+    'email' => 'required|email',
+    'password' => 'required|min:8',
+]);
+```
 
 ## 由資源控制器處理的行為
 
