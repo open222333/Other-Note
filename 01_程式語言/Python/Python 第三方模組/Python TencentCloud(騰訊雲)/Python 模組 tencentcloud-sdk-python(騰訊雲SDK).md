@@ -33,6 +33,8 @@
 # 指令
 
 ```bash
+pip install tencentcloud-sdk-python
+
 # 腾讯云 Python SDK
 pip install --upgrade tencentcloud-sdk-python
 
