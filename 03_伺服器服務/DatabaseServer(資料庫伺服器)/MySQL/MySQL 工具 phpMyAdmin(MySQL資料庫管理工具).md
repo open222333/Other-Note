@@ -14,6 +14,7 @@ phpMyAdmin 是一個以PHP為基礎，以Web-Base方式架構在網站主機上�
 - [安裝](#安裝)
   - [CentOS7 phpMyAdmin安裝(Apache)](#centos7-phpmyadmin安裝apache)
   - [CentOS7 phpMyAdmin安裝(Apache)](#centos7-phpmyadmin安裝apache-1)
+  - [Ubuntu (Nginx)](#ubuntu-nginx)
 - [設定檔](#設定檔)
   - [單一 phpadmin 多個 mysql](#單一-phpadmin-多個-mysql)
 
@@ -80,6 +81,69 @@ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm�
 # temporarily enable Remi repository and install PHP support packages required for phpMyAdmin
 yum install --enablerepo=remi-php73 phpmyadmin
 yum -y install phpmyadmin
+```
+
+## Ubuntu (Nginx)
+
+```sh
+apt update
+apt install nginx php-fpm php-mysql unzip -y
+```
+
+```sh
+cd /usr/share
+wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.zip
+unzip phpMyAdmin-latest-all-languages.zip
+mv phpMyAdmin-*-all-languages phpmyadmin
+rm phpMyAdmin-latest-all-languages.zip
+```
+
+```sh
+mkdir /usr/share/phpmyadmin/tmp
+chown -R www-data:www-data /usr/share/phpmyadmin
+chmod 777 /usr/share/phpmyadmin/tmp
+```
+
+phpmyadmin 設定檔
+
+```sh
+cp /usr/share/phpmyadmin/config.sample.inc.php /usr/share/phpmyadmin/config.inc.php
+nano /usr/share/phpmyadmin/config.inc.php
+```
+
+```sh
+cd /usr/share/phpmyadmin
+apt install composer
+composer install
+```
+
+nginx 設定檔
+
+```conf
+server {
+    listen 8080;
+    server_name _;
+
+    root /usr/share/phpmyadmin;
+    index index.php index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        try_files $uri =404;
+        include fastcgi_params;
+        fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+}
+```
+
+```sh
+nginx -t
+systemctl reload nginx
 ```
 
 # 設定檔

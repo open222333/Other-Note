@@ -28,8 +28,14 @@ RDBMS
   - [配置文檔](#配置文檔)
   - [MacOS](#macos)
   - [CentOS7](#centos7)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+    - [8.0](#80)
+    - [5.7](#57)
+    - [移除舊版 mysql-apt-config](#移除舊版-mysql-apt-config)
+    - [移除](#移除)
   - [安裝 MySQL 工具](#安裝-mysql-工具)
-    - [Debian (Ubuntu)](#debian-ubuntu)
+    - [Debian (Ubuntu)](#debian-ubuntu-1)
+      - [移除](#移除-1)
     - [RedHat (CentOS)](#redhat-centos)
     - [Homebrew (MacOS)](#homebrew-macos)
 - [資料型態](#資料型態)
@@ -122,6 +128,8 @@ RDBMS
 [Unknown table 'COLUMN_STATISTICS' in information_schema (1109)](https://serverfault.com/questions/912162/mysqldump-throws-unknown-table-column-statistics-in-information-schema-1109)
 
 [mysql 優化技巧心得一(key_buffer_size設定)](https://codertw.com/%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/410436/)
+
+[How to install MySQL on Ubuntu: Advanced manual](https://www.devart.com/dbforge/mysql/how-to-install-mysql-on-ubuntu/)
 
 #### Docker相關
 
@@ -440,6 +448,111 @@ firewall-cmd --zone=public --add-port=3306/tcp --permanent
 firewall-cmd --reload
 ```
 
+## Debian (Ubuntu)
+
+### 8.0
+
+下載並安裝 MySQL APT Repository 工具
+
+若沒支援, 選擇 Ubuntu 22.04 (jammy) 的套件庫即可，大多數情況都能正常使用。
+
+```sh
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb
+dpkg -i mysql-apt-config_0.8.29-1_all.deb
+```
+
+裝錯也沒關係，稍後可以再執行
+
+```sh
+dpkg-reconfigure mysql-apt-config
+```
+
+移除舊版 mysql-apt-config
+
+```sh
+apt-get remove --purge mysql-apt-config
+```
+
+```sh
+apt update
+```
+
+```sh
+apt install mysql-server -y
+```
+
+### 5.7
+
+```bash
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb
+dpkg -i mysql-apt-config_0.8.12-1_all.deb
+```
+
+選擇 Ubuntu Bionic
+
+選擇 MySQL Server & Cluster
+
+選擇 mysql-5.7
+
+```sh
+apt-get update
+```
+
+遇到類似這樣的 "signature couldn't be verified" 錯誤：NO_PUBKEY 467B942D3A79BD29，則需要透過執行下列指令來匯入遺失的 gpg 金鑰：:
+
+```sh
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+apt-get update
+```
+
+檢查
+
+```sh
+apt-cache policy mysql-server
+```
+
+因為 Ubuntu 24.04 Noble Numbat 預設 沒有支援 MySQL 5.7 所需的舊版相依套件，例如：
+
+libaio1（已被取代為 libaio-dev 或類似套件）
+
+libtinfo5（已被新版 libtinfo6 取代）
+
+下載 libaio1
+
+```sh
+wget http://archive.ubuntu.com/ubuntu/pool/main/liba/libaio/libaio1_0.3.110-5_amd64.deb
+```
+
+下載 libtinfo5
+
+```sh
+wget http://security.ubuntu.com/ubuntu/pool/universe/n/ncurses/libtinfo5_6.3-2ubuntu0.1_amd64.deb
+```
+
+```sh
+dpkg -i libaio1_0.3.110-5_amd64.deb libtinfo5_6.3-2ubuntu0.1_amd64.deb
+```
+
+```sh
+apt install -f mysql-client=5.7* mysql-community-server=5.7* mysql-server=5.7*
+```
+
+### 移除舊版 mysql-apt-config
+
+```sh
+apt-get remove --purge mysql-apt-config
+```
+
+### 移除
+
+```sh
+apt purge mysql-server mysql-client mysql-common mysql-server-core-* mysql-client-core-*
+rm -rf /etc/mysql /var/lib/mysql /var/log/mysql
+apt autoremove
+apt autoclean
+```
+
 ## 安裝 MySQL 工具
 
 ### Debian (Ubuntu)
@@ -447,6 +560,28 @@ firewall-cmd --reload
 ```bash
 apt-get update
 apt-get install mysql-client mysql-server
+```
+
+#### 移除
+
+移除套件（包含設定）
+
+```sh
+apt-get purge mysql-client mysql-server mysql-common
+```
+
+刪除相關資料與目錄
+
+```sh
+rm -rf /etc/mysql /var/lib/mysql
+rm -rf /var/log/mysql /var/log/mysql.*
+```
+
+清除不再使用的依賴與快取
+
+```sh
+apt-get autoremove
+apt-get autoclean
 ```
 
 ### RedHat (CentOS)

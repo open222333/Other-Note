@@ -163,6 +163,9 @@ php artisan admin:install
 
 # 根據路由創建選單(需修正內容 標題 路徑)
 php artisan admin:generate-menu
+
+# 清除快取
+php artisan optimize:clear
 ```
 
 # 用法
@@ -429,6 +432,22 @@ $result = $result
 
 ```bash
 composer require doctrine/dbal:^2.12.1
+```
+
+先移除 lock file 和 vendor，重新安裝乾淨套件
+
+```sh
+rm -rf vendor composer.lock
+composer install
+composer require doctrine/dbal:^2.13 -W
+```
+
+手動解除 Carbon 鎖定並安裝正確版本
+
+```sh
+composer require nesbot/carbon:^2.69 --no-update
+composer update nesbot/carbon
+composer remove carbonphp/carbon-doctrine-types
 ```
 
 ## Setting a foreign key bigInteger to bigIncrements
