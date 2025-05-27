@@ -133,6 +133,60 @@ apt-get update
 apt-get install percona-xtrabackup-24 -y
 ```
 
+ps80 是 Percona Server 8.0 的縮寫，也會加裝 xtrabackup
+(2.4匯出的只能2.4匯入)
+
+```sh
+wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+dpkg -i percona-release_latest.generic_all.deb
+percona-release setup ps80
+apt-get update
+
+apt-get install percona-xtrabackup
+```
+
+```sh
+# 新增 Percona 官方 repository（如果還沒裝過）
+wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+dpkg -i percona-release_latest.generic_all.deb
+
+# 啟用 tools（包含 xtrabackup 2.4）
+percona-release setup tools
+
+# 更新並安裝 xtrabackup 2.4
+apt update
+apt install percona-xtrabackup-24
+```
+
+### E: Package 'percona-xtrabackup-24' has no installation candidate
+
+手動下載安裝 XtraBackup 2.4（適用於 MySQL 5.7）
+
+查看 Ubuntu 版本
+
+```sh
+lsb_release -a
+```
+
+```sh
+wget https://downloads.percona.com/downloads/Percona-XtraBackup-2.4/LATEST/binary/debian/jammy/x86_64/percona-xtrabackup-24_2.4.29-1.jammy_amd64.deb
+
+dpkg -i percona-≈-24_2.4.29-1.jammy_amd64.deb
+```
+
+安裝依賴（Ubuntu 24.04 可能要補裝依賴庫）
+
+自動安裝缺少的相依套件並修復安裝
+
+```sh
+apt-get install -f
+```
+
+```sh
+apt-cache search percona-xtrabackup
+```
+
+
 # 指令
 
 ## xtrabackup選項
