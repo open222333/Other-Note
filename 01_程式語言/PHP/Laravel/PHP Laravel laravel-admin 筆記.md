@@ -24,11 +24,20 @@ laravel-admin 控制器 在 app/Admin/Controllers
   - [參考資料](#參考資料)
     - [範例相關](#範例相關)
     - [狀況處理相關](#狀況處理相關)
+    - [API 文件](#api-文件)
 - [安裝](#安裝)
 - [常用指令](#常用指令)
   - [git clone 專案後使用](#git-clone-專案後使用)
 - [用法](#用法)
   - [Route API](#route-api)
+  - [範例流程](#範例流程)
+    - [建立 Model、Migration、Factory](#建立-modelmigrationfactory)
+    - [建立 laravel-admin CRUD 頁面](#建立-laravel-admin-crud-頁面)
+    - [API 建立範例](#api-建立範例)
+  - [API 驗證（選用：Laravel Sanctum）](#api-驗證選用laravel-sanctum)
+  - [在既有 Controller 中，新增一個自定義 API](#在既有-controller-中新增一個自定義-api)
+    - [添加 API (自行)](#添加-api-自行)
+    - [加驗證與錯誤處理](#加驗證與錯誤處理)
   - [Console 自製終端機命令](#console-自製終端機命令)
   - [自製命令範例](#自製命令範例)
   - [配置任務排程](#配置任務排程)
@@ -54,6 +63,10 @@ laravel-admin 控制器 在 app/Admin/Controllers
 [降版本處理 Class 'Doctrine\DBAL\Driver\PDOMySql\Driver' not found](https://laracasts.com/discuss/channels/laravel/class-doctrinedbaldriverpdomysqldriver-not-found)
 
 [Setting a foreign key bigInteger to bigIncrements](https://stackoverflow.com/questions/42442498/setting-a-foreign-key-biginteger-to-bigincrements-in-laravel-5-4)
+
+### API 文件
+
+[Github DarkaOnLine / L5-Swagger](https://github.com/DarkaOnLine/L5-Swagger)
 
 # 安裝
 
@@ -196,6 +209,361 @@ Route::match(['get', 'post'], '/example', function (Request $request) {
     // 返回 JSON 響應
     return response()->json($requestData);
 });
+```
+
+## 範例流程
+
+```
+預期功能（舉例：User 管理）
+
+使用 laravel-admin 管理介面建立/修改使用者。
+
+提供外部 API：/api/users、/api/users/{id}。
+
+支援 Request 驗證與 Token 驗證（選用）。
+```
+
+### 建立 Model、Migration、Factory
+
+```sh
+php artisan make:model User -m -f
+```
+
+編輯 database/migrations/xxxx_create_users_table.php
+
+```php
+$table->id();
+$table->string('name');
+$table->string('email')->unique();
+$table->string('password');
+$table->timestamps();
+```
+
+```sh
+php artisan migrate
+```
+
+### 建立 laravel-admin CRUD 頁面
+
+```sh
+php artisan admin:make UserController --model=App\\Models\\User
+```
+
+會自動建立 app/Admin/Controllers/UserController.php 並註冊路由到 /admin/users
+
+如需自訂表單或 Grid 列表樣式，可修改該 Controller
+
+```php
+$form->text('name')->rules('required');
+$form->email('email')->rules('required|email|unique:users,email,{{id}}');
+$form->password('password')->rules('nullable|min:6')->default(function ($form) {
+    return $form->model()->password;
+});
+```
+
+### API 建立範例
+
+建立 API 專用 Controller
+
+```sh
+php artisan make:controller Api/UserApiController
+```
+
+routes/api.php 設定
+
+```php
+use App\Http\Controllers\Api\UserApiController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('users', UserApiController::class);
+});
+```
+
+app/Http/Controllers/Api/UserApiController.php
+
+```php
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+class UserApiController extends Controller
+{
+    public function index()
+    {
+        return response()->json(User::paginate(10));
+    }
+
+    public function show(User $user)
+    {
+        return response()->json($user);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $data['password'] = Hash::make($data['password']);
+        $user = User::create($data);
+
+        return response()->json($user, 201);
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $data = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
+        $user->update($data);
+
+        return response()->json($user);
+    }
+
+    public function destroy(User $user)
+    {
+        $user->delete();
+        return response()->json(['message' => 'deleted']);
+    }
+}
+```
+
+## API 驗證（選用：Laravel Sanctum）
+
+```sh
+composer require laravel/sanctum
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+php artisan migrate
+```
+
+加入 Sanctum 中介層
+
+```php
+// app/Http/Kernel.php
+'api' => [
+    \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+    'throttle:api',
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+],
+```
+
+登入發 Token
+
+```php
+Route::post('/login', function (Request $request) {
+    $credentials = $request->only('email', 'password');
+
+    if (!Auth::attempt($credentials)) {
+        return response()->json(['message' => 'invalid credentials'], 401);
+    }
+
+    return response()->json([
+        'token' => $request->user()->createToken('api-token')->plainTextToken
+    ]);
+});
+```
+
+## 在既有 Controller 中，新增一個自定義 API
+
+```
+在既有 UserController 中，新增一個自定義 API：
+
+GET /api/users/{id}/profile
+```
+
+新增方法到現有 Controller
+
+```php
+public function profile($id)
+{
+    $user = User::findOrFail($id);
+
+    return response()->json([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'registered_at' => $user->created_at->toDateTimeString(),
+    ]);
+}
+```
+
+新增 API 路由
+
+routes/api.php
+
+```php
+use App\Http\Controllers\Api\UserController;
+
+Route::get('/users/{id}/profile', [UserController::class, 'profile']);
+```
+
+如果你有設定驗證保護 API，可加上 middleware
+
+```php
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users/{id}/profile', [UserController::class, 'profile']);
+});
+```
+
+測試
+
+```sh
+curl -H "Authorization: Bearer <token>" \
+     http://your-domain.com/api/users/1/profile
+```
+
+### 添加 API (自行)
+
+```
+中介層 中介器 （Middleware）
+```
+
+`admin 底下的路由 會因為中介器(admin.auth middleware)需要登入驗證`
+
+Laravel-Admin 預設會對 /admin 底下的所有路由加上 admin.auth middleware
+
+```php
+// app/Admin/route.php
+use Illuminate\Routing\Router;
+
+Admin::routes();
+
+Route::group([
+    'prefix'        => config('admin.route.prefix'),
+    'namespace'     => config('admin.route.namespace'),
+    'middleware'    => config('admin.route.middleware'),
+    'as'            => config('admin.route.prefix') . '.',
+], function (Router $router) {
+
+    $router->get('自訂路徑', '控制器@方法');
+    $router->post('api', 'ApiController@api');
+
+    $router->get('path', 'Controller@method');
+    $router->post('path', 'Controller@method');
+    $router->put('path', 'Controller@method');
+    $router->delete('path', 'Controller@method');
+    $router->patch('path', 'Controller@method');
+    $router->options('path', 'Controller@method');
+    $router->any('path', 'Controller@method');
+}
+```
+
+```php
+// routes/api.php
+
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\ApiController;
+
+Route::middleware('auth:api')->group(function () {
+    // 需要驗證的 API
+    Route::get('/api', [ApiController::class, 'api']);
+});
+
+// 不需要驗證的 API 路由
+Route::get('/public-api', [ApiController::class, 'api']);
+
+// GET 請求
+Route::get('/public-api', [ApiController::class, 'api']);
+
+// POST 請求
+Route::post('/public-api', [ApiController::class, 'store']);
+
+// PUT 請求，帶 id 參數
+Route::put('/public-api/{id}', [ApiController::class, 'update']);
+
+// DELETE 請求，帶 id 參數
+Route::delete('/public-api/{id}', [ApiController::class, 'destroy']);
+
+// 接受所有方法
+Route::any('/public-api/any', [ApiController::class, 'handleAny']);
+```
+
+```php
+use Illuminate\Support\Facades\Request;
+
+class ApiController extends AdminController {
+
+    /*
+        其他程式碼........
+    */
+    protected function api(httpRequest $request){
+        $id = $request->get('id');
+
+        // 資料驗證，用來檢查輸入的參數是否符合格式與規則
+        $request->validate([
+            'id' => 'required|string',
+            'date' => 'required|date_format:Y-m-d',
+        ]);
+
+        $arr = Db::table("test")
+        ->where(["id" => $id])
+        ->distinct()
+        ->get([Db::raw('id'), Db::raw('id as text')]);
+        return $arr;
+    }
+
+    public function api(Request $request)
+    {
+        $message = 'ok';
+        $status_code = 200;
+
+        return response()->json([
+            'message' => $message,
+            'error_code' => $status_code,
+        ], $status_code);
+    }
+}
+```
+
+curl 測試範例
+
+```sh
+# http://your-domain/admin/api/test?id=1
+curl -X GET "http://127.0.0.1:8000/admin/api/test?id=1"
+```
+
+若 API 有登入驗證（Laravel Admin 常會有登入 Cookie），你需要攜帶 cookie
+
+```sh
+curl -X GET "http://127.0.0.1:8000/admin/api/test?id=1" \
+  -H "Cookie: laravel_session=你的 session id"
+```
+
+### 加驗證與錯誤處理
+
+```php
+public function profile($id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    return response()->json([
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'registered_at' => $user->created_at->toDateTimeString(),
+    ]);
+}
 ```
 
 ## Console 自製終端機命令

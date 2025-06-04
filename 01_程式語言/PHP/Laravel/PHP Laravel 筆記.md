@@ -36,6 +36,12 @@
     - [設定錯誤通知](#設定錯誤通知)
   - [路由設定](#路由設定)
   - [中介層（Middleware）](#中介層middleware)
+  - [API 寫法範例(Laravel 10 以上建議)](#api-寫法範例laravel-10-以上建議)
+    - [錯誤處理（可選）](#錯誤處理可選)
+    - [認證處理（Sanctum）](#認證處理sanctum)
+  - [上傳圖片 API](#上傳圖片-api)
+  - [JWT 驗證](#jwt-驗證)
+  - [多對多關聯 CRUD](#多對多關聯-crud)
 - [Laravel 技巧](#laravel-技巧)
   - [驗證（Validation） 表單請求驗證的寫法](#驗證validation-表單請求驗證的寫法)
   - [由資源控制器處理的行為](#由資源控制器處理的行為)
@@ -845,6 +851,233 @@ php artisan make:middleware CheckRole
 Route::get('/admin', function () {
     // 管理後台
 })->middleware('role:admin');
+```
+
+## API 寫法範例(Laravel 10 以上建議)
+
+專案結構
+
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   └── Api/
+│   │       └── UserController.php
+│   ├── Requests/
+│   │   └── StoreUserRequest.php
+│   │   └── UpdateUserRequest.php
+│   └── Resources/
+│       └── UserResource.php
+├── Models/
+│   └── User.php
+routes/
+└── api.php
+```
+
+路由設定：routes/api.php
+
+```php
+use App\Http\Controllers\Api\UserController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('users', UserController::class);
+});
+```
+
+Controller 實作：UserController.php
+
+```sh
+php artisan make:controller UserController
+```
+
+```php
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\UserResource;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
+
+class UserController extends Controller
+{
+    public function index(): JsonResponse
+    {
+        return response()->json(UserResource::collection(User::paginate(10)));
+    }
+
+    public function store(StoreUserRequest $request): JsonResponse
+    {
+        $user = User::create($request->validated());
+        return response()->json(new UserResource($user), 201);
+    }
+
+    public function show(User $user): JsonResponse
+    {
+        return response()->json(new UserResource($user));
+    }
+
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    {
+        $user->update($request->validated());
+        return response()->json(new UserResource($user));
+    }
+
+    public function destroy(User $user): JsonResponse
+    {
+        $user->delete();
+        return response()->json(['message' => 'Deleted successfully']);
+    }
+}
+```
+
+Request 驗證：StoreUserRequest.php / UpdateUserRequest.php
+
+```php
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class StoreUserRequest extends FormRequest
+{
+    public function rules(): array
+    {
+        return [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|string|min:8',
+        ];
+    }
+}
+```
+
+```php
+class UpdateUserRequest extends FormRequest
+{
+    public function rules(): array
+    {
+        return [
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $this->user->id,
+            'password' => 'nullable|string|min:8',
+        ];
+    }
+}
+```
+
+Resource 回傳格式：UserResource.php
+
+```php
+namespace App\Http\Resources;
+
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class UserResource extends JsonResource
+{
+    public function toArray($request): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+            'created_at' => $this->created_at->toDateTimeString(),
+        ];
+    }
+}
+```
+
+### 錯誤處理（可選）
+
+修改 app/Exceptions/Handler.php 中 render()，或使用全域 Exception 處理
+
+```php
+public function render($request, Throwable $exception)
+{
+    if ($request->expectsJson()) {
+        return response()->json([
+            'error' => true,
+            'message' => $exception->getMessage(),
+        ], method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : 500);
+    }
+
+    return parent::render($request, $exception);
+}
+```
+
+### 認證處理（Sanctum）
+
+安裝與設定 Sanctum
+
+```sh
+composer require laravel/sanctum
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+php artisan migrate
+```
+
+加入 api middleware
+
+```php
+// app/Http/Kernel.php
+'api' => [
+    \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+    'throttle:api',
+    \Illuminate\Routing\Middleware\SubstituteBindings::class,
+],
+```
+
+登入、取得 Token API
+
+```php
+Route::post('/login', function (Request $request) {
+    $credentials = $request->only('email', 'password');
+
+    if (!Auth::attempt($credentials)) {
+        return response()->json(['message' => 'Invalid credentials'], 401);
+    }
+
+    $user = Auth::user();
+    $token = $user->createToken('api-token')->plainTextToken;
+
+    return response()->json(['token' => $token]);
+});
+```
+
+API 回傳格式（統一格式建議）
+
+可透過 BaseController 做統一封裝。
+
+```php
+return response()->json([
+    'success' => true,
+    'data' => new UserResource($user),
+    'message' => 'User created successfully',
+]);
+```
+
+補充功能
+
+```
+功能	建議做法
+分頁	User::paginate(10) 搭配 UserResource::collection()
+排序/篩選	可用 Query Builder 或 Spatie QueryBuilder
+多語系錯誤訊息	使用 resources/lang/zh_TW/validation.php
+API 文件	使用 Laravel Swagger 或 scribe
+```
+
+## 上傳圖片 API
+
+```
+```
+
+## JWT 驗證
+
+```
+```
+
+## 多對多關聯 CRUD
+
+```
 ```
 
 # Laravel 技巧
