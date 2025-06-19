@@ -28,6 +28,9 @@
   - [迴圈](#迴圈)
   - [物件](#物件)
   - [正則表達式](#正則表達式)
+- [技巧](#技巧)
+  - [快速替換程式建議（可丟進 log/debug 用）](#快速替換程式建議可丟進-logdebug-用)
+  - [大量資料 避免記憶體限制使用 chunk 批次處理](#大量資料-避免記憶體限制使用-chunk-批次處理)
 - [例外狀況](#例外狀況)
   - [MacOS - dyld\[60237\]: Library not loaded: /usr/local/opt/icu4c/lib/libicuio.70.dylib](#macos---dyld60237-library-not-loaded-usrlocalopticu4cliblibicuio70dylib)
 
@@ -454,6 +457,42 @@ $result = preg_replace($pat, $new, $target);
 
 // 通過一個正則表達式分隔字符串
 preg_split()
+```
+
+# 技巧
+
+## 快速替換程式建議（可丟進 log/debug 用）
+
+這樣可以快速產出含值的 SQL 字串，方便貼去資料庫測試。
+
+```php
+$sql = $query->toSql();
+$bindings = $query->getBindings();
+
+foreach ($bindings as $binding) {
+    $sql = preg_replace('/\?/', is_numeric($binding) ? $binding : "'$binding'", $sql, 1);
+}
+
+dd($sql);
+```
+
+## 大量資料 避免記憶體限制使用 chunk 批次處理
+
+只適合只讀操作（例如查詢、彙整報表等），不要在 chunk 內執行 update 或 delete。
+
+```php
+function chunkedQueryToArray($query, $chunkSize = 500): array
+{
+    $results = [];
+
+    $query->chunk($chunkSize, function ($rows) use (&$results) {
+        foreach ($rows as $row) {
+            $results[] = $row;
+        }
+    });
+
+    return $results;
+}
 ```
 
 # 例外狀況
