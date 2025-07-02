@@ -126,6 +126,8 @@ brew install percona-xtrabackup
 
 ## Ubuntu
 
+### Ubuntu 24.04 LTS (MySQL 5.7) (percona-xtrabackup-24)
+
 ```bash
 wget https://repo.percona.com/apt/percona-release_1.0-25.generic_all.deb
 dpkg -i percona-release_1.0-25.generic_all.deb
@@ -133,17 +135,7 @@ apt-get update
 apt-get install percona-xtrabackup-24 -y
 ```
 
-ps80 是 Percona Server 8.0 的縮寫，也會加裝 xtrabackup
-(2.4匯出的只能2.4匯入)
 
-```sh
-wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-dpkg -i percona-release_latest.generic_all.deb
-percona-release setup ps80
-apt-get update
-
-apt-get install percona-xtrabackup
-```
 
 ```sh
 # 新增 Percona 官方 repository（如果還沒裝過）
@@ -158,7 +150,7 @@ apt update
 apt install percona-xtrabackup-24
 ```
 
-### E: Package 'percona-xtrabackup-24' has no installation candidate
+#### E: Package 'percona-xtrabackup-24' has no installation candidate
 
 手動下載安裝 XtraBackup 2.4（適用於 MySQL 5.7）
 
@@ -186,6 +178,58 @@ apt-get install -f
 apt-cache search percona-xtrabackup
 ```
 
+#### Percona Server 8.0 (2.4匯出的只能2.4匯入)
+
+ps80 是 Percona Server 8.0 的縮寫，也會加裝 xtrabackup
+(2.4匯出的只能2.4匯入)
+
+```sh
+wget https://repo.percona.com/apt/percona-release_latest.generic_all.deb
+dpkg -i percona-release_latest.generic_all.deb
+percona-release setup ps80
+apt-get update
+
+apt-get install percona-xtrabackup
+```
+
+### Ubuntu 18.04 LTS (MySQL 5.7) (percona-xtrabackup-24)
+
+匯入 Percona APT GPG 金鑰
+
+```sh
+wget https://www.percona.com/downloads/RPM-GPG-KEY-percona
+apt-key add RPM-GPG-KEY-percona
+```
+
+加入 Percona APT 套件來源
+
+```sh
+echo "deb http://repo.percona.com/apt bionic main" | sudo tee /etc/apt/sources.list.d/percona.list
+```
+
+手動匯入正確的 GPG 公鑰
+
+```sh
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 9334A25F8507EFA5
+```
+
+更新套件庫
+
+```sh
+apt update
+```
+
+安裝 XtraBackup 2.4
+
+```sh
+apt install percona-xtrabackup-24 -y
+```
+
+驗證是否安裝成功
+
+```sh
+xtrabackup --version
+```
 
 # 指令
 

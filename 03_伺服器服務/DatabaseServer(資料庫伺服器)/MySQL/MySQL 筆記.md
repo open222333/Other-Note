@@ -29,6 +29,8 @@ RDBMS
   - [MacOS](#macos)
   - [CentOS7](#centos7)
   - [Debian (Ubuntu)](#debian-ubuntu)
+    - [Ubuntu 18.04 LTS (MySQL 5.7)](#ubuntu-1804-lts-mysql-57)
+      - [腳本](#腳本)
     - [8.0](#80)
     - [5.7](#57)
     - [移除舊版 mysql-apt-config](#移除舊版-mysql-apt-config)
@@ -449,6 +451,54 @@ firewall-cmd --reload
 ```
 
 ## Debian (Ubuntu)
+
+### Ubuntu 18.04 LTS (MySQL 5.7)
+
+```bash
+# 更新套件庫
+apt update
+apt upgrade -y
+
+# 看安裝什麼版本
+apt-cache policy mysql-server
+
+# 安裝 mysql 5.7
+apt install mysql-server -y
+
+
+# 啟動 MySQL 並設定 root 密碼（建議改）
+systemctl enable mysql
+systemctl start mysql
+
+# 安裝完成 版本資訊
+mysql --version
+```
+
+#### 腳本
+
+```bash
+#!/bin/bash
+
+# 一旦腳本中的 任何指令失敗（回傳值非 0），整個腳本就會立即停止執行。
+set -e
+
+echo "🔍 更新套件庫..."
+sudo apt update
+sudo apt upgrade -y
+
+echo "📦 安裝 MySQL Server（預設為 5.7）..."
+sudo apt install mysql-server -y
+
+echo "🔐 啟動 MySQL 並設定 root 密碼（建議改）..."
+sudo systemctl enable mysql
+sudo systemctl start mysql
+
+echo "⚙️ 執行安全性設定（建議互動式執行）..."
+sudo mysql_secure_installation
+
+echo "✅ 安裝完成！版本資訊如下："
+mysql --version
+```
 
 ### 8.0
 
