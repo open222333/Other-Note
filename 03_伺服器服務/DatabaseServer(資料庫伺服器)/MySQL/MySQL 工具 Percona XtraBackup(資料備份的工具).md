@@ -201,16 +201,16 @@ wget https://www.percona.com/downloads/RPM-GPG-KEY-percona
 apt-key add RPM-GPG-KEY-percona
 ```
 
-加入 Percona APT 套件來源
-
-```sh
-echo "deb http://repo.percona.com/apt bionic main" | sudo tee /etc/apt/sources.list.d/percona.list
-```
-
 手動匯入正確的 GPG 公鑰
 
 ```sh
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 9334A25F8507EFA5
+```
+
+加入 Percona APT 套件來源
+
+```sh
+echo "deb http://repo.percona.com/apt bionic main" | sudo tee /etc/apt/sources.list.d/percona.list
 ```
 
 更新套件庫
