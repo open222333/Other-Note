@@ -17,6 +17,7 @@ RDBMS
     - [使用者權限相關](#使用者權限相關)
     - [安裝相關](#安裝相關)
       - [Docker相關](#docker相關)
+      - [Ubuntu相關](#ubuntu相關)
     - [操作相關](#操作相關)
     - [備份相關](#備份相關)
       - [備份指令相關](#備份指令相關)
@@ -30,6 +31,7 @@ RDBMS
   - [CentOS7](#centos7)
   - [Debian (Ubuntu)](#debian-ubuntu)
     - [Ubuntu 18.04 LTS (MySQL 5.7)](#ubuntu-1804-lts-mysql-57)
+      - [初始密碼](#初始密碼)
       - [腳本](#腳本)
     - [8.0](#80)
     - [5.7](#57)
@@ -68,6 +70,7 @@ RDBMS
       - [START TRANSACTION;](#start-transaction)
 - [重大備份](#重大備份)
 - [狀況](#狀況)
+  - [自動重設 MySQL root 密碼的 Shell 腳本，適用於 Ubuntu / Debian 系統、MySQL 5.7](#自動重設-mysql-root-密碼的-shell-腳本適用於-ubuntu--debian-系統mysql-57)
   - [mysql: \[Warning\] Using a password on the command line interface can be insecure.](#mysql-warning-using-a-password-on-the-command-line-interface-can-be-insecure)
     - [使用 MySQL 配置檔案 (my.cnf)](#使用-mysql-配置檔案-mycnf)
     - [使用環境變數](#使用環境變數)
@@ -140,6 +143,10 @@ RDBMS
 [docker hub (mysql)](https://hub.docker.com/_/mysql)
 
 [mysql/docker-healthcheck](https://github.com/docker-library/healthcheck/blob/40afbf64d69cf933af0da4df6383958a29113601/mysql/docker-healthcheck)
+
+#### Ubuntu相關
+
+[Ubuntu下给MySQL修改root密码 Ubuntu 18.04 LTS (MySQL 5.7)](https://www.cnblogs.com/zhx-blog/p/13763055.html)
 
 ### 操作相關
 
@@ -472,6 +479,89 @@ systemctl start mysql
 
 # 安裝完成 版本資訊
 mysql --version
+```
+
+#### 初始密碼
+
+```sh
+cat /etc/mysql/debian.cnf
+```
+
+```sh
+mysql_secure_installation
+```
+
+```sh
+Securing the MySQL server deployment.
+
+Enter password for user root:
+
+VALIDATE PASSWORD PLUGIN can be used to test passwords
+and improve security. It checks the strength of password
+and allows the users to set only those passwords which are
+secure enough. Would you like to setup VALIDATE PASSWORD plugin?
+
+Press y|Y for Yes, any other key for No: N
+Using existing password for root.
+Change the password for root ? ((Press y|Y for Yes, any other key for No) : Y
+
+New password:
+
+Re-enter new password:
+By default, a MySQL installation has an anonymous user,
+allowing anyone to log into MySQL without having to have
+a user account created for them. This is intended only for
+testing, and to make the installation go a bit smoother.
+You should remove them before moving into a production
+environment.
+
+預設情況下，MySQL 安裝後會有 匿名使用者（anonymous user）：
+不需要帳號密碼即可連線本機 MySQL。
+這設計是為了方便測試環境使用。
+但在生產環境中非常危險，因為任何人都能連進資料庫而不需驗證。
+
+Remove anonymous users? (Press y|Y for Yes, any other key for No) : Y
+Success.
+
+「是否禁止 root 從遠端登入？」
+預設情況下，root 帳號只能從 localhost（本機）登入。
+這樣可以防止駭客透過網路猜 root 密碼。
+建議：生產環境中請選擇 Y，這樣可以強化安全性。
+
+Normally, root should only be allowed to connect from
+'localhost'. This ensures that someone cannot guess at
+the root password from the network.
+
+Disallow root login remotely? (Press y|Y for Yes, any other key for No) : N
+
+MySQL 預設有一個 test 資料庫：
+所有人（包含匿名使用者）都可以存取這個資料庫。
+這是為了方便測試用途。
+在生產環境中，保留這個資料庫會帶來潛在安全風險。
+
+ ... skipping.
+By default, MySQL comes with a database named 'test' that
+anyone can access. This is also intended only for testing,
+and should be removed before moving into a production
+environment.
+
+Remove test database and access to it? (Press y|Y for Yes, any other key for No) : Y
+ - Dropping test database...
+Success.
+
+ - Removing privileges on test database...
+Success.
+
+重新載入權限資料表（privilege tables）
+這會立即讓剛剛你所做的更改（像是刪除匿名使用者、移除 test 資料庫、禁止 root 遠端登入等等）立刻生效。
+
+Reloading the privilege tables will ensure that all changes
+made so far will take effect immediately.
+
+Reload privilege tables now? (Press y|Y for Yes, any other key for No) : Y
+Success.
+
+All done!
 ```
 
 #### 腳本
@@ -1528,6 +1618,58 @@ cp /path/to/mysql/data/mysql-bin.* /path/to/backup/
 確保備份文件存儲在一個安全的位置，最好是離數據庫伺服器足夠遠的地方。使用日期或描述性的標籤命名備份文件，以便在需要時能夠方便地識別和還原。
 
 # 狀況
+
+## 自動重設 MySQL root 密碼的 Shell 腳本，適用於 Ubuntu / Debian 系統、MySQL 5.7
+
+reset_mysql_root.sh
+
+```sh
+#!/bin/bash
+set -e
+
+NEW_PASSWORD="NewPassword123!"  # ← 請自行修改密碼
+
+echo "1️⃣ 停止 MySQL 服務..."
+sudo systemctl stop mysql
+
+echo "2️⃣ 啟動 mysqld_safe --skip-grant-tables..."
+sudo mysqld_safe --skip-grant-tables &
+
+echo "⏳ 等待 mysqld 啟動..."
+sleep 5
+
+echo "3️⃣ 進入 MySQL，重設 root 密碼..."
+mysql -u root <<EOF
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${NEW_PASSWORD}';
+EOF
+
+echo "4️⃣ 關閉 mysqld_safe..."
+sudo killall mysqld || true
+
+echo "5️⃣ 重新啟動 MySQL..."
+sudo systemctl start mysql
+
+echo "✅ 密碼重設完成！請用以下方式登入："
+echo "    mysql -u root -p"
+echo "👉 密碼：${NEW_PASSWORD}"
+```
+
+```bash
+nano reset_mysql_root.sh
+```
+
+貼上內容後存檔，然後給執行權限：
+
+```bash
+chmod +x reset_mysql_root.sh
+```
+
+執行腳本：
+
+```bash
+./reset_mysql_root.sh
+```
 
 ## mysql: [Warning] Using a password on the command line interface can be insecure.
 
