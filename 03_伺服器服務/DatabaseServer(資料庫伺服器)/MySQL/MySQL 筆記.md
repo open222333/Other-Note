@@ -44,6 +44,7 @@ RDBMS
     - [Homebrew (MacOS)](#homebrew-macos)
 - [資料型態](#資料型態)
 - [指令](#指令)
+  - [重新初始化資料庫 (MySQL 5.7)](#重新初始化資料庫-mysql-57)
   - [查看資訊](#查看資訊)
     - [查看 目前 ssl-mode 設定](#查看-目前-ssl-mode-設定)
     - [查看 MySQL 使用容量](#查看-mysql-使用容量)
@@ -70,6 +71,8 @@ RDBMS
       - [START TRANSACTION;](#start-transaction)
 - [重大備份](#重大備份)
 - [狀況](#狀況)
+  - [重置密碼 (Ubuntu 18.04 TLS, MySQL 5.7)](#重置密碼-ubuntu-1804-tls-mysql-57)
+    - [Directory '/var/run/mysqld' for UNIX socket file don't exists.](#directory-varrunmysqld-for-unix-socket-file-dont-exists)
   - [自動重設 MySQL root 密碼的 Shell 腳本，適用於 Ubuntu / Debian 系統、MySQL 5.7](#自動重設-mysql-root-密碼的-shell-腳本適用於-ubuntu--debian-系統mysql-57)
   - [mysql: \[Warning\] Using a password on the command line interface can be insecure.](#mysql-warning-using-a-password-on-the-command-line-interface-can-be-insecure)
     - [使用 MySQL 配置檔案 (my.cnf)](#使用-mysql-配置檔案-mycnf)
@@ -836,6 +839,32 @@ POLYGON
 ```
 
 # 指令
+
+## 重新初始化資料庫 (MySQL 5.7)
+
+```sh
+mysqld --initialize --user=mysql --basedir=/usr --datadir=/var/lib/mysql
+```
+
+查看初始密碼
+
+```sh
+cat /var/log/mysql/error.log | grep 'temporary password'
+```
+
+or
+
+```sh
+cat /var/log/mysqld.log | grep 'temporary password'
+```
+
+更改密碼 以及 主機
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'password';
+UPDATE mysql.user SET host = '%' WHERE user = 'root';
+FLUSH PRIVILEGES;
+```
 
 ## 查看資訊
 
@@ -1618,6 +1647,58 @@ cp /path/to/mysql/data/mysql-bin.* /path/to/backup/
 確保備份文件存儲在一個安全的位置，最好是離數據庫伺服器足夠遠的地方。使用日期或描述性的標籤命名備份文件，以便在需要時能夠方便地識別和還原。
 
 # 狀況
+
+## 重置密碼 (Ubuntu 18.04 TLS, MySQL 5.7)
+
+停止 MySQL 服務
+
+```sh
+systemctl stop mysql
+```
+
+用「跳過權限驗證」方式啟動
+
+```sh
+mysqld_safe --skip-grant-tables &
+```
+
+等待數秒直到看到
+
+```
+mysqld: ready for connections
+```
+
+開一個新 Terminal 或新分頁，登入 MySQL（無密碼）
+
+```sh
+mysql -u root
+```
+
+```sql
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'NewPassword@123';
+```
+
+```sql
+UPDATE mysql.user SET authentication_string=PASSWORD('NewPassword@123') WHERE User='root';
+```
+
+停止跳過權限的 mysqld_safe
+
+```sh
+pkill -f -- '--skip-grant-tables'
+```
+
+### Directory '/var/run/mysqld' for UNIX socket file don't exists.
+
+表示 MySQL 啟動時預期的 socket 資料夾 /var/run/mysqld 不存在，導致無法建立 mysql.sock 檔案。
+
+建立缺失的目錄 指定目錄擁有者為 mysql
+
+```sh
+mkdir -p /var/run/mysqld
+chown mysql:mysql /var/run/mysqld
+```
 
 ## 自動重設 MySQL root 密碼的 Shell 腳本，適用於 Ubuntu / Debian 系統、MySQL 5.7
 
