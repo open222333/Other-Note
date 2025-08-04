@@ -58,6 +58,8 @@
   - [設定永遠快取密碼，則可執行以下指令進行設定](#設定永遠快取密碼則可執行以下指令進行設定)
   - [設置git忽略](#設置git忽略)
 - [範例](#範例)
+  - [更換子模組路徑](#更換子模組路徑)
+    - [手動清除指令](#手動清除指令)
   - [不想合併，但又需要解決這些未追蹤檔案的問題](#不想合併但又需要解決這些未追蹤檔案的問題)
   - [Python 更改資料夾內所有專案設定](#python-更改資料夾內所有專案設定)
   - [Git pull 錯誤操作](#git-pull-錯誤操作)
@@ -1064,6 +1066,68 @@ config/database.yml
 ```
 
 # 範例
+
+## 更換子模組路徑
+
+Step 1：移除子模組資料夾與 Git 索引
+
+```sh
+# 移除 Git 中的索引（注意：這不會刪除實際資料夾）
+git submodule deinit -f <repo-name>
+git rm -f <repo-name>
+```
+
+若這步出錯，跳到下方「手動清除方式」。
+
+Step 2：刪除 Git modules 設定資料夾
+
+```sh
+rm -rf .git/modules/<repo-name>
+```
+
+Step 3：編輯 .gitmodules 檔案，刪除以下段落
+
+```
+[submodule "<repo-name>"]
+    path = ...
+    url = ...
+```
+
+然後執行
+
+```sh
+git add .gitmodules
+```
+
+Step 4：commit 移除動作
+
+```sh
+git commit -m "Remove submodule <repo-name>"
+```
+
+### 手動清除指令
+
+如果出錯（例如找不到 pathspec）
+
+若之前手動刪過資料夾或 .git/modules/...，Git 就可能會報錯。
+
+這時請用以下手動方式清掉所有痕跡：
+
+```sh
+# 刪除實體資料夾（如果還存在）
+rm -rf <repo-path>
+
+# 刪除 .gitmodules 裡的 mongo_data_process 區塊
+# 或使用 sed 直接移除（備份先做一份）
+sed -i.bak '/submodule "<repo-name>"/,+2d' .gitmodules
+
+# 刪除 .git/config 中的對應段落（手動編輯建議）
+```
+
+```sh
+git add .gitmodules
+git commit -am "Force remove broken <repo-name> submodule"
+```
 
 ## 不想合併，但又需要解決這些未追蹤檔案的問題
 
