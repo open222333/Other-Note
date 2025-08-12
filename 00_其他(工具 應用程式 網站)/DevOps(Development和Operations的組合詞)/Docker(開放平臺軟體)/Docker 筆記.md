@@ -26,10 +26,12 @@
 - [指令](#指令)
   - [服務](#服務)
   - [docker](#docker)
+    - [全部整理（包含懸空容器、映像、網路、build cache）](#全部整理包含懸空容器映像網路build-cache)
     - [匯出 log](#匯出-log)
     - [docker-slim 容量優化工具： 一些工具可以分析和優化 Docker 映像的大小](#docker-slim-容量優化工具-一些工具可以分析和優化-docker-映像的大小)
     - [docker inspect 取得有關 Docker 物件的詳細信息](#docker-inspect-取得有關-docker-物件的詳細信息)
     - [image](#image)
+      - [移除所有未被使用的映像（不包含被任何容器使用的）](#移除所有未被使用的映像不包含被任何容器使用的)
     - [docker hub](#docker-hub)
     - [container 容器](#container-容器)
     - [network 網路](#network-網路)
@@ -50,6 +52,10 @@
     - [docker-compose.nginx\_plus(centos)-php\_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
     - [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
     - [連線 主機別名](#連線-主機別名)
+- [用法](#用法)
+  - [不同 docker-compose 使用同一組網路](#不同-docker-compose-使用同一組網路)
+    - [測試容器連線](#測試容器連線)
+    - [手動將容器加入網路](#手動將容器加入網路)
 - [例外狀況](#例外狀況)
   - [使用 Docker 容器限制日誌大小](#使用-docker-容器限制日誌大小)
   - [KeyError: 'ContainerConfig' \[26571\] Failed to execute script docker-compose](#keyerror-containerconfig-26571-failed-to-execute-script-docker-compose)
@@ -460,15 +466,6 @@ journalctl -u docker
 ## docker
 
 ```bash
-# 清除沒在使用的image
-docker system prune
-	-a 額外刪除任何已停止的容器和所有未使用的image
-
-# 清理不再使用的映像、容器和其他資源，以釋放磁碟空間
-docker system prune -a
-```
-
-```bash
 # 顯示 docker 的資訊
 docker info
 
@@ -538,6 +535,20 @@ docker images -a --no-trunc | grep '<none>' | awk '{ print $3 }' | xargs -r dock
 # xargs -r docker rmi: 使用 xargs 將取得的映像 ID 傳遞給 docker rmi 命令，以刪除這些映像。
 ```
 
+### 全部整理（包含懸空容器、映像、網路、build cache）
+
+清理不再使用的映像、容器和其他資源，以釋放磁碟空間
+
+```sh
+docker system prune -a
+```
+
+```bash
+# 清除沒在使用的image
+docker system prune
+	-a 額外刪除任何已停止的容器和所有未使用的image
+```
+
 ### 匯出 log
 
 ```bash
@@ -584,6 +595,12 @@ docker image
 	--format		使用 Go 模板打印漂亮的圖像
 	--no-trunc		不要截斷輸出
 	--quiet , -q		僅顯示圖像 ID
+```
+
+#### 移除所有未被使用的映像（不包含被任何容器使用的）
+
+```sh
+docker image prune -a
 ```
 
 ### docker hub
@@ -1314,6 +1331,56 @@ services:
     image: postgres
     ports:
       - "8001:5432"
+```
+
+# 用法
+
+## 不同 docker-compose 使用同一組網路
+
+手動建立共用網路（一次即可）
+
+```sh
+docker network create my_shared_net
+```
+
+修改 每個 docker-compose.yml 加入：
+
+```yaml
+networks:
+  shared_net:
+    external: true
+    name: my_shared_net
+```
+
+並在每個 service 下方加：
+
+```yaml
+    networks:
+      - shared_net
+```
+
+### 測試容器連線
+
+```sh
+ping mydb
+```
+
+```sh
+curl http://mydb:port
+```
+
+確認網路內容
+
+```sh
+docker network inspect my_shared_net
+```
+
+### 手動將容器加入網路
+
+web_container
+
+```sh
+docker network connect my_shared_net web_container
 ```
 
 # 例外狀況
