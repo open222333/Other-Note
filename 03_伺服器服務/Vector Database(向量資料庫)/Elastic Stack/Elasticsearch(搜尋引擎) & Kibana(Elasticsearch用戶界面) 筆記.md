@@ -975,7 +975,9 @@ docker restart elasticsearch
 # Elasticsearch中預設的標準分詞器(analyze)對中文分詞不是很友好 因此需下載ik分詞器
 # https://github.com/medcl/elasticsearch-analysis-ik/releases
 cd /usr/share/elasticsearch/plugins/
-elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+# elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip
+# https://release.infinilabs.com/analysis-ik/stable/
+elasticsearch-plugin install https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-7.13.3.zip
 exit
 docker restart elasticsearch
 ```
