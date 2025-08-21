@@ -1116,6 +1116,8 @@ rm -rf /var/log/elasticsearch
 # https://github.com/medcl/elasticsearch-analysis-ik/releases
 cd /usr/share/elasticsearch/plugins/
 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+# https://release.infinilabs.com/analysis-ik/stable/
+elasticsearch-plugin install https://release.infinilabs.com/analysis-ik/stable/elasticsearch-analysis-ik-7.13.3.zip
 
 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip
 
