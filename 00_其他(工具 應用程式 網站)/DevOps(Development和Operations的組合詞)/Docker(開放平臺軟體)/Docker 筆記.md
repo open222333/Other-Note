@@ -15,6 +15,7 @@
 - [安裝](#安裝)
   - [RedHat (CentOS 7)](#redhat-centos-7)
   - [Debian (Ubuntu)](#debian-ubuntu)
+  - [MacOS](#macos)
   - [Windows 10](#windows-10)
     - [安裝 Docker Desktop（包含 Docker 和 Docker Compose）](#安裝-docker-desktop包含-docker-和-docker-compose)
     - [使用 WSL 2 安裝 Docker CLI 和 Docker Compose](#使用-wsl-2-安裝-docker-cli-和-docker-compose)
@@ -224,6 +225,56 @@ chmod +x /usr/local/bin/docker-compose
 # 驗證安裝：
 docker-compose --version
 ```
+
+## MacOS
+
+方法一：已安裝 Docker Desktop for Mac
+
+如果已經安裝 Docker Desktop for Mac，那麼 docker compose 已內建，可以直接用：
+
+```sh
+docker compose version
+```
+
+注意：新版 Docker Desktop 改用 docker compose (沒有 -)，舊版才是 docker-compose。
+
+✅ 方法二：使用 Homebrew 安裝 (獨立安裝)
+
+```sh
+brew install docker-compose
+```
+
+安裝後檢查版本：
+
+```sh
+docker-compose --version
+```
+
+✅ 方法三：手動下載二進位檔 (較少用)
+
+可以直接從 GitHub 發布頁下載：
+
+```sh
+curl -L "https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+```
+
+(上面 v2.29.7 是範例，建議去 docker/compose releases 找最新版本)
+
+然後給執行權限：
+
+```sh
+chmod +x /usr/local/bin/docker-compose
+```
+
+檢查是否成功：
+
+```sh
+docker-compose --version
+```
+
+⚠️ 小提醒：
+
+新版 Docker 建議使用 docker compose 而不是 docker-compose。
 
 ## Windows 10
 
