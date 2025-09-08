@@ -96,6 +96,8 @@ MySQL Group Replication 的高可用性和故障轉移機制通常需要至少�
     - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
     - [Last\_Errno: 1594](#last_errno-1594)
     - [Last\_Errno: 1032](#last_errno-1032)
+  - [主從資料不一致 (Replication Error 1032)](#主從資料不一致-replication-error-1032)
+    - [使用 pt-table-sync 自動修復 (可以邊同步邊修資料，不需要停 Master。)](#使用-pt-table-sync-自動修復-可以邊同步邊修資料不需要停-master)
 
 ## 參考資料
 
@@ -581,4 +583,16 @@ Last_Error: Could not execute Update_rows event on table avnight.member_log; Can
 錯誤代碼: 1032
 錯誤描述: Can't find record in 'member_log'
 原因: 從伺服器試圖執行來自主伺服器的一個 UPDATE 或 DELETE 操作，但該操作所要修改或刪除的記錄在從伺服器的 member_log 表中不存在。這可能是因為主伺服器與從伺服器之間的資料不同步。
+```
+
+## 主從資料不一致 (Replication Error 1032)
+
+### 使用 pt-table-sync 自動修復 (可以邊同步邊修資料，不需要停 Master。)
+
+Percona Toolkit 裡有個工具 pt-table-sync，可以自動比對 Master/Slave 資料並補齊差異。
+
+```sh
+pt-table-sync --execute --verbose \
+  h=master_host,u=repl,p=xxx,D=avnight,t=member_check_in \
+  h=slave_host,u=repl,p=xxx
 ```
