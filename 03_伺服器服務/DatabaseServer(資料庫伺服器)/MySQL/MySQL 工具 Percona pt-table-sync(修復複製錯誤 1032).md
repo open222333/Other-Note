@@ -216,4 +216,3 @@ pt-table-sync --execute --verbose \
 START SLAVE;
 SHOW SLAVE STATUS\G
 ```
-
