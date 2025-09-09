@@ -28,6 +28,7 @@ Percona Toolkit 提供的工具，專門修復複製錯誤 (像 1032 找不到�
   - [RedHat (CentOS)](#redhat-centos)
 - [指令](#指令)
   - [基本用法](#基本用法)
+    - [建立一個專用帳號（推薦）](#建立一個專用帳號推薦)
     - [修復 Master 與 Slave 的差異](#修復-master-與-slave-的差異)
     - [先檢查再修復](#先檢查再修復)
     - [修復整個資料](#修復整個資料)
@@ -128,6 +129,14 @@ pt-table-sync [OPTIONS] DSN [DSN]
 ```
 
 ## 基本用法
+
+### 建立一個專用帳號（推薦）
+
+```sh
+CREATE USER 'syncuser'@'192.168.%' IDENTIFIED BY 'StrongPass!';
+GRANT SELECT, INSERT, UPDATE, DELETE ON database.* TO 'syncuser'@'192.168.%';
+FLUSH PRIVILEGES;
+```
 
 ### 修復 Master 與 Slave 的差異
 
