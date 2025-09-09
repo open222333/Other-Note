@@ -98,6 +98,7 @@ MySQL Group Replication 的高可用性和故障轉移機制通常需要至少�
     - [Last\_Errno: 1032](#last_errno-1032)
   - [主從資料不一致 (Replication Error 1032)](#主從資料不一致-replication-error-1032)
     - [使用 pt-table-sync 自動修復 (可以邊同步邊修資料，不需要停 Master。)](#使用-pt-table-sync-自動修復-可以邊同步邊修資料不需要停-master)
+    - [Master 資料庫的表清單裡，確實 沒有 table 但 binlog 還保留了歷史操作](#master-資料庫的表清單裡確實-沒有-table-但-binlog-還保留了歷史操作)
 
 ## 參考資料
 
@@ -596,3 +597,51 @@ pt-table-sync --execute --verbose \
   h=master_host,u=repl,p=xxx,D=avnight,t=member_check_in \
   h=slave_host,u=repl,p=xxx
 ```
+
+### Master 資料庫的表清單裡，確實 沒有 table 但 binlog 還保留了歷史操作
+
+
+方案 A：確認 table 已經真的不再需要
+
+如果業務層確定這張表已經被淘汰，後續都不會再用：
+
+跳過這個表的錯誤事件
+
+在 Slave 執行：
+
+```sql
+STOP SLAVE;
+SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1;
+START SLAVE;
+```
+
+如果錯誤很多，建議用
+
+```sql
+SET GLOBAL slave_skip_errors = '1032,1051,1146';
+```
+
+```
+1032 = 找不到紀錄
+
+1051 = 找不到表
+
+1146 = 表不存在
+```
+
+方案 B：暫時「補一張空表」來消化 binlog
+
+如果你擔心有程式還在寫 table：
+
+在 Master 建一張同名空表（結構要正確，資料可以不用）
+
+```sql
+CREATE TABLE ad_process (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  -- 其他欄位依照歷史設計來
+) ENGINE=InnoDB;
+```
+
+讓 binlog 的更新能正常套用到 Slave。
+
+等 binlog 裡過去的事件消化完後，再確認要不要真正移除。
