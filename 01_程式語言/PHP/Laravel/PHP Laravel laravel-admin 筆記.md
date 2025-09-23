@@ -29,7 +29,9 @@ laravel-admin 控制器 在 app/Admin/Controllers
 - [常用指令](#常用指令)
   - [git clone 專案後使用](#git-clone-專案後使用)
 - [用法](#用法)
+  - [Controller](#controller)
   - [Route API](#route-api)
+    - [Laravel-Admin 套件常用的路由群組寫法，用來定義後台管理頁面的路由，結合 Laravel 的 Route::group() 功能](#laravel-admin-套件常用的路由群組寫法用來定義後台管理頁面的路由結合-laravel-的-routegroup-功能)
   - [範例流程](#範例流程)
     - [建立 Model、Migration、Factory](#建立-modelmigrationfactory)
     - [建立 laravel-admin CRUD 頁面](#建立-laravel-admin-crud-頁面)
@@ -42,6 +44,7 @@ laravel-admin 控制器 在 app/Admin/Controllers
   - [自製命令範例](#自製命令範例)
   - [配置任務排程](#配置任務排程)
   - [搜尋條件（filter）套用 paginate() 查詢](#搜尋條件filter套用-paginate-查詢)
+  - [Laravel 6/7 withoutMiddleware (排除 middleware)](#laravel-67-withoutmiddleware-排除-middleware)
 - [狀況處理](#狀況處理)
   - [降版本處理](#降版本處理)
   - [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
@@ -183,6 +186,102 @@ php artisan optimize:clear
 
 # 用法
 
+## Controller
+
+```
+在 laravel-admin 裡，Controller 的主要用途是：
+
+定義後台資源（通常對應資料庫的某個 Model）
+設定 CRUD 頁面（列表、表單、詳細頁）
+利用 Grid、Form、Show 物件來快速生成介面
+
+laravel-admin Controller 的三大重點
+
+Grid
+
+    對應「列表頁」
+
+    用 $grid->column() 來定義欄位
+
+    可以排序、搜尋、篩選
+
+Detail
+
+    對應「詳細頁」
+
+    用 $show->field() 顯示單筆資料
+
+Form
+
+    對應「新增 / 編輯頁」
+
+    用 $form->text()、$form->email()、$form->password() 定義輸入欄位
+```
+
+```sh
+php artisan admin:make UserController --model=App\\Models\\User
+```
+
+建立一個 Controller
+
+```php
+<?php
+
+namespace App\Admin\Controllers;
+
+use App\Models\User;
+use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Form;
+use Encore\Admin\Grid;
+use Encore\Admin\Show;
+
+class UserController extends AdminController
+{
+    // 設定標題
+    protected $title = 'Users';
+
+    // 列表頁（Grid）
+    protected function grid()
+    {
+        $grid = new Grid(new User());
+
+        $grid->column('id', 'ID')->sortable();
+        $grid->column('name', '名稱');
+        $grid->column('email', 'Email');
+        $grid->column('created_at', '建立時間');
+        $grid->column('updated_at', '更新時間');
+
+        return $grid;
+    }
+
+    // 詳細頁（Show）
+    protected function detail($id)
+    {
+        $show = new Show(User::findOrFail($id));
+
+        $show->field('id', 'ID');
+        $show->field('name', '名稱');
+        $show->field('email', 'Email');
+        $show->field('created_at', '建立時間');
+        $show->field('updated_at', '更新時間');
+
+        return $show;
+    }
+
+    // 表單頁（Form）
+    protected function form()
+    {
+        $form = new Form(new User());
+
+        $form->text('name', '名稱')->required();
+        $form->email('email', 'Email')->required();
+        $form->password('password', '密碼')->required();
+
+        return $form;
+    }
+}
+```
+
 ## Route API
 
 ```php
@@ -208,6 +307,114 @@ Route::match(['get', 'post'], '/example', function (Request $request) {
 
     // 返回 JSON 響應
     return response()->json($requestData);
+});
+```
+
+### Laravel-Admin 套件常用的路由群組寫法，用來定義後台管理頁面的路由，結合 Laravel 的 Route::group() 功能
+
+```php
+<?php
+
+use Illuminate\Routing\Router;
+
+Admin::routes();
+
+Route::group([
+    'prefix'        => config('admin.route.prefix'),
+    'namespace'     => config('admin.route.namespace'),
+    'middleware'    => config('admin.route.middleware'),
+    'as'            => config('admin.route.prefix') . '.',
+], function (Router $router) {
+
+    $router->get('/', 'HomeController@index')->name('home');
+
+    $router->get('/urls/{id}/edit', 'UrlsController@editurl');
+    $router->get('/urls/{id}/status', 'UrlsController@changestatus');
+    $router->get('/urls/{id}/delete', 'UrlsController@deleteurl');
+
+    // 監控網址
+    $router->resource('urls', UrlsController::class);
+    $router->get('/urls/create', 'UrlsController@createurl');
+    $router->post('/urls/create', 'UrlsController@actioncreate');
+
+    $router->get('/urls/statistics/{id}', 'UrlsController@statistics');
+    $router->get('/urls/switch/{id}', 'UrlsController@switch');
+    $router->get('/urls/warn_detail/{id}', 'UrlsController@warn_detail');
+    $router->post('/urls/get_more_fail_log', 'UrlsController@get_more_fail_log');
+    // 監控DNS解析
+    $router->get('/hosts/{id}/edit', 'HostsController@edithost');
+    $router->get('/hosts/{id}/status', 'HostsController@changestatus');
+    $router->get('/hosts/{id}/delete', 'HostsController@deletehost');
+
+    $router->resource('hosts', HostsController::class);
+    $router->get('/hosts/create', 'HostsController@createhost');
+    $router->post('/hosts/create', 'HostsController@actioncreate');
+
+    $router->get('/hosts/statistics/{id}', 'HostsController@statistics');
+    // 警報紀錄
+    $router->resource('alert_history', AlertHistoryController::class);
+
+    //主備切換列表
+    $router->resource('urls_master_slave', UrlsMasterSlaveController::class);
+    $router->post('urls_master_slave/switch_master_slave', 'UrlsMasterSlaveController@switch_master_slave');
+    $router->post('urls_master_slave/delete', 'UrlsMasterSlaveController@delete_data');
+
+    //Bitbucket Queue 歷史紀錄
+    $router->resource('bitbucket_queue_history', BitbucketQueueHistoryController::class);
+
+    // 官網域名
+    $router->resource('officalsite_host_lists', OfficalsiteHostController::class);
+    $router->post('officalsite_host_lists/delete', 'OfficalsiteHostController@delete_data');
+
+    // 域名處理流程
+    $router->get('config_officalsite_host_lists/dns_detail', 'ConfigOfficalsiteHostController@dns_detail');
+    $router->resource('config_officalsite_host_lists', ConfigOfficalsiteHostController::class);
+    $router->post('config_officalsite_host_lists/enable_dns_sec', 'ConfigOfficalsiteHostController@enable_dns_sec');
+    $router->post('config_officalsite_host_lists/disable_dns_sec', 'ConfigOfficalsiteHostController@disable_dns_sec');
+    $router->post('config_officalsite_host_lists/skip_dns_sec', 'ConfigOfficalsiteHostController@skip_dns_sec');
+    $router->post('config_officalsite_host_lists/retry_status', 'ConfigOfficalsiteHostController@retry_status');
+    $router->post('config_officalsite_host_lists/prepare_status', 'ConfigOfficalsiteHostController@prepare_status');
+    //Cloudflare域名刪除列表
+    $router->resource('delete_cloudflare_host_lists', DeleteCloudflareHostController::class);
+
+    // 節點列表
+    $router->resource('monitor_list', MoniroeListController::class);
+    $router->post('monitor_list/use_all_monitor', 'MoniroeListController@use_all_monitor');
+    $router->post('monitor_list/use_skip_monitor', 'MoniroeListController@use_skip_monitor');
+    $router->get('/monitor_list/url_monitor/{id}/{type}', 'MoniroeListController@url_monitor_view');
+
+    //ICP
+    $router->resource('icp_host', IcpHostController::class);
+
+    //騰訊帳號
+    // resource 會自動產生一整組 RESTful 路由（index, create, store, show, edit, update, destroy）。
+    $router->resource('qcloud_accounts', QcloudAccountsController::class);
+    $router->resource('qcloud_buckets', QcloudBucketsController::class);
+    // $router->get('qcloud_accounts/{bucket}/get_balance', 'QcloudAccountsController@get_balance');
+    $router->get('qcloud_buckets/{bucket}/files', 'QcloudBucketsController@files');
+    $router->get('qcloud_buckets/{bucket}/upload', 'QcloudBucketsController@upload_form');
+    $router->post('qcloud_buckets/{bucket}/upload', 'QcloudBucketsController@upload_file');
+    //轉址列表
+    $router->resource('redirect_list', RedirectListController::class);
+    $router->post('redirect_list/get_redirect_url', 'RedirectListController@get_redirect_url');
+    $router->post('redirect_list/update_redirect_url', 'RedirectListController@update_redirect_url');
+    //重複轉址
+    $router->resource('redirect_warn_list', RedirectWarnListController::class);
+    //站長工具明細
+    // $router->get('url_web_speed_result','UrlWebSpeedResultController@')
+    $router->resource('url_web_speed_result', UrlWebSpeedResultController::class);
+
+    //子域名新增
+    $router->resource('sub_domain_list', SubDomainListController::class);
+    $router->resource('web-speeds', WebSpeedController::class);
+});
+
+// 跳過 admin middleware
+Route::group([
+    'prefix'    => config('admin.route.prefix'),
+    'namespace' => config('admin.route.namespace'),
+], function ($router) {
+    $router->get('qcloud_accounts/{bucket}/get_balance', 'QcloudAccountsController@get_balance');
 });
 ```
 
@@ -792,6 +999,28 @@ $result = $result
 	->groupBy('daily_click_report.shorturl_id')
 	->orderBy($orderby, $sort_type)
 	->get();
+```
+
+## Laravel 6/7 withoutMiddleware (排除 middleware)
+
+在 控制器的建構子 排除
+
+不再經過 auth:admin
+
+```php
+class QcloudAccountsController extends Controller
+{
+    public function __construct()
+    {
+        // 移除 admin auth middleware
+        $this->middleware(\Encore\Admin\Middleware\Authenticate::class)->except(['get_balance']);
+    }
+
+    public function get_balance($bucket)
+    {
+        // ... 你的程式碼
+    }
+}
 ```
 
 # 狀況處理

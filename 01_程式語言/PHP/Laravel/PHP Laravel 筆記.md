@@ -27,6 +27,9 @@
     - [檢視所有排程](#檢視所有排程)
   - [清除快取](#清除快取)
 - [用法](#用法)
+  - [Controller（控制器）](#controller控制器)
+  - [Model](#model)
+    - [$fillable \& $casts 用途](#fillable--casts-用途)
   - [自定義指令](#自定義指令-1)
   - [設定任務排程](#設定任務排程)
     - [設定任務排程的頻率](#設定任務排程的頻率)
@@ -696,6 +699,124 @@ php artisan help your:command
 
 ```sh
 php artisan route:list
+```
+
+## Controller（控制器）
+
+是一個很重要的概念，常見於 MVC 架構（Model-View-Controller）。我用 Laravel/PHP
+
+簡單理解
+
+```
+使用者輸入網址 /users
+Laravel 把請求丟給 UserController@index
+Controller 呼叫 User Model 拿資料
+Controller 把資料丟給 View（Blade 模板）
+View 渲染 HTML，回傳給瀏覽器
+```
+
+小結
+
+```
+Controller：負責「流程控制」
+不直接存資料庫（那是 Model 的工作）
+不負責顯示畫面（那是 View 的工作）
+它的工作是「接收請求 → 決定怎麼處理 → 回應」
+```
+
+```sh
+php artisan make:controller UserController
+```
+
+生成一個檔案 app/Http/Controllers/UserController.php
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\User;
+
+class UserController extends Controller
+{
+    // 顯示所有使用者
+    public function index()
+    {
+        $users = User::all(); // 呼叫 Model
+        return view('users.index', compact('users')); // 回傳給 View
+    }
+
+    // 顯示單一使用者
+    public function show($id)
+    {
+        $user = User::findOrFail($id); // 找不到就 404
+        return view('users.show', compact('user'));
+    }
+}
+```
+
+Route 配合 Controller
+
+在 routes/web.php
+
+```php
+use App\Http\Controllers\UserController;
+
+Route::get('/users', [UserController::class, 'index']); // 列表
+Route::get('/users/{id}', [UserController::class, 'show']); // 單筆
+```
+
+## Model
+
+### $fillable & $casts 用途
+
+```
+1. $fillable 用途
+
+允許批量賦值 (Mass Assignment) 的欄位。
+當用 Model::create($data) 或 $model->update($data) 時，只有 $fillable 裡的欄位能被寫入。
+避免 Mass Assignment 漏洞（防止惡意傳入不該修改的欄位，如 is_admin）。
+
+2. $casts 用途
+
+自動轉換資料型別。
+取出時，Laravel 幫你轉換成 PHP 型別；存入時，也會轉換成適合 DB 的格式。
+```
+
+```php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class QcloudAccount extends Model
+{
+    // 對應的資料表
+    protected $table = 'qcloud_accounts';
+
+    /**
+     * 可批量寫入的欄位
+     */
+    protected $fillable = [
+        'name',               // 帳號名稱
+        'secret_id',          // API Key
+        'secret_key',         // API Secret
+        'balance_threshold',  // 餘額警告閥值
+        'is_active',          // 是否啟用
+        'options',            // JSON 設定
+    ];
+
+    /**
+     * 欄位型別轉換
+     */
+    protected $casts = [
+        'balance_threshold' => 'decimal:2', // 自動轉成小數，保留兩位
+        'is_active' => 'boolean',           // 0/1 自動轉成 true/false
+        'options' => 'array',               // JSON 自動轉 PHP array
+        'created_at' => 'datetime',         // 轉成 Carbon 物件
+        'updated_at' => 'datetime',
+    ];
+}
 ```
 
 ## 自定義指令

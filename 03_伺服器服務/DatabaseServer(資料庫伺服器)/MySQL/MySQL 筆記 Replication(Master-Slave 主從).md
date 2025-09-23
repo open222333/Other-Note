@@ -258,6 +258,13 @@ server-id = 2
 read-only = ON
 ```
 
+檢查 MySQL 是否處於 read-only 模式 在 MySQL 內執行
+
+```sql
+SHOW VARIABLES LIKE 'read_only';
+SHOW VARIABLES LIKE 'super_read_only';
+```
+
 ```bash
 # 啟動mysql
 service mysql start
@@ -621,12 +628,24 @@ START SLAVE;
 SET GLOBAL slave_skip_errors = '1032,1051,1146';
 ```
 
+查看
+
+```sql
+SHOW VARIABLES LIKE 'slave_skip_errors';
+```
+
 ```
 1032 = 找不到紀錄
-
 1051 = 找不到表
-
 1146 = 表不存在
+
+1032 → Could not find record in ...（通常是 DELETE/UPDATE 找不到資料）
+1051 → Unknown table（DROP TABLE 時，表不存在）
+1146 → Table doesn't exist（操作一個不存在的表）
+```
+
+```sql
+SET GLOBAL slave_skip_errors='';
 ```
 
 方案 B：暫時「補一張空表」來消化 binlog
