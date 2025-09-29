@@ -27,6 +27,7 @@ RDBMS
       - [ERROR 1805 (HY000)](#error-1805-hy000)
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
+    - [正式環境 範例(20250924)](#正式環境-範例20250924)
   - [MacOS](#macos)
   - [CentOS7](#centos7)
   - [Debian (Ubuntu)](#debian-ubuntu)
@@ -374,6 +375,28 @@ MySQL 5.7.5 版本引入的一個參數，它與 read_only 類似，但提供了
 
 ```ini
 super_read_only = ON
+```
+
+### 正式環境 範例(20250924)
+
+```ini
+max_connections         = 4096
+key_buffer_size         = 1024M
+max_allowed_packet      = 2048M
+thread_stack            = 512K
+thread_cache_size       = 3072
+query_cache_limit       = 2048M
+query_cache_size        = 2048M
+innodb_buffer_pool_size = 4G
+innodb_log_file_size    = 1024M
+
+join_buffer_size = 2048M
+sort_buffer_size = 1024M
+
+slow-query-log-file = /var/log/mysql/mysql-slow.log
+long_query_time = 2
+
+wait_timeout=600
 ```
 
 ## MacOS
