@@ -25,6 +25,7 @@
     - [類別相關](#類別相關)
     - [教學範例](#教學範例)
   - [Log 的呈現 / 輸出方式](#log-的呈現--輸出方式)
+- [FileHandler 比較](#filehandler-比較)
 - [用法](#用法)
   - [基本用法](#基本用法)
   - [基本用法 - 指定log檔案大小](#基本用法---指定log檔案大小)
@@ -35,6 +36,9 @@
   - [使用配置文檔](#使用配置文檔)
   - [範例 - 自制 Log Class](#範例---自制-log-class)
   - [範例 - 沒有使用 Log Class 的設定](#範例---沒有使用-log-class-的設定)
+  - [FileHandler 用法](#filehandler-用法)
+    - [依檔案大小自動輪轉 (RotatingFileHandler)](#依檔案大小自動輪轉-rotatingfilehandler)
+    - [依時間自動輪轉 (TimedRotatingFileHandler)](#依時間自動輪轉-timedrotatingfilehandler)
 - [Formatter 格式代號](#formatter-格式代號)
 
 ## 參考資料
@@ -67,6 +71,14 @@
 
 1. 輸出到螢幕控制台 (Console)：最簡單且直接的方式，缺點是控制台視窗一旦關掉就再也看不到，由 stream handler 負責。
 2. 寫入硬碟上的 log 日誌文件：記錄成日誌檔案 (俗稱Log檔案，一般會以.log 副檔名命名此文件) ，由 file handler 負責。
+
+# FileHandler 比較
+
+| 類型                         | 用途    | 主要參數                              | 範例                     |
+| -------------------------- | ----- | --------------------------------- | ---------------------- |
+| `FileHandler`              | 單一檔案  | 無上限                               | `FileHandler("a.log")` |
+| `RotatingFileHandler`      | 依大小輪轉 | `maxBytes`, `backupCount`         | 適合長期寫入                 |
+| `TimedRotatingFileHandler` | 依時間輪轉 | `when`, `interval`, `backupCount` | 適合日誌按日期分檔              |
 
 # 用法
 
@@ -843,6 +855,49 @@ else:
     logger.addHandler(log_msg_handler)
 
     logger.debug(log_setting)
+```
+
+## FileHandler 用法
+
+### 依檔案大小自動輪轉 (RotatingFileHandler)
+
+```Python
+import logging
+from logging.handlers import RotatingFileHandler
+
+# 建立 logger
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.INFO)
+
+# 設定輸出到檔案，單檔最大 10MB，最多保留 5 個
+handler = RotatingFileHandler(
+    "app.log",
+    maxBytes=10 * 1024 * 1024,  # 10 MB
+    backupCount=5,              # 最多保留 5 個舊檔案
+    encoding='utf-8'
+)
+
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+# 測試寫入
+for i in range(100000):
+    logger.info(f"Log entry {i}")
+```
+
+### 依時間自動輪轉 (TimedRotatingFileHandler)
+
+```Python
+from logging.handlers import TimedRotatingFileHandler
+
+handler = TimedRotatingFileHandler(
+    "app.log",
+    when="midnight",   # 每天午夜輪轉
+    interval=1,        # 間隔 1 天
+    backupCount=7,     # 保留 7 天的 log
+    encoding='utf-8'
+)
 ```
 
 # Formatter 格式代號
