@@ -39,6 +39,7 @@
   - [FileHandler 用法](#filehandler-用法)
     - [依檔案大小自動輪轉 (RotatingFileHandler)](#依檔案大小自動輪轉-rotatingfilehandler)
     - [依時間自動輪轉 (TimedRotatingFileHandler)](#依時間自動輪轉-timedrotatingfilehandler)
+    - [同時輸出到螢幕與檔案，且檔案只記錄錯誤](#同時輸出到螢幕與檔案且檔案只記錄錯誤)
 - [Formatter 格式代號](#formatter-格式代號)
 
 ## 參考資料
@@ -898,6 +899,43 @@ handler = TimedRotatingFileHandler(
     backupCount=7,     # 保留 7 天的 log
     encoding='utf-8'
 )
+```
+
+### 同時輸出到螢幕與檔案，且檔案只記錄錯誤
+
+```Python
+import logging
+import os
+
+# 建立 logs 目錄
+os.makedirs("logs", exist_ok=True)
+
+# 建立 logger
+logger = logging.getLogger("SelfVideoWebp")
+logger.setLevel(logging.DEBUG)  # 主 logger 接收所有等級
+
+# --- 終端機輸出 (顯示所有 log) ---
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)  # INFO 以上會顯示
+console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+
+# --- 檔案輸出 (只記錄錯誤) ---
+file_handler = logging.FileHandler("logs/error.log", encoding="utf-8")
+file_handler.setLevel(logging.ERROR)  # 只記錄 ERROR 和 CRITICAL
+file_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(file_formatter)
+
+# 加入 handler
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+
+# --- 測試 ---
+logger.debug("這是 debug 訊息（只在 console 出現）")
+logger.info("這是 info 訊息（只在 console 出現）")
+logger.warning("這是 warning 訊息（只在 console 出現）")
+logger.error("這是 error 訊息（會寫入 error.log）")
+logger.critical("這是 critical 訊息（也會寫入 error.log）")
 ```
 
 # Formatter 格式代號
