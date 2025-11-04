@@ -1061,6 +1061,14 @@ db.createUser({
   roles: [ { role: "root", db: "admin" } ]
 })
 
+use mydb
+db.createUser({
+  user: "dbuser",
+  pwd: "你的密碼",
+  roles: [
+    { role: "dbOwner", db: "mydb" }
+  ]
+})
 
 // 其他資料庫
 use test
