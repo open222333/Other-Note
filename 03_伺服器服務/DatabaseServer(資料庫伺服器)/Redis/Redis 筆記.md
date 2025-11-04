@@ -143,12 +143,23 @@ bind 0.0.0.0 ::1
 
 port 6379
 
-# 修改密碼
-equirepass pwd
+# 修改密碼 取消註解並改成想設定的密碼
+# requirepass foobared
+requirepass pwd
+
+# 閒置連線自動關閉時間（秒）（通常預設為 0，代表永不超時）
+# timeout 0
 timeout 10
 
-# 其他拿掉
+# 關閉永久化
+# 停用自動快照（RDB）持久化功能。
+# 也就是說 Redis 不會自動將資料寫入 dump.rdb 檔案，除非手動執行 SAVE 或 BGSAVE 指令。
 save ""
+
+# 預設的 Redis 會定期自動保存資料 會在 /var/lib/redis/dump.rdb（或容器的 /data/dump.rdb）自動產生快照
+save 900 1    # 若 900 秒內有至少 1 個 key 被修改，則儲存一次
+save 300 10   # 若 300 秒內有至少 10 個 key 被修改，則儲存一次
+save 60 10000 # 若 60 秒內有至少 10000 個 key 被修改，則儲存一次
 ```
 
 # 指令

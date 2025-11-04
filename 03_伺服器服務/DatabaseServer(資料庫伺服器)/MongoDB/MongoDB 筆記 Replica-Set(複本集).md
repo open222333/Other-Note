@@ -38,6 +38,7 @@ Replica Set（複本集）是MongoDB中的一個機制，用於提供數據的�
   - [設置 主-讀寫 從-只讀不寫(主掛了不會升為主)](#設置-主-讀寫-從-只讀不寫主掛了不會升為主)
   - [修改 rs 主機名成內網ＩＰ](#修改-rs-主機名成內網ｉｐ)
   - [檢查同步狀態](#檢查同步狀態)
+  - [強制升為 Primary](#強制升為-primary)
 - [例外狀況](#例外狀況)
   - [MongoServerError\[InvalidReplicaSetConfig\]: Our replica set config is invalid or we are not a member of it](#mongoservererrorinvalidreplicasetconfig-our-replica-set-config-is-invalid-or-we-are-not-a-member-of-it)
     - [強制重建副本集](#強制重建副本集)
@@ -91,10 +92,25 @@ vim /etc/mongod.conf
 ```
 
 ```yaml
+storage:
+  dbPath: /var/lib/mongodb
+  journal:
+    enabled: true
+  wiredTiger:
+    engineConfig:
+      cacheSizeGB: 24
+
+systemLog:
+  destination: file
+  logAppend: true
+  logRotate: reopen
+  path: /var/log/mongodb/mongod.log
+
 net:
     port: 27017
     # 修改成 0.0.0.0 對外開放
     bindIp: 0.0.0.0
+    maxIncomingConnections: 65536
 
 # 常用
 replication:
@@ -211,6 +227,12 @@ security:
 
 ## 建立 副本集
 
+副本集管理權限 必須用 root 或 clusterAdmin 帳號登入主節點 (PRIMARY)
+
+```sh
+mongo -u "admin" -p "你的密碼" --authenticationDatabase "admin"
+```
+
 ```JavaScript
 rs.initiate({
     _id: "RS",
@@ -281,34 +303,38 @@ rs.remove("mongod3.example.net:27017")
 ## key驗證 生成key 將生成的key加入
 
 ```bash
-openssl rand -base64 741 > /var/lib/mongodb/mongodb-keyfile
-chmod 600 /var/lib/mongodb/mongodb-keyfile
+openssl rand -base64 741 > /var/lib/mongodb/<mongodb-keyfile>
+chmod 600 /var/lib/mongodb/<mongodb-keyfile>
 ```
 
 RedHat (CentOS)
 
 ```sh
-chown mongodb.mongodb /var/lib/mongodb/mongodb-keyfile
+chown mongodb.mongodb /var/lib/mongodb/<mongodb-keyfile>
 ```
 
 Debian (Ubuntu)
 
 ```sh
-chown mongodb:mongodb /var/lib/mongodb/mongodb-keyfile
+chown mongodb:mongodb /var/lib/mongodb/<mongodb-keyfile>
 ```
 
 分發到其他節點
 
 ```sh
-scp /var/lib/mongo/mongodb-keyfile <user>@<other-node>:/var/lib/mongo/mongodb-keyfile
+scp /var/lib/mongo/<mongodb-keyfile> <user>@<other-node>:/var/lib/mongo
+```
+
+```sh
+scp /var/lib/mongodb/<mongodb-keyfile> <user>@<other-node>:/var/lib/mongodb
 ```
 
 其他節點 需注意 key 權限
 
 ```sh
-chmod 600 /var/lib/mongodb/mongo.key
+chmod 400 /var/lib/mongodb/mongo.key
 
-chown mongodb.mongodb /var/lib/mongodb/mongodb-keyfile
+chown mongodb.mongodb /var/lib/mongodb/<mongodb-keyfile>
 # or
 chown mongodb:mongodb /var/lib/mongodb/mongo.key
 ```
@@ -409,6 +435,20 @@ cfg.members.forEach((member, index) => {
 
 ```JavaScript
 rs.printReplicationInfo();
+```
+
+## 強制升為 Primary
+
+```JavaScript
+rs.reconfig(
+  {
+    _id: "<RS>",
+    members: [
+      { _id: 0, host: "<IP>:27017" }
+    ]
+  },
+  { force: true }
+)
 ```
 
 # 例外狀況
