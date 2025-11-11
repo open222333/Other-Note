@@ -39,6 +39,7 @@ Replica Set（複本集）是MongoDB中的一個機制，用於提供數據的�
   - [修改 rs 主機名成內網ＩＰ](#修改-rs-主機名成內網ｉｐ)
   - [檢查同步狀態](#檢查同步狀態)
   - [強制升為 Primary](#強制升為-primary)
+  - [重置副本集](#重置副本集)
 - [例外狀況](#例外狀況)
   - [MongoServerError\[InvalidReplicaSetConfig\]: Our replica set config is invalid or we are not a member of it](#mongoservererrorinvalidreplicasetconfig-our-replica-set-config-is-invalid-or-we-are-not-a-member-of-it)
     - [強制重建副本集](#強制重建副本集)
@@ -449,6 +450,26 @@ rs.reconfig(
   },
   { force: true }
 )
+```
+
+## 重置副本集
+
+停掉 MongoDB
+
+```sh
+systemctl stop mongod
+```
+
+刪除 local 資料夾（裡面存放副本集狀態）
+
+```sh
+rm -rf /var/lib/mongo/local
+```
+
+重新啟動 MongoDB
+
+```sh
+systemctl start mongod
 ```
 
 # 例外狀況
