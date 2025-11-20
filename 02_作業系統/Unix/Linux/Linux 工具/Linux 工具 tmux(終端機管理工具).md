@@ -9,6 +9,10 @@
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
+  - [Ubuntu / Debian](#ubuntu--debian)
+  - [CentOS / Rocky / AlmaLinux](#centos--rocky--almalinux)
+  - [macOS（Homebrew）](#macoshomebrew)
+  - [直接從 vault.centos.org 手動下載 tmux RPM](#直接從-vaultcentosorg-手動下載-tmux-rpm)
 - [指令](#指令)
   - [設定檔](#設定檔)
 
@@ -22,12 +26,38 @@
 
 # 安裝
 
-```bash
-# Ubuntu Linux 安裝 tmux
-apt install tmux
+## Ubuntu / Debian
 
+```bash
+apt update
+apt install -y tmux
+```
+
+## CentOS / Rocky / AlmaLinux
+
+CentOS 7 已於 2024-06 EOL 官方 mirror 已經下架大量舊套件
+
+```sh
 # CentOS Linux 安裝 tmux
 yum install tmux
+```
+
+## macOS（Homebrew）
+
+```sh
+brew install tmux
+```
+
+## 直接從 vault.centos.org 手動下載 tmux RPM
+
+```sh
+cd /tmp
+
+wget http://vault.centos.org/7.9.2009/os/x86_64/Packages/tmux-1.8-4.el7.x86_64.rpm
+wget http://vault.centos.org/7.9.2009/os/x86_64/Packages/libevent-2.0.21-4.el7.x86_64.rpm
+
+rpm -Uvh libevent*.rpm
+rpm -Uvh tmux*.rpm
 ```
 
 # 指令
