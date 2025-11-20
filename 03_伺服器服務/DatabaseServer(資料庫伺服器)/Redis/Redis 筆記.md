@@ -15,8 +15,6 @@
 - [配置文件](#配置文件)
 - [指令](#指令)
   - [遠端測試](#遠端測試)
-- [master-slave 配置](#master-slave-配置)
-  - [slave 的設定檔](#slave-的設定檔)
 
 ## 參考資料
 
@@ -27,8 +25,6 @@
 [官方文檔 redis 配置 設定檔](https://redis.io/topics/config)
 
 [官方文檔 教學](https://www.tutorialspoint.com/redis/index.htm)
-
-[Redis Master-Slave](https://stevenitlife.blogspot.com/2018/09/redis-master-slave.html)
 
 ### GUI相關
 
@@ -182,57 +178,4 @@ systemctl stop redis
 
 ```sh
 redis-cli -h <Redis-server-IP> -p 6379
-```
-
-# master-slave 配置
-
-## slave 的設定檔
-
-預設的設定檔
-
-```
-/etc/redis/redis.conf
-```
-
-複製一份成 redis-slave.conf
-
-修改裡面的內容如下:
-
-```conf
-; port 是 slave redis 要傾聽的 port 號
-; master 已經使用了預設的 6379
-; 這裡改成 6380 避免衝突
-port 6380
-
-; 指定 pidfile
-; UNIX / Linux 的習慣
-; 許多程式執行起來後會產生一個 pid 檔
-; 如果要把這個程式停掉，可以刪除 pid 檔
-; 程式就會停止了
-pidfile /var/run/redis_6380.pid
-
-; dir 是運行過程中的 dump 檔要存在那個目錄
-dir ./slave
-
-; slaveof 指出這個 slave 要跟隨那一個 master
-; 這裡指向 port 6379 的那一個 Redis
-slaveof 127.0.0.1 6379
-
-
-; 設定redis master
-slaveof {redis-master ip} {port}
-
-; 只讀
-slave-read-only yes
-
-; 關閉永久化
-save ""
-```
-
-```bash
-# 重啟redis-slave
-redis-server restart
-# 檢查redis master-slave
-redis-cli
-info replicationÏ
 ```
