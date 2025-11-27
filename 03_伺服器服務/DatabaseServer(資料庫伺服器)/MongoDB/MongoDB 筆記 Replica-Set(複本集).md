@@ -43,6 +43,7 @@ Replica Set（複本集）是MongoDB中的一個機制，用於提供數據的�
 - [例外狀況](#例外狀況)
   - [MongoServerError\[InvalidReplicaSetConfig\]: Our replica set config is invalid or we are not a member of it](#mongoservererrorinvalidreplicasetconfig-our-replica-set-config-is-invalid-or-we-are-not-a-member-of-it)
     - [強制重建副本集](#強制重建副本集)
+- [MongoDB Replica Set 跨叢集做 HA](#mongodb-replica-set-跨叢集做-ha)
 - [特別工具](#特別工具)
   - [匯出匯入腳本](#匯出匯入腳本)
 
@@ -504,6 +505,11 @@ rm -rf /var/lib/mongodb/*
 ```yaml
 replication:
   replSetName: "newReplicaSet"
+```
+
+# MongoDB Replica Set 跨叢集做 HA
+
+```
 ```
 
 # 特別工具

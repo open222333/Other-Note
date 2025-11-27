@@ -90,13 +90,14 @@ MySQL Group Replication 的高可用性和故障轉移機制通常需要至少�
   - [基本用法](#基本用法)
   - [keepalived (實作高可用)](#keepalived-實作高可用)
 - [例外狀況](#例外狀況)
+  - [重置 Slave 的 relay log（不會清 Master 資料）](#重置-slave-的-relay-log不會清-master-資料)
   - [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
   - [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
   - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
-    - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
-    - [Last\_Errno: 1594](#last_errno-1594)
-    - [Last\_Errno: 1032](#last_errno-1032)
-  - [主從資料不一致 (Replication Error 1032)](#主從資料不一致-replication-error-1032)
+  - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
+  - [Last\_Errno: 1594 Last\_SQL\_Errno: 1594](#last_errno-1594-last_sql_errno-1594)
+    - [重建 Slave 的 relay log（最常用）](#重建-slave-的-relay-log最常用)
+  - [Last\_Errno: 1032 主從資料不一致 (Replication Error 1032)](#last_errno-1032-主從資料不一致-replication-error-1032)
     - [使用 pt-table-sync 自動修復 (可以邊同步邊修資料，不需要停 Master。)](#使用-pt-table-sync-自動修復-可以邊同步邊修資料不需要停-master)
     - [Master 資料庫的表清單裡，確實 沒有 table 但 binlog 還保留了歷史操作](#master-資料庫的表清單裡確實-沒有-table-但-binlog-還保留了歷史操作)
 
@@ -381,6 +382,29 @@ show slave status\G
 
 # 例外狀況
 
+## 重置 Slave 的 relay log（不會清 Master 資料）
+
+```sql
+STOP SLAVE;
+RESET SLAVE ALL;
+CHANGE MASTER TO
+  MASTER_HOST='你的主機 IP',
+  MASTER_USER='replica_user',
+  MASTER_PASSWORD='密碼',
+  MASTER_LOG_FILE='正確的 binlog 檔名',
+  MASTER_LOG_POS=4;
+START SLAVE;
+```
+
+```sql
+STOP SLAVE;
+RESET SLAVE ALL;
+CHANGE MASTER TO
+    MASTER_LOG_FILE='mysql-bin.000123',
+    MASTER_LOG_POS=4;
+START SLAVE;
+```
+
 ## 修復 master slave 最快速方法
 
 ```sql
@@ -520,70 +544,39 @@ set global group_replication_group_name = "";
 dba.rebootClusterFromCompleteOutage()
 ```
 
-### Error in applier for group_replication_recovery: Could not execute Write_rows event on table iavnight_cpi.ad_process; The table 'ad_process' is full, Error_code: 1114
+## Error in applier for group_replication_recovery: Could not execute Write_rows event on table iavnight_cpi.ad_process; The table 'ad_process' is full, Error_code: 1114
 
 ```sql
 -- https://stackoverflow.com/questions/730579/1114-hy000-the-table-is-full
 ```
 
-### Last_Errno: 1594
+## Last_Errno: 1594 Last_SQL_Errno: 1594
 
-Last_Error: Relay log read failure: Could not parse relay log event entry. The possible reasons are: the master's binary log is corrupted (you can check this by running 'mysqlbinlog' on the binary log), the slave's relay log is corrupted (you can check this by running 'mysqlbinlog' on the relay log), a network problem, or a bug in the master's or slave's MySQL code. If you want to check the master's binary log or slave's relay log, you will be able to know their names by issuing 'SHOW SLAVE STATUS' on this slave.
+```
+Relay log read failure: Could not parse relay log event entry
+```
+
+```
+Slave 嘗試讀取 relay log → 發現某個 event 格式不正確或資料壞掉 → 無法繼續執行 replication。
+
+官方列出的可能原因：
+    Master 的 binlog 壞掉
+    Slave 的 relay log 壞掉
+    網路問題導致資料截斷
+    MySQL bug（比較少見，但也可能）
+```
+
+### 重建 Slave 的 relay log（最常用）
+
+會刪掉所有 relay logs
 
 ```sql
--- 檢查slave狀態
-show slave status\G
--- Check Relay_Master_Log_File and Exec_Master_Log_Pos
--- Relay_Master_Log_File: mysql-bin.004772    slave函式庫已讀取的master的binlog
--- Exec_Master_Log_Pos: 516345810             在slave上已經執行的position位置點
-
--- 停用slave，以slave已經讀取的binlog文件，和已經執行的position為起點，重新設定同步
--- 停止slave
-stop slave;
--- 手動設定master資料 linode部分 ip可以使用內網ip
--- master 輸入下面指令取的資訊
--- show master status;
-change master to
-master_log_file='mysql-bin.004772',
-master_log_pos=516345810;
--- 執行slave
-start slave;
--- 檢查slave狀態
-show slave status\G
+STOP SLAVE;
+RESET SLAVE;
+START SLAVE;
 ```
 
-```
-檢查主庫的二進制日誌:
-使用 SHOW SLAVE STATUS; 在從庫上查看主庫的二進制日誌文件名稱和位置。
-連接到主 MySQL 伺服器，使用 mysqlbinlog 檢查主庫中錯誤訊息中提到的二進制日誌文件，檢查是否存在任何損壞或問題。
-
-檢查從庫的中繼日誌:
-使用 mysqlbinlog 檢查從庫中錯誤訊息中提到的中繼日誌文件，查看是否存在損壞。
-如果中繼日誌損壞，你可以停止從庫 (STOP SLAVE;)，跳過損壞的中繼日誌事件 (SET GLOBAL SQL_SLAVE_SKIP_COUNTER = [損壞事件的數量];)，然後重新啟動從庫 (START SLAVE;)。
-
-檢查網路問題:
-確保主庫和從庫之間的網路連接正常，並且沒有任何網路問題。
-
-檢查 MySQL 版本和修補:
-檢查你使用的 MySQL 版本，確保它是最新的，並且查看是否有任何已知問題。如果有，考慮升級到修復問題的版本。
-
-重新啟動 MySQL 從庫:
-嘗試重新啟動從庫，停止從庫 (STOP SLAVE;)，然後重新啟動 (START SLAVE;)，最後檢查狀態 (SHOW SLAVE STATUS\G)。
-```
-
-```bash
-mysqlbinlog [Master_Log_File] | less
-```
-
-檢查二進制日誌文件：
-在 mysqlbinlog 輸出中查找是否存在任何錯誤消息、損壞或不正確的日誌條目。
-如果有錯誤或損壞，你可能需要使用備份還原該二進制日誌，或者在主庫上進行修復。
-
-根據發現的問題進行修復：
-如果發現二進制日誌損壞，可以嘗試使用主庫上的備份進行還原，或者查找和修復損壞的日誌條目。
-記得在執行任何修復操作之前，確保有充分的數據備份以防萬一。
-
-### Last_Errno: 1032
+## Last_Errno: 1032 主從資料不一致 (Replication Error 1032)
 
 Last_Error: Could not execute Update_rows event on table avnight.member_log; Can't find record in 'member_log', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event's master log mysql-bin.000077, end_log_pos 309389912
 
@@ -592,8 +585,6 @@ Last_Error: Could not execute Update_rows event on table avnight.member_log; Can
 錯誤描述: Can't find record in 'member_log'
 原因: 從伺服器試圖執行來自主伺服器的一個 UPDATE 或 DELETE 操作，但該操作所要修改或刪除的記錄在從伺服器的 member_log 表中不存在。這可能是因為主伺服器與從伺服器之間的資料不同步。
 ```
-
-## 主從資料不一致 (Replication Error 1032)
 
 ### 使用 pt-table-sync 自動修復 (可以邊同步邊修資料，不需要停 Master。)
 
@@ -606,7 +597,6 @@ pt-table-sync --execute --verbose \
 ```
 
 ### Master 資料庫的表清單裡，確實 沒有 table 但 binlog 還保留了歷史操作
-
 
 方案 A：確認 table 已經真的不再需要
 

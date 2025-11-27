@@ -6,16 +6,19 @@
 ## 目錄
 
 - [Python 模組 redis(redis SDK)](#python-模組-redisredis-sdk)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [GUI工具相關](#gui工具相關)
-		- [教學相關](#教學相關)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [GUI工具相關](#gui工具相關)
+    - [教學相關](#教學相關)
 - [指令](#指令)
 - [用法](#用法)
-	- [基礎用法](#基礎用法)
-	- [哈希表（Hash）: 來存儲和操作鍵值對的集合](#哈希表hash-來存儲和操作鍵值對的集合)
-	- [有序集合（Sorted Set）存儲元素和相對應的分數 並根據分數進行排序和查詢](#有序集合sorted-set存儲元素和相對應的分數-並根據分數進行排序和查詢)
-	- [遞增計數](#遞增計數)
+  - [基礎用法](#基礎用法)
+  - [新增資料](#新增資料)
+  - [哈希表（Hash）: 來存儲和操作鍵值對的集合](#哈希表hash-來存儲和操作鍵值對的集合)
+  - [有序集合（Sorted Set）存儲元素和相對應的分數 並根據分數進行排序和查詢](#有序集合sorted-set存儲元素和相對應的分數-並根據分數進行排序和查詢)
+  - [遞增計數](#遞增計數)
+  - [Redis Cluster 自動 Failover（官方自動處理）— 基本 Demo](#redis-cluster-自動-failover官方自動處理-基本-demo)
+  - [跨兩組 Redis Cluster 的自動 Failover 程式](#跨兩組-redis-cluster-的自動-failover-程式)
 
 ## 參考資料
 
@@ -84,6 +87,29 @@ members = r.smembers('myset')
 
 # setnx方法 如果key不存在 設置key的值 key:value 回傳 1 有進行設置, 0 未進行設置
 r.setnx(key, value)
+```
+
+## 新增資料
+
+```Python
+import redis
+
+# 建立 Redis 連線
+r = redis.Redis(
+    host='localhost',
+    port=6379,
+    password=None,  # 如果設定密碼請填寫
+    decode_responses=True  # 自動轉成字串，避免 bytes
+)
+
+# 測試：新增 key/value
+result = r.set("test_key", "Hello Redis!")
+
+print("SET 結果:", result)
+
+# 測試：取得資料
+value = r.get("test_key")
+print("GET 結果:", value)
 ```
 
 ## 哈希表（Hash）: 來存儲和操作鍵值對的集合
@@ -196,3 +222,190 @@ value = r.get('counter')
 
 print(value)  # 輸出結果為 b'1'
 ```
+
+## Redis Cluster 自動 Failover（官方自動處理）— 基本 Demo
+
+前提：使用的是 Redis Cluster（6.x / 7.x），每個 slot 都有 master + replica。
+
+```
+若某個 master 掛掉 → 驅動會自動重試、更新 slot mapping
+角色升降（failover）後 → 自動切到新的 master
+slot redirect (MOVED, ASK) → 自動處理
+```
+
+```
+pip install redis>=5.0.0
+```
+
+```Python
+from redis.cluster import RedisCluster
+from redis.exceptions import RedisClusterException
+
+def get_cluster_client():
+    startup_nodes = [
+        {"host": "10.0.0.1", "port": 6379},
+        {"host": "10.0.0.2", "port": 6379},
+        {"host": "10.0.0.3", "port": 6379},
+    ]
+
+    try:
+        client = RedisCluster(
+            startup_nodes=startup_nodes,
+            decode_responses=True,
+            read_from_replicas=False,  # 有需要也可 True
+            socket_timeout=3,
+            reinitialize_steps=5,      # 重新加载 cluster slots 次數
+            max_connections=50,
+        )
+        print("Connected to Redis Cluster")
+        return client
+    except RedisClusterException as e:
+        print("Cluster connection failed:", e)
+        return None
+
+
+if __name__ == "__main__":
+    rc = get_cluster_client()
+
+    while True:
+        try:
+            rc.set("hello", "world")
+            print(rc.get("hello"))
+        except Exception as e:
+            print("Cluster error:", e)
+```
+
+## 跨兩組 Redis Cluster 的自動 Failover 程式
+
+```
+Cluster A：主要使用
+Cluster B：備援（DR）
+```
+
+```
+自動偵測 A cluster 是否可用
+
+A 掛掉 → 自動切到 B cluster
+A 恢復 → 自動切回 A（可選）
+
+自動連線兩邊 cluster
+Cluster 錯誤自動 fallback
+可選是否 "自動再切回 A"
+```
+
+```Python
+from redis.cluster import RedisCluster
+from redis.exceptions import RedisClusterException, RedisError
+import time
+
+
+class DualClusterRedis:
+    def __init__(self, cluster_a_nodes, cluster_b_nodes, auto_failback=True):
+        self.cluster_a_nodes = cluster_a_nodes
+        self.cluster_b_nodes = cluster_b_nodes
+        self.auto_failback = auto_failback
+
+        self.client_a = None
+        self.client_b = None
+        self.active_client = None
+
+        self.connect_clusters()
+
+    def connect_cluster(self, nodes):
+        try:
+            client = RedisCluster(
+                startup_nodes=nodes,
+                decode_responses=True,
+                socket_timeout=2,
+                max_connections=50
+            )
+            return client
+        except RedisClusterException:
+            return None
+
+    def connect_clusters(self):
+        print("Trying to connect Cluster A...")
+        self.client_a = self.connect_cluster(self.cluster_a_nodes)
+
+        if self.client_a:
+            print("Connected to Cluster A")
+            self.active_client = self.client_a
+            return
+
+        print("Cluster A failed, trying Cluster B...")
+
+        self.client_b = self.connect_cluster(self.cluster_b_nodes)
+
+        if self.client_b:
+            print("Connected to Cluster B")
+            self.active_client = self.client_b
+            return
+
+        print("Both clusters unavailable!!")
+        self.active_client = None
+
+    def get_client(self):
+        # If using B but A is back, auto failback
+        if self.auto_failback and self.active_client == self.client_b:
+            test_a = self.connect_cluster(self.cluster_a_nodes)
+            if test_a:
+                print("Cluster A recovered, switching back.")
+                self.client_a = test_a
+                self.active_client = self.client_a
+
+        return self.active_client
+
+    def safe_execute(self, func, *args, **kwargs):
+        for attempt in range(2):  # retry at most twice (switch cluster)
+            client = self.get_client()
+            if client is None:
+                raise Exception("No Redis Cluster available")
+
+            try:
+                return getattr(client, func)(*args, **kwargs)
+            except (RedisClusterException, RedisError) as e:
+                print(f"Redis error: {e}")
+                print("Switching cluster and retrying...")
+                # Switch to the other cluster
+                if self.active_client == self.client_a:
+                    self.active_client = self.client_b
+                else:
+                    self.active_client = self.client_a
+
+                time.sleep(1)
+
+        raise Exception("Failed on both clusters")
+
+
+# ====== Example Usage ======
+if __name__ == "__main__":
+    clusterA_nodes = [
+        {"host": "10.0.0.1", "port": 6379},
+        {"host": "10.0.0.2", "port": 6379},
+    ]
+
+    clusterB_nodes = [
+        {"host": "20.0.0.1", "port": 6379},
+        {"host": "20.0.0.2", "port": 6379},
+    ]
+
+    rc = DualClusterRedis(clusterA_nodes, clusterB_nodes)
+
+    while True:
+        try:
+            rc.safe_execute("set", "key", "value")
+            print(rc.safe_execute("get", "key"))
+        except Exception as e:
+            print("Fatal:", e)
+
+        time.sleep(2)
+```
+
+| 能力                             | 支援                    |
+| ------------------------------ | --------------------- |
+| Redis Cluster 自動 failover      | ✅（官方）                 |
+| 自動偵測 A cluster 掛掉              | ✅                     |
+| 自動切換到 B cluster                | ✅                     |
+| B 使用期間自動偵測 A 是否復活              | ✅（可選）                 |
+| 自動切回 A cluster                 | ✅（auto_failback=True） |
+| 支援 MOVED / ASK / slot redirect | ✅（官方）                 |
