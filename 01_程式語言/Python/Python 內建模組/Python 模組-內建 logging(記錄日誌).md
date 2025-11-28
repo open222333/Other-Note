@@ -41,6 +41,8 @@
     - [依時間自動輪轉 (TimedRotatingFileHandler)](#依時間自動輪轉-timedrotatingfilehandler)
     - [同時輸出到螢幕與檔案，且檔案只記錄錯誤](#同時輸出到螢幕與檔案且檔案只記錄錯誤)
 - [Formatter 格式代號](#formatter-格式代號)
+  - [範例 - 錯誤訊息會分開記錄檔案](#範例---錯誤訊息會分開記錄檔案)
+  - [範例 - 錯誤訊息會分開記錄檔案(Class版本)](#範例---錯誤訊息會分開記錄檔案class版本)
 
 ## 參考資料
 
@@ -991,4 +993,124 @@ log 從創建到發出的毫秒時間差
 
 發出 log 的線程名稱
 %(threadName)s
+```
+
+## 範例 - 錯誤訊息會分開記錄檔案
+
+```Python
+from logging.handlers import RotatingFileHandler
+import logging
+import os
+
+"""
+Args:
+    name (str): 日誌記錄器名稱。 預設為 "LoggingSample"。
+    log_level (str): 日誌等級。 預設為 "INFO"。
+    log_max_bytes (int): 單一日誌檔最大位元組數。 預設為 5MB。
+    log_backup_count (int): 保留的舊日誌檔案數量。 預設為 3。
+"""
+
+
+name = "LoggingSample"
+log_level = "INFO"
+log_max_bytes = 5*1024*1024
+log_backup_count = 3
+
+# 建立 logger
+logger = logging.getLogger(name)
+logger.setLevel(getattr(logging, log_level.upper()))
+logger.propagate = False  # 避免重複輸出
+
+# === 檔案輸出 handler (只記錄 ERROR 以上) ===
+log_path = os.path.join('logs', f"{name}.log")
+file_handler = RotatingFileHandler(
+    log_path,
+    maxBytes=log_max_bytes,
+    backupCount=log_backup_count,
+    encoding='utf-8'
+)
+file_handler.setLevel(logging.ERROR)  # 只記錄 ERROR+
+
+# === 終端機輸出 handler ===
+console_handler = logging.StreamHandler()
+console_handler.setLevel(getattr(logging, log_level.upper()))
+
+# === 統一格式 ===
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+file_handler.setFormatter(formatter)
+console_handler.setFormatter(formatter)
+
+# === 加入 handler ===
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+```
+
+## 範例 - 錯誤訊息會分開記錄檔案(Class版本)
+
+```Python
+from logging.handlers import RotatingFileHandler
+import logging
+import os
+
+
+class LoggingSample():
+    """logging範本"""
+
+    def __init__(self, name="LoggingSample", log_level="INFO", log_max_bytes=5*1024*1024, log_backup_count=3):
+        """初始化 LoggingSample。
+
+        Args:
+            name (str): 日誌記錄器名稱。 預設為 "LoggingSample"。
+            log_level (str): 日誌等級。 預設為 "INFO"。
+            log_max_bytes (int): 單一日誌檔最大位元組數。 預設為 5MB。
+            log_backup_count (int): 保留的舊日誌檔案數量。 預設為 3。
+        """
+        # 建立 logger
+        self.logger = logging.getLogger(name)
+        self.logger.setLevel(getattr(logging, log_level.upper()))
+        self.logger.propagate = False  # 避免重複輸出
+
+        # === 檔案輸出 handler (只記錄 ERROR 以上) ===
+        log_path = os.path.join('logs', f"{name}.log")
+        log_dir = os.path.dirname(log_path)
+
+        if log_dir and not os.path.exists(log_dir):
+            os.makedirs(log_dir, exist_ok=True)
+
+        file_handler = RotatingFileHandler(
+            log_path,
+            maxBytes=log_max_bytes,
+            backupCount=log_backup_count,
+            encoding='utf-8'
+        )
+        file_handler.setLevel(logging.ERROR)  # 只記錄 ERROR+
+
+        # === 終端機輸出 handler ===
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(getattr(logging, log_level.upper()))
+
+        # === 統一格式 ===
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+        file_handler.setFormatter(formatter)
+        console_handler.setFormatter(formatter)
+
+        # === 加入 handler ===
+        self.logger.addHandler(file_handler)
+        self.logger.addHandler(console_handler)
+```
+
+確保log路徑資料夾存在
+
+```Python
+import os
+
+def ensure_log_dir(log_path):
+    log_dir = os.path.dirname(log_path)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+    return log_path
 ```
