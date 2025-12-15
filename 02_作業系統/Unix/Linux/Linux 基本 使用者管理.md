@@ -11,10 +11,23 @@
   - [規範群組名稱與 GID 的對應](#規範群組名稱與-gid-的對應)
   - [UID/GID密碼參數](#uidgid密碼參數)
 - [指令](#指令)
-  - [新增使用者(useradd passwd)](#新增使用者useradd-passwd)
+  - [useradd passwd (新增使用者)](#useradd-passwd-新增使用者)
     - [新增使用者範例](#新增使用者範例)
+      - [一行命令創建使用者並加群組 + home](#一行命令創建使用者並加群組--home)
+  - [visudo 設定使用者群組的指令限制與權限](#visudo-設定使用者群組的指令限制與權限)
+    - [sudoers 配置檔 Cmnd\_Alias](#sudoers-配置檔-cmnd_alias)
+  - [groupadd (新增群組)](#groupadd-新增群組)
 - [範例](#範例)
-  - [可使用 docker docker-compose](#可使用-docker-docker-compose)
+  - [groupadd (新增群組)](#groupadd-新增群組-1)
+    - [建立群組(20251215)](#建立群組20251215)
+  - [Cmnd\_Alias](#cmnd_alias)
+    - [限制群組 admins 只能執行重啟/關機命令](#限制群組-admins-只能執行重啟關機命令)
+    - [群組 maintainers 可以進行系統維護操作](#群組-maintainers-可以進行系統維護操作)
+- [例外](#例外)
+  - [useradd passwd (新增使用者)](#useradd-passwd-新增使用者-1)
+    - [手動建立 home 目錄（如果已經存在使用者但沒 home）](#手動建立-home-目錄如果已經存在使用者但沒-home)
+  - [visudo 設定使用者群組的指令限制與權限](#visudo-設定使用者群組的指令限制與權限-1)
+    - [如果 .tmp 已經存在，要「取消」它](#如果-tmp-已經存在要取消它)
 
 ## 參考資料
 
@@ -84,7 +97,7 @@ ENCRYPT_METHOD SHA512    <==密碼加密的機制使用的是 sha512 這一個�
 
 # 指令
 
-## 新增使用者(useradd passwd)
+## useradd passwd (新增使用者)
 
 ```bash
 # 新增使用者
@@ -225,38 +238,192 @@ usermod -aG testssssss testuser
 groups $new_user
 ```
 
-# 範例
+#### 一行命令創建使用者並加群組 + home
 
-## 可使用 docker docker-compose
+```sh
+useradd -m -d /home/username -G restricted username && passwd username
+```
 
-設定使用者群組的指令限制與權限
+```
+創建使用者
+建立 home
+加入 restricted 群組
+設定密碼
+```
+
+查看使用者信息：
+
+```sh
+id username
+```
+
+查看 home 目錄：
+
+```sh
+ls -ld /home/username
+```
+
+## visudo 設定使用者群組的指令限制與權限
 
 ```sh
 visudo
 ```
 
-```
-Cmnd_Alias RESTRICTED_COMMAND = /bin/cp, /bin/systemctl, /usr/bin/* /var/app/inhand/*, /usr/local/bin/docker-compose, /usr/bin/docker, /usr/bin/vim, /bin/cat
-Cmnd_Alias RESTRICTED_NO_DOCKER_COMMAND = /usr/bin/* /var/app/inhand/*, /bin/cat
+確定沒有人在用 visudo
 
+```sh
+ps aux | grep visudo
+```
+
+確定 sudoers 本身是正常的
+
+用途：
+
+不開編輯器
+
+不會產生 /etc/sudoers.tmp
+
+檢查語法是否正確
+
+```sh
+visudo -c
+```
+
+只查看 sudoers（建議用 less）
+
+```sh
+less /etc/sudoers
+```
+
+查看 sudoers.d 所有設定
+
+```sh
+ls /etc/sudoers.d/
+```
+
+sudoers 基本格式
+
+```
+使用者  主機=(身分)  選項: 指令
+```
+
+```
+root ALL=(ALL:ALL) ALL
+```
+
+讓某使用者能用 sudo
+
+```
+username ALL=(ALL) ALL
+```
+
+只允許執行特定指令
+
+```
+username ALL=(ALL) /usr/bin/systemctl restart nginx
+```
+
+### sudoers 配置檔 Cmnd_Alias
+
+Cmnd_Alias 必須寫在 sudoers 配置檔裡，通常有兩種安全做法
+
+主 sudoers 檔案
+
+優點：直接生效
+
+缺點：修改主檔風險較高，如果語法錯誤可能會鎖死 sudo
+
+建議只在熟悉系統時修改主檔
+
+```sh
+sudo visudo
+```
+
+使用 /etc/sudoers.d/（推薦）
+
+優點：
+
+不修改主檔，安全
+
+系統升級不會覆蓋
+
+易於管理多個群組和規則
+
+建立一個自訂檔案
+
+```sh
+sudo visudo -f /etc/sudoers.d/restricted
+```
+
+驗證語法：
+
+```sh
+sudo visudo -c -f /etc/sudoers.d/restricted
+```
+
+確保檔案權限：
+
+```sh
+sudo chmod 440 /etc/sudoers.d/restricted
+```
+
+定義別名 給群組/使用者使用
+
+```
+Cmnd_Alias 別名 = 命令1, 命令2, 命令3
+Cmnd_Alias MY_ALIAS = <命令列表>
+
+%群組名稱 ALL=(ALL) MY_ALIAS
+username ALL=(ALL) MY_ALIAS
+```
+
+可以看到使用者允許的命令列表
+
+```sh
+sudo -l -U username
+```
+
+## groupadd (新增群組)
+
+查看某個群組是否存在
+
+```sh
+getent group 群組名稱
+```
+
+```sh
+groupadd 群組名稱
+```
+
+加入群組的使用者是 user1
+
+```sh
+usermod -aG 群組名稱 user1
+```
+
+# 範例
+
+## groupadd (新增群組)
+
+### 建立群組(20251215)
+
+```
+群組權限
+%restricted 群組：允許執行 RESTRICTED_COMMAND 定義的所有命令。
+%restricted_no_docker 群組：允許執行 RESTRICTED_NO_DOCKER_COMMAND 定義的命令。
+```
+
+```
+Cmnd_Alias RESTRICTED_COMMAND = /bin/cp, /bin/systemctl, /usr/bin/* /var/app/dir/*, /usr/local/bin/docker-compose, /usr/bin/docker, /usr/bin/vim, /bin/cat
+Cmnd_Alias RESTRICTED_NO_DOCKER_COMMAND = /usr/bin/* /var/app/dir/*, /bin/cat
+root ALL=(ALL:ALL) ALL
 %restricted     ALL=(ALL)       RESTRICTED_COMMAND
 %restricted_no_docker     ALL=(ALL)       RESTRICTED_NO_DOCKER_COMMAND
 ```
 
-修正
-
-```
-Cmnd_Alias RESTRICTED_COMMAND = /bin/cp, /bin/systemctl, /usr/local/bin/docker-compose, /usr/bin/docker, /usr/bin/vim, /bin/cat
-Cmnd_Alias RESTRICTED_NO_DOCKER_COMMAND = /bin/cat
-
-%restricted     ALL=(ALL)       NOPASSWD: RESTRICTED_COMMAND
-%restricted_no_docker     ALL=(ALL)       NOPASSWD: RESTRICTED_NO_DOCKER_COMMAND
-```
-
-```
-. Cmnd_Alias 的定義
 Cmnd_Alias 用來定義命令別名，便於管理和重複使用。
 
+```
 RESTRICTED_COMMAND： 包含下列命令：
 
     /bin/cp（複製檔案）
@@ -269,19 +436,60 @@ RESTRICTED_COMMAND： 包含下列命令：
 
 RESTRICTED_NO_DOCKER_COMMAND： 不包含 Docker 相關命令，僅包含：
 
-    /usr/bin/* /var/app/inhand/*（同樣有語法問題）
+    /usr/bin/* /var/app/dir/*（同樣有語法問題）
     /bin/cat
 ```
-
-```
-群組權限
-%restricted 群組：允許執行 RESTRICTED_COMMAND 定義的所有命令。
-%restricted_no_docker 群組：允許執行 RESTRICTED_NO_DOCKER_COMMAND 定義的命令。
-```
-
-新增群組
 
 ```sh
 groupadd restricted
 groupadd restricted_no_docker
+```
+
+## Cmnd_Alias
+
+### 限制群組 admins 只能執行重啟/關機命令
+
+```
+Cmnd_Alias REBOOT_CMDS = /sbin/reboot, /sbin/shutdown
+%admins ALL=(ALL) REBOOT_CMDS
+```
+
+### 群組 maintainers 可以進行系統維護操作
+
+```
+Cmnd_Alias MAINT_CMDS = /sbin/reboot, /usr/bin/systemctl restart nginx, /usr/bin/systemctl restart mysql
+%maintainers ALL=(ALL) MAINT_CMDS
+```
+
+# 例外
+
+## useradd passwd (新增使用者)
+
+### 手動建立 home 目錄（如果已經存在使用者但沒 home）
+
+```sh
+mkdir -p /home/username
+chown username:username /home/username
+chmod 700 /home/username
+usermod -d /home/username username # 修改 home 設定
+```
+
+## visudo 設定使用者群組的指令限制與權限
+
+### 如果 .tmp 已經存在，要「取消」它
+
+```sh
+visudo -c
+```
+
+確認收到回覆
+
+```
+/etc/sudoers: parsed OK
+```
+
+刪除
+
+```sh
+rm -f /etc/sudoers.tmp
 ```

@@ -15,6 +15,7 @@
 - [安裝](#安裝)
   - [RedHat (CentOS 7)](#redhat-centos-7)
   - [Debian (Ubuntu)](#debian-ubuntu)
+    - [需要最新版 v2 但習慣舊指令 "docker-compose"](#需要最新版-v2-但習慣舊指令-docker-compose)
   - [MacOS](#macos)
   - [Windows 10](#windows-10)
     - [安裝 Docker Desktop（包含 Docker 和 Docker Compose）](#安裝-docker-desktop包含-docker-和-docker-compose)
@@ -24,6 +25,8 @@
   - [ipv6](#ipv6)
   - [設定網段](#設定網段)
   - [常用配置(20230705)](#常用配置20230705)
+- [更新](#更新)
+  - [Debian (Ubuntu)](#debian-ubuntu-1)
 - [指令](#指令)
   - [服務](#服務)
   - [docker](#docker)
@@ -218,12 +221,29 @@ docker --version
 # 安裝Docker Compose：
 # 下載Docker Compose二進位文件：
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+# 舊版 docker-compose（二進位檔）
+curl -L \
+  "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" \
+  -o /usr/local/bin/docker-compose
 
 # 添加執行權限：
 chmod +x /usr/local/bin/docker-compose
 
 # 驗證安裝：
 docker-compose --version
+
+# 安裝 Docker Compose v2
+# 2022 起，Docker Compose 改名成
+apt update
+apt install docker-compose-plugin
+
+docker compose version
+```
+
+### 需要最新版 v2 但習慣舊指令 "docker-compose"
+
+```SH
+ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
 ```
 
 ## MacOS
@@ -490,6 +510,44 @@ cat /proc/sys/net/ipv6/conf/all/disable_ipv6
   "ipv6": true,
   "fixed-cidr-v6": "2001:db8:1::/64"
 }
+```
+
+# 更新
+
+## Debian (Ubuntu)
+
+安裝官方 Docker Repository
+
+```sh
+# 更新 apt 套件列表
+apt update
+apt install -y ca-certificates curl gnupg lsb-release
+
+# 新增 Docker 官方 GPG key
+mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# 新增 Docker repository
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+安裝 / 更新 Docker Engine
+
+```sh
+apt update
+apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+啟動 / 驗證
+
+```sh
+systemctl enable docker
+systemctl start docker
+docker version
+docker compose version
 ```
 
 # 指令

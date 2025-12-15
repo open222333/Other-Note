@@ -9,9 +9,12 @@ s3fs 工具是用於將 Amazon S3 存儲桶掛載到本地文件系統的工具
 ## 目錄
 
 - [Linux 工具 s3fs(Amazon S3 存儲桶掛載到本地工具)](#linux-工具-s3fsamazon-s3-存儲桶掛載到本地工具)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
 - [安裝](#安裝)
+  - [Debian (Ubuntu)](#debian-ubuntu)
+    - [Ubuntu 18.04 / 20.04 / 22.04、Debian 10 / 11 / 12](#ubuntu-1804--2004--2204debian-10--11--12)
+  - [RedHat (CentOS 7)](#redhat-centos-7)
 - [指令](#指令)
 
 ## 參考資料
@@ -24,11 +27,28 @@ s3fs 工具是用於將 Amazon S3 存儲桶掛載到本地文件系統的工具
 
 # 安裝
 
-```bash
-# 在 Ubuntu 或 Debian 上：
-apt-get update && apt-get install s3fs -y
+## Debian (Ubuntu)
 
-# 在 CentOS 或 Red Hat 上：
+```sh
+apt-get update && apt-get install s3fs -y
+```
+
+### Ubuntu 18.04 / 20.04 / 22.04、Debian 10 / 11 / 12
+
+```sh
+apt update
+apt install s3fs
+```
+
+檢查版本
+
+```sh
+s3fs --version
+```
+
+## RedHat (CentOS 7)
+
+```sh
 # 安裝相關套件
 yum install fuse -y
 # 安裝 EPEL 存儲庫
@@ -78,5 +98,4 @@ fusermount -u /path
 # 使用 df -h 指令查看掛載的硬碟
 # 此指令將顯示當前掛載的硬碟，包括 S3 存儲桶掛載點
 df -h
-
 ```

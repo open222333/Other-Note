@@ -48,6 +48,8 @@ Redis Cluster 最低要求
 
 [Redis Cluster 介紹](https://isdaniel.github.io/redis-cluster-introduce-01/)
 
+[Redis代理与集群的总结报告 redis-cluster](https://www.cnblogs.com/gered/p/15210798.html#autoid-0-0-0)
+
 # 安裝
 
 ## docker-compose 部署
