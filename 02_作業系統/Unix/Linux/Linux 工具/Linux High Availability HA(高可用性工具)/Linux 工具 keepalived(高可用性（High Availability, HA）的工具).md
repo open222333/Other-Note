@@ -60,6 +60,10 @@ Keepalived 的核心技術是：
 
 [官方原始碼倉庫（GitHub）](https://github.com/acassen/keepalived?utm_source=chatgpt.com)
 
+### 心得相關
+
+[實戰 Keepalived 建置高可用性主機叢集](https://ithelp.ithome.com.tw/articles/10166157)
+
 # 安裝
 
 ## docker-compose 部署
@@ -70,11 +74,14 @@ Keepalived 的核心技術是：
 ## Debian (Ubuntu)
 
 ```bash
+apt-get -y update
+apt-get -y install keepalived
 ```
 
 ## RedHat (CentOS)
 
 ```bash
+yum -y install keepalived
 ```
 
 ## Homebrew (MacOS)
@@ -84,7 +91,46 @@ Keepalived 的核心技術是：
 
 ## 配置文檔
 
-通常在 ``
+
+通常在`/etc/keepalived/keepalived.conf`
+
+### 配置虛擬 IP（VIP）
+
+在設定檔中新增虛擬 IP 位址。
+
+這是在故障切換時移動到新主機的 IP 位址。
+
+```
+vrrp_instance VI_1 {
+    state MASTER
+    interface eth0
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+    virtual_ipaddress {
+        192.168.1.100
+    }
+}
+```
+
+### 配置節點優先權
+
+配置每個節點的優先級，以確定哪個節點將首先成為 MASTER。
+
+更高的優先權意味著更有可能成為 MASTER。
+
+```
+vrrp_instance VI_1 {
+    state MASTER
+    interface eth0
+    virtual_router_id 51
+    priority 100
+    advert_int 1
+    virtual_ipaddress {
+        192.168.1.100
+    }
+}
+```
 
 ### 基本範例
 
