@@ -16,6 +16,8 @@
   - [RedHat (CentOS 7)](#redhat-centos-7)
   - [Debian (Ubuntu)](#debian-ubuntu)
     - [需要最新版 v2 但習慣舊指令 "docker-compose"](#需要最新版-v2-但習慣舊指令-docker-compose)
+      - [wrapper script（全系統）](#wrapper-script全系統)
+      - [使用 alias（建議個人使用）](#使用-alias建議個人使用)
   - [MacOS](#macos)
   - [Windows 10](#windows-10)
     - [安裝 Docker Desktop（包含 Docker 和 Docker Compose）](#安裝-docker-desktop包含-docker-和-docker-compose)
@@ -242,8 +244,46 @@ docker compose version
 
 ### 需要最新版 v2 但習慣舊指令 "docker-compose"
 
-```SH
-ln -s /usr/libexec/docker/cli-plugins/docker-compose /usr/local/bin/docker-compose
+#### wrapper script（全系統）
+
+先確認 Docker Compose CLI plugin 路徑(通常是 /usr/bin/docker)
+
+```sh
+which docker
+```
+
+若之前有執行
+
+```sh
+ln -s /usr/bin/docker /usr/local/bin/docker-compose
+```
+
+移除錯誤的 symlink (docker-compose up -d 出現錯誤 unknown shorthand flag: 'd' in -d)
+
+```sh
+rm -f /usr/local/bin/docker-compose
+```
+
+```sh
+tee /usr/local/bin/docker-compose > /dev/null <<'EOF'
+#!/bin/sh
+exec docker compose "$@"
+EOF
+```
+
+```sh
+chmod +x /usr/local/bin/docker-compose
+```
+
+#### 使用 alias（建議個人使用）
+
+編輯 shell 設定檔（例如 ~/.bashrc 或 ~/.zshrc）：
+
+只對這個使用者生效
+
+```sh
+echo 'alias docker-compose="docker compose"' >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ## MacOS
