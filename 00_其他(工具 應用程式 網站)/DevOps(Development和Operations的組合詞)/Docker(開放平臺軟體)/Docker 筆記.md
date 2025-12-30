@@ -19,6 +19,9 @@
       - [wrapper script（全系統）](#wrapper-script全系統)
       - [使用 alias（建議個人使用）](#使用-alias建議個人使用)
   - [MacOS](#macos)
+    - [需要最新版 v2 但習慣舊指令 "docker-compose"](#需要最新版-v2-但習慣舊指令-docker-compose-1)
+      - [使用 alias（最推薦，安全簡單）](#使用-alias最推薦安全簡單)
+      - [wrapper script（全系統生效，適合 CI / 舊腳本）](#wrapper-script全系統生效適合-ci--舊腳本)
   - [Windows 10](#windows-10)
     - [安裝 Docker Desktop（包含 Docker 和 Docker Compose）](#安裝-docker-desktop包含-docker-和-docker-compose)
     - [使用 WSL 2 安裝 Docker CLI 和 Docker Compose](#使用-wsl-2-安裝-docker-cli-和-docker-compose)
@@ -335,6 +338,66 @@ docker-compose --version
 ⚠️ 小提醒：
 
 新版 Docker 建議使用 docker compose 而不是 docker-compose。
+
+### 需要最新版 v2 但習慣舊指令 "docker-compose"
+
+#### 使用 alias（最推薦，安全簡單）
+
+zsh（macOS 預設）
+
+```sh
+echo 'alias docker-compose="docker compose"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+bash（較舊系統）
+
+```sh
+echo 'alias docker-compose="docker compose"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+#### wrapper script（全系統生效，適合 CI / 舊腳本）
+
+macOS 不建議亂動 /usr/bin 請使用 /usr/local/bin（Intel）或 /opt/homebrew/bin（Apple Silicon）
+
+確認 docker 路徑
+
+```sh
+which docker
+```
+
+通常是：
+
+/usr/local/bin/docker（Intel）
+
+/opt/homebrew/bin/docker（Apple Silicon）
+
+或 /Applications/Docker.app/...（Docker Desktop）
+
+建立 wrapper（Intel Mac）
+
+```sh
+sudo tee /usr/local/bin/docker-compose > /dev/null <<'EOF'
+#!/bin/sh
+exec docker compose "$@"
+EOF
+
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+Apple Silicon（M1 / M2 / M3）
+
+```sh
+sudo tee /opt/homebrew/bin/docker-compose > /dev/null <<'EOF'
+#!/bin/sh
+exec docker compose "$@"
+EOF
+
+sudo chmod +x /opt/homebrew/bin/docker-compose
+```
+
+
 
 ## Windows 10
 
