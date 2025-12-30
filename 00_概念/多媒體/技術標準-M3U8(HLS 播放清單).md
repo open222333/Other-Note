@@ -32,6 +32,7 @@ video/1080p.m3u8
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [字幕與m3u8相關](#字幕與m3u8相關)
+    - [測試相關](#測試相關)
 - [範例](#範例)
   - [最簡單的 m3u8（單畫質）](#最簡單的-m3u8單畫質)
   - [實務常見：主播放清單（master.m3u8）](#實務常見主播放清單masterm3u8)
@@ -56,6 +57,10 @@ video/1080p.m3u8
 [Integrate captions into your HLS manifest - 將字幕整合到 HLS 清單中](http://support.captionhub.com/timbra/anHrwmAnQCHCsf4DjG5uGX/integrate-captions-into-your-hls-manifest/38A8ShVEARoBJqhfcLUBjf?utm_source=chatgpt.com)
 
 [How to add external WebVTT subtitles into HTTP Live Stream on iOS client - 如何在 iOS 用戶端上為 HTTP 直播串流新增外部 WebVTT 字幕](https://stackoverflow.com/questions/43161124/how-to-add-external-webvtt-subtitles-into-http-live-stream-on-ios-client)
+
+### 測試相關
+
+[hls 播放測試](https://hlsjs.video-dev.org/demo/)
 
 # 範例
 
