@@ -32,6 +32,7 @@ video/1080p.m3u8
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [字幕與m3u8相關](#字幕與m3u8相關)
+      - [字幕加密相關](#字幕加密相關)
     - [測試相關](#測試相關)
 - [範例](#範例)
   - [最簡單的 m3u8（單畫質）](#最簡單的-m3u8單畫質)
@@ -41,6 +42,8 @@ video/1080p.m3u8
 ## 參考資料
 
 [IETF RFC 8216 (HLS 協議標準)](https://datatracker.ietf.org/doc/html/rfc8216)
+
+[IETF HLS 規範](https://datatracker.ietf.org/doc/html/rfc8216?utm_source=chatgpt.com)
 
 [m3u8格式详解](https://blog.csdn.net/weixin_39399492/article/details/131687865)
 
@@ -57,6 +60,14 @@ video/1080p.m3u8
 [Integrate captions into your HLS manifest - 將字幕整合到 HLS 清單中](http://support.captionhub.com/timbra/anHrwmAnQCHCsf4DjG5uGX/integrate-captions-into-your-hls-manifest/38A8ShVEARoBJqhfcLUBjf?utm_source=chatgpt.com)
 
 [How to add external WebVTT subtitles into HTTP Live Stream on iOS client - 如何在 iOS 用戶端上為 HTTP 直播串流新增外部 WebVTT 字幕](https://stackoverflow.com/questions/43161124/how-to-add-external-webvtt-subtitles-into-http-live-stream-on-ios-client)
+
+#### 字幕加密相關
+
+[Closed Captions (WebVTT) aren't displayed in IE11 in some Windows 10 OS when stream is encrypted (AES-128), cueChange event isn't fired in IE11 - 討論 在某些加密 HLS 下 Closed Captions（WebVTT）不顯示 的情況（IE11），說明播放器可能無法正常解密字幕。](https://github.com/video-dev/hls.js/issues/3051?utm_source=chatgpt.com)
+
+[Using WebVTT subtitles in HLS: is segmenting required? - 字幕載入/顯示問題（可用來支持字幕通常不加密／不被支援）](https://stackoverflow.com/questions/63538950/using-webvtt-subtitles-in-hls-is-segmenting-required)
+
+[HLS streaming subtitle not working in iOS - 說明 iOS 有時會讀不到字幕，不像 DRM 加密那樣可控](https://stackoverflow.com/questions/74485325/hls-streaming-subtitle-not-working-in-ios?utm_source=chatgpt.com)
 
 ### 測試相關
 
