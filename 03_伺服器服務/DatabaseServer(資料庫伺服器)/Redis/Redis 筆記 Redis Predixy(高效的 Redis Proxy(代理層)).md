@@ -73,11 +73,11 @@ Predixy 是用 C++ 開發的 Redis 高效代理，主要用途包括：
 
 ## 參考資料
 
-[Github Predixy](https://github.com/joyieldInc/predixy?utm_source=chatgpt.com)
+[Github Predixy](https://github.com/joyieldInc/predixy)
 
 [Predixy 文檔 中文版](https://github.com/joyieldInc/predixy/blob/master/README_CN.md)
 
-[Predixy 文檔](https://joyieldinc.github.io/predixy/?utm_source=chatgpt.com)
+[Predixy 文檔](https://joyieldinc.github.io/predixy/)
 
 ### 心得相關
 

@@ -52,13 +52,13 @@ Keepalived 的核心技術是：
 
 [官方網站](https://www.keepalived.org/)
 
-[官方文檔](https://www.keepalived.org/doc/introduction.html?utm_source=chatgpt.com)
+[官方文檔](https://www.keepalived.org/doc/introduction.html)
 
-[Keepalived User Guide（中文／英文）：完整手冊，包含安裝、配置語法、健康檢查機制、VRRP／VIP／LVS 設定](https://keepalived-doc.readthedocs.io/zh-cn/latest/?utm_source=chatgpt.com)
+[Keepalived User Guide（中文／英文）：完整手冊，包含安裝、配置語法、健康檢查機制、VRRP／VIP／LVS 設定](https://keepalived-doc.readthedocs.io/zh-cn/latest/)
 
-[Read the Docs 上的 Keepalived 配置語法摘要 - 列出所有 keepalived.conf 可用指令、設定選項與參數](https://keepalived.readthedocs.io/en/latest/configuration_synopsis.html?utm_source=chatgpt.com)
+[Read the Docs 上的 Keepalived 配置語法摘要 - 列出所有 keepalived.conf 可用指令、設定選項與參數](https://keepalived.readthedocs.io/en/latest/configuration_synopsis.html)
 
-[官方原始碼倉庫（GitHub）](https://github.com/acassen/keepalived?utm_source=chatgpt.com)
+[官方原始碼倉庫（GitHub）](https://github.com/acassen/keepalived)
 
 ### 心得相關
 
