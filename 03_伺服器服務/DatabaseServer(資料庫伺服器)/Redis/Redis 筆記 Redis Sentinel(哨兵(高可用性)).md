@@ -63,8 +63,8 @@ Cluster 是 分片 + HA 的大型分布式架構
 
 [High Availability and Scalability with Redis Enterprise - Redis Enterprise 實現高可用性和可擴展性](https://medium.com/%40octoz/high-availability-and-scalability-with-redis-enterprise-54a48edcce17)
 
-[Understanding Redis High-Availability Architectures - 理解 Redis 高可用性架構](https://semaphore.io/blog/redis-architectures?utm_source=chatgpt.com)
+[Understanding Redis High-Availability Architectures - 理解 Redis 高可用性架構](https://semaphore.io/blog/redis-architectures)
 
-[Redis high availability](https://alex.dzyoba.com/blog/redis-ha/?utm_source=chatgpt.com)
+[Redis high availability](https://alex.dzyoba.com/blog/redis-ha/)
 
-[Scale with Redis Cluster | Docs](https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/?utm_source=chatgpt.com)
+[Scale with Redis Cluster | Docs](https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/)

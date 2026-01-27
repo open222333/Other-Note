@@ -10,7 +10,7 @@
 
 [簡單網路管理協定](https://zh.wikipedia.org/wiki/%E7%AE%80%E5%8D%95%E7%BD%91%E7%BB%9C%E7%AE%A1%E7%90%86%E5%8D%8F%E8%AE%AE)
 
-[snmpd.conf – configuration file for the Net-SNMP agent” (man page) - 此頁對 view、include／exclude、OID 子樹等指令有詳細說明](https://www.net-snmp.org/docs/man/snmpd.conf.html?utm_source=chatgpt.com)
+[snmpd.conf – configuration file for the Net-SNMP agent” (man page) - 此頁對 view、include／exclude、OID 子樹等指令有詳細說明](https://www.net-snmp.org/docs/man/snmpd.conf.html)
 
 [“snmpd.examples(5) – example configuration for the Net-SNMP agent” (openSUSE 手冊頁) - 提供多個實例，包含 view-based 權限控制的範例。](https://manpages.opensuse.org/Tumbleweed/net-snmp/snmpd.examples.5.en.html)
 
