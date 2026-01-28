@@ -38,6 +38,8 @@
 
 [官方文檔](https://www.php.net/docs.php)
 
+[PHP 手册](https://www.php.net/manual/zh/)
+
 [PDO Drivers](https://www.php.net/manual/en/pdo.drivers.php)
 
 [安裝 php-pdo(php資料庫驅動套件)](https://www.php.net/manual/zh/pdo.installation.php)

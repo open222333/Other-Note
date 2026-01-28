@@ -1,4 +1,4 @@
-# PHP 套件 huaweicloud(華為雲官方服務平台)
+# PHP 套件 huaweicloud(華為雲官方SDK)
 
 ```
 huaweicloud/huaweicloud-sdk-php
@@ -6,7 +6,7 @@ huaweicloud/huaweicloud-sdk-php
 
 ## 目錄
 
-- [PHP 套件 huaweicloud(華為雲官方服務平台)](#php-套件-huaweicloud華為雲官方服務平台)
+- [PHP 套件 huaweicloud(華為雲官方SDK)](#php-套件-huaweicloud華為雲官方sdk)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
