@@ -448,10 +448,32 @@ server {
 
 ```
 放在nginx.conf裡面 設定的格式如下
-
 access_log path [format [buffer=size | off]]
-
 預設的combined,並且日誌記錄是存放在/var/log/nginx/nginx.log.
+```
+
+預設位置
+
+```
+/var/log/nginx/
+
+access.log   # 存取紀錄
+error.log    # 錯誤紀錄
+```
+
+```sh
+tail -f /var/log/nginx/access.log
+```
+
+```sh
+tail -f /var/log/nginx/error.log
+```
+
+查看最近幾行
+
+```sh
+tail -n 100 /var/log/nginx/access.log
+tail -n 100 /var/log/nginx/error.log
 ```
 
 # 即時監控 - 啟用 stub_status 模組
