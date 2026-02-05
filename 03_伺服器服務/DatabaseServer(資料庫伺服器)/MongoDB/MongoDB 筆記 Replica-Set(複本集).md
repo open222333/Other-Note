@@ -399,7 +399,7 @@ cfg.members[2].priority = 0;
 // 4.Reconfigure the Replica Set with the New Configuration
 rs.reconfig(cfg);
 
-// 一次只能更改一個成員
+// 一次只能更改一個成員 (只設定 Secondary)
 
 cfg = rs.conf();
 cfg.members[1].votes = 0;

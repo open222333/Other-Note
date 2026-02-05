@@ -46,6 +46,7 @@ laravel-admin 控制器 在 app/Admin/Controllers
   - [搜尋條件（filter）套用 paginate() 查詢](#搜尋條件filter套用-paginate-查詢)
   - [Laravel 6/7 withoutMiddleware (排除 middleware)](#laravel-67-withoutmiddleware-排除-middleware)
 - [狀況處理](#狀況處理)
+  - [Laravel 本身的 log](#laravel-本身的-log)
   - [降版本處理](#降版本處理)
   - [Setting a foreign key bigInteger to bigIncrements](#setting-a-foreign-key-biginteger-to-bigincrements)
 
@@ -1024,6 +1025,18 @@ class QcloudAccountsController extends Controller
 ```
 
 # 狀況處理
+
+## Laravel 本身的 log
+
+```
+storage/logs/laravel.log
+```
+
+-f = follow（即時追蹤）
+
+```sh
+tail -f storage/logs/laravel.log
+```
 
 ## 降版本處理
 

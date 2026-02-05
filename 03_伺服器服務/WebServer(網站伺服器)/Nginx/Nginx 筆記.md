@@ -461,6 +461,8 @@ access.log   # 存取紀錄
 error.log    # 錯誤紀錄
 ```
 
+-f = follow（即時追蹤）
+
 ```sh
 tail -f /var/log/nginx/access.log
 ```
