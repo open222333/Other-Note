@@ -13,6 +13,8 @@ huaweicloud/huaweicloud-sdk-php
 - [指令](#指令)
 - [用法](#用法)
   - [Huawei class 自製類別](#huawei-class-自製類別)
+  - [建立 → 再更新](#建立--再更新)
+  - [建立新的 CDN 加速域名](#建立新的-cdn-加速域名)
 
 ## 參考資料
 
@@ -26,8 +28,12 @@ huaweicloud/huaweicloud-sdk-php
 
 [PHP SDK 用於 Live 直播](https://support.huaweicloud.com/intl/zh-cn/ssdk-live/live_18_0005.html)
 
-
 [CDN 使用者指南 裡關於回源請求頭（Origin Request Headers）的官方說明](https://support.huaweicloud.com/intl/zh-cn/usermanual-cdn/cdn_01_0126.html)
+
+[修改域名全量配置接口（UpdateDomainFullConfig）官方中文文檔](https://support.huaweicloud.com/api-cdn/UpdateDomainFullConfig.html)
+
+[建立加速網域（CreateDomain） 官方中文文檔](https://support.huaweicloud.com/intl/zh-cn/api-cdn/CreateDomain.html)
+
 
 # 安裝
 
@@ -496,4 +502,73 @@ class Huawei
         }
     }
 }
+```
+
+## 建立 → 再更新
+
+[修改域名全量配置接口（UpdateDomainFullConfig）官方中文文檔](https://support.huaweicloud.com/api-cdn/UpdateDomainFullConfig.html)
+
+| 動作                     |  Model                                                    |
+| ---------------------- | ----------------------------------------------------------- |
+| createDomain           | CreateDomainRequest / Body                                  |
+| updateDomainFullConfig | **UpdateDomainFullConfigRequest + UpdateDomainRequestBody** |
+
+
+```php
+// 建立 domain（保留參照域名設定）
+$response = $this->cdnClient->createDomain($request);
+
+// ===== 建立完成後，單獨修改設定 =====
+
+// 要更新的內容
+$updateDomainBody = (new DomainsWithPort())
+    ->setDomainOriginHost(
+        (new DomainOriginHost())
+            ->setOriginHostType('customize')
+            ->setCustomizeDomain($subdomain) // ⭐ 回源 Host 改為新域名
+    )
+    ->setOriginRequestHeader([
+        [
+            'header_name'  => 'X-Host',
+            'header_value' => $subdomain,
+            'operation'    => 'set',
+        ],
+    ]);
+
+// Update 專用 Body
+$updateBody = (new UpdateDomainRequestBody())
+    ->setDomain($updateDomainBody);
+
+// Update 專用 Request（一定要指定 domainName）
+$updateRequest = (new UpdateDomainFullConfigRequest())
+    ->setDomainName($subdomain)
+    ->setBody($updateBody);
+
+// 呼叫 update API
+$this->cdnClient->updateDomainFullConfig($updateRequest);
+```
+
+## 建立新的 CDN 加速域名
+
+[建立加速網域（CreateDomain） 官方中文文檔（Huawei Cloud CDN API）](https://support.huaweicloud.com/intl/zh-cn/api-cdn/CreateDomain.html)
+
+```php
+$domainBody = (new DomainsWithPort())
+    ->setDomainName('cdn.example.com')
+    ->setBusinessType('web')
+    ->setSources([
+        [
+            'ip_or_domain' => '1.1.1.1',
+            'origin_type'  => 'ipaddr',
+            'active_standby' => 1,
+        ]
+    ]);
+
+$body = (new CreateDomainRequestBody())
+    ->setDomain($domainBody);
+
+$request = (new CreateDomainRequest())
+    ->setBody($body);
+
+$response = $this->cdnClient->createDomain($request);
 ```
