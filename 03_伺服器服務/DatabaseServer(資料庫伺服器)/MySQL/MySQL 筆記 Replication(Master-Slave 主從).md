@@ -434,6 +434,8 @@ UNLOCK TABLES;
 # 將/data目錄傳到mysql-slave機器
 rsync -Pr /root/xtrabackup_$date root@$slave_ip:/root
 
+systemctl stop mysql
+
 cd /var/lib/mysql
 rm -rf ./*
 
@@ -441,7 +443,11 @@ xtrabackup --prepare --target-dir=/root/xtrabackup_$date
 xtrabackup --copy-back --target-dir=/root/xtrabackup_$date
 
 cp /root/mysql-bin.$binlog_number /var/lib/mysql
+
+# 重要
 chown -R mysql.mysql /var/lib/mysql
+
+systemctl start mysql
 ```
 
 ```sql
