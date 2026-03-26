@@ -68,3 +68,12 @@ Cluster 是 分片 + HA 的大型分布式架構
 [Redis high availability](https://alex.dzyoba.com/blog/redis-ha/)
 
 [Scale with Redis Cluster | Docs](https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/)
+
+### 相關筆記
+
+[Redis 筆記（主）](./Redis_筆記.md)
+[Redis - Cluster 分散式](./Redis_筆記_Redis_Cluster(分散式部署模式).md)
+[Redis - Replication 主從](./Redis_筆記_Redis_Replication(Master–Slave_主從複製).md)
+[Redis - Keepalived HA](./Redis_筆記_Redis_Keepalived(HA工具).md)
+[Redis - Predixy Proxy 代理層](./Redis_筆記_Redis_Predixy(高效的_Redis_Proxy(代理層)).md)
+[Redis - Codis 分散式叢集](./Redis_筆記_Codis(分散式_Redis_叢集方案).md)
