@@ -29,6 +29,15 @@
 
 [keepalived+haproxy+redis-cluster 高可用负载均衡redis集群搭建](https://developer.aliyun.com/article/1095147)
 
+### 相關筆記
+
+[Redis 筆記（主）](./Redis_筆記.md)
+[Redis - Cluster 分散式](./Redis_筆記_Redis_Cluster(分散式部署模式).md)
+[Redis - Replication 主從](./Redis_筆記_Redis_Replication(Master–Slave_主從複製).md)
+[Redis - Sentinel 哨兵 HA](./Redis_筆記_Redis_Sentinel(哨兵(高可用性)).md)
+[Redis - Predixy Proxy 代理層](./Redis_筆記_Redis_Predixy(高效的_Redis_Proxy(代理層)).md)
+[Redis - Codis 分散式叢集](./Redis_筆記_Codis(分散式_Redis_叢集方案).md)
+
 # 範例
 
 ## Keepalived + Redis Sentinel（推薦）
