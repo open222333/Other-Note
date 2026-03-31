@@ -25,6 +25,7 @@ RDBMS
     - [架構相關](#架構相關)
     - [錯誤處理相關](#錯誤處理相關)
       - [ERROR 1805 (HY000)](#error-1805-hy000)
+    - [相關筆記](#相關筆記)
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
     - [正式環境 範例(20250924)](#正式環境-範例20250924)
@@ -51,6 +52,9 @@ RDBMS
     - [查看 MySQL 使用容量](#查看-mysql-使用容量)
   - [服務操作](#服務操作)
   - [SQL 指令](#sql-指令)
+    - [連線](#連線)
+    - [帳號權限](#帳號權限)
+    - [建立只讀帳號](#建立只讀帳號)
     - [使用者相關](#使用者相關)
     - [密碼設定強度修改](#密碼設定強度修改)
     - [許可權 列表](#許可權-列表)
@@ -993,35 +997,62 @@ mysql -u root -p (password)
 
 ## SQL 指令
 
+### 連線
+
 ```sql
 -- 連線
 -- mysql -h主機地址 -P端口 -u使用者名稱 －p使用者密碼 （注:u與root可以不用加空格，其它也一樣）
 -- 斷開
 -- exit （回車）
+```
 
+### 帳號權限
+
+```sql
 -- 建立授權
 grant select on 資料庫.* to 使用者名稱@登入主機 identified by \”密碼\”
 -- 修改密碼
 mysqladmin -u使用者名稱 -p舊密碼 password 新密碼
 -- 刪除授權
 revoke select,insert,update,delete om *.* fromtest2@localhost;
+```
 
+### 建立只讀帳號
+
+```sql
+-- MySQL 8.0+（建立與授權分開）
+CREATE USER 'readonly_user'@'%' IDENTIFIED BY 'password';
+GRANT SELECT ON 資料庫名稱.* TO 'readonly_user'@'%';
+FLUSH PRIVILEGES;
+
+-- MySQL 5.x（合併語法）
+-- 指定資料庫
+GRANT SELECT ON 資料庫名稱.* TO 'readonly_user'@'%' IDENTIFIED BY 'password';
+
+-- 所有資料庫
+GRANT SELECT ON *.* TO 'readonly_user'@'%' IDENTIFIED BY 'password';
+
+FLUSH PRIVILEGES;
+```
+
+### 查詢資料庫資訊
+
+```sql
 -- 顯示資料庫
-show databases;
+SHOW DATABASES;
 -- 顯示資料表
-show tables;
--- 顯示錶結構
-describe 表名;
-
--- 顯示資料庫 細節
+SHOW TABLES;
+-- 顯示資料庫建立細節
 -- https://dev.mysql.com/doc/refman/8.0/en/show-create-database.html
 SHOW CREATE DATABASE db_name\G
+-- 顯示表結構
+DESCRIBE 表名;
 
 -- 顯示所有資料庫 字符集和排序規則
 SELECT SCHEMA_NAME, DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME
 FROM information_schema.SCHEMATA;
 
--- 顯示資料庫 字符集和排序規則
+-- 顯示指定資料庫 字符集和排序規則
 SELECT DEFAULT_CHARACTER_SET_NAME, DEFAULT_COLLATION_NAME
 FROM INFORMATION_SCHEMA.SCHEMATA
 WHERE SCHEMA_NAME = 'your_database_name';
@@ -1030,22 +1061,13 @@ WHERE SCHEMA_NAME = 'your_database_name';
 SELECT TABLE_NAME, TABLE_COLLATION
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_SCHEMA = 'your_database_name';
+```
 
--- 查看表的結構（列信息等）
-DESCRIBE your_table_name;
+### 資料庫操作
 
--- 修改整個數據庫的字符集和排序規則
-ALTER DATABASE your_database_name
-CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
-
--- 修改表字符集和排序規則
-ALTER TABLE your_table_name
-CONVERT TO CHARACTER SET utf8mb4
-COLLATE utf8mb4_unicode_ci;
-
+```sql
 -- 建立庫
-CREATE DATABASE [數據庫名];
+CREATE DATABASE 數據庫名;
 
 -- 建立庫 指定字符集和排序規則
 CREATE DATABASE your_database_name
@@ -1058,10 +1080,16 @@ DROP DATABASE 庫名;
 -- 使用庫
 USE 庫名;
 
--- 建立表
-create table 表名 (欄位設定列表);
-CREATE TABLE test (First_Name char(50),Last_Name char(50));
+-- 修改資料庫字符集和排序規則
+ALTER DATABASE your_database_name
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+```
 
+### 資料表操作
+
+```sql
+-- 建立表
 CREATE TABLE table_name (
     column1 datatype1,
     column2 datatype2,
@@ -1075,18 +1103,16 @@ CREATE TABLE table_name (
     ...
 );
 
--- 指定自動遞增的列（Auto-increment）
+-- 指定自動遞增（Auto-increment）
 CREATE TABLE table_name (
     id INT AUTO_INCREMENT PRIMARY KEY,
     column1 datatype1,
-    column2 datatype2,
     ...
 );
 
 -- 設定默認值（Default Value）
 CREATE TABLE table_name (
     column1 datatype1 DEFAULT default_value,
-    column2 datatype2 DEFAULT default_value,
     ...
 );
 
@@ -1102,47 +1128,46 @@ CREATE TABLE orders (
 CREATE TABLE table_name (
     column1 datatype1,
     column2 datatype2,
-    ...
-    INDEX index_name (column1, column2, ...);
+    INDEX index_name (column1, column2, ...)
 );
 
--- 指定表格引擎（Table Engine）
+-- 指定表格引擎 與 字符集
 CREATE TABLE table_name (
     column1 datatype1,
     column2 datatype2,
     ...
-) ENGINE=InnoDB;
-
--- 設定字符集（Character Set）和校對規則（Collation）
-CREATE TABLE table_name (
-    column1 datatype1,
-    column2 datatype2,
-    ...
-) CHARACTER SET utf8 COLLATE utf8_general_ci;
+) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- 刪除表
-drop table 表名;
--- 修改表
-alter table t1 rename t2
--- 查詢表
-select * from 表名;
+DROP TABLE 表名;
+-- 修改表名
+ALTER TABLE t1 RENAME t2;
 -- 清空表
-delete from 表名;
--- 備份表:
-mysqlbinmysqldump -h(ip) -uroot -p(password) databasenametablename > tablename.sql
--- 恢復表:
-mysqlbinmysql -h(ip) -uroot -p(password) databasenametablename < tablename.sql（操作前先把原來表刪除）
+DELETE FROM 表名;
 
 -- 增加列
-ALTER TABLE t2 ADD c INT UNSIGNED NOT NULL AUTO_INCREMENT,ADDINDEX (c);
+ALTER TABLE t2 ADD c INT UNSIGNED NOT NULL AUTO_INCREMENT, ADD INDEX (c);
 -- 修改列
-ALTER TABLE t2 MODIFY a TINYINT NOT NULL, CHANGE b cCHAR(20);
+ALTER TABLE t2 MODIFY a TINYINT NOT NULL, CHANGE b c CHAR(20);
 -- 刪除列
 ALTER TABLE t2 DROP COLUMN c;
 
--- master全表鎖定只讀
+-- 修改表字符集和排序規則
+ALTER TABLE your_table_name
+CONVERT TO CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+-- 備份表
+mysqldump -h(ip) -uroot -p(password) databasename tablename > tablename.sql
+-- 恢復表
+mysql -h(ip) -uroot -p(password) databasename tablename < tablename.sql
+```
+
+### 鎖定
+
+```sql
+-- master 全表鎖定只讀
 FLUSH TABLES WITH READ LOCK;
---
 SHOW MASTER STATUS;
 ```
 
