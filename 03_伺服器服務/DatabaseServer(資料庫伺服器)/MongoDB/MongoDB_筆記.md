@@ -554,6 +554,8 @@ mongod --version
 
 # 指令
 
+## 服務管理
+
 ```sh
 # 啟動服務
 systemctl start mongod
@@ -566,6 +568,8 @@ systemctl restart mongod
 # 停止
 systemctl stop mongod
 ```
+
+## 連線
 
 ```bash
 # 執行檔mongodb 用來連入DB, 預設port 27017
@@ -665,6 +669,8 @@ mongorestore $path
 
 # 資料庫指令
 
+## 基本操作
+
 ```JavaScript
 // 安全的 關閉 MongoDB 需要連入資料庫
 use admin
@@ -672,7 +678,7 @@ db.shutdownServer()
 
 // 以 admin 身分登入 dbname
 use dbname
-db.auth("admin", "{PASSWORD}")
+db.auth(“admin”, “{PASSWORD}”)
 
 // 顯示資料庫列表
 show dbs
@@ -687,33 +693,6 @@ show users
 // 若不存在則創建db
 use dbname
 
-// 顯示集合
-show collections
-
-// 建立users集合
-db.createCollection(‘users’)
-
-// 刪除集合users
-db.users.drop()
-db.runCommand({"drop","users"})
-
-// 刪除目前DB
-db.runCommand({"dropDatabase": 1})
-
-// help
-odb.help();
-odb.yourColl.help();
-odb.youColl.find().help();
-
-// 刪除當前DB
-db.dropDatabase()
-
-// 從指定的機器上複製DB
-db.cloneDatabase(“127.0.0.1”)
-
-// 從指定的機器複製到本地的 temp DB
-db.copyDatabase("mydb", "temp", "127.0.0.1")
-
 // 查看當前DB
 db
 
@@ -723,19 +702,54 @@ db.version()
 // 查看當前的db 版本
 db.getMongo()
 
+// help
+odb.help();
+odb.yourColl.help();
+odb.youColl.find().help();
+```
+
+## 集合操作
+
+```JavaScript
+// 顯示集合
+show collections
+
+// 建立users集合
+db.createCollection(‘users’)
+
+// 刪除集合users
+db.users.drop()
+db.runCommand({“drop”,”users”})
+
+// 刪除目前DB
+db.runCommand({“dropDatabase”: 1})
+
+// 刪除當前DB
+db.dropDatabase()
+
+// 從指定的機器上複製DB
+db.cloneDatabase(“127.0.0.1”)
+
+// 從指定的機器複製到本地的 temp DB
+db.copyDatabase(“mydb”, “temp”, “127.0.0.1”)
+```
+
+## 新增
+
+```JavaScript
 // 新增
 save()
 
-// 建立一個 users的集合 並且寫入一筆{"name":"lecaf"} 資料
-db.users.save({"name":"lecaf"})
+// 建立一個 users的集合 並且寫入一筆{“name”:”lecaf”} 資料
+db.users.save({“name”:”lecaf”})
 
 // 在users集合中寫入新資料，如果没有users，mongodb會自動建立一個
-db.users.insert({"name":"ghost", "age":10})
+db.users.insert({“name”:”ghost”, “age”:10})
 
 // save()和insert()也存在著些許區別：若新增的數據主鍵已經存在，insert()會不做操作並提示錯誤，而save() 則更改原來的內容為新內容。
-insert({ _id : 1, " name " : " n1 "})   // _id是主键
-insert({ _id : 1, " name " : " n2 " })  // 會顯示錯誤, 因為1已經有資料了
-save({ _id : 1, " name " : " n2 " })    // 會把 n1 更新為 n2 ，類似update。
+insert({ _id : 1, “ name “ : “ n1 “})   // _id是主键
+insert({ _id : 1, “ name “ : “ n2 “ })  // 會顯示錯誤, 因為1已經有資料了
+save({ _id : 1, “ name “ : “ n2 “ })    // 會把 n1 更新為 n2 ，類似update。
 ```
 
 ## 刪除
@@ -1088,6 +1102,30 @@ db.updateUser("user123",{pwd: "KNlZmiaNUp0B", customData: { title: "Senior Manag
 db.dropUser('test') // 刪除使用者
 
 db.system.users.find()    //查詢使用者
+```
+
+### 建立只讀帳號
+
+```JavaScript
+// 指定資料庫只讀
+use mydb
+db.createUser({
+  user: "readonly_user",
+  pwd: "你的密碼",
+  roles: [
+    { role: "read", db: "mydb" }
+  ]
+})
+
+// 所有資料庫只讀
+use admin
+db.createUser({
+  user: "readonly_user",
+  pwd: "你的密碼",
+  roles: [
+    { role: "readAnyDatabase", db: "admin" }
+  ]
+})
 ```
 
 ### mongodb 使用者許可權角色說明
