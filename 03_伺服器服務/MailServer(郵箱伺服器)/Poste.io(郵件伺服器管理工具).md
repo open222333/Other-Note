@@ -18,6 +18,10 @@ Poste.io 是一個功能豐富的郵件伺服器管理工具，內置簡單的 W
 - [腳本](#腳本)
   - [管理後台 過濾信件功能 SIEVE filter](#管理後台-過濾信件功能-sieve-filter)
   - [定期刪除腳本(伺服器)](#定期刪除腳本伺服器)
+- [指令](#指令)
+  - [查看 Poste 的資料庫/設定 在容器內找封鎖相關檔案](#查看-poste-的資料庫設定-在容器內找封鎖相關檔案)
+  - [Haraka 的封鎖設定](#haraka-的封鎖設定)
+    - [加入白名單](#加入白名單)
 - [資訊](#資訊)
   - [端口 25](#端口-25)
   - [端口 465](#端口-465)
@@ -212,6 +216,52 @@ crontab -e
 
 ```sh
 ./clean_old_emails.sh
+```
+
+# 指令
+
+## 查看 Poste 的資料庫/設定 在容器內找封鎖相關檔案
+
+```sh
+find / -name "*.db" 2>/dev/null
+ls /data/
+```
+
+## Haraka 的封鎖設定
+
+查看 Haraka 的封鎖設定
+
+```sh
+ls /usr/lib/node_modules/Haraka/config/
+```
+
+找 blacklist 相關檔案
+
+```sh
+find /usr/lib/node_modules/Haraka -name "*black*" -o -name "*block*" -o -name "*deny*" 2>/dev/null
+```
+
+### 加入白名單
+
+查看 Haraka 的 whitelist 設定位置
+
+```sh
+find /usr/lib/node_modules/Haraka/config -name "*white*" -o -name "*allow*" 2>/dev/null
+find /data -name "*white*" -o -name "*allow*" 2>/dev/null
+```
+
+通常 Haraka 的 IP 白名單在這裡
+
+```sh
+cat /usr/lib/node_modules/Haraka/config/connect.rdns_access.whitelist
+# 或
+cat /data/haraka/config/connect.rdns_access.whitelist
+```
+
+加入 Docker 網段
+
+```sh
+echo "172.18.0.0/16" >> /path/to/whitelist檔案
 ```
 
 # 資訊
