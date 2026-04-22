@@ -29,12 +29,31 @@ RDBMS
 - [安裝步驟](#安裝步驟)
   - [配置文檔](#配置文檔)
     - [正式環境 範例(20250924)](#正式環境-範例20250924)
+    - [檢測指令](#檢測指令)
   - [MacOS](#macos)
   - [CentOS7](#centos7)
   - [Debian (Ubuntu)](#debian-ubuntu)
     - [Ubuntu 18.04 LTS (MySQL 5.7)](#ubuntu-1804-lts-mysql-57)
       - [初始密碼](#初始密碼)
       - [腳本](#腳本)
+    - [Ubuntu 24.04 LTS (MySQL 8.4)](#ubuntu-2404-lts-mysql-84)
+      - [步驟 1 — 下載官方 APT 設定套件](#步驟-1--下載官方-apt-設定套件)
+      - [步驟 2 — 安裝並設定 repo](#步驟-2--安裝並設定-repo)
+      - [步驟 3 — 更新套件列表](#步驟-3--更新套件列表)
+      - [步驟 4 — 安裝 MySQL Server](#步驟-4--安裝-mysql-server)
+      - [步驟 5 — 執行安全性初始化](#步驟-5--執行安全性初始化)
+        - [互動選項說明](#互動選項說明)
+        - [關於 root 密碼](#關於-root-密碼)
+      - [步驟 6 — 確認服務狀態](#步驟-6--確認服務狀態)
+      - [步驟 7 — 登入並驗證版本](#步驟-7--登入並驗證版本)
+      - [配置](#配置)
+        - [正式環境 最小可用設定範例](#正式環境-最小可用設定範例)
+          - [舊版 MySQL 設定與 MySQL 8.4 差異對照](#舊版-mysql-設定與-mysql-84-差異對照)
+        - [MySQL 8.4 調整設定檔 — Linode Dedicated 64GB（Master）](#mysql-84-調整設定檔--linode-dedicated-64gbmaster)
+      - [常見問題](#常見問題)
+        - [GPG key 錯誤](#gpg-key-錯誤)
+        - [允許遠端連線](#允許遠端連線)
+        - [建立應用程式專用帳號（建議）](#建立應用程式專用帳號建議)
     - [8.0](#80)
     - [5.7](#57)
     - [移除舊版 mysql-apt-config](#移除舊版-mysql-apt-config)
@@ -55,6 +74,10 @@ RDBMS
     - [連線](#連線)
     - [帳號權限](#帳號權限)
     - [建立只讀帳號](#建立只讀帳號)
+    - [查詢資料庫資訊](#查詢資料庫資訊)
+    - [資料庫操作](#資料庫操作)
+    - [資料表操作](#資料表操作)
+    - [鎖定](#鎖定)
     - [使用者相關](#使用者相關)
     - [密碼設定強度修改](#密碼設定強度修改)
     - [許可權 列表](#許可權-列表)
@@ -418,6 +441,12 @@ long_query_time = 2
 wait_timeout=600
 ```
 
+### 檢測指令
+
+```sh
+mysqld --validate-config
+```
+
 ## MacOS
 
 ```bash
@@ -633,6 +662,259 @@ sudo mysql_secure_installation
 
 echo "✅ 安裝完成！版本資訊如下："
 mysql --version
+```
+
+### Ubuntu 24.04 LTS (MySQL 8.4)
+
+#### 步驟 1 — 下載官方 APT 設定套件
+
+```bash
+wget https://dev.mysql.com/get/mysql-apt-config_0.8.33-1_all.deb
+```
+
+> 可至 [dev.mysql.com/downloads/repo/apt/](https://dev.mysql.com/downloads/repo/apt/) 確認最新版本號。
+
+---
+
+#### 步驟 2 — 安裝並設定 repo
+
+```bash
+sudo dpkg -i mysql-apt-config_0.8.33-1_all.deb
+```
+
+安裝時會出現互動式選單：
+1. 選擇 **MySQL Server & Cluster**
+2. 選 **mysql-8.4-lts**
+3. 選 **Ok**
+
+---
+
+#### 步驟 3 — 更新套件列表
+
+```bash
+sudo apt-get update
+```
+
+---
+
+#### 步驟 4 — 安裝 MySQL Server
+
+```bash
+sudo apt-get install mysql-server
+```
+
+過程中會提示設定 root 密碼與 Authentication Plugin，建議選擇 **Use Strong Password Encryption**（caching_sha2_password）。
+
+---
+
+#### 步驟 5 — 執行安全性初始化
+
+```bash
+sudo mysql_secure_installation
+```
+
+##### 互動選項說明
+
+| 問題 | 建議選擇 | 說明 |
+|------|----------|------|
+| Setup VALIDATE PASSWORD component? | `y`（正式）/ `n`（測試） | 啟用後會強制要求強密碼 |
+| Remove anonymous users? | `y` | 移除匿名帳號，避免任意登入 |
+| Disallow root login remotely? | `y` | 禁止 root 遠端登入，提升安全性 |
+| Remove test database? | `y` | 移除預設測試資料庫 |
+| Reload privilege tables now? | `y` | 讓所有變更立即生效 |
+
+##### 關於 root 密碼
+
+Ubuntu 預設使用 **auth_socket** 認證，root 不需密碼，靠作業系統身份驗證。
+直接用以下指令登入：
+
+```bash
+sudo mysql
+```
+
+若需改為密碼登入：
+
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '你的密碼';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+之後用密碼登入：
+
+```bash
+mysql -u root -p
+```
+
+---
+
+#### 步驟 6 — 確認服務狀態
+
+```bash
+sudo systemctl status mysql
+```
+
+應顯示 `Active: active (running)`。
+
+開機自動啟動（通常預設已啟用）：
+
+```bash
+sudo systemctl enable mysql
+```
+
+---
+
+#### 步驟 7 — 登入並驗證版本
+
+```bash
+sudo mysql -u root -p
+```
+
+登入後執行：
+
+```sql
+SELECT VERSION();
+```
+
+應回傳 `8.4.x`。
+
+---
+
+#### 配置
+
+##### 正式環境 最小可用設定範例
+
+```ini
+[mysqld]
+user = mysql
+pid-file = /var/run/mysqld/mysqld.pid
+socket = /var/run/mysqld/mysqld.sock
+port = 3306
+datadir = /var/lib/mysql
+bind-address = 0.0.0.0
+
+wait_timeout = 120
+interactive_timeout = 120
+log_error_verbosity = 2
+max_allowed_packet = 2048M
+max_connections = 4096
+
+# Logging
+log_error = /var/log/mysql/error.log
+slow_query_log = ON
+slow-query-log-file = /var/log/mysql/mysql-slow.log
+long_query_time = 2
+
+# Replication
+server-id = 1
+log-bin = mysql-bin
+expire_logs_days = 10
+max_binlog_size = 1024M
+gtid-mode = ON
+enforce-gtid-consistency
+relay-log = relay-log-replica
+
+# InnoDB
+innodb_buffer_pool_size = 32G
+innodb_redo_log_capacity = 2G
+```
+
+###### 舊版 MySQL 設定與 MySQL 8.4 差異對照
+
+已移除（會導致無法啟動）
+
+| 參數 | 舊值 | 說明 |
+|------|------|------|
+| `query_cache_size` | `1024M` | Query Cache 在 8.0 完全移除，必須刪除此行 |
+| `query_cache_limit` | `1024M` | 同上，一併刪除 |
+
+---
+
+參數改名或廢棄
+
+| 參數 | 舊值 | 新設定 | 說明 |
+|------|------|--------|------|
+| `log_warnings` | `1` | `log_error_verbosity=2` | 參數已改名 |
+| `innodb_log_file_size` | `1024M` | `innodb_redo_log_capacity=2G` | 已廢棄，建議值為舊值 ×2 |
+| `relay-log-slave` | `relay-log-slave` | `relay-log-replica` | slave 字眼統一改為 replica |
+
+---
+
+設定衝突
+
+| 參數 | 問題 | 處理方式 |
+|------|------|----------|
+| `skip-log-bin` + `log-bin` 同時存在 | 互相矛盾 | 擇一刪除，保留 `log-bin=mysql-bin` |
+
+---
+
+建議調整
+
+| 參數 | 舊值 | 建議 | 說明 |
+|------|------|------|------|
+| `myisam-recover-options` | `BACKUP` | 移除 | MyISAM 在 8.4 幾乎廢棄 |
+| `thread_stack` | `512K` | 移除 | 8.4 預設值已提高，讓系統自行決定 |
+| `max_connect_errors` | `10000000` | 改回預設 `100` | 值太高等於沒有保護 |
+
+---
+
+可直接沿用
+
+| 參數 | 值 | 說明 |
+|------|----|------|
+| `gtid-mode` | `ON` | 8.4 完整支援 GTID |
+| `innodb_buffer_pool_size` | `32G` | 參數名稱未變 |
+| `max_connections` | `4096` | 參數名稱未變 |
+| `slow_query_log` | `on` | 參數名稱未變 |
+| `bind-address` | `0.0.0.0` | 參數名稱未變 |
+| `max_binlog_size` | `1024M` | 參數名稱未變 |
+| `enforce-gtid-consistency` | — | 參數名稱未變 |
+| `expire_logs_days` | `10` | 參數名稱未變 |
+
+---
+
+##### MySQL 8.4 調整設定檔 — Linode Dedicated 64GB（Master）
+
+[MySQL 8.4 設定檔 Linode Dedicated 64GB（Master）](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_範例_linode64gb_master_config.md)
+
+#### 常見問題
+
+##### GPG key 錯誤
+
+若 `apt-get update` 出現 GPG key 錯誤：
+
+```bash
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+```
+
+##### 允許遠端連線
+
+編輯設定檔：
+
+```bash
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+```
+
+將 `bind-address` 改為：
+
+```
+bind-address = 0.0.0.0
+```
+
+重啟服務：
+
+```bash
+sudo systemctl restart mysql
+```
+
+##### 建立應用程式專用帳號（建議）
+
+不建議直接用 root 連接應用程式，請建立獨立帳號：
+
+```sql
+CREATE USER 'appuser'@'%' IDENTIFIED BY '強密碼';
+GRANT ALL PRIVILEGES ON 資料庫名稱.* TO 'appuser'@'%';
+FLUSH PRIVILEGES;
 ```
 
 ### 8.0
