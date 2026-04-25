@@ -85,7 +85,10 @@ RDBMS
       - [INSERT](#insert)
   - [匯出匯入](#匯出匯入)
     - [匯出 - mysqldump](#匯出---mysqldump)
+      - [匯出 檔案壓縮備份 省空間又快](#匯出-檔案壓縮備份-省空間又快)
+      - [匯出 預估大小](#匯出-預估大小)
     - [匯入](#匯入)
+      - [匯入 檔案壓縮備份](#匯入-檔案壓縮備份)
     - [匯出資料到 CSV 檔案](#匯出資料到-csv-檔案)
       - [使用 MySQL 命令行工具](#使用-mysql-命令行工具)
       - [使用 mysqldump 命令](#使用-mysqldump-命令)
@@ -1715,6 +1718,18 @@ net stop mysql
 net start mysql
 ```
 
+#### 匯出 檔案壓縮備份 省空間又快
+
+```sh
+mysqldump -uroot -p --all-databases | gzip > all_20260424.sql.gz
+```
+
+#### 匯出 預估大小
+
+```sh
+du -sh /var/lib/mysql/*/
+```
+
 ### 匯入
 
 ```bash
@@ -1735,6 +1750,12 @@ mysql -u$username -p $dbname < $name.sql
 mysql -u$username -p < $name.sql
 # 恢復資料庫
 mysql -h(ip) -uroot -p(password) databasename< database.sql
+```
+
+#### 匯入 檔案壓縮備份
+
+```sh
+gunzip < all_20260424.sql.gz | mysql -uroot -p
 ```
 
 ### 匯出資料到 CSV 檔案
