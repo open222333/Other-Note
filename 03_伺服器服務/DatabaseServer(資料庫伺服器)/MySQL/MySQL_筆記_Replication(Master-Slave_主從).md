@@ -122,6 +122,16 @@ GTID 模式
     - [連線被拒](#連線被拒)
     - [附錄：MySQL 8.4 Replication 相關指令對照](#附錄mysql-84-replication-相關指令對照)
   - [keepalived (實作高可用)](#keepalived-實作高可用)
+- [測試](#測試)
+  - [MySQL 8.4 Replication 與 Slave 只讀測試步驟](#mysql-84-replication-與-slave-只讀測試步驟)
+    - [一、測試 Replication 同步](#一測試-replication-同步)
+      - [Master 建立測試資料](#master-建立測試資料)
+      - [兩台 Slave 確認資料已同步](#兩台-slave-確認資料已同步)
+    - [二、測試 Slave 只讀](#二測試-slave-只讀)
+      - [一般帳號寫入測試（應失敗）](#一般帳號寫入測試應失敗)
+      - [root 帳號寫入測試（應失敗，super\_read\_only）](#root-帳號寫入測試應失敗super_read_only)
+    - [三、確認同步狀態](#三確認同步狀態)
+    - [四、清除測試資料](#四清除測試資料)
 - [例外狀況](#例外狀況)
   - [重置 Slave 的 relay log（不會清 Master 資料）](#重置-slave-的-relay-log不會清-master-資料)
   - [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
@@ -828,6 +838,103 @@ sudo ufw allow from 192.168.1.3 to any port 3306
 
 ```
 ```
+
+# 測試
+
+## MySQL 8.4 Replication 與 Slave 只讀測試步驟
+
+### 一、測試 Replication 同步
+
+#### Master 建立測試資料
+
+```sql
+CREATE DATABASE test_replication;
+USE test_replication;
+CREATE TABLE hello (id INT PRIMARY KEY, msg VARCHAR(50));
+INSERT INTO hello VALUES (1, 'from master');
+```
+
+#### 兩台 Slave 確認資料已同步
+
+```sql
+USE test_replication;
+SELECT * FROM hello;
+```
+
+預期結果：
+
+```
++----+-------------+
+| id | msg         |
++----+-------------+
+|  1 | from master |
++----+-------------+
+```
+
+---
+
+### 二、測試 Slave 只讀
+
+#### 一般帳號寫入測試（應失敗）
+
+```sql
+USE test_replication;
+INSERT INTO hello VALUES (2, 'from slave');
+```
+
+預期錯誤：
+
+```
+ERROR 1290 (HY000): The MySQL server is running with the --read-only option
+so it cannot execute this statement
+```
+
+#### root 帳號寫入測試（應失敗，super_read_only）
+
+```sql
+sudo mysql
+USE test_replication;
+INSERT INTO hello VALUES (3, 'root write');
+```
+
+預期錯誤：
+
+```
+ERROR 1290 (HY000): The MySQL server is running with the --super-read-only
+option so it cannot execute this statement
+```
+
+---
+
+### 三、確認同步狀態
+
+在兩台 Slave 執行：
+
+```sql
+SHOW REPLICA STATUS\G
+```
+
+重點欄位說明：
+
+| 欄位 | 期望值 | 說明 |
+|------|--------|------|
+| `Replica_IO_Running` | `Yes` | 正在接收 Master binlog |
+| `Replica_SQL_Running` | `Yes` | 正在執行同步 |
+| `Seconds_Behind_Source` | `0` | 與 Master 的延遲秒數，0 代表即時同步 |
+| `Last_IO_Error` | 空白 | 有值代表有錯誤 |
+| `Last_SQL_Error` | 空白 | 有值代表有錯誤 |
+
+---
+
+### 四、清除測試資料
+
+測試完畢後在 **Master** 執行：
+
+```sql
+DROP DATABASE test_replication;
+```
+
+兩台 Slave 會自動同步刪除。
 
 # 例外狀況
 
