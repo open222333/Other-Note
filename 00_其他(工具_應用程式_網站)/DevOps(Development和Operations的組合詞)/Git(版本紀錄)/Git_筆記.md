@@ -68,6 +68,7 @@
 - [例外狀況](#例外狀況)
   - [fatal: unable to access : Failed to connect to bitbucket.org port 443: Connection timed out](#fatal-unable-to-access--failed-to-connect-to-bitbucketorg-port-443-connection-timed-out)
   - [TCP connection reset by peer](#tcp-connection-reset-by-peer)
+  - [PowerShell 無法辨識 git 指令](#powershell-無法辨識-git-指令)
 
 ## 參考資料
 
@@ -1294,3 +1295,33 @@ git --version
 ```
 
 更新 git 版本
+
+## PowerShell 無法辨識 git 指令
+
+**錯誤訊息**
+
+```
+git : 無法辨識 'git' 詞彙是否為 Cmdlet、函數、指令檔或可執行程式的名稱。
+```
+
+**原因**：Git 已安裝但未加入系統 PATH，PowerShell 找不到執行檔。
+
+**解法一：永久加入使用者 PATH（以系統管理員執行 PowerShell）**
+
+```powershell
+[System.Environment]::SetEnvironmentVariable(
+    "PATH",
+    $env:PATH + ";C:\Program Files\Git\cmd",
+    [System.EnvironmentVariableTarget]::User
+)
+```
+
+設定後需**重新開啟終端機**才會生效。若使用 VS Code，需**完全關閉再重開 VS Code**（子終端繼承啟動時的 PATH）。
+
+**解法二：僅當前視窗暫時生效**
+
+```powershell
+$env:PATH += ";C:\Program Files\Git\cmd"
+```
+
+**說明**：使用 `Git\cmd` 而非 `Git\bin`，可避免覆蓋系統內建的 `find`、`sort` 等同名工具。
