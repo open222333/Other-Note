@@ -6,12 +6,18 @@ Conda 主要用於管理 Python 和 R 的環境及依賴，但它也能安裝一
 
 ## 目錄
 
-- [Python 工具 anacodna(虛擬環境) 筆記](# python-工具-anacodna虛擬環境-筆記)
-	- [目錄](# 目錄)
-	- [參考資料](# 參考資料)
-- [安裝步驟 Anaconda](# 安裝步驟-anaconda)
-- [安裝步驟 CentOS7 Miniconda](# 安裝步驟-centos7-miniconda)
-- [指令](# 指令)
+- [Python 工具 anacodna(虛擬環境) 筆記](#python-工具-anacodna虛擬環境-筆記)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+- [安裝](#安裝)
+  - [Windows Miniconda](#windows-miniconda)
+  - [Windows PowerShell 設定 環境變數路徑](#windows-powershell-設定-環境變數路徑)
+  - [CentOS7 Miniconda(輕量化)](#centos7-miniconda輕量化)
+  - [卸載](#卸載)
+- [指令](#指令)
+- [例外狀況](#例外狀況)
+  - [CommandNotFoundError: Properly Configuring Your Shell to Use 'conda activate'](#commandnotfounderror-properly-configuring-your-shell-to-use-conda-activate)
+  - [PowerShell 無法辨識 conda 指令](#powershell-無法辨識-conda-指令)
 
 ## 參考資料
 
@@ -35,6 +41,29 @@ Conda 主要用於管理 Python 和 R 的環境及依賴，但它也能安裝一
 
 # 安裝
 
+## Windows Miniconda
+
+1. 下載 [Miniconda 安裝程式](https://docs.conda.io/en/latest/miniconda.html)，選 **Windows 64-bit `.exe`**
+
+2. 安裝時建議勾選：
+   - ✅ Add Miniconda3 to my PATH environment variable
+   - ✅ Register Miniconda3 as my default Python
+
+3. 安裝預設路徑為 `C:\ProgramData\miniconda3`（全使用者）或 `C:\Users\<name>\miniconda3`（單一使用者）
+
+4. 首次使用前需接受服務條款：
+
+```powershell
+conda tos accept
+```
+
+5. 在 PowerShell 啟用 conda 指令支援：
+
+```powershell
+conda init powershell
+# 重新開啟 PowerShell 後生效
+```
+
 ```bash
 # 下載到本地 https://www.anaconda.com/products/distribution 取得下載網址
 wget 下載網址
@@ -49,16 +78,28 @@ source ~/.bashrc
 
 ```PowerShell
 # 開啟檔案總管
-# 對 本機 按右鍵 > 內容 > 進階系統設定 > 進階 > 環境變數 >點擊系統變數的 Path > 編輯 > 新增 >
-# C:\Path\to\Anaconda3
-# C:\Path\to\Anaconda3\Scripts
-# C:\Path\to\Anaconda3\Library\bin
+# 對 本機 按右鍵 > 內容 > 進階系統設定 > 進階 > 環境變數 > 點擊使用者的 Path > 編輯 > 新增 >
+# C:\ProgramData\miniconda3
+# C:\ProgramData\miniconda3\Scripts
+# C:\ProgramData\miniconda3\condabin
+
+# 永久加入使用者 PATH（PowerShell）
+$condaPaths = @(
+    "C:\ProgramData\miniconda3",
+    "C:\ProgramData\miniconda3\Scripts",
+    "C:\ProgramData\miniconda3\condabin"
+)
+$currentPath = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User)
+$toAdd = $condaPaths | Where-Object { $currentPath -notlike "*$_*" }
+if ($toAdd) {
+    [System.Environment]::SetEnvironmentVariable("PATH", $currentPath + ";" + ($toAdd -join ";"), [System.EnvironmentVariableTarget]::User)
+}
 
 # https://learn.microsoft.com/zh-tw/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-7.3#the-profile-variable
 # 只能在當前 PowerShell 生效
-$env:PATH += ";C:\Path\to\Anaconda3"
-$env:PATH += ";C:\Path\to\Anaconda3\Scripts"
-$env:PATH += ";C:\Path\to\Anaconda3\Library\bin"
+$env:PATH += ";C:\ProgramData\miniconda3"
+$env:PATH += ";C:\ProgramData\miniconda3\Scripts"
+$env:PATH += ";C:\ProgramData\miniconda3\condabin"
 
 # 建立 PowerShell 設定檔
 if (!(Test-Path -Path <profile-name>)) {
@@ -112,6 +153,13 @@ rm -rf ~/.condarc ~/.conda ~/.continuum
 # 指令
 
 ```bash
+# 接受 Anaconda 服務條款（首次安裝後必須執行，否則無法建立環境）
+conda tos accept
+
+# 在指定環境中執行指令（不需要先 activate）
+conda run -n $ENV_NAME python script.py
+conda run -n $ENV_NAME pip install $PACKAGE_NAME
+
 # Windows，啟動虛擬環境
 activate $ENV_NAME
 
@@ -326,4 +374,44 @@ For fish, type:
 
 ```bash
 source ~/.config/fish/config.fish
+```
+
+## PowerShell 無法辨識 conda 指令
+
+**錯誤訊息**
+
+```
+conda : 無法辨識 'conda' 詞彙是否為 Cmdlet、函數、指令檔或可執行程式的名稱。
+```
+
+**原因**：Miniconda 安裝時未勾選加入 PATH，或 VS Code 在安裝前就已開啟。
+
+**解法一：永久加入使用者 PATH**
+
+```powershell
+$condaPaths = @(
+    "C:\ProgramData\miniconda3",
+    "C:\ProgramData\miniconda3\Scripts",
+    "C:\ProgramData\miniconda3\condabin"
+)
+$currentPath = [System.Environment]::GetEnvironmentVariable("PATH", [System.EnvironmentVariableTarget]::User)
+$toAdd = $condaPaths | Where-Object { $currentPath -notlike "*$_*" }
+if ($toAdd) {
+    [System.Environment]::SetEnvironmentVariable("PATH", $currentPath + ";" + ($toAdd -join ";"), [System.EnvironmentVariableTarget]::User)
+}
+```
+
+設定後需**完全關閉並重新開啟 VS Code**（子終端繼承啟動時的 PATH）。
+
+**解法二：僅當前視窗暫時生效**
+
+```powershell
+$env:PATH += ";C:\ProgramData\miniconda3;C:\ProgramData\miniconda3\Scripts;C:\ProgramData\miniconda3\condabin"
+```
+
+**解法三：用 conda init 讓 PowerShell 永遠支援 conda activate**
+
+```powershell
+conda init powershell
+# 重新開啟 PowerShell 後生效
 ```
