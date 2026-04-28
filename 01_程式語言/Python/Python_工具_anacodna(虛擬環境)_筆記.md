@@ -57,12 +57,20 @@ Conda 主要用於管理 Python 和 R 的環境及依賴，但它也能安裝一
 conda tos accept
 ```
 
-5. 在 PowerShell 啟用 conda 指令支援：
+5. 在 PowerShell 啟用 conda 指令支援（只需執行一次）：
 
 ```powershell
 conda init powershell
-# 重新開啟 PowerShell 後生效
 ```
+
+執行後輸出說明：
+
+| 輸出 | 意義 |
+|------|------|
+| `modified C:\Users\...\profile.ps1` | 首次設定，寫入 PowerShell 設定檔成功 |
+| `no change` / `No action taken.` | 已設定過，無需重複執行 |
+
+> 設定完成後需**完全關閉並重開 VS Code**，新終端才會載入 conda 設定。
 
 ```bash
 # 下載到本地 https://www.anaconda.com/products/distribution 取得下載網址
@@ -413,5 +421,7 @@ $env:PATH += ";C:\ProgramData\miniconda3;C:\ProgramData\miniconda3\Scripts;C:\Pr
 
 ```powershell
 conda init powershell
-# 重新開啟 PowerShell 後生效
 ```
+
+- 輸出 `no change` / `No action taken.` → 已設定過，無需重複執行
+- 設定後需**完全關閉並重開 VS Code**（子終端繼承啟動時的環境）
