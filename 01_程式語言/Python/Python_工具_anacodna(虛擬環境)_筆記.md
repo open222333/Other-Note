@@ -18,6 +18,7 @@ Conda 主要用於管理 Python 和 R 的環境及依賴，但它也能安裝一
 - [例外狀況](#例外狀況)
   - [CommandNotFoundError: Properly Configuring Your Shell to Use 'conda activate'](#commandnotfounderror-properly-configuring-your-shell-to-use-conda-activate)
   - [PowerShell 無法辨識 conda 指令](#powershell-無法辨識-conda-指令)
+  - [執行原則封鎖 profile.ps1](#執行原則封鎖-profileps1)
 
 ## 參考資料
 
@@ -425,3 +426,43 @@ conda init powershell
 
 - 輸出 `no change` / `No action taken.` → 已設定過，無需重複執行
 - 設定後需**完全關閉並重開 VS Code**（子終端繼承啟動時的環境）
+
+> `conda init` 顯示 `no change` 但 `conda activate` 仍報錯，通常是 PowerShell 執行原則封鎖了 profile.ps1，參考下方「[執行原則封鎖 profile.ps1](#執行原則封鎖-profileps1)」章節。
+
+## 執行原則封鎖 profile.ps1
+
+**錯誤訊息**
+
+```
+. : 因為這個系統上已停用指令碼執行，所以無法載入 C:\Users\...\profile.ps1 檔案。
+FullyQualifiedErrorId : UnauthorizedAccess
+```
+
+接著執行 `conda activate` 出現：
+
+```
+CondaError: Run 'conda init' before 'conda activate'
+```
+
+**原因**：PowerShell 執行原則為 `Restricted`，封鎖了 `profile.ps1`，導致 conda hook 無法載入，即使 `conda init` 已設定完畢也無效。
+
+**解法：將執行原則改為 RemoteSigned（目前使用者）**
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+```
+
+確認設定：
+
+```powershell
+Get-ExecutionPolicy -Scope CurrentUser
+# 應輸出 RemoteSigned
+```
+
+設定後**重開 VS Code**，`conda activate` 即可正常使用。
+
+| 執行原則 | 說明 |
+|----------|------|
+| `Restricted` | 預設值，禁止所有指令碼執行 |
+| `RemoteSigned` | 本機指令碼可執行；從網路下載的需要簽章 |
+| `Unrestricted` | 允許所有指令碼，較不安全，不建議 |
