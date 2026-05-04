@@ -89,6 +89,11 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 - [例外狀況](#例外狀況)
   - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
 - [高可用 說明](#高可用-說明)
+- [ProxySQL 部署方案](#proxysql-部署方案)
+  - [MySQL 節點故障 vs ProxySQL 本身故障](#mysql-節點故障-vs-proxysql-本身故障)
+  - [方案一：HA 雙機熱備（Keepalived + VIP）](#方案一ha-雙機熱備keepalived--vip)
+  - [方案二：分用途入口（寫入專用 / 唯讀專用）](#方案二分用途入口寫入專用--唯讀專用)
+  - [方案三：HA 熱備（無自動切換機制）](#方案三ha-熱備無自動切換機制)
 - [腳本](#腳本)
   - [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
   - [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
@@ -1481,6 +1486,251 @@ MySQL 伺服器的高可用性：
 根據需要配置 ProxySQL 進行故障切換，以在主伺服器故障時切換到備用伺服器。
 上述步驟僅為一個簡單的示例，實際的設定取決於你的環境和需求。
 在設定 ProxySQL 的高可用性時，確保仔細考慮你的 MySQL 環境的特點，以及選擇的高可用性解決方案。
+
+# ProxySQL 部署方案
+
+## MySQL 節點故障 vs ProxySQL 本身故障
+
+這兩種故障的層次不同，處理方式也不同。
+
+### MySQL 節點故障 → ProxySQL 自動處理
+
+ProxySQL 內建 monitor 模組，持續對後端節點執行 ping / connect / read_only 檢查，節點掛掉時自動標為 `OFFLINE`，無需手動介入。
+
+| 故障節點 | ProxySQL 行為 | 對應用程式的影響 |
+|---------|--------------|----------------|
+| **Slave 掛掉** | HG2 移除 slave，只剩 master（weight=5） | 讀寫全部正常，讀流量全打 master |
+| **Master 掛掉** | HG1 無 ONLINE 節點 | **寫入失敗**（INSERT/UPDATE 報錯），SELECT 仍正常（走 HG2 slave） |
+
+### ProxySQL 本身故障 → 需要手動切換
+
+「故障時需手動切換」指的是 **ProxySQL 這一層掛掉**，與 MySQL 節點無關。
+
+```
+應用程式 → proxysql-1（這台掛了）→ 連不到任何 MySQL
+```
+
+因為沒有 VIP 自動轉移，應用程式必須手動改設定，將連線目標切到另一台 ProxySQL：
+
+```
+應用程式 → proxysql-2（手動改設定）→ 正常
+```
+
+這是「無自動切換機制」的核心限制——MySQL 層的健康切換是自動的，ProxySQL 層本身的 HA 需要額外工具（Keepalived）才能自動化。
+
+---
+
+## 方案一：HA 雙機熱備（Keepalived + VIP）
+
+### 架構
+
+```
+應用程式
+    │
+    ▼
+  VIP（Keepalived 浮動 IP）
+    │
+    ├─── ProxySQL Primary（MASTER）  ←── 正常時接管流量
+    └─── ProxySQL Standby（BACKUP）  ←── Primary 宕機時自動接管
+              │
+    ┌─────────┴─────────┐
+    ▼                   ▼
+MySQL Master        MySQL Slave
+（HG1 寫入 + HG2 讀取）  （HG2 讀取）
+```
+
+- 兩台 ProxySQL 設定**完全相同**，後端指向同一組 MySQL
+- Keepalived 管理浮動 VIP；Primary 宕機時 VIP 自動轉到 Standby
+- 應用程式只連 VIP，不感知 ProxySQL 切換
+
+### 適用場景
+
+需要 ProxySQL 層零停機切換，對應用透明的生產環境。
+
+### Keepalived 設定重點
+
+Primary 主機 `/etc/keepalived/keepalived.conf`：
+
+```
+vrrp_script chk_proxysql {
+    script "mysql -uradmin -p<RADMIN_PASSWORD> -h127.0.0.1 -P6032 -e 'SELECT 1' > /dev/null 2>&1"
+    interval 2
+    weight   -20
+    fall     2
+    rise     2
+}
+
+vrrp_instance VI_PROXYSQL {
+    state  MASTER
+    interface eth0
+    virtual_router_id 51
+    priority  100
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass <KEEPALIVED_AUTH_PASS>
+    }
+    virtual_ipaddress {
+        192.168.x.x/24
+    }
+    track_script {
+        chk_proxysql
+    }
+}
+```
+
+Standby 主機改兩項：`state BACKUP`、`priority 90`。
+
+### 故障切換驗證
+
+```bash
+# 停止 Primary ProxySQL，確認 VIP 轉到 Standby
+docker-compose stop proxysql
+ip addr show | grep <VIP>   # 在 Standby 主機執行，應出現 VIP
+
+# 確認應用仍可連線
+mysql -uproxysql -p<PASSWORD> -h<VIP> -P6033 -e "SELECT 1;"
+```
+
+---
+
+## 方案二：分用途入口（寫入專用 / 唯讀專用）
+
+### 架構
+
+```
+寫入應用（Write App）
+    │
+    ▼
+ProxySQL A（讀寫分離，5 條規則）
+    ├─── INSERT / UPDATE / DDL → MySQL Master（HG1）
+    └─── SELECT               → MySQL Master + Slave（HG2）
+
+唯讀應用（Read-Only App）
+    │
+    ▼
+ProxySQL B（全部導讀取群組，1 條規則）
+    └─── .*                   → MySQL Slave（HG2）
+```
+
+- ProxySQL A：標準 5 條讀寫分離規則，一般應用使用
+- ProxySQL B：全部流量導向 HG2，報表查詢、資料匯出等大量讀取任務使用，完全不碰 master
+
+### 路由規則差異
+
+| | ProxySQL A（讀寫） | ProxySQL B（唯讀） |
+|--|--|--|
+| 規則數量 | 5 條 | 1 條 |
+| INSERT / UPDATE | → HG1（master） | slave 直接拒絕 |
+| SELECT | → HG2（master+slave） | → HG2（slave only） |
+| SELECT FOR UPDATE | → HG1（master） | → HG2（需應用層確保不用） |
+
+### ProxySQL B 路由規則設定
+
+```sql
+DELETE FROM mysql_query_rules;
+
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (1, 1, '.*', 2, 1);
+
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
+ProxySQL B 的 HG2 建議**只放 slave**，確保讀取完全不影響 master：
+
+```sql
+DELETE FROM mysql_servers;
+
+-- HG1 保留 master 供 hostgroup 健康檢查，但不對外路由
+INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight, max_connections)
+VALUES (1, 'mysql-master', 3306, 1, 1);
+
+-- HG2 唯讀：只放 slave
+INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight, max_connections)
+VALUES (2, 'mysql-slave', 3306, 1, 10000);
+
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+```
+
+### 適用場景
+
+讀寫流量來源明確分離、有大量唯讀查詢（報表、分析）不希望影響主節點的場景。
+
+---
+
+## 方案三：HA 熱備（無自動切換機制）
+
+目前 `proxysql_avnight_master` / `proxysql_avnight_slave` 採用此方案。
+
+### 架構
+
+```
+應用程式 A → proxysql_avnight_master（ProxySQL 1）
+應用程式 B → proxysql_avnight_slave（ProxySQL 2）
+                     │
+          ┌──────────┴──────────┐
+          ▼                     ▼
+    MySQL Master           MySQL Slave
+    （HG1 寫入 + HG2 讀取）  （HG2 讀取）
+```
+
+- 兩台 ProxySQL 設定完全相同，各自獨立服務不同的應用程式
+- 無 Keepalived / VIP，ProxySQL 層故障時需手動切換應用連線目標
+- MySQL 節點故障由 ProxySQL 內建 monitor 自動處理（無需手動）
+
+### MySQL 單節點故障保證
+
+**只要 MySQL 只有一台故障，應用程式不需要更改連線設定（IP / Port），讀取仍可正常使用。**
+
+| 故障節點 | ProxySQL 自動行為 | 讀取 | 寫入 |
+|---------|-----------------|------|------|
+| **Slave 故障** | HG2 移除 slave，讀流量全轉 master（weight=5） | ✅ 正常 | ✅ 正常 |
+| **Master 故障** | HG1 無節點，HG2 仍有 slave | ✅ 正常 | ❌ 失敗 |
+
+應用程式連線的是 ProxySQL IP，不是 MySQL IP。只要 ProxySQL 存活，節點切換對應用透明。
+
+### 與方案一的差異
+
+| | 方案一（Keepalived） | 方案三（無自動切換） |
+|--|--|--|
+| MySQL 單節點故障 | 自動，應用透明 | 自動，應用透明 |
+| ProxySQL 層故障切換 | 自動（VIP 轉移） | 手動（改應用連線設定） |
+| 複雜度 | 需安裝設定 Keepalived | 僅部署兩台 ProxySQL |
+| 適合場景 | 生產、對停機完全不容忍 | MySQL 層 HA 足夠，可接受 ProxySQL 層短暫停機 |
+
+### 手動切換流程
+
+當 ProxySQL 1 故障時：
+
+```bash
+# 確認 ProxySQL 2 後端節點正常
+mysql -uadmin -p<PASSWORD> -h<PROXYSQL_2_IP> -P6032 -e "
+  SELECT hostgroup_id, hostname, port, status FROM mysql_servers;
+"
+
+# 將應用設定中的 ProxySQL 連線 IP 從 ProxySQL_1_IP 改為 ProxySQL_2_IP
+# 重啟應用或熱更新設定
+```
+
+### 目前節點設定（avnight 環境）
+
+| Hostgroup | 成員 | IP | Weight |
+|-----------|------|----|--------|
+| HG1（寫入） | MySQL Master | 192.168.146.53 | 1 |
+| HG2（讀取） | MySQL Master | 192.168.146.53 | 5 |
+| HG2（讀取） | MySQL Slave  | 192.168.146.232 | 3 |
+
+路由規則（兩台 ProxySQL 相同）：
+
+| rule_id | match_pattern | 目標 HG | 說明 |
+|---------|---------------|---------|------|
+| 1 | `^INSERT` | 1 | 寫入 → master |
+| 2 | `^UPDATE` | 1 | 更新 → master |
+| 3 | `^SELECT.*FOR UPDATE$` | 1 | 排他鎖 → master |
+| 4 | `^SELECT` | 2 | 讀取 → HG2（master+slave） |
+| 5 | `.*` | 1 | 兜底 → master |
 
 # 腳本
 
