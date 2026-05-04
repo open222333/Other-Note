@@ -8,13 +8,20 @@
     - [GUI相關](#gui相關)
     - [安裝步驟 CentOS7](#安裝步驟-centos7)
     - [安裝步驟 Mac](#安裝步驟-mac)
+    - [相關筆記](#相關筆記)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
+- [配置](#配置)
+  - [實際](#實際)
   - [Mac](#mac)
 - [配置文件](#配置文件)
 - [指令](#指令)
   - [遠端測試](#遠端測試)
+  - [搜尋](#搜尋)
+    - [KEYS（簡單搜尋，不建議用於正式環境）](#keys簡單搜尋不建議用於正式環境)
+    - [SCAN（推薦，不阻塞）](#scan推薦不阻塞)
+    - [查詢 Key 資訊](#查詢-key-資訊)
 
 ## 參考資料
 
@@ -76,27 +83,92 @@ yum update -y
 yum -y install redis
 ```
 
+# 配置
+
 `設定檔`
 
 ```bash
 vim /etc/redis.conf
 ```
 
-```conf
-# 註解或改成 0.0.0.0
-bind 127.0.0.1
+```sh
+vim /etc/redis/redis.conf
+```
 
+```conf
+# ── 網路 ──────────────────────────────────────────────
+# 127.0.0.1 -::1    ：僅本機（預設，最安全）
+# 0.0.0.0 -::*      ：允許所有 IPv4 + IPv6（需搭配防火牆或密碼保護）
+# -::* 前綴的 - 表示 IPv6 不可用時不中止啟動
+bind 0.0.0.0 -::*
+
+# 監聽 Port
 port 6379
 
-# 修改密碼
-equirepass pwd
+# 高並發時建議提高（同步調整 /proc/sys/net/core/somaxconn）
+tcp-backlog 511
 
-timeout 10
+# 閒置超時（秒），0 = 永不超時
+timeout 0
 
-# 關閉保護模式
+# TCP keepalive，定期偵測並清除死連線
+tcp-keepalive 300
+
+# ── 安全 ──────────────────────────────────────────────
+# 保護模式：bind 非 127.0.0.1 且無密碼時自動拒絕外部連線
+# 已設密碼且有防火牆保護時可關閉
 protected-mode no
 
-# 其他拿掉
+# 連線密碼
+requirepass your_password
+
+# ── 一般 ──────────────────────────────────────────────
+# 背景執行（由 systemd 管理時設 no）
+daemonize yes
+
+# 日誌等級：debug / verbose / notice / warning
+loglevel notice
+logfile /var/log/redis/redis-server.log
+
+# 資料庫數量
+databases 16
+
+# ── 持久化（RDB 快照）────────────────────────────────
+# save ""：關閉自動快照（純快取用途）
+# 預設觸發條件（取消 # 啟用）：
+# save 3600 1      # 3600 秒內有 ≥1 個 key 變更
+# save 300 100     # 300 秒內有 ≥100 個 key 變更
+# save 60 10000    # 60 秒內有 ≥10000 個 key 變更
+save ""
+
+# RDB 儲存失敗時停止接受寫入（確保資料不靜默遺失）
+stop-writes-on-bgsave-error yes
+
+# RDB 壓縮與完整性校驗
+rdbcompression yes
+rdbchecksum yes
+
+dbfilename dump.rdb
+dir /var/lib/redis
+
+# ── 記憶體 ────────────────────────────────────────────
+# 記憶體上限（依主機可用量調整，例如 4gb）
+# maxmemory 4gb
+
+# 淘汰策略（超過 maxmemory 時的行為，取消 # 並選擇一種）
+# allkeys-lru  ：快取用途，淘汰最久未使用的 key（最常用）
+# noeviction   ：Session / Queue，超限時拒絕寫入
+# volatile-lru ：僅淘汰有設 TTL 的 key
+# maxmemory-policy allkeys-lru
+```
+
+## 實際
+
+```conf
+bind 0.0.0.0 -::*
+protected-mode no
+requirepass your_password
+timeout 10
 save ""
 ```
 
@@ -179,6 +251,7 @@ systemctl enable redis-server
 systemctl status redis
 # 重啟
 systemctl restart redis
+systemctl restart redis-server
 # 停止
 systemctl stop redis
 ```
@@ -187,4 +260,54 @@ systemctl stop redis
 
 ```sh
 redis-cli -h <Redis-server-IP> -p 6379
+```
+
+## 搜尋
+
+### KEYS（簡單搜尋，不建議用於正式環境）
+
+```sh
+# 列出所有 key（資料量大時會阻塞）
+KEYS *
+
+# 萬用字元搜尋
+KEYS user:*          # 前綴符合
+KEYS *:session       # 後綴符合
+KEYS user:*:token    # 中間萬用
+
+# 單字元萬用
+KEYS user:?          # ? 代表一個字元
+```
+
+### SCAN（推薦，不阻塞）
+
+```sh
+# 基本用法：cursor 從 0 開始，返回值第一個是下一個 cursor，0 表示結束
+SCAN 0
+
+# 加上 MATCH 過濾（仍會掃全部，只是過濾回傳結果）
+SCAN 0 MATCH user:* COUNT 100
+
+# COUNT 是每次掃描的數量提示，不是返回數量上限
+# 重複執行直到 cursor 回到 0，才算掃完所有 key
+
+# 範例：用 redis-cli 一次掃完所有符合的 key
+redis-cli --scan --pattern "user:*"
+```
+
+### 查詢 Key 資訊
+
+```sh
+# 判斷 key 是否存在
+EXISTS user:123
+
+# 查看 key 的資料類型
+TYPE user:123
+
+# 查看 TTL（-1 = 永不過期，-2 = 不存在）
+TTL user:123
+PTTL user:123    # 毫秒
+
+# 查看 key 總數（O(1)，不掃描）
+DBSIZE
 ```

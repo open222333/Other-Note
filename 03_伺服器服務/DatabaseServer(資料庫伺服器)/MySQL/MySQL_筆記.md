@@ -88,7 +88,12 @@ RDBMS
       - [匯出 檔案壓縮備份 省空間又快](#匯出-檔案壓縮備份-省空間又快)
       - [匯出 預估大小](#匯出-預估大小)
     - [匯入](#匯入)
-      - [匯入 檔案壓縮備份](#匯入-檔案壓縮備份)
+    - [MySQL 5.7 → 8.4 備份與還原流程](#mysql-57--84-備份與還原流程)
+      - [1. 預估備份大小](#1-預估備份大小)
+      - [2. 匯出（5.7 執行）](#2-匯出57-執行)
+      - [3. 修正 8.4 相容性（傳輸後執行）](#3-修正-84-相容性傳輸後執行)
+      - [4. 匯入（8.4 執行）](#4-匯入84-執行)
+      - [附：直接匯入（無需修正時）](#附直接匯入無需修正時)
     - [匯出資料到 CSV 檔案](#匯出資料到-csv-檔案)
       - [使用 MySQL 命令行工具](#使用-mysql-命令行工具)
       - [使用 mysqldump 命令](#使用-mysqldump-命令)
@@ -748,6 +753,51 @@ EXIT;
 ```bash
 mysql -u root -p
 ```
+
+##### 查看 Authentication Plugin 狀態
+
+`查看 mysql_native_password 是否啟用`
+
+```sql
+SELECT PLUGIN_NAME, PLUGIN_STATUS
+FROM information_schema.PLUGINS
+WHERE PLUGIN_NAME = 'mysql_native_password';
+```
+
+| PLUGIN_STATUS | 說明 |
+|---------------|------|
+| `ACTIVE` | 已啟用，可使用 `mysql_native_password` 建立帳號 |
+| `DISABLED` | 已停用（MySQL 8.0 可透過設定檔重新啟用） |
+| （無結果） | Plugin 已從 MySQL 中完全移除（MySQL 8.4+） |
+
+`查看所有已載入的 Authentication Plugin`
+
+```sql
+SELECT PLUGIN_NAME, PLUGIN_STATUS
+FROM information_schema.PLUGINS
+WHERE PLUGIN_TYPE = 'AUTHENTICATION';
+```
+
+> ⚠️ **mysql_native_password 版本差異警告**
+>
+> | 版本 | 狀態 | 說明 |
+> |------|------|------|
+> | MySQL 8.0 | 預設停用，但存在 | 可在 `my.cnf` 加 `mysql_native_password=ON` 啟用 |
+> | MySQL 8.4 | **完全移除** | `my.cnf` 設定無效，Plugin 不存在，查詢無結果 |
+>
+> MySQL 8.4 上若需讓 ProxySQL 或舊版客戶端連線，**無法使用 `mysql_native_password`**，
+> 必須改用 `caching_sha2_password` 並確認客戶端支援，或升級 ProxySQL 版本。
+
+`MySQL 8.0 vs 8.4 穩定性比較`
+
+| | MySQL 8.0 | MySQL 8.4 (LTS) |
+|---|---|---|
+| 釋出時間 | 2018，生產使用超過 6 年 | 2024/04 釋出 |
+| 定位 | 一般發行版 | LTS（長期支援，5 年保固） |
+| 成熟度 | 極高，邊緣情境幾乎都踩過了 | 較新，邊緣情境較少被驗證 |
+| 破壞性變更 | 少 | 多（移除 `mysql_native_password`、廢棄語法等） |
+| 官方支援到期 | 2026/04 | 2032 |
+| 建議 | 現有系統維持 8.0 至支援到期 | 新部署建議直接用 8.4 LTS |
 
 ---
 
@@ -1624,295 +1674,315 @@ ON DUPLICATE KEY UPDATE name = VALUES(name), email = VALUES(email);
 
 ### 匯出 - mysqldump
 
+`完整備份（含 trigger / stored procedure / event）`
+
 ```bash
-# 匯出資料和表結構
-mysqldump -h source_MySQL_DB_instance_endpoint \
-    -u user \
-    -ppassword \
+mysqldump -uroot -p \
+    --all-databases \
+    --triggers \
+    --routines \
+    --events \
+    --single-transaction \
+    | gzip > all_$(date +%Y%m%d).sql.gz
+```
+
+`指定資料庫`
+
+```bash
+mysqldump -h 127.0.0.1 -uroot -p \
     --port=3306 \
     --single-transaction \
     --routines \
     --triggers \
-    --databases  database database2 \
-    --compress  \
-    --port 3306
-
-# -d 只匯出表結構不導表資料
-# mysqldump -u[使用者名稱] -h[ip] -p[密碼] -P[埠號] 資料庫名 表名 >匯出的檔名.sql
-mysqldump -uuser -h127.0.0.1 -ppassword -P3306 --no-data dbname tablename>name.sql
-
-
-mysqldump -h 127.0.0.1 \
-    -u root \
-    -pAVNIGHTAVNIGHT \
-    --port=3306 \
-    --single-transaction \
-    --routines \
-    --triggers \
-    --databases  avnight \
-    --compress
-
-mysqldump -h hostname -u使用者名稱 -p密碼 資料庫名 > 資料庫名.sql
-
-	由於在 mysqldump 8 中默認啟用了一個新標誌。您可以通過添加 --column-statistics=0 來禁用它。
-	--column-statistics=0
-	多個資料庫
-	--databases db1 db2
-	在每個創建數據庫表語句前添加刪除數據庫表的語句
-	--add-drop-table
-	備份數據庫表時鎖定數據庫表
-	--add-locks
-	備份MySQL服務器上的所有數據庫
-	--all-databases
-	添加註釋信息
-	--comments
-	壓縮模式，產生更少的輸出
-	--compact
-	輸出完成的插入語句
-	--complete-insert
-	指定要備份的數據庫
-	--databases -d
-	指定默認字符集
-	--default-character-set
-	當出現錯誤時仍然繼續備份操作
-	--force
-	指定要備份數據庫的服務器
-	--host -h
-	備份前，鎖定所有數據庫表
-	--lock-tables
-	禁止生成創建數據庫語句
-	--no-create-db
-	禁止生成創建數據庫庫表語句
-	--no-create-info
-	連接MySQL服務器的密碼
-	--password -p
-	MySQL服務器的端口號
-	--port
-	連接MySQL服務器的用戶名。
-	--user -u
-    不包含資料
-    -d
-    是 MySQL 的參數，用於在備份過程中處理 GTID（全域事務識別碼）。 GTID 用於在主從複製環境中追蹤事務。
-    --set-gtid-purged
-
-# 只匯出表結構
-mysqldump -u使用者名稱 -p密碼 -d 資料庫名 > 資料庫名.sql
-# 注：/usr/local/mysql/bin/  —>  mysql的data目錄
-
-# 備份資料庫
-mysqldump -h(ip) -uroot -p(password) databasename table1 table2 > database.sql
-
-# 複製資料庫
-mysqldump –-all-databases >all-databases.sql
-# 修復資料庫
-mysqlcheck -A -o -uroot -p54safer
-
-# 文字資料匯入
-load data local infile \”檔名\” into table 表名;
-
-# 資料匯入
-mysqlimport database tables.txt
-
-# mysql服務的啟動和停止
-net stop mysql
-net start mysql
+    --databases db1 db2
 ```
 
-#### 匯出 檔案壓縮備份 省空間又快
+`只匯出表結構（不含資料）`
 
-```sh
-mysqldump -uroot -p --all-databases | gzip > all_20260424.sql.gz
+```bash
+mysqldump -uroot -p -d dbname > schema.sql
 ```
 
-#### 匯出 預估大小
+`指定資料表`
 
-```sh
+```bash
+mysqldump -uroot -p dbname table1 table2 > tables.sql
+```
+
+常用參數說明：
+
+| 參數 | 說明 |
+|------|------|
+| `--all-databases` | 備份所有資料庫 |
+| `--databases db1 db2` | 指定多個資料庫 |
+| `--single-transaction` | 不鎖表，InnoDB 一致性備份 |
+| `--triggers` | 包含 trigger |
+| `--routines` | 包含 stored procedure / function |
+| `--events` | 包含 event scheduler |
+| `-d` / `--no-data` | 只匯出表結構，不含資料 |
+| `--set-gtid-purged=OFF` | 不寫入 GTID，匯入較乾淨 |
+| `--column-statistics=0` | 停用欄位統計（mysqldump 8+ 預設啟用，舊版不支援時需關閉） |
+| `--add-drop-table` | 建表前加 DROP TABLE |
+| `--compress` | 傳輸時壓縮 |
+
+`預估備份大小`
+
+```bash
 du -sh /var/lib/mysql/*/
 ```
 
+---
+
 ### 匯入
 
+`方法一：source 指令`
+
 ```bash
-`方法一`
-# 選擇資料庫
-mysql>use $dbname;
-
-# 設定資料庫編碼
-mysql>set $dbname utf8;
-
-# 匯入資料（注意sql檔案的路徑）
-mysql>source path/$name.sql;
-
-`方法二`
-# mysql -u使用者名稱 -p密碼 資料庫名 < 資料庫名.sql
-mysql -u$username -p $dbname < $name.sql
-
-mysql -u$username -p < $name.sql
-# 恢復資料庫
-mysql -h(ip) -uroot -p(password) databasename< database.sql
+mysql -uroot -p
 ```
-
-#### 匯入 檔案壓縮備份
-
-```sh
-gunzip < all_20260424.sql.gz | mysql -uroot -p
-```
-
-### 匯出資料到 CSV 檔案
-
-#### 使用 MySQL 命令行工具
 
 ```sql
-SELECT * INTO OUTFILE '/path/to/yourfile.csv'
+USE dbname;
+SOURCE /path/to/file.sql;
+```
+
+`方法二：重定向`
+
+```bash
+mysql -uroot -p dbname < file.sql
+```
+
+`含壓縮檔直接匯入`
+
+```bash
+gunzip < file.sql.gz | mysql -uroot -p
+```
+
+---
+
+### MySQL 5.7 → 8.4 備份與還原流程
+
+#### 1. 預估備份大小
+
+```bash
+du -sh /var/lib/mysql/*/
+```
+
+> 資料目錄 300GB，實際匯出 gzip 後約 30GB 屬正常（索引、碎片不計入）
+
+#### 2. 匯出（5.7 執行）
+
+```bash
+mysqldump -uroot -p \
+  --all-databases \
+  --triggers \
+  --routines \
+  --events \
+  --single-transaction \
+  --set-gtid-purged=OFF \
+  | gzip > all_20260429.sql.gz
+```
+
+#### 3. 修正 8.4 相容性（傳輸後執行）
+
+```bash
+gunzip < all_20260429.sql.gz > all_20260429.sql
+python3 fix_mysql84.py all_20260429.sql all_20260429_fixed.sql
+```
+
+| 修正項目 | 說明 |
+|------|------|
+| `int(11)` → `int` | 8.4 移除 integer display width |
+| `utf8` → `utf8mb4` | 統一字元集 |
+| `latin1` → `utf8mb4` | 統一字元集 |
+| 移除 `ROW_FORMAT` | 8.4 預設 DYNAMIC |
+| 統一 collation | 改為 `utf8mb4_0900_ai_ci` |
+
+> 解壓後檔案可能達 100GB+，確認磁碟空間足夠
+
+##### fix_mysql84.py
+
+```python
+#!/usr/bin/env python3
+"""修正 MySQL schema dump，使其相容 MySQL 8.4。
+
+用法：
+    python3 fix_mysql84.py <input.sql> [output.sql]
+
+    若未指定 output.sql，則輸出至 <input>_mysql84.sql
+"""
+import re
+import sys
+from pathlib import Path
+
+if len(sys.argv) < 2:
+    print(f"Usage: python3 {sys.argv[0]} <input.sql> [output.sql]")
+    sys.exit(1)
+
+input_file = sys.argv[1]
+if len(sys.argv) >= 3:
+    output_file = sys.argv[2]
+else:
+    # 未指定輸出檔時，在原檔名後加 _mysql84
+    p = Path(input_file)
+    output_file = str(p.with_stem(p.stem + "_mysql84"))
+
+with open(input_file, "r", encoding="utf-8") as f:
+    content = f.read()
+
+original = content
+counters = {}
+
+# 1. 移除整數顯示寬度（MySQL 8.4 已廢棄此語法）
+#    例：int(11) → int、bigint(20) → bigint、tinyint(1) → tinyint
+pattern = r'\b(tinyint|smallint|mediumint|int|bigint)\(\d+\)'
+matches = re.findall(pattern, content, flags=re.IGNORECASE)
+counters['integer_display_width'] = len(matches)
+content = re.sub(pattern, r'\1', content, flags=re.IGNORECASE)
+
+# 2. 將 utf8 字元集轉換為 utf8mb4
+#    使用單字邊界避免將 utf8mb4 二次轉換為 utf8mb4mb4
+#    只比對 utf8 後面沒有接 mb4 的情況
+pattern = r'\butf8\b(?!mb4)'
+matches = re.findall(pattern, content, flags=re.IGNORECASE)
+counters['utf8_to_utf8mb4'] = len(matches)
+content = re.sub(pattern, 'utf8mb4', content, flags=re.IGNORECASE)
+
+# 3. 將 latin1 字元集轉換為 utf8mb4
+pattern = r'\bCHARSET=latin1\b'
+matches = re.findall(pattern, content, flags=re.IGNORECASE)
+counters['latin1_to_utf8mb4'] = len(matches)
+content = re.sub(pattern, 'CHARSET=utf8mb4', content, flags=re.IGNORECASE)
+
+# 4. 移除 ROW_FORMAT 設定（MySQL 8.4 預設已使用 DYNAMIC，無需明確指定）
+pattern = r'\s*ROW_FORMAT=\w+'
+matches = re.findall(pattern, content, flags=re.IGNORECASE)
+counters['row_format_removed'] = len(matches)
+content = re.sub(pattern, '', content, flags=re.IGNORECASE)
+
+# 5. 統一所有 collation 為 utf8mb4_0900_ai_ci
+#    同時處理欄位層級（COLLATE utf8mb4_xxx）與資料表層級（COLLATE=utf8mb4_xxx）
+pattern = r'COLLATE(=|\s+)utf8mb4_\w+'
+matches = re.findall(pattern, content, flags=re.IGNORECASE)
+counters['collation_unified'] = len(matches)
+content = re.sub(pattern, r'COLLATE\1utf8mb4_0900_ai_ci', content, flags=re.IGNORECASE)
+
+# 6. 對已有 CHARSET=utf8mb4 但缺少 COLLATE 的資料表補上 COLLATE=utf8mb4_0900_ai_ci
+#    比對 CHARSET=utf8mb4 後面沒有緊接 COLLATE 的情況
+pattern = r'(CHARSET=utf8mb4)(?!\s*COLLATE)'
+matches = re.findall(pattern, content, flags=re.IGNORECASE)
+counters['charset_add_collate'] = len(matches)
+content = re.sub(pattern, r'\1 COLLATE=utf8mb4_0900_ai_ci', content, flags=re.IGNORECASE)
+
+# 7. 移除欄位層級的 CHARACTER SET 與 COLLATE（冗餘設定）
+#    資料表層級的 DEFAULT CHARSET 已涵蓋所有欄位，無需在每個欄位重複宣告
+#    欄位層級使用空格：COLLATE utf8mb4_xxx（資料表層級用等號：COLLATE=utf8mb4_xxx）
+pattern = r'\s*CHARACTER SET utf8mb4'
+matches = re.findall(pattern, content, flags=re.IGNORECASE)
+counters['column_charset_removed'] = len(matches)
+content = re.sub(pattern, '', content, flags=re.IGNORECASE)
+
+pattern = r'\s*COLLATE utf8mb4_0900_ai_ci'
+matches = re.findall(pattern, content, flags=re.IGNORECASE)
+counters['column_collate_removed'] = len(matches)
+content = re.sub(pattern, '', content, flags=re.IGNORECASE)
+
+with open(output_file, "w", encoding="utf-8") as f:
+    f.write(content)
+
+print("=== MySQL 8.4 Schema 修正完成 ===")
+print(f"輸出檔案：{output_file}")
+print()
+print("修改項目：")
+for k, v in counters.items():
+    print(f"  {k}: {v} 處")
+print()
+if content == original:
+    print("警告：未進行任何修改！")
+else:
+    print("檔案已成功更新。")
+```
+
+#### 4. 匯入（8.4 執行）
+
+```bash
+mysql -uroot -p --init-command=”SET sql_mode=''” < all_20260429_fixed.sql
+```
+
+`直接匯入（無需修正時）`
+
+```bash
+gunzip < all_20260429.sql.gz | mysql -uroot -p
+```
+
+---
+
+### 匯出資料到 CSV
+
+#### SELECT INTO OUTFILE（MySQL 直接匯出）
+
+```sql
+-- 查詢允許的輸出路徑
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+SELECT * INTO OUTFILE '/var/lib/mysql-files/output.csv'
 FIELDS TERMINATED BY ','
-ENCLOSED BY '"'
+ENCLOSED BY '”'
 LINES TERMINATED BY '\n'
 FROM your_table;
 ```
 
-```
-FIELDS TERMINATED BY ',' 指定欄位之間使用逗號分隔。
-ENCLOSED BY '"' 指定欄位用引號包裹。
-LINES TERMINATED BY '\n' 指定每行數據用換行符結束。
-```
-
-```sh
-mysql -u root -p -e "
-SELECT vod_id, vod_name
-FROM database.table;
-" --batch --silent > /var/lib/mysql-files/table.txt
-
-
-mysql -u root -p -e "
-SELECT
-    CONCAT('\"', vod_id, '\"', ',', '\"', REPLACE(vod_name, '\"', '\"\"'), '\"') AS formatted_output
-FROM database.table;
-" --batch --silent --disable-column-names > /var/lib/mysql-files/table.csv
-
-
-mysql -u root -p -e "
-SELECT CONCAT(vod_id, ', \"', vod_name, '\"') AS formatted_output
-FROM database.table;
-" --batch --silent > /var/lib/mysql-files/table.txt
-
-mysql -u root -p -e "
-SELECT CONCAT(vod_id, ', \"', vod_name, '\"') AS formatted_output
-FROM database.table;
-" --batch --silent --skip-column-names > /var/lib/mysql-files/table.txt
-
-mysql -u root -p -e "
-SELECT CONCAT(vod_id, ', \"', TRIM(vod_name), '\"') AS formatted_output
-FROM database.table;
-" --batch --silent > /var/lib/mysql-files/table.txt
-
-mysql -u root -p -e "
-SELECT CONCAT(vod_id, ', \"', REPLACE(vod_name, '\t ', ''), '\"') AS formatted_output
-FROM database.table;
-" --batch --silent > /var/lib/mysql-files/table.txt
-```
-
-#### 使用 mysqldump 命令
-
-```sql
-SHOW VARIABLES LIKE 'secure_file_priv';
-```
+#### mysql CLI（--batch）
 
 ```bash
-mysqldump --tab=/path/to/dir --fields-terminated-by=',' --fields-enclosed-by='"' --lines-terminated-by='\n' --no-create-info --user=yourusername --password=yourpassword yourdatabase yourtable
+# 輸出為 tab 分隔的純文字
+mysql -uroot -p --batch --silent -e “
+SELECT vod_id, vod_name FROM database.table;
+“ > /var/lib/mysql-files/output.txt
+
+# 輸出為 CSV（欄位含引號、特殊字元跳脫）
+mysql -uroot -p --batch --silent --disable-column-names -e “
+SELECT CONCAT('\”', vod_id, '\”', ',', '\”', REPLACE(vod_name, '\”', '\”\”'), '\”')
+FROM database.table;
+“ > /var/lib/mysql-files/output.csv
 ```
+
+#### mysqldump（tab 分隔）
 
 ```bash
-mysqldump --tab=/var/lib/mysql-files --fields-terminated-by=',' --fields-enclosed-by='"' --lines-terminated-by='\n' --no-create-info --user=yourusername --password=yourpassword yourdatabase yourtable
+mysqldump --tab=/var/lib/mysql-files \
+    --fields-terminated-by=',' \
+    --fields-enclosed-by='”' \
+    --lines-terminated-by='\n' \
+    --no-create-info \
+    -uroot -p dbname tablename
 ```
 
-mysqldump 指令 說明
+#### Python（mysql.connector）
 
-```
---tab=/var/lib/mysql-files：指定匯出的資料檔案存放的位置。
---fields-terminated-by=','：指定各個欄位之間使用逗號 , 分隔。
---fields-enclosed-by='"'：指定各個欄位的值用雙引號 " 包圍。
---lines-terminated-by='\n'：指定每一行結束符為換行符號 \n。
---no-create-info：僅匯出資料而不包括建立資料表的 SQL 語句。
---user=root：使用 root 使用者進行資料庫連接。
-```
+```python
+import mysql.connector, csv
 
-轉換 .txt 文件為 JSON 格式
-
-```Python
-import json
-
-input_file = '/var/lib/mysql-files/post.txt'
-output_file = '/var/lib/mysql-files/post.json'
-
-data_list = []
-
-with open(input_file, 'r') as file:
-    for line in file:
-        id, content, created_at = line.strip().split(',')
-        data_list.append({
-            "id": int(id),
-            "content": content.strip('"'),
-            "created_at": created_at.strip('"')
-        })
-
-with open(output_file, 'w') as json_file:
-    for data in data_list:
-        json_file.write(json.dumps({"index": {}}) + "\n")
-        json_file.write(json.dumps(data) + "\n")
-
-print(f"Data has been converted and saved to {output_file}")
-```
-
-#### 使用 Python 程式碼
-
-```Python
-import mysql.connector
-import csv
-
-# 連接到 MySQL 資料庫
 conn = mysql.connector.connect(
-    host="your_host",
-    user="your_username",
-    password="your_password",
-    database="your_database"
+    host=”your_host”, user=”your_username”,
+    password=”your_password”, database=”your_database”
 )
 cursor = conn.cursor()
+cursor.execute(“SELECT * FROM your_table”)
 
-# 執行查詢
-cursor.execute("SELECT * FROM your_table")
+with open('/path/to/output.csv', 'w', newline='') as f:
+    writer = csv.writer(f)
+    writer.writerow([i[0] for i in cursor.description])
+    writer.writerows(cursor.fetchall())
 
-# 取得查詢結果
-rows = cursor.fetchall()
-
-# 寫入 CSV 文件
-with open('/path/to/yourfile.csv', 'w', newline='') as csvfile:
-    csvwriter = csv.writer(csvfile)
-    csvwriter.writerow([i[0] for i in cursor.description])  # 寫入表頭
-    csvwriter.writerows(rows)
-
-# 關閉連接
 cursor.close()
 conn.close()
 ```
 
-#### 使用 phpMyAdmin
+#### phpMyAdmin / MySQL Workbench
 
-```
-登錄到 phpMyAdmin 並選擇你要匯出的資料庫。
-點擊你要匯出的表。
-點擊 "Export" 標籤。
-選擇 "CSV" 格式，然後點擊 "Go" 下載 CSV 文件。
-```
-
-#### 使用 MySQL Workbench
-
-MySQL Workbench 是一個圖形化的管理工具，可以用來匯出 CSV 文件。
-
-```
-打開 MySQL Workbench 並連接到你的資料庫。
-在左側導航面板中，右鍵點擊你要匯出的表，選擇 "Table Data Export Wizard"。
-選擇 CSV 格式並設置文件路徑，然後按照指示完成匯出。
-```
+- **phpMyAdmin**：選擇資料表 → Export → 選 CSV → Go
+- **MySQL Workbench**：右鍵資料表 → Table Data Export Wizard → 選 CSV
 
 ## 測試用
 
