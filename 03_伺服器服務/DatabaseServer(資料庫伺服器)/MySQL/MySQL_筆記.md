@@ -44,6 +44,7 @@ RDBMS
       - [步驟 5 — 執行安全性初始化](#步驟-5--執行安全性初始化)
         - [互動選項說明](#互動選項說明)
         - [關於 root 密碼](#關於-root-密碼)
+        - [查看 Authentication Plugin 狀態](#查看-authentication-plugin-狀態)
       - [步驟 6 — 確認服務狀態](#步驟-6--確認服務狀態)
       - [步驟 7 — 登入並驗證版本](#步驟-7--登入並驗證版本)
       - [配置](#配置)
@@ -85,21 +86,18 @@ RDBMS
       - [INSERT](#insert)
   - [匯出匯入](#匯出匯入)
     - [匯出 - mysqldump](#匯出---mysqldump)
-      - [匯出 檔案壓縮備份 省空間又快](#匯出-檔案壓縮備份-省空間又快)
-      - [匯出 預估大小](#匯出-預估大小)
     - [匯入](#匯入)
     - [MySQL 5.7 → 8.4 備份與還原流程](#mysql-57--84-備份與還原流程)
       - [1. 預估備份大小](#1-預估備份大小)
       - [2. 匯出（5.7 執行）](#2-匯出57-執行)
       - [3. 修正 8.4 相容性（傳輸後執行）](#3-修正-84-相容性傳輸後執行)
       - [4. 匯入（8.4 執行）](#4-匯入84-執行)
-      - [附：直接匯入（無需修正時）](#附直接匯入無需修正時)
-    - [匯出資料到 CSV 檔案](#匯出資料到-csv-檔案)
-      - [使用 MySQL 命令行工具](#使用-mysql-命令行工具)
-      - [使用 mysqldump 命令](#使用-mysqldump-命令)
-      - [使用 Python 程式碼](#使用-python-程式碼)
-      - [使用 phpMyAdmin](#使用-phpmyadmin)
-      - [使用 MySQL Workbench](#使用-mysql-workbench)
+    - [匯出資料到 CSV](#匯出資料到-csv)
+      - [SELECT INTO OUTFILE（MySQL 直接匯出）](#select-into-outfilemysql-直接匯出)
+      - [mysql CLI（--batch）](#mysql-cli--batch)
+      - [mysqldump（tab 分隔）](#mysqldumptab-分隔)
+      - [Python（mysql.connector）](#pythonmysqlconnector)
+      - [phpMyAdmin / MySQL Workbench](#phpmyadmin--mysql-workbench)
   - [測試用](#測試用)
     - [模擬長時間連線](#模擬長時間連線)
       - [引入延遲（睡眠）](#引入延遲睡眠)
@@ -1790,6 +1788,8 @@ gunzip < all_20260429.sql.gz > all_20260429.sql
 python3 fix_mysql84.py all_20260429.sql all_20260429_fixed.sql
 ```
 
+[Python 腳本 fix_mysql84.py](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/python腳本/fix_mysql84.py)
+
 | 修正項目 | 說明 |
 |------|------|
 | `int(11)` → `int` | 8.4 移除 integer display width |
@@ -1799,109 +1799,6 @@ python3 fix_mysql84.py all_20260429.sql all_20260429_fixed.sql
 | 統一 collation | 改為 `utf8mb4_0900_ai_ci` |
 
 > 解壓後檔案可能達 100GB+，確認磁碟空間足夠
-
-##### fix_mysql84.py
-
-```python
-#!/usr/bin/env python3
-"""修正 MySQL schema dump，使其相容 MySQL 8.4。
-
-用法：
-    python3 fix_mysql84.py <input.sql> [output.sql]
-
-    若未指定 output.sql，則輸出至 <input>_mysql84.sql
-"""
-import re
-import sys
-from pathlib import Path
-
-if len(sys.argv) < 2:
-    print(f"Usage: python3 {sys.argv[0]} <input.sql> [output.sql]")
-    sys.exit(1)
-
-input_file = sys.argv[1]
-if len(sys.argv) >= 3:
-    output_file = sys.argv[2]
-else:
-    # 未指定輸出檔時，在原檔名後加 _mysql84
-    p = Path(input_file)
-    output_file = str(p.with_stem(p.stem + "_mysql84"))
-
-with open(input_file, "r", encoding="utf-8") as f:
-    content = f.read()
-
-original = content
-counters = {}
-
-# 1. 移除整數顯示寬度（MySQL 8.4 已廢棄此語法）
-#    例：int(11) → int、bigint(20) → bigint、tinyint(1) → tinyint
-pattern = r'\b(tinyint|smallint|mediumint|int|bigint)\(\d+\)'
-matches = re.findall(pattern, content, flags=re.IGNORECASE)
-counters['integer_display_width'] = len(matches)
-content = re.sub(pattern, r'\1', content, flags=re.IGNORECASE)
-
-# 2. 將 utf8 字元集轉換為 utf8mb4
-#    使用單字邊界避免將 utf8mb4 二次轉換為 utf8mb4mb4
-#    只比對 utf8 後面沒有接 mb4 的情況
-pattern = r'\butf8\b(?!mb4)'
-matches = re.findall(pattern, content, flags=re.IGNORECASE)
-counters['utf8_to_utf8mb4'] = len(matches)
-content = re.sub(pattern, 'utf8mb4', content, flags=re.IGNORECASE)
-
-# 3. 將 latin1 字元集轉換為 utf8mb4
-pattern = r'\bCHARSET=latin1\b'
-matches = re.findall(pattern, content, flags=re.IGNORECASE)
-counters['latin1_to_utf8mb4'] = len(matches)
-content = re.sub(pattern, 'CHARSET=utf8mb4', content, flags=re.IGNORECASE)
-
-# 4. 移除 ROW_FORMAT 設定（MySQL 8.4 預設已使用 DYNAMIC，無需明確指定）
-pattern = r'\s*ROW_FORMAT=\w+'
-matches = re.findall(pattern, content, flags=re.IGNORECASE)
-counters['row_format_removed'] = len(matches)
-content = re.sub(pattern, '', content, flags=re.IGNORECASE)
-
-# 5. 統一所有 collation 為 utf8mb4_0900_ai_ci
-#    同時處理欄位層級（COLLATE utf8mb4_xxx）與資料表層級（COLLATE=utf8mb4_xxx）
-pattern = r'COLLATE(=|\s+)utf8mb4_\w+'
-matches = re.findall(pattern, content, flags=re.IGNORECASE)
-counters['collation_unified'] = len(matches)
-content = re.sub(pattern, r'COLLATE\1utf8mb4_0900_ai_ci', content, flags=re.IGNORECASE)
-
-# 6. 對已有 CHARSET=utf8mb4 但缺少 COLLATE 的資料表補上 COLLATE=utf8mb4_0900_ai_ci
-#    比對 CHARSET=utf8mb4 後面沒有緊接 COLLATE 的情況
-pattern = r'(CHARSET=utf8mb4)(?!\s*COLLATE)'
-matches = re.findall(pattern, content, flags=re.IGNORECASE)
-counters['charset_add_collate'] = len(matches)
-content = re.sub(pattern, r'\1 COLLATE=utf8mb4_0900_ai_ci', content, flags=re.IGNORECASE)
-
-# 7. 移除欄位層級的 CHARACTER SET 與 COLLATE（冗餘設定）
-#    資料表層級的 DEFAULT CHARSET 已涵蓋所有欄位，無需在每個欄位重複宣告
-#    欄位層級使用空格：COLLATE utf8mb4_xxx（資料表層級用等號：COLLATE=utf8mb4_xxx）
-pattern = r'\s*CHARACTER SET utf8mb4'
-matches = re.findall(pattern, content, flags=re.IGNORECASE)
-counters['column_charset_removed'] = len(matches)
-content = re.sub(pattern, '', content, flags=re.IGNORECASE)
-
-pattern = r'\s*COLLATE utf8mb4_0900_ai_ci'
-matches = re.findall(pattern, content, flags=re.IGNORECASE)
-counters['column_collate_removed'] = len(matches)
-content = re.sub(pattern, '', content, flags=re.IGNORECASE)
-
-with open(output_file, "w", encoding="utf-8") as f:
-    f.write(content)
-
-print("=== MySQL 8.4 Schema 修正完成 ===")
-print(f"輸出檔案：{output_file}")
-print()
-print("修改項目：")
-for k, v in counters.items():
-    print(f"  {k}: {v} 處")
-print()
-if content == original:
-    print("警告：未進行任何修改！")
-else:
-    print("檔案已成功更新。")
-```
 
 #### 4. 匯入（8.4 執行）
 
