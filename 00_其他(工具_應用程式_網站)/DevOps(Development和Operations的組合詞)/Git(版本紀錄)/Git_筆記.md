@@ -627,8 +627,9 @@ git push origin --delete branch # v1.7.0 support
 
 ```bash
 ### Git Fetch 抓取 / Git Checkout 切換 Repository 的 branch ###
-# 抓取
+# 抓取本地沒有的分支
 git fetch origin
+git checkout 分支名稱
 
 # 抓取 reps-branch, 並將此 branch 以相同名稱建立於 local 的 reps-branch
 git checkout --track origin/reps-branch
