@@ -268,16 +268,20 @@ bash mysqldump_and_sync_timer.sh --single list mydb1  # 單一檔案
 用法
 
 ```sh
-bash mysqlrestore_and_fix_mysql84_timer.sh <input.sql> <database>
-bash mysqlrestore_and_fix_mysql84_timer.sh <input.sql.gz> <database>
+bash mysqlrestore_and_fix_mysql84_timer.sh <input.sql[.gz]> [database]
 bash mysqlrestore_and_fix_mysql84_timer.sh -h
 ```
+
+| 參數 | 說明 | 必填 |
+|------|------|------|
+| `<input.sql[.gz]>` | 要還原的 SQL 檔（支援 `.sql` 或 `.sql.gz`） | 是 |
+| `[database]` | 匯入目標資料庫；省略則匯入全部資料庫（適用 `--all-databases` dump） | 否 |
 
 執行範例
 
 ```sh
-bash mysqlrestore_and_fix_mysql84_timer.sh /tmp/dump.sql mydb
-bash mysqlrestore_and_fix_mysql84_timer.sh /tmp/dump.sql.gz mydb
+bash mysqlrestore_and_fix_mysql84_timer.sh /tmp/all_databases.sql.gz        # 匯入全部資料庫
+bash mysqlrestore_and_fix_mysql84_timer.sh /tmp/dump.sql.gz mydb            # 匯入指定資料庫
 ```
 
 必填設定（腳本頂部 `!! 使用前請修改以下設定 !!` 區塊）
