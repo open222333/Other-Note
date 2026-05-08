@@ -80,10 +80,10 @@ def _progress(processed, total):
     bar = '█' * filled + '░' * (50 - filled)
     print(f'\r[{bar}] {pct:5.1f}%', end='', flush=True)
 
-with open(input_file, "r", encoding="utf-8") as fin, \
-        open(output_file, "w", encoding="utf-8") as fout:
+with open(input_file, "r", encoding="utf-8", errors="surrogateescape") as fin, \
+        open(output_file, "w", encoding="utf-8", errors="surrogateescape") as fout:
     for line in fin:
-        processed_bytes += len(line.encode("utf-8"))
+        processed_bytes += len(line.encode("utf-8", errors="surrogateescape"))
         pct_int = int(processed_bytes / total_bytes * 1000)
         if pct_int != last_pct:
             _progress(processed_bytes, total_bytes)
