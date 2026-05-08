@@ -81,8 +81,11 @@ tmux a -t 1
 # Creating detached sessions
 tmux new -s (名字) -d
 
-# Kill Tmux sessions
+# 刪除 Tmux sessions
 tmux kill-session -t (名字)
+
+# 刪除所有
+tmux kill-server
 
 # 重啟tmux服務，重新讀取配置文件
 tmux start
