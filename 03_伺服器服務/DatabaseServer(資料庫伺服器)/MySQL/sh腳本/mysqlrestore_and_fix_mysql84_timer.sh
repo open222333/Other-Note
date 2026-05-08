@@ -2,8 +2,10 @@
 # mysqlrestore_and_fix_mysql84_timer.sh
 # 階段一：fix_mysql84.py 修正 SQL 相容性 → 階段二：mysql 匯入還原，分別計時。
 #
-# Usage: bash mysqlrestore_and_fix_mysql84_timer.sh <input.sql> <database>
+# Usage: bash mysqlrestore_and_fix_mysql84_timer.sh <input.sql[.gz]> [database]
 #        bash mysqlrestore_and_fix_mysql84_timer.sh -h
+# 不帶 database → 匯入全部資料庫（適用 --all-databases dump）
+# 帶   database → 匯入指定單一資料庫
 
 # ============================================================
 # !!                  使用前請修改以下設定                  !!
@@ -55,18 +57,18 @@ spinner() {
 # ==================== 參數解析 ====================
 
 usage() {
-    echo "Usage: $0 <input.sql> <database>"
+    echo "Usage: $0 <input.sql[.gz]> [database]"
     echo ""
     echo "Arguments:"
     echo "  <input.sql>   要還原的 SQL 檔（支援 .sql 或 .sql.gz）"
-    echo "  <database>    匯入目標資料庫名稱"
+    echo "  [database]    匯入目標資料庫（省略 = 匯入全部資料庫，適用 --all-databases dump）"
     echo ""
     echo "Options:"
     echo "  -h, --help    顯示此說明"
     echo ""
     echo "Examples:"
-    echo "  $0 /tmp/dump.sql mydb"
-    echo "  $0 /tmp/dump.sql.gz mydb"
+    echo "  $0 /tmp/all_databases.sql.gz           # 匯入全部資料庫"
+    echo "  $0 /tmp/dump.sql.gz mydb               # 匯入指定資料庫"
 }
 
 if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
@@ -74,15 +76,8 @@ if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
     exit 0
 fi
 
-if [ $# -lt 2 ]; then
-    echo "[ERROR] 缺少參數，請同時指定 input.sql 與 database"
-    echo ""
-    usage
-    exit 1
-fi
-
 INPUT_SQL="$1"
-DATABASE="$2"
+DATABASE="${2:-}"
 FIXED_SQL=""
 
 # ==================== 前置檢查 ====================
@@ -115,7 +110,7 @@ echo "================================================================"
 echo "  mysqlrestore + fix_mysql84 計時腳本"
 echo "  INPUT  : ${INPUT_SQL}"
 echo "  FIXED  : ${FIXED_SQL}"
-echo "  TARGET : ${DB_USER}@${DB_HOST}:${DB_PORT}/${DATABASE}"
+echo "  TARGET : ${DB_USER}@${DB_HOST}:${DB_PORT}/${DATABASE:-（all databases）}"
 echo "================================================================"
 
 TOTAL_START=$(date +%s)
@@ -154,12 +149,16 @@ fi
 
 # ==================== 階段二：mysql 匯入還原 ====================
 
-msg "[階段二] mysql 匯入開始 → ${DATABASE}"
+msg "[階段二] mysql 匯入開始 → ${DATABASE:-all databases}"
 STAGE2_START=$(date +%s)
 
-mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" -P "$DB_PORT" "$DATABASE" < "$FIXED_SQL" &
+if [ -n "$DATABASE" ]; then
+    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" -P "$DB_PORT" "$DATABASE" < "$FIXED_SQL" &
+else
+    mysql -u"$DB_USER" -p"$DB_PASS" -h "$DB_HOST" -P "$DB_PORT" < "$FIXED_SQL" &
+fi
 MYSQL_PID=$!
-spinner $MYSQL_PID "匯入 ${DATABASE}"
+spinner $MYSQL_PID "匯入 ${DATABASE:-all databases}"
 wait $MYSQL_PID
 RESTORE_EXIT=$?
 
