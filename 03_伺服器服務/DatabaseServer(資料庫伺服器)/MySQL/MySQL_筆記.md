@@ -1506,6 +1506,19 @@ SHOW MASTER STATUS;
 
 ### 使用者相關
 
+輸入登入密碼(修改預設密碼)
+
+```sql
+ALTER USER root@'localhost' IDENTIFIED BY 'password';
+FLUSH PRIVILEGES;
+```
+
+列出所有使用者帳號
+
+```sql
+SELECT User,Host FROM mysql.user;
+```
+
 ```sql
 -- 查看預設密碼
 cat /var/log/mysqld.log | grep 'temporary password'
@@ -1513,15 +1526,6 @@ cat /var/log/mysqld.log | grep 'temporary password'
 	-- 狀況：
 	-- ERROR 1820 (HY000): You must reset your password using ALTER USER statement before executing this statement.
 	-- 需更改預設密碼
-
--- 輸入登入密碼(修改預設密碼)
-ALTER USER root@'localhost' IDENTIFIED BY 'password';
-
--- 刷新MySQL的系統權限相關表
-FLUSH PRIVILEGES;
-
--- 列出所有使用者帳號
-SELECT User,Host FROM mysql.user;
 
 -- 列出目前使用者的權限
 SHOW GRANTS;
