@@ -29,13 +29,27 @@ PATTERNS = [
      re.compile(r'\butf8\b(?!mb4)', re.IGNORECASE),
      'utf8mb4'),
 
-    # 3. 將 utf8mb3 轉換為 utf8mb4（utf8mb3 是 utf8 在 MySQL 8.0+ 的正式內部名稱）
+    # 3. 將 utf8_xxx collation 轉換為 utf8mb4_xxx
+    #    例：utf8_bin → utf8mb4_bin、utf8_general_ci → utf8mb4_general_ci
+    #    （\butf8\b 不匹配 utf8_bin，因為 _ 是 word character，需獨立處理）
+    ('utf8_collation_to_utf8mb4',
+     re.compile(r'\butf8_(\w+)', re.IGNORECASE),
+     r'utf8mb4_\1'),
+
+    # 4. 將 utf8mb3 轉換為 utf8mb4（utf8mb3 是 utf8 在 MySQL 8.0+ 的正式內部名稱）
     #    例：utf8mb3_bin → utf8mb4_bin、CHARSET=utf8mb3 → CHARSET=utf8mb4
     ('utf8mb3_to_utf8mb4',
-     re.compile(r'\butf8mb3\b', re.IGNORECASE),
+     re.compile(r'\butf8mb3', re.IGNORECASE),
      'utf8mb4'),
 
-    # 4. 將 latin1 字元集轉換為 utf8mb4
+    # 5. 將 MyISAM 轉換為 InnoDB
+    #    utf8→utf8mb4 後每字元從 3 bytes 變 4 bytes，MyISAM 的 1000 bytes key 上限容易超出
+    #    InnoDB + DYNAMIC row format 的 key 上限為 3072 bytes
+    ('myisam_to_innodb',
+     re.compile(r'\bENGINE=MyISAM\b', re.IGNORECASE),
+     'ENGINE=InnoDB'),
+
+    # 6. 將 latin1 字元集轉換為 utf8mb4
     ('latin1_to_utf8mb4',
      re.compile(r'\bCHARSET=latin1\b', re.IGNORECASE),
      'CHARSET=utf8mb4'),
