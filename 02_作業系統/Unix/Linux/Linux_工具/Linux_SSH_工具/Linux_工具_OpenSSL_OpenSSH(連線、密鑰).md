@@ -351,6 +351,9 @@ ssh-keygen -f ~/.ssh/$hostname
 # 複製公鑰
 ssh-copy-id -i ~/.ssh/$hostname.pub $user@$host
 
+# 測試
+ssh -i ~/.ssh/$hostname $user@$host "echo ok"
+
 # 編輯 填入資料
 vim ~/.ssh/config
 
@@ -422,6 +425,9 @@ ssh user@host 'mkdir -p ~/.ssh; cat >> ~/.ssh/authorized_keys' <  /home/username
 
 # 複製公鑰
 ssh-copy-id -i ~/.ssh/key.pub user@host
+
+# 測試
+ssh -i ~/.ssh/key user@host "echo ok"
 
 # 測試遠程檔案是否存在
 ssh $ssh_host test -e $file

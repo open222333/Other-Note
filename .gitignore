@@ -5,5 +5,5 @@ note_tool.conf
 .claude
 
 # 排除忽略
-!Linux 工具 test(檢查).md
-!Python 模組-內建 unittest(單元測試框架).md
+!Python_模組-內建_unittest(單元測試框架).md
+!Linux_工具_test(檢查).md

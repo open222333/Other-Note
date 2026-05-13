@@ -77,6 +77,7 @@ RDBMS
     - [建立只讀帳號](#建立只讀帳號)
     - [查詢資料庫資訊](#查詢資料庫資訊)
     - [資料庫操作](#資料庫操作)
+      - [刪除所有使用者資料庫（保留系統 DB）](#刪除所有使用者資料庫保留系統-db)
     - [資料表操作](#資料表操作)
     - [鎖定](#鎖定)
     - [使用者相關](#使用者相關)
@@ -1417,6 +1418,47 @@ USE 庫名;
 ALTER DATABASE your_database_name
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
+```
+
+#### 刪除所有使用者資料庫（保留系統 DB）
+
+適用於重新匯入前清空目標 MySQL。
+
+先確認要刪除的清單：
+
+```bash
+mysql -uroot -p -N -e "
+SELECT schema_name
+FROM information_schema.schemata
+WHERE schema_name NOT IN ('information_schema','performance_schema','sys','mysql');
+"
+```
+
+確認無誤後執行刪除：
+
+> 注意：直接用管道接 `| mysql -uroot -p` 時，密碼輸入順序可能出問題導致 DROP 未實際執行。建議先存成檔案再執行。
+
+```bash
+# 1. 產生 DROP 語句並存檔
+mysql -uroot -p -N -e "
+SELECT CONCAT('DROP DATABASE \`', schema_name, '\`;')
+FROM information_schema.schemata
+WHERE schema_name NOT IN ('information_schema','performance_schema','sys','mysql');
+" > /tmp/drop_dbs.sql
+
+# 2. 確認內容
+cat /tmp/drop_dbs.sql
+
+# 3. 執行
+mysql -uroot -p < /tmp/drop_dbs.sql
+```
+
+> 注意：若此 MySQL 為 Replication Master（PROCESSLIST 中有 `Binlog Dump GTID`），DROP DATABASE 會透過 binlog 同步到 Slave，執行前確認是否影響其他機器。
+
+查看剩餘DB：
+
+```bash
+mysql -uroot -p -e "SHOW DATABASES;"
 ```
 
 ### 資料表操作
