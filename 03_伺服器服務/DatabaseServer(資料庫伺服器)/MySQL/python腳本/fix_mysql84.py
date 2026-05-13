@@ -17,6 +17,14 @@ import sys
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor
 
+def _remove_column_charset(m):
+    """移除欄位層級的 CHARACTER SET utf8mb4，但保留 DEFAULT CHARACTER SET（用於 CREATE DATABASE）。"""
+    before = m.string[max(0, m.start() - 8):m.start()].upper()
+    if 'DEFAULT' in before:
+        return m.group(0)
+    return ''
+
+
 # 預先編譯所有 pattern（模組層級，子程序 import 後可直接使用）
 PATTERNS = [
     # 1. 移除整數顯示寬度（MySQL 8.4 已廢棄此語法）
@@ -69,33 +77,70 @@ PATTERNS = [
      re.compile(r'(CHARSET=utf8mb4)(?!\s*COLLATE)', re.IGNORECASE),
      r'\1 COLLATE=utf8mb4_0900_ai_ci'),
 
-    # 7. 移除欄位層級的 CHARACTER SET（冗餘設定）
+    # 7. 移除欄位層級的 CHARACTER SET（冗餘設定），但保留 DEFAULT CHARACTER SET（CREATE DATABASE 語法）
     ('column_charset_removed',
      re.compile(r'\s*CHARACTER SET utf8mb4', re.IGNORECASE),
-     ''),
+     _remove_column_charset),
 
     # 8. 移除欄位層級的 COLLATE（冗餘設定）
     ('column_collate_removed',
      re.compile(r'\s*COLLATE utf8mb4_0900_ai_ci', re.IGNORECASE),
      ''),
+
+    # 9. INSERT → INSERT IGNORE，避免重複資料衝突導致匯入中止
+    ('insert_ignore',
+     re.compile(r'^INSERT INTO\b', re.IGNORECASE),
+     'INSERT IGNORE INTO'),
 ]
+
+# 用來從 SQL 行偵測目前的資料表名稱
+_TABLE_RE = re.compile(
+    r'(?:CREATE TABLE|INSERT INTO)\s+`([^`]+)`',
+    re.IGNORECASE
+)
+
+PATTERN_DESC = {
+    'integer_display_width':    '移除整數顯示寬度',
+    'utf8_to_utf8mb4':          'utf8 → utf8mb4',
+    'utf8_collation_to_utf8mb4':'utf8_xxx collation → utf8mb4_xxx',
+    'utf8mb3_to_utf8mb4':       'utf8mb3 → utf8mb4',
+    'myisam_to_innodb':         'MyISAM → InnoDB',
+    'latin1_to_utf8mb4':        'latin1 → utf8mb4',
+    'row_format_removed':       '移除 ROW_FORMAT',
+    'collation_unified':        '統一 collation 為 utf8mb4_0900_ai_ci',
+    'charset_add_collate':      '補上缺少的 COLLATE',
+    'column_charset_removed':   '移除欄位層級 CHARACTER SET',
+    'column_collate_removed':   '移除欄位層級 COLLATE',
+    'insert_ignore':            'INSERT → INSERT IGNORE（跳過重複資料）',
+}
 
 CHUNK_BYTES = 32 * 1024 * 1024  # 每個工作區塊最大 32 MB
 
 
-def process_chunk(lines):
-    """處理一個 chunk，回傳 (修正後的行列表, 各 pattern 計數)。"""
+def process_chunk(lines, starting_table):
+    """處理一個 chunk，回傳 (修正後的行列表, 全域計數, 每張表計數)。"""
     local_counters = {name: 0 for name, _, _ in PATTERNS}
+    per_table = {}   # {table_name: {pattern_name: count}}
     result = []
+    current_table = starting_table
+
     for line in lines:
+        m = _TABLE_RE.search(line)
+        if m:
+            current_table = m.group(1)
+
         new_line = line
         for name, pattern, repl in PATTERNS:
             fixed, n = pattern.subn(repl, new_line)
             if n:
                 local_counters[name] += n
                 new_line = fixed
+                if current_table is not None:
+                    tbl = per_table.setdefault(current_table, {})
+                    tbl[name] = tbl.get(name, 0) + n
         result.append(new_line)
-    return result, local_counters
+
+    return result, local_counters, per_table
 
 
 def _progress(processed, total, label=''):
@@ -132,6 +177,7 @@ def main():
         output_file = str(p.with_name(stem + '_mysql84.sql'))
 
     counters = {name: 0 for name, _, _ in PATTERNS}
+    all_per_table = {}  # 跨所有 chunk 的每張表統計
 
     # 開啟輸入檔（.gz 直接串流解壓縮，追蹤壓縮檔位置作為進度）
     is_gz = input_file.lower().endswith('.gz')
@@ -161,18 +207,28 @@ def main():
              open(output_file, 'w', encoding='utf-8', errors='surrogateescape') as fout:
 
             chunk = []
-            chunk_size = 0  # 目前 chunk 的 byte 數
+            chunk_size = 0        # 目前 chunk 的 byte 數
+            current_table = None  # 目前所在的資料表（傳給 worker 作為起始 context）
+            chunk_start_table = None
 
             def flush_oldest():
                 future, _ = pending.popleft()
-                lines, local_counters = future.result()
+                lines, local_counters, per_table = future.result()
                 for name, count in local_counters.items():
                     counters[name] += count
+                for tbl, tbl_cnt in per_table.items():
+                    dest = all_per_table.setdefault(tbl, {})
+                    for name, count in tbl_cnt.items():
+                        dest[name] = dest.get(name, 0) + count
                 fout.writelines(lines)
 
             for line in fin:
                 chunk.append(line)
                 chunk_size += len(line.encode('utf-8', errors='surrogateescape'))
+
+                m = _TABLE_RE.search(line)
+                if m:
+                    current_table = m.group(1)
 
                 # 更新進度（依壓縮檔或原始檔讀取位置）
                 pos = progress_fh.tell()
@@ -182,14 +238,15 @@ def main():
                     last_pct = pct_int
 
                 if chunk_size >= CHUNK_BYTES:
-                    pending.append((executor.submit(process_chunk, chunk), chunk_size))
+                    pending.append((executor.submit(process_chunk, chunk, chunk_start_table), chunk_size))
+                    chunk_start_table = current_table  # 下一個 chunk 從此表開始
                     chunk = []
                     chunk_size = 0
                     if len(pending) >= WINDOW:
                         flush_oldest()
 
             if chunk:
-                pending.append((executor.submit(process_chunk, chunk), chunk_size))
+                pending.append((executor.submit(process_chunk, chunk, chunk_start_table), chunk_size))
 
             while pending:
                 flush_oldest()
@@ -203,14 +260,28 @@ def main():
     print("=== MySQL 8.4 Schema 修正完成 ===")
     print(f"輸出檔案：{output_file}")
     print()
-    print("修改項目：")
+
+    print("修改項目（全域統計）：")
     for k, v in counters.items():
-        print(f"  {k}: {v} 處")
-    print()
+        if v > 0:
+            desc = PATTERN_DESC.get(k, '')
+            label = f"{k}({desc})" if desc else k
+            print(f"  {label}: {v} 處")
+
     changed = any(v > 0 for v in counters.values())
     if not changed:
+        print()
         print("警告：未進行任何修改！")
     else:
+        # 每張表的變更明細
+        changed_tables = {tbl: cnt for tbl, cnt in all_per_table.items() if any(cnt.values())}
+        if changed_tables:
+            print()
+            print(f"資料表變更明細（共 {len(changed_tables)} 張表）：")
+            for tbl in sorted(changed_tables):
+                parts = '  '.join(f"{k}:{v}" for k, v in changed_tables[tbl].items())
+                print(f"  {tbl}: {parts}")
+        print()
         print("檔案已成功更新。")
 
 

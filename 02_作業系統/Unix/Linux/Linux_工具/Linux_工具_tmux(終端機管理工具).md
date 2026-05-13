@@ -1,7 +1,14 @@
 # Linux 工具 tmux(終端機管理工具)
 
-```
-```
+tmux（Terminal Multiplexer）是一個終端機多工管理工具，讓一個終端機視窗同時管理多個 session、window 和 pane。
+
+主要特點：
+
+- **Session 持久化**：SSH 斷線後 session 仍在背景繼續執行，重新連線後可 attach 恢復
+- **視窗分割**：同一個視窗可水平或垂直分割成多個 pane，同時觀察多個程序輸出
+- **多 Window / Session**：可建立多個 window 和 session，用快捷鍵快速切換
+
+常見使用情境：遠端伺服器上跑長時間作業（備份、編譯、資料庫還原）時，用 tmux 避免 SSH 斷線中斷程序。
 
 ## 目錄
 
@@ -14,6 +21,7 @@
   - [macOS（Homebrew）](#macoshomebrew)
   - [直接從 vault.centos.org 手動下載 tmux RPM](#直接從-vaultcentosorg-手動下載-tmux-rpm)
 - [指令](#指令)
+  - [向上滾動查看（Copy Mode）](#向上滾動查看copy-mode)
   - [設定檔](#設定檔)
 
 ## 參考資料
@@ -156,6 +164,45 @@ Ctrl+b 再輸入 )	切換至下一個 session。
 組合鍵	說明
 Ctrl+b 再輸入 f	在所有 window 視窗中搜尋關鍵字（很好用）。
 ```
+
+## 向上滾動查看（Copy Mode）
+
+tmux 預設不支援直接滾動，需先進入 **Copy Mode** 才能往上翻閱輸出歷史。
+
+**進入 / 離開**
+
+```
+Ctrl+b 再輸入 [    進入 Copy Mode
+q                  離開 Copy Mode
+```
+
+**Copy Mode 中的滾動操作**
+
+```
+操作	                說明
+↑ / ↓ 方向鍵	        上下移動一行
+Page Up / Page Down	上下翻頁
+Ctrl+u	            向上捲半頁
+Ctrl+d	            向下捲半頁
+g	                跳到最上方（最舊的輸出）
+G	                跳到最下方（最新的輸出）
+```
+
+**快速向上翻頁（不需先進入 Copy Mode）**
+
+```
+Ctrl+b 再輸入 Page Up    直接進入 Copy Mode 並向上捲一頁
+```
+
+**啟用滑鼠滾輪滾動**
+
+在 `~/.tmux.conf` 加入：
+
+```conf
+set -g mouse on
+```
+
+重新載入設定後，即可直接用滑鼠滾輪在 session 中上下捲動，無需手動進入 Copy Mode。
 
 ## 設定檔
 
