@@ -1353,13 +1353,47 @@ revoke select,insert,update,delete om *.* fromtest2@localhost;
 
 ### 建立只讀帳號
 
-```sql
--- MySQL 8.0+（建立與授權分開）
-CREATE USER 'readonly_user'@'%' IDENTIFIED BY 'password';
-GRANT SELECT ON 資料庫名稱.* TO 'readonly_user'@'%';
-FLUSH PRIVILEGES;
+只授予 `SELECT` 權限，無法執行 INSERT / UPDATE / DELETE / DROP 等操作。
 
--- MySQL 5.x（合併語法）
+```sql
+-- MySQL 8.4（預設驗證外掛：caching_sha2_password，mysql_native_password 預設停用）
+
+-- 僅允許本機連線
+CREATE USER 'readonly_user'@'localhost' IDENTIFIED BY 'password';
+
+-- 允許任意主機連線
+CREATE USER 'readonly_user'@'%' IDENTIFIED BY 'password';
+
+-- 授予指定資料庫的唯讀權限
+GRANT SELECT ON 資料庫名稱.* TO 'readonly_user'@'%';
+
+-- 授予所有資料庫的唯讀權限
+GRANT SELECT ON *.* TO 'readonly_user'@'%';
+
+FLUSH PRIVILEGES;
+```
+
+```sql
+-- MySQL 8.0（預設驗證外掛：caching_sha2_password）
+
+-- 僅允許本機連線
+CREATE USER 'readonly_user'@'localhost' IDENTIFIED BY 'password';
+
+-- 允許任意主機連線
+CREATE USER 'readonly_user'@'%' IDENTIFIED BY 'password';
+
+-- 授予指定資料庫的唯讀權限
+GRANT SELECT ON 資料庫名稱.* TO 'readonly_user'@'%';
+
+-- 授予所有資料庫的唯讀權限
+GRANT SELECT ON *.* TO 'readonly_user'@'%';
+
+FLUSH PRIVILEGES;
+```
+
+```sql
+-- MySQL 5.x（GRANT 可同時建立帳號）
+
 -- 指定資料庫
 GRANT SELECT ON 資料庫名稱.* TO 'readonly_user'@'%' IDENTIFIED BY 'password';
 
@@ -1368,6 +1402,33 @@ GRANT SELECT ON *.* TO 'readonly_user'@'%' IDENTIFIED BY 'password';
 
 FLUSH PRIVILEGES;
 ```
+
+```sql
+-- 確認權限
+SHOW GRANTS FOR 'readonly_user'@'%';
+
+-- 撤銷全部權限
+REVOKE ALL PRIVILEGES ON *.* FROM 'readonly_user'@'%';
+FLUSH PRIVILEGES;
+
+-- 刪除帳號
+DROP USER 'readonly_user'@'%';
+```
+
+> **注意**：若需要讓使用者能看到資料庫列表，需額外授予 SHOW DATABASES 權限，或確保 `skip_show_database` 未啟用。
+
+> **MySQL 8.0** 預設驗證外掛為 `caching_sha2_password`，舊版客戶端若連線失敗可改用 `mysql_native_password`：
+> ```sql
+> CREATE USER 'readonly_user'@'%' IDENTIFIED WITH mysql_native_password BY 'password';
+> ```
+
+> **MySQL 8.4** 中 `mysql_native_password` 外掛**預設停用**，無法直接使用上述語法。
+> 若仍需相容舊版客戶端，需在 `my.cnf` 中手動啟用：
+> ```ini
+> [mysqld]
+> mysql_native_password=ON
+> ```
+> 建議改用支援 `caching_sha2_password` 的新版驅動程式（如 Connector/Python 8.x、mysqlclient 2.x）。
 
 ### 查詢資料庫資訊
 
@@ -1459,6 +1520,26 @@ mysql -uroot -p < /tmp/drop_dbs.sql
 
 ```bash
 mysql -uroot -p -e "SHOW DATABASES;"
+```
+
+#### 列出所有資料表（db.table 格式）
+
+```sql
+SELECT CONCAT(table_schema, '.', table_name)
+FROM information_schema.tables
+WHERE table_schema NOT IN ('information_schema','performance_schema','sys','mysql')
+ORDER BY table_schema, table_name;
+```
+
+輸出到檔案：
+
+```bash
+mysql -uroot -p -N -e "
+SELECT CONCAT(table_schema, '.', table_name)
+FROM information_schema.tables
+WHERE table_schema NOT IN ('information_schema','performance_schema','sys','mysql')
+ORDER BY table_schema, table_name;
+" > /tmp/all_tables.txt
 ```
 
 ### 資料表操作
@@ -1806,6 +1887,8 @@ gunzip < file.sql.gz | mysql -uroot -p
 
 ### MySQL 5.7 → 8.4 備份與還原流程
 
+---
+
 #### 1. 預估備份大小
 
 ```bash
@@ -1813,6 +1896,8 @@ du -sh /var/lib/mysql/*/
 ```
 
 > 資料目錄 300GB，實際匯出 gzip 後約 30GB 屬正常（索引、碎片不計入）
+
+---
 
 #### 2. 匯出（5.7 執行）
 
@@ -1827,24 +1912,41 @@ mysqldump -uroot -p \
   | gzip > all_20260429.sql.gz
 ```
 
+| 參數 | 說明 |
+|---|---|
+| `--triggers` | 包含 trigger |
+| `--routines` | 包含 stored procedure / function |
+| `--events` | 包含 event scheduler |
+| `--single-transaction` | 不鎖表，InnoDB 一致性備份 |
+| `--set-gtid-purged=OFF` | 不寫入 GTID，匯入較乾淨 |
+
+> ⚠️ `--single-transaction` 只對 InnoDB 有效，若有 MyISAM 資料表需改用 `--lock-all-tables`
+
+---
+
 #### 3. 修正 8.4 相容性（傳輸後執行）
 
 ```bash
+# 解壓
 gunzip < all_20260429.sql.gz > all_20260429.sql
+
+# 修正編碼、欄位格式
 python3 fix_mysql84.py all_20260429.sql all_20260429_fixed.sql
 ```
 
 [Python 腳本 fix_mysql84.py](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/python腳本/fix_mysql84.py)
 
 | 修正項目 | 說明 |
-|------|------|
+|---|---|
 | `int(11)` → `int` | 8.4 移除 integer display width |
 | `utf8` → `utf8mb4` | 統一字元集 |
 | `latin1` → `utf8mb4` | 統一字元集 |
 | 移除 `ROW_FORMAT` | 8.4 預設 DYNAMIC |
 | 統一 collation | 改為 `utf8mb4_0900_ai_ci` |
 
-> 解壓後檔案可能達 100GB+，確認磁碟空間足夠
+> ⚠️ 解壓後檔案可能達 100GB+，確認磁碟空間足夠
+
+---
 
 #### 4. 匯入（8.4 執行）
 
@@ -1852,7 +1954,66 @@ python3 fix_mysql84.py all_20260429.sql all_20260429_fixed.sql
 mysql -uroot -p --init-command=”SET sql_mode=''” < all_20260429_fixed.sql
 ```
 
-`直接匯入（無需修正時）`
+---
+
+#### 5. 建立 Master-Slave 同步
+
+##### 建議流程
+
+兩台都先匯入相同資料後，再建立 Slave，避免歷史資料透過 binlog 重複同步。
+
+##### Master 建立複製帳號
+
+```sql
+CREATE USER 'repl'@'%' IDENTIFIED BY 'repl密碼';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+FLUSH PRIVILEGES;
+```
+
+##### Slave 建立連線
+
+```sql
+STOP REPLICA;
+RESET REPLICA ALL;
+RESET BINARY LOGS AND GTIDS;
+
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST='master_ip',
+  SOURCE_USER='repl',
+  SOURCE_PASSWORD='repl密碼',
+  SOURCE_AUTO_POSITION=1;
+
+START REPLICA;
+```
+
+##### 確認同步狀態
+
+```sql
+SHOW REPLICA STATUS\G
+```
+
+確認以下兩項為 `Yes`：
+
+```
+Replica_IO_Running: Yes
+Replica_SQL_Running: Yes
+```
+
+---
+
+#### 附錄：語法對照表（5.7 → 8.4）
+
+| 舊語法 (5.7) | 新語法 (8.4) |
+|---|---|
+| `SHOW SLAVE STATUS` | `SHOW REPLICA STATUS` |
+| `START SLAVE` | `START REPLICA` |
+| `STOP SLAVE` | `STOP REPLICA` |
+| `CHANGE MASTER TO` | `CHANGE REPLICATION SOURCE TO` |
+| `RESET MASTER` | `RESET BINARY LOGS AND GTIDS` |
+
+---
+
+#### 附錄：直接匯入（無需修正時）
 
 ```bash
 gunzip < all_20260429.sql.gz | mysql -uroot -p
