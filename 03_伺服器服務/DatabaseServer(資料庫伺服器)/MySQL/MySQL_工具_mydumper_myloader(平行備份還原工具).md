@@ -1,14 +1,19 @@
-# MySQL 工具 mydumper/myloader(平行備份還原工具)
+# MySQL 工具 mydumper myloader(平行備份還原工具)
 
 ```
 mydumper：多執行緒平行備份，輸出為目錄（每張表一個檔案）。
 myloader：多執行緒平行還原，速度遠快於 mysql < dump.sql。
 適合大型資料庫備份與跨版本遷移（如 MySQL 5.7 → 8.4）。
+
+兩者為配對工具，不能混用：
+  - mydumper 輸出的目錄格式（含 metadata、每表獨立 .sql）只有 myloader 能讀取。
+  - mysqldump 產生的 .sql 無法透過 myloader 匯入。
+  - 備份用哪個工具，還原就必須用對應的工具。
 ```
 
 ## 目錄
 
-- [MySQL 工具 mydumper/myloader(平行備份還原工具)](#mysql-工具-mydumpermyloader平行備份還原工具)
+- [MySQL 工具 mydumper myloader(平行備份還原工具)](#mysql-工具-mydumper-myloader平行備份還原工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [相關筆記](#相關筆記)
@@ -28,6 +33,14 @@ myloader：多執行緒平行還原，速度遠快於 mysql < dump.sql。
     - [myloader 參數](#myloader-參數)
 - [與 mysqldump 比較](#與-mysqldump-比較)
 - [匯入加速設定](#匯入加速設定)
+- [Replica 相關](#replica-相關)
+  - [對現有 Replica 的影響](#對現有-replica-的影響)
+  - [從 Replica 執行備份（降低 Master 負擔）](#從-replica-執行備份降低-master-負擔)
+  - [利用備份建立新 Replica](#利用備份建立新-replica)
+    - [1. 還原備份至新 Replica](#1-還原備份至新-replica)
+    - [2. 查看 metadata 取得 binlog 位置](#2-查看-metadata-取得-binlog-位置)
+    - [3. 設定 Replica 連線](#3-設定-replica-連線)
+    - [4. 確認同步狀態](#4-確認同步狀態)
 
 ## 參考資料
 
@@ -203,4 +216,135 @@ SET GLOBAL sync_binlog = 0;
 SET GLOBAL sql_log_bin = 1;
 SET GLOBAL innodb_flush_log_at_trx_commit = 1;
 SET GLOBAL sync_binlog = 1;
+```
+
+# Replica 相關
+
+## 對現有 Replica 的影響
+
+### mydumper 備份
+
+| 執行位置 | 參數 | Replica 影響 |
+|---------|------|-------------|
+| Master 上 | `--trx-consistency-only` | 幾乎無影響，InnoDB 用一致性快照，不加全局讀鎖 |
+| Master 上 | 不加該參數 | 短暫 FTWRL 全局讀鎖，期間 Replica 可能短暫 lag，dump 完即恢復 |
+| Replica 上執行 | — | 完全不影響 Master，是備份的推薦做法 |
+
+### myloader 還原
+
+| 設定 | Replica 影響 |
+|------|-------------|
+| 預設（不加 `--enable-binlog`） | 匯入資料不寫 binlog → Replica 收不到，兩邊資料不一致 |
+| 加 `--enable-binlog` | 資料正常寫 binlog → Replica 同步，速度稍慢 |
+
+若要保持 Replica 同步，myloader 必須加 `--enable-binlog`：
+
+```bash
+myloader \
+  -u root -p password \
+  --threads 8 \
+  --enable-binlog \
+  --directory /backup/mydumper \
+  --overwrite-tables
+```
+
+## 從 Replica 執行備份（降低 Master 負擔）
+
+在現有 Replica 上執行 mydumper，可避免備份時影響 Master 的寫入：
+
+```bash
+mydumper \
+  -u root -p password -h 127.0.0.1 -P 3306 \
+  --threads 8 \
+  --compress \
+  --trx-consistency-only \
+  --replica-data \
+  --routines --events --triggers \
+  --exclude-databases mysql,sys,information_schema,performance_schema \
+  --outputdir /backup/mydumper
+```
+
+| 參數 | 說明 |
+|------|------|
+| `--replica-data` | 暫停 SQL thread，將 Master binlog 位置記錄至 metadata（舊版為 `--slave-data`） |
+
+> ⚠️ mydumper 會短暫停止 Replica SQL thread 以取得一致的 binlog 位置，備份完成後自動恢復。
+
+## 利用備份建立新 Replica
+
+從現有 mydumper 備份（含 binlog 位置）直接建立新 Replica，不需要對 Master 進行全量備份。
+
+### 1. 還原備份至新 Replica
+
+```bash
+myloader \
+  -u root -p password -h 127.0.0.1 -P 3306 \
+  --threads 8 \
+  --directory /backup/mydumper \
+  --overwrite-tables
+```
+
+### 2. 查看 metadata 取得 binlog 位置
+
+```bash
+cat /backup/mydumper/metadata
+```
+
+輸出範例：
+
+```
+Started dump at: 2026-04-29 10:00:00
+SHOW MASTER STATUS:
+	Log: mysql-bin.000123
+	Pos: 456789
+	GTID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:1-5000
+
+Finished dump at: 2026-04-29 10:05:00
+```
+
+### 3. 設定 Replica 連線
+
+**GTID 模式（推薦）：**
+
+```sql
+STOP REPLICA;
+RESET REPLICA ALL;
+RESET BINARY LOGS AND GTIDS;
+
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST='master_ip',
+  SOURCE_USER='repl',
+  SOURCE_PASSWORD='repl密碼',
+  SOURCE_AUTO_POSITION=1;
+
+START REPLICA;
+```
+
+**傳統 binlog position 模式（非 GTID）：**
+
+```sql
+STOP REPLICA;
+RESET REPLICA ALL;
+
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST='master_ip',
+  SOURCE_USER='repl',
+  SOURCE_PASSWORD='repl密碼',
+  SOURCE_LOG_FILE='mysql-bin.000123',
+  SOURCE_LOG_POS=456789;
+
+START REPLICA;
+```
+
+### 4. 確認同步狀態
+
+```sql
+SHOW REPLICA STATUS\G
+```
+
+確認以下兩項為 `Yes`：
+
+```
+Replica_IO_Running: Yes
+Replica_SQL_Running: Yes
 ```

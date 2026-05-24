@@ -135,6 +135,12 @@ GTID 模式
 - [例外狀況](#例外狀況)
   - [重置 Slave 的 relay log（不會清 Master 資料）](#重置-slave-的-relay-log不會清-master-資料)
   - [修復 master slave 最快速方法](#修復-master-slave-最快速方法)
+  - [MySQL 8.4 中途 Replica 追上 Source 步驟](#mysql-84-中途-replica-追上-source-步驟)
+    - [方法一：mysqldump（適合小型資料庫）](#方法一mysqldump適合小型資料庫)
+    - [方法二：xtrabackup（適合大型資料庫，不停機）](#方法二xtrabackup適合大型資料庫不停機)
+      - [GTID 模式](#gtid-模式)
+      - [Binlog Position 模式](#binlog-position-模式)
+    - [測試環境：清空資料庫後可跳過匯入](#測試環境清空資料庫後可跳過匯入)
   - [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
   - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
   - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
@@ -1029,6 +1035,188 @@ START SLAVE;
 -- 查看 slave 狀態
 SHOW SLAVE STATUS\G
 ```
+
+## MySQL 8.4 中途 Replica 追上 Source 步驟
+
+> MySQL 8.4 全面改用 `REPLICA` / `SOURCE` 語法，`SLAVE` / `MASTER` 指令已移除。
+
+### 方法一：mysqldump（適合小型資料庫）
+
+**在 Source（Master）執行**
+
+```sql
+-- 確認 GTID 狀態
+SHOW VARIABLES LIKE 'gtid_mode';
+SHOW BINARY LOG STATUS;
+```
+
+```bash
+# 匯出所有資料庫（含 GTID 資訊）
+mysqldump -u root -p \
+  --all-databases \
+  --single-transaction \
+  --source-data=2 \
+  --set-gtid-purged=ON \
+  > /root/full_backup.sql
+```
+
+**在 Replica（Slave）執行**
+
+```sql
+-- 停止並重置 Replica
+STOP REPLICA;
+RESET REPLICA ALL;
+```
+
+```bash
+# 還原備份
+mysql -u root -p < /root/full_backup.sql
+```
+
+```sql
+-- 設定連線到 Source（GTID 模式使用 SOURCE_AUTO_POSITION）
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST = 'source_ip',
+  SOURCE_USER = 'replication',
+  SOURCE_PASSWORD = 'password',
+  SOURCE_PORT = 3306,
+  SOURCE_AUTO_POSITION = 1;
+
+-- 啟動 Replica
+START REPLICA;
+
+-- 確認狀態（兩個 Running 皆為 Yes 表示成功）
+SHOW REPLICA STATUS\G
+```
+
+---
+
+### 方法二：xtrabackup（適合大型資料庫，不停機）
+
+#### GTID 模式
+
+**在 Source 執行備份**
+
+```bash
+xtrabackup --user=root --password=password \
+  --backup \
+  --target-dir=/root/xtrabackup_$(date +%Y%m%d)
+```
+
+**在 Replica 還原**
+
+```bash
+# 停止 MySQL
+systemctl stop mysql
+
+# 清空資料目錄
+rm -rf /var/lib/mysql/*
+
+# prepare
+xtrabackup --prepare \
+  --target-dir=/root/xtrabackup_$(date +%Y%m%d)
+
+# 還原
+xtrabackup --copy-back \
+  --target-dir=/root/xtrabackup_$(date +%Y%m%d)
+
+# 修正權限
+chown -R mysql:mysql /var/lib/mysql
+
+systemctl start mysql
+```
+
+```sql
+-- 停止並重置 Replica
+STOP REPLICA;
+RESET REPLICA ALL;
+
+-- GTID 模式：自動定位，不需指定 binlog 檔名
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST = 'source_ip',
+  SOURCE_USER = 'replication',
+  SOURCE_PASSWORD = 'password',
+  SOURCE_PORT = 3306,
+  SOURCE_AUTO_POSITION = 1;
+
+START REPLICA;
+
+SHOW REPLICA STATUS\G
+```
+
+---
+
+#### Binlog Position 模式
+
+備份完成後，從 xtrabackup 的 `xtrabackup_binlog_info` 取得 binlog 位置：
+
+```bash
+cat /root/xtrabackup_$(date +%Y%m%d)/xtrabackup_binlog_info
+# 範例輸出：mysql-bin.000042  154893210
+```
+
+```sql
+STOP REPLICA;
+RESET REPLICA ALL;
+
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST = 'source_ip',
+  SOURCE_USER = 'replication',
+  SOURCE_PASSWORD = 'password',
+  SOURCE_PORT = 3306,
+  SOURCE_LOG_FILE = 'mysql-bin.000042',
+  SOURCE_LOG_POS  = 154893210;
+
+START REPLICA;
+
+SHOW REPLICA STATUS\G
+```
+
+---
+
+**確認追上狀態**
+
+```sql
+-- Replica_IO_Running 和 Replica_SQL_Running 皆為 Yes
+-- Seconds_Behind_Source 降至 0 表示追上
+SHOW REPLICA STATUS\G
+```
+
+---
+
+### 測試環境：清空資料庫後可跳過匯入
+
+若 Source 與 Replica **同時清空且重置 GTID 歷史**，可直接跳過備份/還原步驟。
+
+```sql
+-- Source 端：清空資料並重置 GTID 歷史
+RESET BINARY LOGS AND GTIDS;
+```
+
+```sql
+-- Replica 端：停止、重置、重設連線
+STOP REPLICA;
+RESET REPLICA ALL;
+RESET BINARY LOGS AND GTIDS;
+
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST = 'source_ip',
+  SOURCE_USER = 'replication',
+  SOURCE_PASSWORD = 'password',
+  SOURCE_PORT = 3306,
+  SOURCE_AUTO_POSITION = 1;
+
+START REPLICA;
+
+SHOW REPLICA STATUS\G
+```
+
+> **注意**：只清空 Replica 但 Source 已有 GTID 歷史時，**不能跳過匯入**。
+> Replica 會嘗試從 GTID 起點追，但舊 binlog 通常已被清除，導致報錯：
+> ```
+> Got fatal error 1236 from source when reading data from binary log
+> ```
+> 這種情況必須回到方法一或方法二完整執行備份還原流程。
 
 ## 修復 master slave Slave_SQL_Running: No, Slave_IO_Running: No 解決方案
 

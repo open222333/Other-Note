@@ -699,6 +699,10 @@ docker rmi [Image ID]
 docker ps
 	-a 所有容器,包含停止的
 
+# 列出所有容器名稱 及其對應的 docker compose 專案目錄
+docker ps -aq | xargs docker inspect \
+--format '{{.Name}} -> {{ index .Config.Labels "com.docker.compose.project.working_dir"}}'
+
 # 停止 Container
 docker stop [Container ID]
 

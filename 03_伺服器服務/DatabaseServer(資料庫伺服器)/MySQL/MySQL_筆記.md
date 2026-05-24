@@ -1340,6 +1340,22 @@ mysql -u root -p (password)
 -- exit （回車）
 ```
 
+#### 檢測帳號密碼是否可連線
+
+```bash
+# 從本機或遠端測試帳號密碼是否正確
+mysql -u 使用者名稱 -p'密碼' -h 目標IP -P 3306 --connect-timeout=5 -e "SELECT 1;"
+```
+
+- 回傳 `1` → 帳號密碼正確且可連線
+- `ERROR 1045 (28000): Access denied` → 密碼錯誤或帳號未授權該來源 IP
+- `ERROR 2003: Can't connect` → 網路不通或防火牆擋住
+
+```bash
+# 範例：測試 replication 帳號從 slave 連到 master
+mysql -u replicator -p'your_password' -h 192.168.1.1 -P 3306 --connect-timeout=5 -e "SELECT 1;"
+```
+
 ### 帳號權限
 
 ```sql
