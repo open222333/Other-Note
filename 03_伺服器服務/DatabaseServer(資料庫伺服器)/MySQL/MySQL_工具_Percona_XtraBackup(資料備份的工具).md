@@ -47,6 +47,9 @@ xtrabackup 僅複製 InnoDB 數據和日誌。它不會復製表定義文件（.
 	- [參考資料](#參考資料)
 		- [Percona XtraBackup(備份工具)相關](#percona-xtrabackup備份工具相關)
 		- [XtraBackup 心得相關](#xtrabackup-心得相關)
+- [版本相容性與跨版本限制](#版本相容性與跨版本限制)
+  - [支援矩陣](#支援矩陣)
+  - [跨版本遷移（5.7 → 8.x）](#跨版本遷移57--8x)
 - [安裝](#安裝)
 	- [CentOS7](#centos7)
 	- [MacOS](#macos)
@@ -56,6 +59,47 @@ xtrabackup 僅複製 InnoDB 數據和日誌。它不會復製表定義文件（.
 		- [用法範例](#用法範例)
 		- [innobackupex選項](#innobackupex選項)
 		- [備份(即時備份)步驟](#備份即時備份步驟)
+
+# 版本相容性與跨版本限制
+
+## 支援矩陣
+
+| XtraBackup 版本 | 對應 MySQL 版本 | 備註 |
+|----------------|----------------|------|
+| 2.4.x | MySQL 5.6、5.7 | 不支援 MySQL 8.x |
+| 8.0.x | MySQL 8.0 | 不支援 MySQL 5.7 或 8.4 |
+| 8.4.x | MySQL 8.4 | 僅限 MySQL 8.4 |
+
+> ⚠️ **備份版本必須與還原版本相同**：XtraBackup 是物理備份，直接操作 InnoDB 的 datadir 檔案格式，不同 MySQL 版本的內部格式（data dictionary、undo tablespace 結構等）不相容，無法跨版本直接還原。
+
+## 跨版本遷移（5.7 → 8.x）
+
+**XtraBackup 不能用於 MySQL 5.7 → 8.x 的跨版本遷移。**
+
+| 情境 | 工具 | 說明 |
+|------|------|------|
+| 同版本災難還原 / 新 Replica | XtraBackup | 最快，物理複製 |
+| 跨版本遷移（5.7 → 8.x） | mysqldump + fix_mysql84.py | 邏輯備份，可修正 SQL 相容性 |
+| 跨版本遷移（多執行緒） | mydumper + myloader | mydumper 輸出格式 myloader 可還原，需注意語法相容 |
+
+**若需要 5.7 → 8.4 遷移，正確流程：**
+
+```
+mysqldump（來源 5.7）
+  → fix_mysql84.py 修正 SQL 相容性問題
+    → mysql 匯入（目標 8.4）
+```
+
+或使用 mydumper → myloader（加 `--enable-binlog` 保持 Replica 同步）。
+
+**使用 XtraBackup 的就地升級（in-place upgrade）方式：**
+
+1. XtraBackup 2.4 備份 MySQL 5.7（`--backup`）
+2. 在原機或新機還原到 MySQL 5.7 環境（`--prepare` + `--copy-back`）
+3. 升級 MySQL 二進位至 8.x（停止 mysqld 後替換程式）
+4. 啟動 MySQL 8.x（自動執行升級，或手動跑 `mysql_upgrade`）
+
+> ⚠️ 這是 MySQL 官方的就地升級流程，**不等於用 XtraBackup 8.x 直接還原 2.4 備份**，後者不被支援。
 
 ## 參考資料
 
