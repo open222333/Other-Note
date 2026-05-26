@@ -72,16 +72,38 @@ dpkg -i mydumper_x.x.x-focal_amd64.deb
 
 ## RedHat (CentOS)
 
-```bash
-yum install mydumper
-```
+yum / dnf 預設 repo 不包含 mydumper，需從 GitHub Releases 直接下載 RPM 安裝。
 
-或從 GitHub Releases 下載 rpm 安裝：
+先安裝相依套件：
 
 ```bash
-wget https://github.com/mydumper/mydumper/releases/download/vx.x.x/mydumper-x.x.x-1.el7.x86_64.rpm
-rpm -ivh mydumper-x.x.x-1.el7.x86_64.rpm
+# CentOS 7
+yum install -y glib2 pcre zlib
+
+# CentOS 8 / Rocky / AlmaLinux
+dnf install -y glib2 pcre zlib
 ```
+
+從 GitHub Releases 下載 RPM 安裝（依版本選擇對應 el 號碼）：
+
+```bash
+# CentOS 7（el7）
+yum install -y https://github.com/mydumper/mydumper/releases/download/v1.0.1-1/mydumper-1.0.1-1.el7.x86_64.rpm
+
+# CentOS 8 / Rocky 8 / AlmaLinux 8（el8）
+dnf install -y https://github.com/mydumper/mydumper/releases/download/v1.0.1-1/mydumper-1.0.1-1.el8.x86_64.rpm
+
+# CentOS 9 / Rocky 9 / AlmaLinux 9（el9）
+dnf install -y https://github.com/mydumper/mydumper/releases/download/v1.0.1-1/mydumper-1.0.1-1.el9.x86_64.rpm
+```
+
+確認版本：
+
+```bash
+mydumper --version
+```
+
+> 最新版本請至 [GitHub Releases](https://github.com/mydumper/mydumper/releases) 查詢，替換上方 URL 中的版本號。
 
 # 指令
 

@@ -140,7 +140,7 @@ GTID 模式
     - [方法二：xtrabackup（適合大型資料庫，不停機）](#方法二xtrabackup適合大型資料庫不停機)
       - [GTID 模式](#gtid-模式)
       - [Binlog Position 模式](#binlog-position-模式)
-    - [測試環境：清空資料庫後可跳過匯入](#測試環境清空資料庫後可跳過匯入)
+    - [測試環境：清空資料庫後重建 REPLICA](#測試環境清空資料庫後重建-replica)
   - [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
   - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
   - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
@@ -1184,7 +1184,7 @@ SHOW REPLICA STATUS\G
 
 ---
 
-### 測試環境：清空資料庫後可跳過匯入
+### 測試環境：清空資料庫後重建 REPLICA
 
 若 Source 與 Replica **同時清空且重置 GTID 歷史**，可直接跳過備份/還原步驟。
 
