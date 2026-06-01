@@ -174,6 +174,12 @@ nginx -c
 nginx -g
 ```
 
+##
+
+```sh
+nginx -s reopen
+```
+
 # 設定檔說明 conf
 
 預設設定檔位置
