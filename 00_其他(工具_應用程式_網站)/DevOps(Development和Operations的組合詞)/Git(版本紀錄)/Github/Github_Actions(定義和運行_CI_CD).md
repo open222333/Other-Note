@@ -1,102 +1,524 @@
-# Github Actions(定義和運行 CI CD)
+# Github Actions（定義和運行 CI/CD）
 
 ```
-GitHub Actions 是由 GitHub 提供的一項服務，因此 workflow 文件和 GitHub Actions 功能是 GitHub 特有的。
-它們緊密集成在 GitHub 平台上，使得在 GitHub 存儲庫中定義和運行 CI/CD 過程變得非常方便。
-
-儘管 GitHub Actions 是 GitHub 提供的一項服務，但還有其他類似的 CI/CD 服務和工具，可以在不同的平台上使用。例如：
-
-GitLab CI/CD： GitLab 提供了內建的 CI/CD 功能，使用 .gitlab-ci.yml 文件定義工作流程。
-
-Bitbucket Pipelines： Bitbucket 也有內建的 CI/CD 工具，使用 bitbucket-pipelines.yml 文件配置。
-
-Travis CI： Travis CI 是一個獨立的 CI 服務，它可以與 GitHub、Bitbucket 和 GitLab 一起使用。
-
-Jenkins： Jenkins 是一個自由開源的 CI/CD 工具，可以在自己的伺服器上運行。
-
-每個 CI/CD 服務都有自己的特定配置方式，但基本思想是相似的：
-定義何時應該執行工作流程，以及工作流程中應該執行哪些步驟。
-因此，即使 GitHub Actions 是 GitHub 的特有功能，其他 CI/CD 工具也提供了類似的功能。
+GitHub Actions 是 GitHub 內建的 CI/CD 服務。
+workflow 文件放在 .github/workflows/*.yml，由 GitHub 自動執行。
 ```
 
 ## 目錄
 
-- [Github Actions(定義和運行 CI CD)](#github-actions定義和運行-ci-cd)
-	- [目錄](#目錄)
-	- [參考資料](#參考資料)
-		- [workflow 文件相關](#workflow-文件相關)
+- [Github Actions（定義和運行 CI/CD）](#github-actions定義和運行-cicd)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+- [核心概念](#核心概念)
+- [Workflow 檔案結構](#workflow-檔案結構)
+  - [觸發條件（on）](#觸發條件on)
+  - [Jobs 設定](#jobs-設定)
+  - [Steps 與 Actions](#steps-與-actions)
+  - [環境變數與 Secrets](#環境變數與-secrets)
+  - [條件判斷（if）](#條件判斷if)
+  - [矩陣策略（matrix）](#矩陣策略matrix)
+- [常用 Actions](#常用-actions)
 - [範例](#範例)
+  - [Python 測試 + 部署](#python-測試--部署)
+  - [Node.js 測試](#nodejs-測試)
+  - [Docker 建置與推送](#docker-建置與推送)
+  - [SSH 遠端部署](#ssh-遠端部署)
+  - [定時排程執行](#定時排程執行)
+  - [iOS 建置（Xcode）](#ios-建置xcode)
+  - [Android 建置（Gradle）](#android-建置gradle)
 
 ## 參考資料
 
-[官方網站](https://github.com/features/actions)
+[GitHub Actions — 官方文檔](https://docs.github.com/en/actions)
 
-[官方文檔](https://docs.github.com/en/actions)
+[GitHub Actions Marketplace](https://github.com/marketplace?type=actions)
 
-### workflow 文件相關
+[Workflow syntax — 官方參考](https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions)
 
-```
-GitHub Actions 中的 workflow 文件是一種配置文件，用於定義自動化的 CI/CD（持續整合/持續部署）過程。
-這些文件包含了一系列指令和步驟，GitHub 根據這些指令自動執行特定的任務。workflow 文件通常以 YAML 格式編寫。
+[官方範例集](https://github.com/actions/starter-workflows)
 
-主要元素和結構：
+---
 
-觸發條件（on）： 定義了何時應該觸發 workflow，例如推送到特定分支、創建 pull request、定期執行等。
+# 核心概念
 
-工作（jobs）： workflow 可以包含一個或多個 job。每個 job 可以在獨立的運行環境中執行，並且可以並行運行。每個 job 可以包含一系列步驟。
+| 概念 | 說明 |
+|---|---|
+| **Workflow** | 一個自動化流程，對應一個 `.yml` 文件 |
+| **Event（觸發條件）** | 決定何時啟動 workflow（push、PR、schedule…） |
+| **Job** | workflow 中的一個工作單元，可並行執行 |
+| **Step** | job 中的單一步驟，順序執行 |
+| **Action** | 可重複使用的操作模組（官方 / Marketplace / 自訂） |
+| **Runner** | 執行 job 的虛擬機（GitHub 提供或自架） |
+| **Secret** | 加密的敏感環境變數，在 repo Settings 中設定 |
+| **Artifact** | job 之間或 workflow 後可保存的檔案產出物 |
 
-步驟（steps）： 每個 job 由一個或多個步驟構成。每個步驟都是一個獨立的操作，例如檢出程式碼、安裝依賴、運行測試等。
+---
 
-動作（actions）： 步驟中的操作可以是內置的 shell 命令，也可以是來自 GitHub Marketplace 或其他地方的事先定義的 actions。Actions 是可重複使用的自動化任務，可以在 workflow 中使用。
-
-環境（environments）： 可以定義一個或多個運行環境，例如 VM、容器等。每個 job 可以在指定的運行環境中執行。
-
-workflow 文件提供了一種以程式化的方式定義 CI/CD 流程，使團隊能夠在代碼變更時自動執行測試、構建和佈署等操作。
-這有助於確保代碼的品質，並且可以更快地部署新功能。
-```
-
-# 範例
-
-主要特點：
-
-觸發條件 (on)： 在每次推送（push）到 main 分支時觸發 workflow。
-
-Jobs (jobs)： 定義了一個名為 build 的 job，它在 Ubuntu 最新版本運行。
-
-步驟 (steps)： 每個 job 包含一系列步驟，每個步驟執行一個操作。
-
-actions/checkout@v2: 使用官方的 checkout action 來檢出程式碼。
-actions/setup-python@v2: 使用官方的 setup-python action 來設置 Python 環境。
-安裝依賴和執行測試的步驟。
-這只是一個簡單的範例，實際的 workflow 可能包含更多的步驟，例如構建、測試、部署等。根據項目的需求，你可以添加更多的步驟和自定義操作。
+# Workflow 檔案結構
 
 ```yaml
-name: CI
+name: Workflow 名稱                 # 顯示在 Actions 頁面的名稱
 
+on: ...                             # 觸發條件
+
+env:                                # 全域環境變數（所有 job 可用）
+  APP_ENV: production
+
+jobs:
+  job-name:                         # job 的 ID（英文、數字、- 、_）
+    runs-on: ubuntu-latest          # Runner 類型
+    steps:
+      - name: 步驟名稱
+        run: echo "Hello"
+```
+
+## 觸發條件（on）
+
+```yaml
 on:
+  # 推送到指定分支時觸發
   push:
     branches:
       - main
+      - 'release/**'
+    paths:                          # 只有指定路徑有變更才觸發
+      - 'src/**'
+      - '**.py'
+
+  # Pull Request 時觸發
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+
+  # 定時觸發（UTC 時間，cron 格式）
+  schedule:
+    - cron: '0 2 * * *'            # 每天 UTC 02:00
+
+  # 手動觸發（可傳入參數）
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '部署環境'
+        required: true
+        default: 'staging'
+        type: choice
+        options: [staging, production]
+
+  # 其他 workflow 完成後觸發
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+```
+
+## Jobs 設定
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest          # ubuntu-latest / macos-latest / windows-latest
+
+    # job 之間的依賴（等 build 完成才執行 deploy）
+    needs: [build]
+
+    # 設定執行環境（搭配 branch protection rules）
+    environment: production
+
+    # job 層級的環境變數
+    env:
+      NODE_ENV: production
+
+    # 設定 timeout（分鐘）
+    timeout-minutes: 30
+
+    # 並行執行控制
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: true
+```
+
+## Steps 與 Actions
+
+```yaml
+steps:
+  # 使用官方 Action
+  - name: Checkout 程式碼
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0                # 0 = 完整歷史（git log 需要）
+
+  # 執行 shell 命令
+  - name: 安裝依賴
+    run: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+  # 帶條件的步驟
+  - name: 只在 main 分支部署
+    if: github.ref == 'refs/heads/main'
+    run: echo "Deploying..."
+
+  # 失敗時也執行（cleanup 用）
+  - name: 清除暫存
+    if: always()
+    run: rm -rf ./tmp
+
+  # 設定輸出供後續步驟使用
+  - name: 取得版本號
+    id: get-version
+    run: echo "version=$(cat VERSION)" >> $GITHUB_OUTPUT
+
+  - name: 使用版本號
+    run: echo "Version is ${{ steps.get-version.outputs.version }}"
+```
+
+## 環境變數與 Secrets
+
+```yaml
+# 在 repo Settings → Secrets and variables → Actions 設定 Secrets
+
+steps:
+  - name: 使用 Secret
+    env:
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      API_KEY: ${{ secrets.API_KEY }}
+    run: |
+      echo "連線到資料庫..."
+
+  # 內建變數
+  - name: 內建 GitHub 變數
+    run: |
+      echo "觸發分支: ${{ github.ref_name }}"
+      echo "Commit SHA: ${{ github.sha }}"
+      echo "觸發者: ${{ github.actor }}"
+      echo "Repo 名稱: ${{ github.repository }}"
+      echo "Event 類型: ${{ github.event_name }}"
+```
+
+## 條件判斷（if）
+
+```yaml
+# 常用條件表達式
+if: github.event_name == 'push'
+if: github.ref == 'refs/heads/main'
+if: github.event.pull_request.merged == true
+if: contains(github.event.head_commit.message, '[skip ci]') == false
+if: success()                       # 前一步驟成功
+if: failure()                       # 前一步驟失敗
+if: always()                        # 無論成敗都執行
+if: cancelled()                     # workflow 被取消時
+```
+
+## 矩陣策略（matrix）
+
+```yaml
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false              # 其中一個失敗不停止其他
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.10', '3.11', '3.12']
+        exclude:
+          - os: macos-latest
+            python-version: '3.10'
+
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+```
+
+---
+
+# 常用 Actions
+
+| Action | 說明 |
+|---|---|
+| `actions/checkout@v4` | 檢出 repo 程式碼 |
+| `actions/setup-python@v5` | 設定 Python 環境 |
+| `actions/setup-node@v4` | 設定 Node.js 環境 |
+| `actions/setup-java@v4` | 設定 Java / JDK 環境 |
+| `actions/cache@v4` | 快取依賴（加速 build） |
+| `actions/upload-artifact@v4` | 上傳建置產出物 |
+| `actions/download-artifact@v4` | 下載其他 job 的產出物 |
+| `docker/login-action@v3` | 登入 Docker Registry |
+| `docker/build-push-action@v5` | 建置並推送 Docker Image |
+| `appleboy/ssh-action@v1` | SSH 遠端執行指令 |
+| `peaceiris/actions-gh-pages@v4` | 部署到 GitHub Pages |
+
+---
+
+# 範例
+
+## Python 測試 + 部署
+
+```yaml
+# .github/workflows/ci.yml
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run tests
+        run: pytest --cov=app --cov-report=xml
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/myapp
+            git pull origin main
+            pip install -r requirements.txt
+            systemctl restart myapp
+```
+
+## Node.js 測試
+
+```yaml
+name: Node.js CI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+```
+
+## Docker 建置與推送
+
+```yaml
+name: Docker Build & Push
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: myuser/myapp
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+```
+
+## SSH 遠端部署
+
+```yaml
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            cd /var/www/myapp
+            git pull origin main
+            docker compose pull
+            docker compose up -d --remove-orphans
+            docker image prune -f
+```
+
+## 定時排程執行
+
+```yaml
+name: Scheduled Task
+
+on:
+  schedule:
+    - cron: '0 1 * * *'            # 每天 UTC 01:00（台灣 09:00）
+  workflow_dispatch:               # 允許手動觸發
+
+jobs:
+  run-task:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/daily_task.py
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+```
+
+## iOS 建置（Xcode）
+
+```yaml
+name: iOS Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-latest           # iOS 必須用 macOS Runner
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Install CocoaPods dependencies
+        run: pod install
+
+      - name: Build Archive
+        run: |
+          xcodebuild archive \
+            -workspace MyApp.xcworkspace \
+            -scheme MyApp \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath ./build/MyApp.xcarchive \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath ./build/MyApp.xcarchive \
+            -exportPath ./build/output \
+            -exportOptionsPlist ExportOptions.plist
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyApp-${{ github.sha }}
+          path: ./build/output/MyApp.ipa
+```
+
+## Android 建置（Gradle）
+
+```yaml
+name: Android Build
+
+on:
+  push:
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-    - name: Run tests
-      run: |
-        python -m pytest
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release-key.jks
+
+      - name: Build Release AAB
+        run: ./gradlew bundleRelease
+        env:
+          KEYSTORE_PATH: release-key.jks
+          KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASS }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.KEY_PASS }}
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-${{ github.sha }}
+          path: app/build/outputs/bundle/release/app-release.aab
 ```
