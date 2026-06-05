@@ -29,6 +29,13 @@
   - [使用 Google Play Console 手動上傳](#使用-google-play-console-手動上傳)
   - [使用 Google Play Developer API](#使用-google-play-developer-api)
 - [發佈類型對照](#發佈類型對照)
+- [Web App 打包為 Android App（自用）](#web-app-打包為-android-app自用)
+  - [選項比較](#選項比較)
+  - [PWA 加入主畫面](#pwa-加入主畫面)
+  - [WebView 原生包裝（Android Studio）](#webview-原生包裝android-studio)
+  - [Capacitor 打包（Vue / React）](#capacitor-打包vue--react)
+  - [側載 APK 安裝](#側載-apk-安裝)
+  - [iOS vs Android 自用對比](#ios-vs-android-自用對比)
 
 ## 參考資料
 
@@ -271,3 +278,154 @@ fastlane supply \
 | 封測軌道 | 封閉 Beta 測試 | 受邀用戶 | 需審核 |
 | 公開測試軌道 | 開放 Beta 測試 | 所有用戶（自願加入） | 需審核 |
 | 正式版 | 正式上架 | 所有用戶 | 需審核 |
+
+---
+
+# Web App 打包為 Android App（自用）
+
+Android 不需付費帳號，APK 可直接側載安裝，比 iOS 自用方便很多。
+
+## 選項比較
+
+| 方式 | 難度 | 費用 | 限制 |
+|---|---|---|---|
+| PWA 加入主畫面 | 最簡單 | 免費 | Chrome 底層，原生功能受限 |
+| WebView 原生包裝 | 中等 | 免費 | 需 Android Studio |
+| Capacitor 打包 | 中等 | 免費 | 需 Android Studio，可擴充原生功能 |
+| TWA（Trusted Web Activity） | 中等 | 免費 | 需 HTTPS 域名，Chrome 底層 |
+
+## PWA 加入主畫面
+
+Android Chrome 偵測到 `manifest.json` 會自動彈出「新增至主畫面」提示，功能比 iOS 完整（含推播通知）。
+
+```json
+// public/manifest.json
+{
+  "name": "My App",
+  "short_name": "App",
+  "display": "standalone",
+  "orientation": "landscape",
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
+```
+
+```html
+<!-- HTML head -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000000">
+```
+
+## WebView 原生包裝（Android Studio）
+
+新建空 Android 專案，整個畫面放 `WebView` 載入後端 URL。
+
+```kotlin
+// MainActivity.kt
+import android.os.Bundle
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val webView = WebView(this).apply {
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+            settings.useWideViewPort = true
+            settings.loadWithOverviewMode = true
+            webViewClient = WebViewClient()   // 在 App 內開啟，不跳外部瀏覽器
+            loadUrl("https://your-server.com")
+        }
+        setContentView(webView)
+    }
+
+    // 返回鍵控制 WebView 歷史
+    override fun onBackPressed() {
+        val webView = (window.decorView.rootView as? WebView)
+        if (webView?.canGoBack() == true) webView.goBack()
+        else super.onBackPressed()
+    }
+}
+```
+
+```xml
+<!-- AndroidManifest.xml -->
+<uses-permission android:name="android.permission.INTERNET" />
+
+<application
+    android:usesCleartextTraffic="true">  <!-- 允許 HTTP（僅開發用；正式部署建議 HTTPS）-->
+```
+
+## Capacitor 打包（Vue / React）
+
+適合現有 Vue / React 專案直接轉原生，後續可加入原生 API（相機、推播、USB 等）。
+
+```bash
+# 安裝
+npm install @capacitor/core @capacitor/cli @capacitor/android
+
+# 初始化
+npx cap init "App Name" "com.example.appname"
+
+# 加入 Android 平台
+npx cap add android
+
+# 建置前端後同步
+npm run build
+npx cap copy android
+
+# 用 Android Studio 開啟
+npx cap open android
+```
+
+```json
+// capacitor.config.json
+{
+  "appId": "com.example.appname",
+  "appName": "My App",
+  "webDir": "dist",
+  "server": {
+    "url": "https://your-server.com",
+    "cleartext": true
+  }
+}
+```
+
+> `server.url` 指向遠端伺服器時，App 每次開啟都載入最新版，**不需重新打包**。
+
+Android Studio → Build → **Generate Signed APK** → 安裝至手機
+
+## 側載 APK 安裝
+
+不需 Google Play，APK 直接安裝：
+
+```
+設定 → 安全性 → 安裝未知 App（或「允許安裝此來源的 App」）
+```
+
+1. Build Debug APK（自用不需 Keystore）
+   ```bash
+   ./gradlew assembleDebug
+   # 輸出：app/build/outputs/apk/debug/app-debug.apk
+   ```
+2. 把 `.apk` 傳到手機（Google Drive / AirDrop-like / USB）
+3. 在手機上點擊 `.apk` 安裝
+4. 更新時重新 build 再安裝覆蓋即可
+
+## iOS vs Android 自用對比
+
+| 項目 | iOS | Android |
+|---|---|---|
+| 付費帳號 | 免費 Apple ID 可用 | **完全不需要** |
+| 側載安裝 | 需 Xcode + USB | APK 直接傳送安裝 |
+| 憑證到期 | 免費帳號 **7 天**到期需重裝 | **無到期問題** |
+| 自動重簽工具 | AltStore / Sideloadly | 不需要 |
+| Debug 安裝限制 | 同時最多 3 個 App | 無限制 |
+| 正式分發費用 | App Store $99 USD / 年 | Google Play $25（一次性） |

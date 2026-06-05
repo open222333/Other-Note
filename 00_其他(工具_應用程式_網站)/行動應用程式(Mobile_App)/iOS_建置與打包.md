@@ -30,6 +30,12 @@ xcodebuild archive \
   - [使用 altool CLI 上傳](#使用-altool-cli-上傳)
   - [使用 xcrun notarytool（macOS 12+）](#使用-xcrun-notarytoolmacos-12)
 - [發佈類型對照](#發佈類型對照)
+- [Web App 打包為 iOS App（自用）](#web-app-打包為-ios-app自用)
+  - [選項比較](#選項比較)
+  - [PWA 加入主畫面](#pwa-加入主畫面)
+  - [WKWebView 原生包裝（Xcode）](#wkwebview-原生包裝xcode)
+  - [Capacitor 打包（Vue / React）](#capacitor-打包vue--react)
+  - [免費 Apple ID 自用安裝限制](#免費-apple-id-自用安裝限制)
 
 ## 參考資料
 
@@ -239,3 +245,131 @@ xcrun altool --upload-app \
 | TestFlight | Beta 測試 | 無限制 | 需 App Store 審核 |
 | App Store | 正式上架 | 所有用戶 | 需要 |
 | Enterprise | 企業內部發佈 | 無限制（同組織） | 不需要（需 Enterprise 帳號） |
+
+---
+
+# Web App 打包為 iOS App（自用）
+
+將現有 Web App（Vue / React 等）包成可安裝在 iPhone 的 App，無需上架 App Store。
+
+## 選項比較
+
+| 方式 | 難度 | 費用 | 限制 |
+|---|---|---|---|
+| PWA 加入主畫面 | 最簡單 | 免費 | Safari 底層，原生功能受限 |
+| WKWebView（Xcode） | 中等 | 免費 Apple ID 可用 | 免費帳號憑證 7 天到期，需重裝 |
+| Capacitor 打包 | 中等 | 免費 Apple ID 可用 | 同上；可擴充原生功能 |
+| Developer Program | 最完整 | $99 USD / 年 | 憑證 1 年，可 Ad Hoc / TestFlight |
+
+## PWA 加入主畫面
+
+不需 Xcode，Safari 直接操作：
+
+1. 在 iPhone Safari 開啟網站
+2. 點擊底部「分享」按鈕
+3. 選擇「加入主畫面」
+
+```json
+// public/manifest.json（需確認已設定）
+{
+  "name": "My App",
+  "short_name": "App",
+  "display": "standalone",
+  "orientation": "landscape",
+  "start_url": "/",
+  "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+}
+```
+
+```html
+<!-- HTML head 需有 -->
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+```
+
+**限制**：Web Bluetooth / WebUSB 不支援；背景執行受限；無推播通知（iOS 16.4+ 已部分支援 PWA 推播）
+
+## WKWebView 原生包裝（Xcode）
+
+Xcode 建一個空 App，整個畫面放 `WKWebView` 載入後端 URL。
+
+```swift
+// ContentView.swift（SwiftUI）
+import SwiftUI
+import WebKit
+
+struct WebView: UIViewRepresentable {
+    let url: URL
+    func makeUIView(context: Context) -> WKWebView { WKWebView() }
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        webView.load(URLRequest(url: url))
+    }
+}
+
+struct ContentView: View {
+    var body: some View {
+        WebView(url: URL(string: "https://your-server.com")!)
+            .ignoresSafeArea()
+    }
+}
+```
+
+**安裝到自己手機（免費 Apple ID）**：
+1. Xcode → Signing & Capabilities → 選自己的 Apple ID（免費帳號）
+2. iPhone 用 USB 連接 Mac
+3. Xcode 選擇目標裝置 → `⌘R` 執行
+4. iPhone：設定 → 一般 → VPN 與裝置管理 → 信任開發者
+
+## Capacitor 打包（Vue / React）
+
+適合現有 Vue / React 專案直接轉原生，可後續加入原生 API（相機、推播等）。
+
+```bash
+# 安裝
+npm install @capacitor/core @capacitor/cli @capacitor/ios
+
+# 初始化（在專案根目錄）
+npx cap init "App Name" "com.example.appname"
+
+# 加入 iOS 平台
+npx cap add ios
+
+# 建置前端
+npm run build
+
+# 同步到 iOS 專案
+npx cap copy ios
+
+# 用 Xcode 開啟（後續在 Xcode 打包安裝）
+npx cap open ios
+```
+
+```json
+// capacitor.config.json
+{
+  "appId": "com.example.appname",
+  "appName": "My App",
+  "webDir": "dist",
+  "server": {
+    "url": "https://your-server.com",
+    "cleartext": true
+  }
+}
+```
+
+> `server.url` 設遠端伺服器時，App 每次開啟都載入最新版，不需重新打包。
+
+## 免費 Apple ID 自用安裝限制
+
+| 項目 | 免費 Apple ID | Developer Program（$99/年） |
+|---|---|---|
+| 憑證有效期 | **7 天**，到期後 App 無法開啟 | 1 年 |
+| 重新安裝方式 | 每 7 天接 USB 用 Xcode 重裝 | 不需要（Ad Hoc / TestFlight） |
+| 同時安裝 App 數 | 最多 3 個 | 無限制 |
+| 裝置數量 | 僅自己帳號登入的裝置 | Ad Hoc 最多 100 台 |
+| 推薦情境 | 開發測試、個人自用 | 多人使用、正式部署 |
+
+**替代方案（免年費）**：
+- **AltStore / SideStore**：透過 Wi-Fi 每 7 天自動重簽，需在 iPhone 上安裝 AltStore
+- **Sideloadly**：電腦端工具，同樣 7 天限制，操作比 Xcode 簡單
