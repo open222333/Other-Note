@@ -45,6 +45,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [percona 相關](#percona-相關)
     - [例外狀況相關](#例外狀況相關)
     - [SQL 語句 (轉址)`                              `](#sql-語句-轉址------------------------------)
+    - [相關筆記](#相關筆記)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
@@ -55,6 +56,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 - [指令](#指令)
   - [進行基本設定](#進行基本設定)
   - [服務操作](#服務操作)
+  - [查看目前所有設定](#查看目前所有設定)
   - [透過 ProxySQL 連接到已設定的 MySQL 伺服器](#透過-proxysql-連接到已設定的-mysql-伺服器)
   - [ProxySQL 操作](#proxysql-操作)
     - [使用者](#使用者)
@@ -91,9 +93,24 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 - [高可用 說明](#高可用-說明)
 - [ProxySQL 部署方案](#proxysql-部署方案)
   - [MySQL 節點故障 vs ProxySQL 本身故障](#mysql-節點故障-vs-proxysql-本身故障)
+    - [MySQL 節點故障 → ProxySQL 自動處理](#mysql-節點故障--proxysql-自動處理)
+    - [ProxySQL 本身故障 → 需要手動切換](#proxysql-本身故障--需要手動切換)
   - [方案一：HA 雙機熱備（Keepalived + VIP）](#方案一ha-雙機熱備keepalived--vip)
+    - [架構](#架構)
+    - [適用場景](#適用場景)
+    - [Keepalived 設定重點](#keepalived-設定重點)
+    - [故障切換驗證](#故障切換驗證)
   - [方案二：分用途入口（寫入專用 / 唯讀專用）](#方案二分用途入口寫入專用--唯讀專用)
+    - [架構](#架構-1)
+    - [路由規則差異](#路由規則差異)
+    - [ProxySQL B 路由規則設定](#proxysql-b-路由規則設定)
+    - [適用場景](#適用場景-1)
   - [方案三：HA 熱備（無自動切換機制）](#方案三ha-熱備無自動切換機制)
+    - [架構](#架構-2)
+    - [MySQL 單節點故障保證](#mysql-單節點故障保證)
+    - [與方案一的差異](#與方案一的差異)
+    - [手動切換流程](#手動切換流程)
+    - [目前節點設定（avnight 環境）](#目前節點設定avnight-環境)
 - [腳本](#腳本)
   - [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
   - [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
@@ -557,6 +574,22 @@ systemctl disable proxysql
 # (start, stop, restart, try-restart, reload, force-reload, status)
 # 重新載入
 service proxysql reload
+```
+
+## 查看目前所有設定
+
+```sql
+-- 查看 server 清單（master/slave 分組）
+SELECT hostgroup_id, hostname, port, status, weight FROM mysql_servers ORDER BY hostgroup_id;
+
+-- 查看 replication hostgroup 設定
+SELECT * FROM mysql_replication_hostgroups;
+
+-- 查看 query rules
+SELECT rule_id, active, match_pattern, destination_hostgroup, comment FROM mysql_query_rules ORDER BY rule_id;
+
+-- 查看 user 設定
+SELECT username, active, default_hostgroup, transaction_persistent FROM mysql_users;
 ```
 
 ## 透過 ProxySQL 連接到已設定的 MySQL 伺服器
@@ -2230,3 +2263,4 @@ change_mysql_server_status() {
 # 執行健康檢查
 check_mysql_health
 ```
+
