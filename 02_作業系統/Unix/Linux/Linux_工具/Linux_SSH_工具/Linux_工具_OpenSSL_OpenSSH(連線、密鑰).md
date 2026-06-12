@@ -30,6 +30,7 @@
   - [公鑰(.pub 文件)傳送到另一個電腦使用](#公鑰pub-文件傳送到另一個電腦使用)
   - [連線設定1](#連線設定1)
   - [腳本 自動化生成 SSH 密鑰對並配置 SSH 連接](#腳本-自動化生成-ssh-密鑰對並配置-ssh-連接)
+  - [排查 SSH 金鑰認證未生效（某主機仍要求密碼）](#排查-ssh-金鑰認證未生效某主機仍要求密碼)
 
 ## 參考資料
 
@@ -572,4 +573,50 @@ chmod +x setup_ssh.sh
 
 ```bash
 ./setup_ssh.sh jp-elasticsearch-dev 172.0.0.1
+```
+
+## 排查 SSH 金鑰認證未生效（某主機仍要求密碼）
+
+情境：多台主機中只有某一台 ssh 時仍要輸入密碼，其他主機不需要。
+
+**排查步驟**
+
+```bash
+# 1. 確認本機 ~/.ssh/config 是否有為該主機指定 IdentityFile
+cat ~/.ssh/config
+
+# 2. 確認目標主機的 authorized_keys 是否有本機公鑰
+cat ~/.ssh/authorized_keys
+
+# 3. 若沒有，將公鑰複製過去
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@<host_ip>
+
+# 4. 確認目標主機 SSH daemon 設定允許金鑰認證
+grep -E 'PubkeyAuthentication|AuthorizedKeysFile' /etc/ssh/sshd_config
+# 應為：PubkeyAuthentication yes
+#       AuthorizedKeysFile .ssh/authorized_keys
+
+# 5. 確認 authorized_keys 與 .ssh 目錄的權限
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+```
+
+**用 vim 手動貼上公鑰**
+
+直接複製 `.pub` 內容貼入 vim 不會有問題，但需注意：
+- 每把 key 必須是**一行**，不可有換行
+- 使用 `:set paste` 防止 vim 自動縮排干擾貼上內容
+
+```bash
+vim ~/.ssh/authorized_keys
+# 在 vim 內先執行：
+:set paste
+# 貼上後執行：
+:set nopaste
+```
+
+貼完後確認格式（每行應以 `ssh-rsa`、`ssh-ed25519` 等開頭）：
+
+```bash
+cat ~/.ssh/authorized_keys
 ```

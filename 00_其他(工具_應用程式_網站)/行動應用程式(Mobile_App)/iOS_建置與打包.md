@@ -29,12 +29,17 @@ xcodebuild archive \
   - [使用 Xcode Organizer 上傳](#使用-xcode-organizer-上傳)
   - [使用 altool CLI 上傳](#使用-altool-cli-上傳)
   - [使用 xcrun notarytool（macOS 12+）](#使用-xcrun-notarytoolmacos-12)
+- [發佈至外部裝置（不上架）](#發佈至外部裝置不上架)
+  - [方式比較](#方式比較)
+  - [TestFlight（推薦，最多 10,000 人）](#testflight推薦最多-10000-人)
+  - [Ad Hoc（固定裝置，最多 100 台）](#ad-hoc固定裝置最多-100-台)
 - [發佈類型對照](#發佈類型對照)
 - [Web App 打包為 iOS App（自用）](#web-app-打包為-ios-app自用)
   - [選項比較](#選項比較)
   - [PWA 加入主畫面](#pwa-加入主畫面)
   - [WKWebView 原生包裝（Xcode）](#wkwebview-原生包裝xcode)
   - [Capacitor 打包（Vue / React）](#capacitor-打包vue--react)
+    - [Vue + 後端分離架構（Flask / API Server）注意事項](#vue--後端分離架構flask--api-server注意事項)
   - [免費 Apple ID 自用安裝限制](#免費-apple-id-自用安裝限制)
 
 ## 參考資料
@@ -236,6 +241,102 @@ xcrun altool --upload-app \
 
 ---
 
+# 發佈至外部裝置（不上架）
+
+## 方式比較
+
+| 方式 | 人數限制 | 需 Apple 帳號 | 需審核 | 適合情境 |
+|---|---|---|---|---|
+| **TestFlight** | 外部最多 10,000 人 | $99/年 | 需提交 Beta 審查 | 客戶驗收、測試人員 |
+| **Ad Hoc** | 最多 100 台（需登記 UDID） | $99/年 | 不需要 | 固定幾台裝置 |
+| **Enterprise** | 無限制 | $299/年（Enterprise Program） | 不需要 | 公司內部大量部署 |
+| **免費 Apple ID** | 僅自己裝置 | 免費 | 不需要 | 個人測試，憑證 7 天到期 |
+
+## TestFlight（推薦，最多 10,000 人）
+
+對方只需在 iPhone 安裝 TestFlight App，收 Email 邀請後點連結即可安裝，更新時自動通知。
+
+**上傳步驟（開發者端）：**
+
+```
+Xcode → Product → Archive
+→ Organizer → Distribute App
+→ App Store Connect → Upload
+```
+
+**邀請測試人員：**
+
+1. 登入 [App Store Connect](https://appstoreconnect.apple.com)
+2. 選擇 App → **TestFlight** → **外部測試**
+3. 新增測試員 Email（或建立公開連結）
+4. 提交 Beta App 審查（通常 1 個工作天）
+
+**對方操作：**
+
+```
+收到 Email 邀請
+→ iPhone 安裝 TestFlight App（App Store 免費下載）
+→ 點 Email 中的「在 TestFlight 中查看」
+→ 安裝 App
+```
+
+## Ad Hoc（固定裝置，最多 100 台）
+
+不需 App Store 審查，但每台裝置需事先登記 UDID。
+
+**Step 1：收集裝置 UDID**
+
+```
+iPhone / iPad：設定 → 一般 → 關於本機
+→ 點擊「系統版本」數次切換顯示 UDID → 長按複製
+```
+
+或用 Xcode 連 USB 查詢：
+
+```bash
+xcrun xctrace list devices
+```
+
+**Step 2：在 Apple Developer Portal 登記裝置**
+
+```
+developer.apple.com → Certificates, IDs & Profiles
+→ Devices → + 新增 → 填入 UDID 與裝置名稱
+```
+
+**Step 3：建立 Ad Hoc Provisioning Profile**
+
+```
+Profiles → + → iOS Distribution → Ad Hoc
+→ 選擇 App ID → 選擇憑證 → 選擇已登記裝置 → 產生下載
+```
+
+**Step 4：匯出 IPA**
+
+```bash
+# ExportOptions.plist 的 method 改為 ad-hoc
+xcodebuild -exportArchive \
+  -archivePath ./build/MyApp.xcarchive \
+  -exportPath ./build/output \
+  -exportOptionsPlist ./ExportOptions-AdHoc.plist
+```
+
+**Step 5：安裝到裝置**
+
+```
+方式一：AirDrop 傳送 IPA → iPhone 直接安裝
+方式二：用 Apple Configurator 2（Mac App Store）批次安裝多台
+方式三：上傳至 HTTPS 網頁，提供 manifest.plist 讓裝置直接下載安裝
+```
+
+安裝後需信任開發者：
+
+```
+設定 → 一般 → VPN 與裝置管理 → 選擇開發者 → 信任
+```
+
+---
+
 # 發佈類型對照
 
 | 類型 | 使用情境 | 裝置限制 | 審核 |
@@ -359,6 +460,83 @@ npx cap open ios
 ```
 
 > `server.url` 設遠端伺服器時，App 每次開啟都載入最新版，不需重新打包。
+
+### Vue + 後端分離架構（Flask / API Server）注意事項
+
+前端與後端分開部署時，需額外處理 API 位址與安全設定：
+
+**1. `webDir` 路徑**
+
+若 `capacitor.config.ts` 放在 `frontend/` 目錄下，`webDir` 指向 Vue build 輸出位置：
+
+```ts
+// frontend/capacitor.config.ts
+import { CapacitorConfig } from '@capacitor/cli';
+const config: CapacitorConfig = {
+  appId: 'com.example.appname',
+  appName: 'My App',
+  webDir: 'dist',          // npm run build 輸出到 frontend/dist/
+  server: {
+    url: 'https://your-server.com',
+  },
+};
+export default config;
+```
+
+> 若 build 輸出到父目錄（如 `../frontend-dist/`），`webDir` 改為 `'../frontend-dist'`。
+
+**2. API base URL 需改為絕對 HTTPS**
+
+開發環境通常透過 Vite proxy 將 API 請求轉發到 Flask（相對路徑），打包成 App 後 proxy 不存在，必須改為完整的後端網址：
+
+```ts
+// src/api/index.ts（或 axios 設定檔）
+const BASE_URL = import.meta.env.PROD
+  ? 'https://your-server.com'   // 生產：絕對網址
+  : '';                          // 開發：空字串 → Vite proxy 處理
+```
+
+**3. iOS ATS（App Transport Security）**
+
+iOS 預設封鎖所有 HTTP 明文連線，App Store 上架必須使用 HTTPS。
+開發測試若需要 HTTP（指向本機），在 `ios/App/App/Info.plist` 加入例外：
+
+```xml
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <true/>  <!-- 僅開發用，上架前必須移除 -->
+</dict>
+```
+
+**4. CORS**
+
+`server.url` 模式下，App 的 origin 為 `capacitor://localhost`，後端需允許此 origin：
+
+```python
+# Flask CORS 設定（flask-cors）
+CORS(app, origins=[
+    'http://localhost:5173',        # Vite dev
+    'capacitor://localhost',        # Capacitor iOS
+    'https://your-domain.com',      # 生產
+])
+```
+
+**5. 常用更新流程**
+
+```bash
+# 修改前端後重新同步（不需重裝 App，除非 native 有變動）
+npm run build
+npx cap sync ios       # sync = copy + update native deps
+npx cap open ios       # 開 Xcode → Run
+```
+
+| 變動類型 | 需要 | 不需要 |
+|---|---|---|
+| 前端 HTML/JS/CSS | `npm run build` + `cap sync` | 重裝 App |
+| `server.url` 指向遠端 | 直接修改伺服器 | build / sync / 重裝 |
+| Capacitor plugin 新增 | `cap sync` + Xcode rebuild | - |
+| `Info.plist` / 原生設定 | Xcode rebuild + 重裝 | - |
 
 ## 免費 Apple ID 自用安裝限制
 

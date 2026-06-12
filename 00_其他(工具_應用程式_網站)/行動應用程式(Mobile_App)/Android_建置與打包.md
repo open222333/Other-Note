@@ -34,7 +34,9 @@
   - [PWA 加入主畫面](#pwa-加入主畫面)
   - [WebView 原生包裝（Android Studio）](#webview-原生包裝android-studio)
   - [Capacitor 打包（Vue / React）](#capacitor-打包vue--react)
+    - [Vue + 後端分離架構（Flask / API Server）注意事項](#vue--後端分離架構flask--api-server注意事項)
   - [側載 APK 安裝](#側載-apk-安裝)
+  - [Firebase App Distribution（多人測試）](#firebase-app-distribution多人測試)
   - [iOS vs Android 自用對比](#ios-vs-android-自用對比)
 
 ## 參考資料
@@ -400,6 +402,90 @@ npx cap open android
 
 > `server.url` 指向遠端伺服器時，App 每次開啟都載入最新版，**不需重新打包**。
 
+### Vue + 後端分離架構（Flask / API Server）注意事項
+
+**1. `webDir` 路徑**
+
+若 `capacitor.config.ts` 放在 `frontend/` 目錄下：
+
+```ts
+// frontend/capacitor.config.ts
+import { CapacitorConfig } from '@capacitor/cli';
+const config: CapacitorConfig = {
+  appId: 'com.example.appname',
+  appName: 'My App',
+  webDir: 'dist',          // npm run build 輸出到 frontend/dist/
+  server: {
+    url: 'https://your-server.com',
+    cleartext: false,      // 正式 HTTPS 不需要 cleartext
+  },
+};
+export default config;
+```
+
+> 若 build 輸出到父目錄（如 `../frontend-dist/`），`webDir` 改為 `'../frontend-dist'`。
+
+**2. API base URL 需改為絕對 HTTPS**
+
+開發環境透過 Vite proxy 轉發 API，打包成 App 後 proxy 不存在：
+
+```ts
+// src/api/index.ts（或 axios 設定檔）
+const BASE_URL = import.meta.env.PROD
+  ? 'https://your-server.com'   // 生產：絕對網址
+  : '';                          // 開發：空字串 → Vite proxy 處理
+```
+
+**3. HTTP 明文流量（Android Network Security）**
+
+Android 9+ 預設封鎖 HTTP 明文連線，開發測試若需要 HTTP，在 `AndroidManifest.xml` 加入例外：
+
+```xml
+<application
+    android:usesCleartextTraffic="true">  <!-- 僅開發用，正式 HTTPS 部署請移除 -->
+```
+
+或更精細地用 `network_security_config.xml` 只允許特定 IP：
+
+```xml
+<!-- res/xml/network_security_config.xml -->
+<network-security-config>
+  <domain-config cleartextTrafficPermitted="true">
+    <domain includeSubdomains="false">192.168.1.100</domain>
+  </domain-config>
+</network-security-config>
+```
+
+**4. CORS**
+
+`server.url` 模式下，Android Capacitor 的 origin 為 `http://localhost`（與 iOS 的 `capacitor://localhost` 不同），後端需允許此 origin：
+
+```python
+# Flask CORS 設定（flask-cors）
+CORS(app, origins=[
+    'http://localhost:5173',    # Vite dev
+    'http://localhost',         # Capacitor Android
+    'capacitor://localhost',    # Capacitor iOS
+    'https://your-domain.com',  # 生產
+])
+```
+
+**5. 常用更新流程**
+
+```bash
+# 修改前端後重新同步
+npm run build
+npx cap sync android       # sync = copy + update native deps
+npx cap open android       # 開 Android Studio → Run
+```
+
+| 變動類型 | 需要 | 不需要 |
+|---|---|---|
+| 前端 HTML/JS/CSS | `npm run build` + `cap sync` | 重裝 App |
+| `server.url` 指向遠端 | 直接修改伺服器 | build / sync / 重裝 |
+| Capacitor plugin 新增 | `cap sync` + Android Studio rebuild | - |
+| `AndroidManifest.xml` 變動 | Android Studio rebuild + 重裝 | - |
+
 Android Studio → Build → **Generate Signed APK** → 安裝至手機
 
 ## 側載 APK 安裝
@@ -418,6 +504,78 @@ Android Studio → Build → **Generate Signed APK** → 安裝至手機
 2. 把 `.apk` 傳到手機（Google Drive / AirDrop-like / USB）
 3. 在手機上點擊 `.apk` 安裝
 4. 更新時重新 build 再安裝覆蓋即可
+
+## Firebase App Distribution（多人測試）
+
+不需上架 Google Play，對方收 Email 後透過 Firebase App Tester 安裝，有新版本自動通知。
+
+**前置設定（一次性）：**
+
+1. 前往 [Firebase Console](https://console.firebase.google.com) → 建立專案
+2. 新增 Android App → 填入 Package Name（與 `applicationId` 一致）
+3. 下載 `google-services.json` 放入 `app/` 目錄
+
+**安裝 Firebase CLI 並發佈：**
+
+```bash
+# 安裝 Firebase CLI
+npm install -g firebase-tools
+firebase login
+
+# 建置 Debug APK
+./gradlew assembleDebug
+
+# 發佈並通知測試人員
+firebase appdistribution:distribute \
+  app/build/outputs/apk/debug/app-debug.apk \
+  --app YOUR_FIREBASE_APP_ID \
+  --testers "a@example.com,b@example.com" \
+  --release-notes "本次更新說明"
+```
+
+> `YOUR_FIREBASE_APP_ID` 在 Firebase Console → 專案設定 → 一般 → 應用程式 ID
+
+**對方操作：**
+
+```
+收到 Email 邀請
+→ 點連結 → 安裝 Firebase App Tester（Play Store 免費）
+→ 在 App Tester 中下載安裝
+→ 有新版本時自動推播通知
+```
+
+**整合 Gradle（CI 自動發佈）：**
+
+```groovy
+// app/build.gradle
+plugins {
+    id 'com.google.firebase.appdistribution'
+}
+
+android {
+    buildTypes {
+        debug {
+            firebaseAppDistribution {
+                testers = "a@example.com,b@example.com"
+                releaseNotes = "Debug build"
+            }
+        }
+    }
+}
+```
+
+```bash
+# CI 一鍵建置並發佈
+./gradlew assembleDebug appDistributionUploadDebug
+```
+
+**發佈方式對照：**
+
+| 方式 | 人數限制 | 費用 | 對方需要 | 適合情境 |
+|---|---|---|---|---|
+| 直接傳 APK | 無限制 | 免費 | 手動啟用未知來源 | 1–2 人快速測試 |
+| Firebase App Distribution | 無限制 | 免費 | 安裝 Firebase App Tester | 多人測試、自動通知更新 |
+| Google Play 內部測試軌道 | 最多 100 人 | $25（一次性） | Google 帳號 | 準備上架的 Release 版 |
 
 ## iOS vs Android 自用對比
 
