@@ -41,6 +41,10 @@ myloader：多執行緒平行還原，速度遠快於 mysql < dump.sql。
     - [2. 查看 metadata 取得 binlog 位置](#2-查看-metadata-取得-binlog-位置)
     - [3. 設定 Replica 連線](#3-設定-replica-連線)
     - [4. 確認同步狀態](#4-確認同步狀態)
+- [版本差異（0.9.x vs 1.0.x）](#版本差異09x-vs-10x)
+- [MySQL 5.7 → 8.4 遷移注意事項](#mysql-57--84-遷移注意事項)
+  - [JSON 欄位匯入失敗](#json-欄位匯入失敗)
+  - [修正方式](#修正方式)
 
 ## 參考資料
 
@@ -370,3 +374,94 @@ SHOW REPLICA STATUS\G
 Replica_IO_Running: Yes
 Replica_SQL_Running: Yes
 ```
+
+# 版本差異（0.9.x vs 1.0.x）
+
+mydumper 0.9.x 與 1.0.x 的部分參數不相容，在舊系統（如 Ubuntu 16.04 xenial）上預設安裝的版本通常為 0.9.x。
+
+| 功能 | 0.9.x | 1.0.x |
+|------|-------|-------|
+| 鎖定模式 | `--less-locking` | `--less-locking` 或 `--sync-thread-lock-mode NO_LOCK` + `--trx-tables` |
+| 寫入已存在的目錄 | 不支援（每次需要空目錄） | `--dirty`（允許目錄已有檔案） |
+| `--tables-list` 格式 | 純 table 名稱，需同時加 `--database` | `db.table` 格式，不需 `--database` |
+| JSON 匯出格式 | 依 libmysqlclient 版本，可能使用 `_binary` 前綴 | 較新版與 MySQL 8.x 相容 |
+
+## 0.9.x 多次備份同一目錄
+
+0.9.x 不支援 `--dirty`，多次備份若目錄已有檔案會報錯。  
+解法：每次備份使用暫存子目錄，完成後將 `.sql(.gz)` 合併至主目錄：
+
+```bash
+# Run 1：備份 schema → 直接寫入 OUTDIR（此時為空目錄）
+mydumper ... --no-data --outputdir "$OUTDIR"
+
+# Run 2：備份資料 → 先寫暫存目錄，再合併
+TMP="${OUTDIR}/.run2_tmp"
+mkdir -p "$TMP"
+mydumper ... --no-schemas --outputdir "$TMP"
+mv "$TMP"/*.sql.gz "$OUTDIR"/
+rm -rf "$TMP"
+```
+
+# MySQL 5.7 → 8.4 遷移注意事項
+
+## JSON 欄位匯入失敗
+
+**症狀**（myloader 錯誤訊息）：
+
+```
+CRITICAL: Error restoring <db>.<table> from file ...
+Error (1366) at line ...:
+Incorrect integer value: '...' for column '...' at row 1
+-- 或 --
+Cannot create a JSON value from a string with CHARACTER SET 'binary'
+```
+
+**根本原因**：
+
+mydumper 0.9.x 若以舊版 MySQL 5.7.x client library（如 5.7.11）建置，匯出 JSON 欄位時會產生 `_binary '...'` 前綴格式。此格式在 MySQL 8.x 為非法 JSON 值，匯入會失敗。
+
+mydumper 1.0.x 以 MySQL 5.7.44+ 建置的版本，JSON 匯出格式與 MySQL 8.x 相容，不會有此問題。
+
+確認版本：
+
+```bash
+mydumper --version
+# 範例：mydumper 0.9.1, built against MySQL 5.7.11   ← 有此問題
+# 範例：mydumper v1.0.1-1, built against MySQL 5.7.44 ← 正常
+```
+
+## 修正方式
+
+**方式一：升級 mydumper（根本解法）**
+
+將來源主機的 mydumper 升級至 1.0.x（需確認 OS 版本相容性），重新執行備份與還原。
+
+**方式二：改用 mysqldump 備份受影響的資料庫（暫時解法）**
+
+若來源主機無法安裝新版 mydumper（如 Ubuntu 16.04 已 EOL），對含 JSON 欄位的資料庫改用 `mysqldump --hex-blob`：
+
+```bash
+# 備份整個資料庫（在來源主機執行）
+mysqldump \
+  --single-transaction \
+  --hex-blob \
+  --routines --events --triggers \
+  -u root -p \
+  mydb > /tmp/mydb_full.sql
+
+# 壓縮（可選）
+gzip /tmp/mydb_full.sql
+```
+
+傳輸並還原至目標主機：
+
+```bash
+# 目標主機
+mysql -u root -p mydb < /tmp/mydb_full.sql
+# 或
+zcat /tmp/mydb_full.sql.gz | mysql -u root -p mydb
+```
+
+> `--hex-blob` 會將 BLOB 與 JSON 欄位以十六進制字串輸出，MySQL 8.x 可正常匯入。  
+> 此方式為單執行緒，資料庫較大時速度較慢；若只有少數資料庫受影響，可針對性使用。
