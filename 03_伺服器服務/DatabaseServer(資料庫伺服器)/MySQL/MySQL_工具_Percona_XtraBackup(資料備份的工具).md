@@ -59,6 +59,14 @@ xtrabackup 僅複製 InnoDB 數據和日誌。它不會復製表定義文件（.
 		- [用法範例](#用法範例)
 		- [innobackupex選項](#innobackupex選項)
 		- [備份(即時備份)步驟](#備份即時備份步驟)
+- [MySQL 8.4 匯出匯入](#mysql-84-匯出匯入)
+	- [安裝 XtraBackup 8.4](#安裝-xtrabackup-84)
+	- [全量備份](#全量備份)
+	- [增量備份](#增量備份)
+	- [還原備份](#還原備份)
+	- [建立 Slave（Replication 用）](#建立-slavereplication-用)
+	- [自動備份腳本](#自動備份腳本)
+	- [常見問題](#常見問題)
 
 # 版本相容性與跨版本限制
 
@@ -665,4 +673,286 @@ chown -R mysql.mysql /var/lib/mysql
 # 啟動mysql
 service mysql start
 systemctl start mysqld
+```
+
+# MySQL 8.4 匯出匯入
+
+## 安裝 XtraBackup 8.4
+
+XtraBackup 版本必須與 MySQL 版本對應，MySQL 8.4 需使用 percona-xtrabackup-84。
+
+```bash
+# 下載 percona-release（-4 強制使用 IPv4，避免 IPv6 下載失敗）
+wget -4 https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb
+sudo dpkg -i percona-release_latest.$(lsb_release -sc)_all.deb
+sudo apt-get update
+
+# 啟用 tools repo
+sudo percona-release enable tools release
+
+# 安裝
+sudo apt-get install -y percona-xtrabackup-84
+
+# 驗證
+xtrabackup --version
+```
+
+> `-4` 強制 wget 以 IPv4 下載，避免部分主機 IPv6 路由不通導致下載逾時。
+
+## 全量備份
+
+```bash
+xtrabackup \
+  --backup \
+  --user=root \
+  --password='你的密碼' \
+  --target-dir=/backup/xtrabackup/full_$(date +%Y%m%d_%H%M%S)
+```
+
+`排除指定資料表`
+
+```bash
+xtrabackup --user={$username} --password={$password} \
+    --databases-exclude="{$db}.{$table}" \
+    --backup \
+    --target-dir={$backup_path}
+```
+
+`背景執行（nohup，防止 terminal 中斷）`
+
+```bash
+BACKUP_DIR="/backup/xtrabackup/full_$(date +%Y%m%d_%H%M%S)"
+
+nohup xtrabackup \
+  --backup \
+  --user=root \
+  --password='你的密碼' \
+  --target-dir=${BACKUP_DIR} \
+  > /backup/xtrabackup/backup.log 2>&1 &
+
+echo "PID: $!"
+echo "備份目錄: ${BACKUP_DIR}"
+
+# 監控進度
+tail -f /backup/xtrabackup/backup.log
+```
+
+`確認備份成功`
+
+```bash
+tail -5 /backup/xtrabackup/backup.log
+# 預期最後一行：completed OK!
+
+ls -lh /backup/xtrabackup/full_*/
+```
+
+`傳送至目標主機`
+
+```bash
+rsync -avz --progress {$backup_path} root@{$target_ip}:{$backup_path}
+```
+
+---
+
+## 增量備份
+
+> 只備份上次備份後有變動的資料。還原時需依序合併：全量 → 增量1 → 增量2。
+> 常見策略：每週全量 + 每天增量。
+
+`第一次增量（基於全量）`
+
+```bash
+xtrabackup \
+  --backup \
+  --user=root \
+  --password='你的密碼' \
+  --target-dir=/backup/xtrabackup/inc_$(date +%Y%m%d_%H%M%S) \
+  --incremental-basedir=/backup/xtrabackup/full_20250617_000000
+```
+
+`第二次增量（基於上一次增量）`
+
+```bash
+xtrabackup \
+  --backup \
+  --user=root \
+  --password='你的密碼' \
+  --target-dir=/backup/xtrabackup/inc2_$(date +%Y%m%d_%H%M%S) \
+  --incremental-basedir=/backup/xtrabackup/inc_20250617_060000
+```
+
+---
+
+## 還原備份
+
+> ⚠️ 還原前必須停止 MySQL 服務，且 datadir 必須為空
+
+`停止 MySQL 並清空 datadir`
+
+```bash
+sudo systemctl stop mysql
+
+# 移走舊資料（比 rm -rf 安全，可回退）
+sudo mv /var/lib/mysql /var/lib/mysql_old_$(date +%Y%m%d)
+sudo mkdir -p /var/lib/mysql
+```
+
+`Prepare 與 Copy-back`
+
+```bash
+# 準備備份（apply redo log，使資料達到一致狀態）
+xtrabackup --prepare --target-dir={$backup_path}
+
+# 還原備份
+xtrabackup --copy-back --target-dir={$backup_path}
+```
+
+`--prepare 可選參數`
+
+| 參數 | 說明 |
+|------|------|
+| `--apply-log-only` | 增量備份合併時使用，保留 redo log（最後一個增量不加） |
+| `--incremental-dir` | prepare 時合併增量備份目錄 |
+| `--decompress` | 備份有壓縮時，prepare 前先解壓 |
+| `--datadir` | 覆蓋 my.cnf 的 datadir 設定 |
+| `--parallel` | copy-back 時多執行緒加速，例如 `--parallel=4` |
+
+`修正權限並啟動`
+
+```bash
+sudo chown -R mysql:mysql /var/lib/mysql
+sudo systemctl start mysql
+
+# 確認還原成功
+mysql -u root -p -e "SHOW DATABASES;"
+```
+
+---
+
+## 建立 Slave（Replication 用）
+
+XtraBackup 備份時會自動記錄 binlog 位置，適合用來快速建立 Slave。
+
+`在 Master 執行備份`
+
+```bash
+xtrabackup \
+  --backup \
+  --user=root \
+  --password='你的密碼' \
+  --target-dir=/backup/xtrabackup/for_slave_$(date +%Y%m%d)
+```
+
+`查看 binlog / GTID 位置`
+
+```bash
+cat /backup/xtrabackup/for_slave_*/xtrabackup_binlog_info
+# 輸出範例：
+# mysql-bin.000123   456789   xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:1-9999
+```
+
+`傳送備份至 Slave`
+
+```bash
+rsync -avz --progress \
+  /backup/xtrabackup/for_slave_20250617/ \
+  user@{$slave_ip}:/backup/xtrabackup/from_master/
+```
+
+`在 Slave 執行 Prepare 與還原`
+
+```bash
+xtrabackup --prepare --target-dir=/backup/xtrabackup/from_master/
+
+sudo systemctl stop mysql
+sudo mv /var/lib/mysql /var/lib/mysql_old
+sudo mkdir -p /var/lib/mysql
+
+xtrabackup --copy-back --target-dir=/backup/xtrabackup/from_master/
+
+sudo chown -R mysql:mysql /var/lib/mysql
+sudo systemctl start mysql
+```
+
+`設定 Replication（GTID 模式）`
+
+```sql
+RESET REPLICA ALL;
+
+CHANGE REPLICATION SOURCE TO
+  SOURCE_HOST='{$master_ip}',
+  SOURCE_USER='repl',
+  SOURCE_PASSWORD='你的密碼',
+  SOURCE_AUTO_POSITION=1,
+  GET_SOURCE_PUBLIC_KEY=1;
+
+START REPLICA;
+
+SHOW REPLICA STATUS\G
+```
+
+---
+
+## 自動備份腳本
+
+```bash
+sudo tee /usr/local/bin/xtrabackup-daily.sh > /dev/null <<'EOF'
+#!/bin/bash
+
+BACKUP_BASE="/backup/xtrabackup"
+DATE=$(date +%Y%m%d_%H%M%S)
+BACKUP_DIR="${BACKUP_BASE}/full_${DATE}"
+LOG_FILE="${BACKUP_BASE}/backup_${DATE}.log"
+KEEP_DAYS=7
+
+echo "[$(date)] 開始備份..." | tee -a ${LOG_FILE}
+
+xtrabackup \
+  --backup \
+  --user=root \
+  --password='你的密碼' \
+  --target-dir=${BACKUP_DIR} \
+  >> ${LOG_FILE} 2>&1
+
+if [ $? -eq 0 ]; then
+  echo "[$(date)] 備份成功：${BACKUP_DIR}" | tee -a ${LOG_FILE}
+else
+  echo "[$(date)] 備份失敗！請檢查 log：${LOG_FILE}" | tee -a ${LOG_FILE}
+  exit 1
+fi
+
+find ${BACKUP_BASE} -maxdepth 1 -name "full_*" -type d -mtime +${KEEP_DAYS} -exec rm -rf {} \;
+echo "[$(date)] 已清除 ${KEEP_DAYS} 天前的舊備份" | tee -a ${LOG_FILE}
+EOF
+
+sudo chmod +x /usr/local/bin/xtrabackup-daily.sh
+```
+
+加入 crontab（每天凌晨 2 點執行）：
+
+```bash
+echo "0 2 * * * root /usr/local/bin/xtrabackup-daily.sh" \
+  | sudo tee /etc/cron.d/xtrabackup-daily
+```
+
+---
+
+## 常見問題
+
+### copy-back 失敗：Original data directory is not empty
+
+確保 datadir 完全清空：
+
+```bash
+sudo rm -rf /var/lib/mysql/*
+xtrabackup --copy-back --target-dir=...
+```
+
+### 壓縮備份需先解壓再 prepare
+
+```bash
+xtrabackup --decompress --target-dir=/backup/xtrabackup/full_20250617
+
+# 解壓完成後再執行 prepare
+xtrabackup --prepare --target-dir=/backup/xtrabackup/full_20250617
 ```

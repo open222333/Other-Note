@@ -50,6 +50,18 @@ xcodebuild archive \
 
 [Distributing Your App for Beta Testing and Releases — Apple](https://developer.apple.com/documentation/xcode/distributing-your-app-for-beta-testing-and-releases)
 
+### 相關筆記
+
+[Android 建置與打包](./Android_建置與打包.md)
+
+[Capacitor 筆記](./Capacitor_筆記.md)
+
+[React Native 筆記](./React_Native_筆記.md)
+
+[Flutter 筆記](./Flutter_筆記.md)
+
+[PWA — Progressive Web App](./PWA_Progressive_Web_App.md)
+
 ---
 
 # 環境需求
@@ -425,6 +437,23 @@ struct ContentView: View {
 ## Capacitor 打包（Vue / React）
 
 適合現有 Vue / React 專案直接轉原生，可後續加入原生 API（相機、推播等）。
+
+**解決的核心問題**
+
+| 問題 | 解決方式 |
+|---|---|
+| 想上架但不想重寫原生 Swift / Kotlin | 用現有 Vue 程式碼直接包 |
+| 需要呼叫手機硬體（相機、GPS） | 透過 Capacitor Plugin（JS 橋接到原生 API） |
+| Web 無法安裝到桌面 | 打包後走正常 App 安裝流程 |
+
+**和其他方案的差別**
+
+| 方案 | 原理 | 適合情境 |
+|---|---|---|
+| Capacitor | WebView 包 Web | 已有 Web App，想快速上架 |
+| React Native | JS → 原生元件渲染 | 需要更接近原生 UI 效能 |
+| Flutter | Dart → 自繪 UI | 追求最高效能 / 跨平台一致 |
+| PWA | 純瀏覽器 | 不需上架，手機加入主畫面即可 |
 
 ```bash
 # 安裝

@@ -75,6 +75,17 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [ProxySQL 設置監控 MySQL 後端節點](#proxysql-設置監控-mysql-後端節點)
     - [設定讀寫分離策略：路由規則](#設定讀寫分離策略路由規則)
     - [測試讀寫分離](#測試讀寫分離)
+  - [完整初始化設定（Master-Slave 讀寫分離）](#完整初始化設定master-slave-讀寫分離)
+    - [Step 1：設定 Replication Hostgroup](#step-1設定-replication-hostgroup)
+    - [Step 2：設定 MySQL Servers（含 weight / max_connections）](#step-2設定-mysql-servers含-weight--max_connections)
+    - [Step 3：設定 Query Rules（讀寫分離）](#step-3設定-query-rules讀寫分離)
+    - [Step 4：設定 MySQL Users](#step-4設定-mysql-users)
+    - [最終確認](#最終確認)
+    - [建立 MySQL 與 ProxySQL 應用帳號](#建立-mysql-與-proxysql-應用帳號)
+  - [Slave 狀態管理（下線 / 重新啟用）](#slave-狀態管理下線--重新啟用)
+    - [下線 Slave（OFFLINE_HARD）](#下線-slaveoffline_hard)
+    - [重新啟用 Slave](#重新啟用-slave)
+    - [OFFLINE_HARD vs OFFLINE_SOFT 說明](#offline_hard-vs-offline_soft-說明)
   - [高可用步驟 (MySQL Group Replication)](#高可用步驟-mysql-group-replication)
     - [群組](#群組)
     - [添加 mysql](#添加-mysql)
@@ -90,6 +101,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [查看 各表格是否自動恢復](#查看-各表格是否自動恢復)
 - [例外狀況](#例外狀況)
   - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
+  - [MySQL 8.4 caching_sha2_password 不相容](#mysql-84-caching_sha2_password-不相容)
 - [高可用 說明](#高可用-說明)
 - [ProxySQL 部署方案](#proxysql-部署方案)
   - [MySQL 節點故障 vs ProxySQL 本身故障](#mysql-節點故障-vs-proxysql-本身故障)
@@ -946,6 +958,200 @@ mysql -uproxysql -p -h127.0.0.1 -P6033 --prompt='MySQL> ' -e "start transaction;
 SELECT * FROM stats_mysql_query_digest WHERE digest_text = 'YOUR_QUERY';
 ```
 
+## 完整初始化設定（Master-Slave 讀寫分離）
+
+`依序執行以下 4 個步驟，每步執行後驗證結果，確認正確再繼續下一步`
+
+### Step 1：設定 Replication Hostgroup
+
+```sql
+INSERT INTO mysql_replication_hostgroups (writer_hostgroup, reader_hostgroup, check_type)
+VALUES (1, 2, 'read_only');
+
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+```
+
+`驗證`
+
+```sql
+SELECT * FROM mysql_replication_hostgroups;
+```
+
+### Step 2：設定 MySQL Servers（含 weight / max_connections）
+
+Master 同時加入 Hostgroup 2（weight 高於 Slave）作為讀取備援，Slave 加入 Hostgroup 2 分擔讀取。
+
+```sql
+INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight, max_connections)
+VALUES (1, 'master-ip', 3306, 1, 10000);
+
+INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight, max_connections)
+VALUES (2, 'master-ip', 3306, 5, 10000);
+
+INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight, max_connections)
+VALUES (2, 'slave-ip', 3306, 3, 10000);
+
+LOAD MYSQL SERVERS TO RUNTIME;
+SAVE MYSQL SERVERS TO DISK;
+```
+
+`驗證`
+
+```sql
+SELECT hostgroup_id, hostname, port, status, weight, max_connections FROM mysql_servers ORDER BY hostgroup_id;
+```
+
+### Step 3：設定 Query Rules（讀寫分離）
+
+```sql
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (1, 1, '^INSERT', 1, 1);
+
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (2, 1, '^UPDATE', 1, 1);
+
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (3, 1, '^SELECT.*FOR UPDATE$', 1, 1);
+
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (4, 1, '^SELECT', 2, 1);
+
+INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostgroup, apply)
+VALUES (5, 1, '.*', 1, 1);
+
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
+| rule_id | 說明 |
+|---------|------|
+| 1 | `INSERT` → Master（Hostgroup 1） |
+| 2 | `UPDATE` → Master（Hostgroup 1） |
+| 3 | `SELECT ... FOR UPDATE` → Master（Hostgroup 1），避免鎖定問題 |
+| 4 | `SELECT` → Reader（Hostgroup 2），讀寫分離核心規則 |
+| 5 | 其餘所有語句 → Master（Hostgroup 1），作為 fallback |
+
+`驗證`
+
+```sql
+SELECT rule_id, active, match_pattern, destination_hostgroup, apply FROM mysql_query_rules ORDER BY rule_id;
+```
+
+### Step 4：設定 MySQL Users
+
+`transaction_persistent=1`：同一 transaction 內的所有語句強制走同一個 hostgroup，避免讀到尚未同步的資料
+
+```sql
+INSERT INTO mysql_users (username, password, active, default_hostgroup, transaction_persistent)
+VALUES ('使用者名稱', '密碼', 1, 1, 1);
+
+LOAD MYSQL USERS TO RUNTIME;
+SAVE MYSQL USERS TO DISK;
+```
+
+`驗證`
+
+```sql
+SELECT username, active, default_hostgroup, transaction_persistent FROM mysql_users;
+```
+
+### 最終確認
+
+```sql
+SELECT * FROM mysql_replication_hostgroups;
+SELECT hostgroup_id, hostname, port, status, weight FROM mysql_servers ORDER BY hostgroup_id;
+SELECT rule_id, active, match_pattern, destination_hostgroup FROM mysql_query_rules ORDER BY rule_id;
+SELECT username, active, default_hostgroup, transaction_persistent FROM mysql_users;
+```
+
+### 建立 MySQL 與 ProxySQL 應用帳號
+
+`MySQL 層（在 Master 執行）`
+
+```sql
+CREATE USER '帳號'@'%' IDENTIFIED BY '密碼';
+GRANT ALL PRIVILEGES ON 資料庫.* TO '帳號'@'%';
+FLUSH PRIVILEGES;
+```
+
+> MySQL 8.4 已移除 `mysql_native_password`，建立使用者時不需要指定 `WITH mysql_native_password`，但 ProxySQL 對 `caching_sha2_password` 的支援尚不完整，詳見[例外狀況：MySQL 8.4 caching_sha2_password 不相容](#mysql-84-caching_sha2_password-不相容)。
+
+`ProxySQL 層（在 ProxySQL Admin 執行）`
+
+```sql
+INSERT INTO mysql_users (username, password, active, default_hostgroup, transaction_persistent)
+VALUES ('帳號', '密碼', 1, 1, 1);
+
+LOAD MYSQL USERS TO RUNTIME;
+SAVE MYSQL USERS TO DISK;
+```
+
+---
+
+## Slave 狀態管理（下線 / 重新啟用）
+
+### 下線 Slave（OFFLINE_HARD）
+
+`適用情境：Slave 驗證異常、維護、或與 ProxySQL 不相容時，先下線 Slave，將所有流量導向 Master`
+
+```sql
+-- 1. 將 Slave 設為 OFFLINE_HARD
+UPDATE mysql_servers SET status='OFFLINE_HARD' WHERE hostname='slave-ip';
+
+-- 2. 將 SELECT 路由改導向 Master（Hostgroup 1）
+UPDATE mysql_query_rules SET destination_hostgroup=1 WHERE rule_id=4;
+
+-- 3. 套用到 runtime
+LOAD MYSQL SERVERS TO RUNTIME;
+LOAD MYSQL QUERY RULES TO RUNTIME;
+
+-- 4. 存檔（重啟 ProxySQL 後仍生效）
+SAVE MYSQL SERVERS TO DISK;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
+`確認`
+
+```sql
+SELECT hostgroup_id, hostname, port, status, weight FROM mysql_servers ORDER BY hostgroup_id;
+SELECT rule_id, active, match_pattern, destination_hostgroup FROM mysql_query_rules ORDER BY rule_id;
+```
+
+### 重新啟用 Slave
+
+```sql
+-- 1. 將 Slave 設回 ONLINE
+UPDATE mysql_servers SET status='ONLINE' WHERE hostname='slave-ip';
+
+-- 2. 將 SELECT 路由改回 Reader（Hostgroup 2）
+UPDATE mysql_query_rules SET destination_hostgroup=2 WHERE rule_id=4;
+
+-- 3. 套用到 runtime
+LOAD MYSQL SERVERS TO RUNTIME;
+LOAD MYSQL QUERY RULES TO RUNTIME;
+
+-- 4. 存檔
+SAVE MYSQL SERVERS TO DISK;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
+`確認`
+
+```sql
+SELECT hostgroup_id, hostname, port, status, weight FROM mysql_servers ORDER BY hostgroup_id;
+SELECT rule_id, active, match_pattern, destination_hostgroup FROM mysql_query_rules ORDER BY rule_id;
+```
+
+### OFFLINE_HARD vs OFFLINE_SOFT 說明
+
+| 狀態 | 行為 |
+|------|------|
+| `OFFLINE_HARD` | 立即中斷所有連線，不接受新連線 |
+| `OFFLINE_SOFT` | 等待現有連線結束後再下線（較溫和） |
+
+---
+
 ## 高可用步驟 (MySQL Group Replication)
 
 `使用 ProxySQL 管理用戶登入到 ProxySQL 控制台`
@@ -1467,6 +1673,14 @@ SELECT * FROM mysql_servers;
 ```bash
 mysql -h127.0.0.1 -P6032 -uadmin -p --prompt='ProxyAdmin> '
 ```
+
+## MySQL 8.4 caching_sha2_password 不相容
+
+MySQL 8.4 已完全移除 `mysql_native_password`，僅支援 `caching_sha2_password`。ProxySQL 對 `caching_sha2_password` 的支援不完整，部分 user 連線會發生驗證失敗。
+
+**症狀**：應用程式透過 ProxySQL 連線時驗證失敗，直接連線 MySQL 則正常。
+
+**處置方式**：將 Slave 設為 `OFFLINE_HARD`，並將所有 SELECT 流量導向 Master，詳見 [Slave 狀態管理（下線 / 重新啟用）](#slave-狀態管理下線--重新啟用)。
 
 # 高可用 說明
 

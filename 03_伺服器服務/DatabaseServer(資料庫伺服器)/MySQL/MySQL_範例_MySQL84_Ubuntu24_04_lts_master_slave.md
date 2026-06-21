@@ -3,8 +3,11 @@
 
 ## 目錄
 
-- [環境](#環境)
-- [共同步驟（兩台都執行）](#master-與-slave-共同步驟兩台都執行)
+- [Ubuntu 24.04 LTS 安裝 MySQL 8.4 完整步驟](#ubuntu-2404-lts-安裝-mysql-84-完整步驟)
+- [1 Master + 1 Slave（全新主機）](#1-master--1-slave全新主機)
+  - [目錄](#目錄)
+  - [環境](#環境)
+- [Master 與 Slave 共同步驟（兩台都執行）](#master-與-slave-共同步驟兩台都執行)
   - [一、下載 MySQL 8.4 官方 deb bundle](#一下載-mysql-84-官方-deb-bundle)
   - [二、解壓縮](#二解壓縮)
   - [三、安裝依賴套件](#三安裝依賴套件)
@@ -13,14 +16,15 @@
   - [六、確認版本](#六確認版本)
   - [七、確認服務狀態](#七確認服務狀態)
   - [八、執行安全性初始化](#八執行安全性初始化)
+    - [關於 root 密碼](#關於-root-密碼)
 - [Master 專屬步驟](#master-專屬步驟)
-  - [八、編輯 my.cnf](#八編輯-etcmysqlmycnf)
-  - [九、編輯 mysqld.cnf（64GB）](#九編輯-etcmysqlmysqlconfdmysqldcnflinode-dedicated-64gb)
+  - [八、編輯 `/etc/mysql/my.cnf`](#八編輯-etcmysqlmycnf)
+  - [九、編輯 `/etc/mysql/mysql.conf.d/mysqld.cnf`（Linode Dedicated 64GB）](#九編輯-etcmysqlmysqlconfdmysqldcnflinode-dedicated-64gb)
   - [十、檢查語法並重啟](#十檢查語法並重啟)
   - [十一、建立 Replication 帳號](#十一建立-replication-帳號)
 - [Slave 專屬步驟](#slave-專屬步驟)
-  - [八、編輯 my.cnf](#八編輯-etcmysqlmycnf-1)
-  - [九、編輯 mysqld.cnf（32GB）](#九編輯-etcmysqlmysqlconfdmysqldcnflinode-32gb)
+  - [八、編輯 `/etc/mysql/my.cnf`](#八編輯-etcmysqlmycnf-1)
+  - [九、編輯 `/etc/mysql/mysql.conf.d/mysqld.cnf`（Linode 32GB）](#九編輯-etcmysqlmysqlconfdmysqldcnflinode-32gb)
   - [十、檢查語法並重啟](#十檢查語法並重啟-1)
   - [十一、設定連線到 Master](#十一設定連線到-master)
   - [十二、啟動同步](#十二啟動同步)
@@ -28,12 +32,14 @@
 - [驗證同步與只讀](#驗證同步與只讀)
   - [Master 建立測試資料](#master-建立測試資料)
   - [Slave 確認同步](#slave-確認同步)
-  - [Slave 測試只讀](#slave-測試只讀應失敗)
-  - [清除測試資料](#清除測試資料master-執行)
+  - [Slave 測試只讀（應失敗）](#slave-測試只讀應失敗)
+  - [清除測試資料（Master 執行）](#清除測試資料master-執行)
 - [常見錯誤處理](#常見錯誤處理)
-  - [Replica_IO_Running: No](#replica_io_running-no)
+  - [Replica\_IO\_Running: No](#replica_io_running-no)
   - [防火牆開放 3306](#防火牆開放-3306)
   - [確認 replicator 帳號權限](#確認-replicator-帳號權限)
+  - [mysqld --validate-config 錯誤：Can't find error-message file](#mysqld---validate-config-錯誤cant-find-error-message-file)
+  - [mysqld --validate-config 警告：replica-parallel-type deprecated](#mysqld---validate-config-警告replica-parallel-type-deprecated)
 
 ---
 
@@ -342,9 +348,12 @@ replica_preserve_commit_order = ON
 # replica_parallel_type 在 MySQL 8.4 已廢棄，預設即為 LOGICAL_CLOCK，不需設定
 
 # ─── InnoDB ──────────────────────────────────────────────
-innodb_buffer_pool_size = 22G
-innodb_buffer_pool_instances = 8
-innodb_redo_log_capacity = 2G
+# innodb_buffer_pool_size = 22G
+# innodb_buffer_pool_instances = 8
+# innodb_redo_log_capacity = 2G
+innodb_buffer_pool_size = 16G        # 從 22G 降到 16G，釋出 6G
+innodb_buffer_pool_instances = 4     # 對應調小
+innodb_redo_log_capacity = 512M      # Slave 不需 2G，降低
 innodb_log_buffer_size = 32M
 innodb_flush_log_at_trx_commit = 2
 innodb_flush_method = O_DIRECT
