@@ -22,6 +22,15 @@
     - [KEYS（簡單搜尋，不建議用於正式環境）](#keys簡單搜尋不建議用於正式環境)
     - [SCAN（推薦，不阻塞）](#scan推薦不阻塞)
     - [查詢 Key 資訊](#查詢-key-資訊)
+  - [記憶體限制](#記憶體限制)
+  - [用量分析](#用量分析)
+    - [整體記憶體使用](#整體記憶體使用)
+    - [整體狀態](#整體狀態)
+    - [Key 數量](#key-數量)
+    - [找出佔空間最大的 Key](#找出佔空間最大的-key)
+    - [慢查詢分析](#慢查詢分析)
+    - [即時監控](#即時監控)
+    - [快速健康檢查](#快速健康檢查)
 
 ## 參考資料
 
@@ -310,4 +319,142 @@ PTTL user:123    # 毫秒
 
 # 查看 key 總數（O(1)，不掃描）
 DBSIZE
+```
+
+## 記憶體限制
+
+### redis.conf 設定
+
+```conf
+# 記憶體上限
+maxmemory 2gb
+
+# 超過上限時的淘汰策略
+maxmemory-policy allkeys-lru
+```
+
+| 策略 | 說明 |
+|------|------|
+| `allkeys-lru` | 刪除最久未使用的 key，對象是全部 key（快取用途首選） |
+| `volatile-lru` | 只刪有設 TTL 的 key（LRU 順序） |
+| `allkeys-random` | 隨機刪除任意 key |
+| `volatile-random` | 隨機刪除有 TTL 的 key |
+| `volatile-ttl` | 刪除最快過期的 key |
+| `noeviction` | 不刪除，記憶體滿時寫入回傳錯誤（Session / Queue 用途） |
+
+**allkeys-lru 說明**
+
+`allkeys` — 對象是全部的 key（不管有沒有設過期時間）
+
+`lru` — Least Recently Used，最久沒被存取的先刪
+
+適合 Redis 作為**快取（Cache）** 使用：熱門資料持續被存取不會被刪，冷門資料自然淘汰，不需對每個 key 手動設 TTL。
+
+### 即時生效（不重啟）
+
+`CONFIG SET 只修改記憶體中的設定，重啟後會失效`
+
+```bash
+redis-cli CONFIG SET maxmemory 2gb
+redis-cli CONFIG SET maxmemory-policy allkeys-lru
+```
+
+### 確認設定
+
+```bash
+redis-cli CONFIG GET maxmemory
+redis-cli CONFIG GET maxmemory-policy
+```
+
+`合併一行查看`
+
+```bash
+redis-cli CONFIG GET maxmemory*
+```
+
+輸出範例：
+
+```
+1) "maxmemory-policy"
+2) "noeviction"
+3) "maxmemory-samples"
+4) "5"
+5) "maxmemory"
+6) "2147483648"
+```
+
+### 回寫設定檔（重啟後仍生效）
+
+`前提：Redis 啟動時有指定設定檔路徑`
+
+```bash
+redis-cli CONFIG REWRITE
+```
+
+## 用量分析
+
+### 整體記憶體使用
+
+```bash
+redis-cli INFO memory
+```
+
+| 欄位 | 說明 |
+|------|------|
+| `used_memory_human` | 目前使用記憶體 |
+| `used_memory_peak_human` | 歷史最高用量 |
+| `mem_fragmentation_ratio` | 碎片率，> 1.5 代表碎片嚴重 |
+
+### 整體狀態
+
+```bash
+redis-cli INFO all
+```
+
+`分區段查看`
+
+```bash
+redis-cli INFO stats        # 命中率、連線數
+redis-cli INFO replication  # 主從狀態
+redis-cli INFO clients      # 目前連線數
+```
+
+### Key 數量
+
+```bash
+redis-cli DBSIZE        # 目前 DB 的 key 總數
+redis-cli INFO keyspace # 各 DB 的 key 數與過期數
+```
+
+### 找出佔空間最大的 Key
+
+```bash
+redis-cli --bigkeys
+```
+
+會掃描全部 key，找出各型別中最大的，生產環境建議離峰執行。
+
+### 慢查詢分析
+
+```bash
+redis-cli SLOWLOG GET 10  # 查看最近 10 筆慢查詢
+redis-cli SLOWLOG LEN     # 慢查詢總數
+redis-cli SLOWLOG RESET   # 清除記錄
+```
+
+### 即時監控
+
+```bash
+redis-cli MONITOR   # 即時顯示所有指令（高流量慎用）
+redis-cli --stat    # 每秒刷新基本統計
+redis-cli --latency # 延遲監控
+```
+
+### 快速健康檢查
+
+```bash
+redis-cli INFO memory    # 記憶體是否快滿
+redis-cli INFO keyspace  # key 數量是否異常
+redis-cli --bigkeys      # 有無超大 key
+redis-cli SLOWLOG GET 10 # 有無慢查詢
 ```

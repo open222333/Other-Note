@@ -978,6 +978,93 @@ GRANT ALL PRIVILEGES ON 資料庫名稱.* TO 'appuser'@'%';
 FLUSH PRIVILEGES;
 ```
 
+### Ubuntu 24.04 LTS (Percona MySQL 8.4)
+
+#### 安裝
+
+```bash
+# 啟用 Percona Server 8.4 repo
+sudo percona-release setup ps84
+sudo apt-get update
+
+# 安裝
+sudo apt-get install -y percona-server-server
+
+# 確認服務與版本
+sudo systemctl status mysql
+sudo systemctl enable mysql
+mysql -u root -p -e "SELECT VERSION();"
+```
+
+> 安裝過程會提示設定 root 密碼，直接輸入即可。
+
+#### 安全初始設定
+
+```bash
+sudo mysql_secure_installation
+```
+
+建議選擇：
+
+| 項目 | 建議 |
+|------|------|
+| Validate password component | `Y` |
+| Password strength | `2`（STRONG）|
+| Remove anonymous users | `Y` |
+| Disallow root login remotely | `Y` |
+| Remove test database | `Y` |
+| Reload privilege tables | `Y` |
+
+#### my.cnf 設定（Percona MySQL 8.4）
+
+設定檔位置：`/etc/mysql/mysql.conf.d/mysqld.cnf`
+
+```ini
+[mysqld]
+user                    = mysql
+pid-file                = /var/run/mysqld/mysqld.pid
+socket                  = /var/run/mysqld/mysqld.sock
+datadir                 = /var/lib/mysql
+
+# 字元集
+character-set-server    = utf8mb4
+collation-server        = utf8mb4_unicode_ci
+
+# 連線
+max_connections         = 500
+wait_timeout            = 600
+interactive_timeout     = 600
+
+# InnoDB
+innodb_buffer_pool_size = 4G          # 調整為實際記憶體的 70%~80%
+innodb_log_file_size    = 512M
+innodb_flush_log_at_trx_commit = 1
+innodb_flush_method     = O_DIRECT
+
+# Binary Log（Replication 需要）
+server-id               = 1           # Master=1，Slave 用不同數字
+log_bin                 = /var/log/mysql/mysql-bin.log
+binlog_format           = ROW
+binlog_expire_logs_seconds = 604800   # 7 天
+
+# GTID（Replication 建議啟用）
+gtid_mode               = ON
+enforce_gtid_consistency = ON
+
+# Slow Query Log
+slow_query_log          = ON
+slow_query_log_file     = /var/log/mysql/mysql-slow.log
+long_query_time         = 2
+
+# 認證（8.4 已移除 mysql_native_password，只支援 caching_sha2_password）
+```
+
+```bash
+sudo systemctl restart mysql
+```
+
+---
+
 ### 8.0
 
 下載並安裝 MySQL APT Repository 工具
@@ -1880,6 +1967,40 @@ mysqldump -uroot -p dbname table1 table2 > tables.sql
 ```bash
 du -sh /var/lib/mysql/*/
 ```
+
+`指定多資料庫備份（含 blob / 字元集處理）`
+
+```bash
+mysqldump -u root -p \
+  --databases 資料庫1 資料庫2 \
+  --routines \
+  --triggers \
+  --events \
+  --hex-blob \
+  --default-character-set=utf8mb4 \
+  --set-gtid-purged=OFF \
+  --column-statistics=0 \
+  --no-tablespaces \
+  > all_databases_$(date +%Y%m%d_%H%M%S).sql
+```
+
+| 參數 | 說明 |
+|------|------|
+| `--hex-blob` | BLOB / BINARY 欄位以 hex 格式匯出，避免二進位資料亂碼 |
+| `--default-character-set=utf8mb4` | 連線字符集，確保匯出時編碼一致 |
+| `--no-tablespaces` | 不匯出 TABLESPACE 語法，避免目標主機缺少對應 tablespace 或權限不足時報錯 |
+| `--column-statistics=0` | 關閉 COLUMN_STATISTICS 查詢（mysqldump 8.0+ 才有此參數；MySQL 5.x 的 mysqldump 不支援，使用時會報錯） |
+| `--set-gtid-purged=OFF` | 不寫入 GTID，避免匯入時 GTID 衝突 |
+
+> ⚠️ 此組指令未加 `--single-transaction`，備份期間會鎖表。若資料庫全為 InnoDB，建議補上 `--single-transaction` 改為不鎖表備份。
+
+匯入：
+
+```bash
+mysql -u root -p --init-command="SET sql_mode=''" < all_databases_XXXXXXXX.sql
+```
+
+> `--init-command="SET sql_mode=''"` 關閉嚴格模式，相容舊版或跨版本資料的欄位預設值問題。
 
 ---
 

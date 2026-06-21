@@ -37,6 +37,7 @@
   - [Branch 分支](#branch-分支)
   - [Git checkout 切換 branch](#git-checkout-切換-branch)
   - [Fetch 抓取](#fetch-抓取)
+  - [拉取遠端有本地沒有的分支](#拉取遠端有本地沒有的分支)
   - [Git track all remote branch 抓取所有遠端分支](#git-track-all-remote-branch-抓取所有遠端分支)
   - [diff比較](#diff比較)
   - [Tag](#tag)
@@ -640,6 +641,23 @@ git checkout --track origin/reps-branch
 git checkout --track -b reps-branch origin/reps-branch
 ```
 
+## 拉取遠端有本地沒有的分支
+
+```bash
+# Step 1：更新遠端分支資訊
+git fetch origin
+
+# Step 2：查看遠端有哪些分支
+git branch -r
+
+# Step 3：建立本地追蹤分支（單一分支）
+git checkout --track origin/<branch-name>
+# 等同於
+git checkout -b <branch-name> origin/<branch-name>
+```
+
+> `--track` 會自動建立與遠端同名的本地分支，並設定追蹤關係，之後 `git pull` 會自動對應到該遠端分支。
+
 ## Git track all remote branch 抓取所有遠端分支
 
 ```bash
@@ -910,6 +928,19 @@ git stash drop
 
 # 把 stash 都清掉
 git stash clear
+```
+
+切換分支前有未 commit 的修改，先 stash 再切換：
+
+```bash
+# 1. 把未 commit 的修改暫存起來（工作目錄變乾淨）
+git stash
+
+# 2. 切換分支
+git checkout <branch-name>
+
+# 3. 取出暫存的修改（有衝突則手動解決）
+git stash pop
 ```
 
 ## merge 合併
