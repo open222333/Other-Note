@@ -17,6 +17,7 @@ SSE（Server-Sent Events）、WebSocket、縮短輪詢間隔
     - [Server（Flask）](#serverflask)
     - [Client（JavaScript）](#clientjavascript)
     - [注意事項](#注意事項)
+  - [效能優化：雜湊比對避免重複推送](#效能優化雜湊比對避免重複推送)
 - [WebSocket（Flask-SocketIO）](#websocketflask-socketio)
   - [安裝](#安裝-1)
   - [用法](#用法-1)
@@ -141,6 +142,43 @@ source.onerror = () => {
 # Gunicorn 啟動範例（gevent）
 # gunicorn -k gevent -w 4 app:app
 ```
+
+## 效能優化：雜湊比對避免重複推送
+
+SSE 串流通常以固定間隔輪詢資料庫，資料未變動時仍會序列化並計算一次。  
+用 MD5 雜湊比對上一次內容，只有**資料真正改變**才推送，可大幅減少無效 CPU 消耗。
+
+```python
+import hashlib
+import json
+import time
+from flask import Response, stream_with_context
+
+def event_stream():
+    last_hash = None
+    while True:
+        try:
+            payload = fetch_data()           # 從 DB 取資料
+            h = hashlib.md5(
+                json.dumps(payload, sort_keys=True, default=str).encode()
+            ).hexdigest()
+
+            if h != last_hash:               # 資料有變動才推送
+                last_hash = h
+                yield f"data: {json.dumps(payload, default=str)}\n\n"
+
+            time.sleep(2)                    # 間隔至少 2s，減少 CPU 消耗
+        except GeneratorExit:
+            break
+        except Exception:
+            time.sleep(2)
+```
+
+| 調整點 | 說明 |
+|---|---|
+| `sleep` 間隔 | 建議 2–5 秒；1 秒在高連線數時 CPU 消耗顯著 |
+| `sort_keys=True` | 確保相同資料每次序列化後雜湊值一致 |
+| `default=str` | 避免 ObjectId / datetime 序列化失敗 |
 
 ---
 

@@ -1709,3 +1709,60 @@ services:
       - "80:80"
       - "22:22"
 ```
+
+### 資源限制 (memory / cpu)
+
+使用 `deploy.resources` 設定容器的記憶體與 CPU 上限，避免單一容器耗盡主機資源。
+
+> 注意：`deploy` 語法需使用 **Compose v3** 格式，搭配 `docker compose`（非舊版 `docker-compose`）才能在非 Swarm 模式下生效。
+
+```yml
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1g        # 最多使用 1GB RAM
+          cpus: "1.0"       # 最多使用 1 顆 CPU
+        reservations:
+          memory: 256m      # 啟動時保留 256MB
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --maxmemory 64mb          # Redis 自身記憶體限制
+      - --maxmemory-policy allkeys-lru  # 超限時淘汰最久未用的 key
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+        reservations:
+          memory: 32m
+
+  api:
+    image: my-app:latest
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "2.0"
+        reservations:
+          memory: 128m
+```
+
+| 參數 | 說明 |
+|---|---|
+| `limits.memory` | 容器記憶體上限，超過後會被 OOM Killer 強制終止 |
+| `limits.cpus` | CPU 配額，`"1.0"` 代表一顆核心，`"0.5"` 代表半顆 |
+| `reservations.memory` | 排程時保留的最低記憶體（軟性保證） |
+| `--maxmemory` | Redis 指令層的記憶體限制，配合 `maxmemory-policy` 決定淘汰策略 |
+
+常用 `maxmemory-policy`：
+- `allkeys-lru`：淘汰所有 key 中最久未使用的（快取場景首選）
+- `volatile-lru`：只淘汰有 TTL 的 key
+- `noeviction`：超限後直接回傳錯誤（Session / Queue 場景）

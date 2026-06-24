@@ -21,6 +21,8 @@ Vite 的目標是為開發者提供更快速、更靈活的開發體驗。
     - [心得相關](#心得相關)
 - [安裝](#安裝)
 - [指令](#指令)
+- [vite.config 設定](#viteconfigts-設定)
+  - [manualChunks（程式碼分割）](#manualchunks程式碼分割)
 
 ## 參考資料
 
@@ -45,3 +47,42 @@ npm install -g create-vite
 # 創建一個新的 Vue 項目, my-project 替換為你想要的項目名稱
 create-vite my-project
 ```
+
+# vite.config.ts 設定
+
+## manualChunks（程式碼分割）
+
+Vite build 預設會把所有依賴打包進單一 `index.js`。透過 `manualChunks` 可將第三方套件拆成獨立 chunk，讓瀏覽器**長期快取 vendor 程式碼**，只在業務邏輯變動時重新下載 `index.js`。
+
+```typescript
+// vite.config.ts
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vue 生態系：版本幾乎不動，適合長快取
+          'vendor-vue': ['vue', 'vue-router', 'pinia'],
+          // UI 框架
+          'vendor-bootstrap': ['bootstrap'],
+        },
+      },
+    },
+  },
+})
+```
+
+效果對比（同專案實測）：
+
+| | 優化前 | 優化後 |
+|---|---|---|
+| `index.js`（gzip） | 83 KB | 44 KB |
+| `vendor-vue.js`（gzip） | — | 39 KB（可長期快取） |
+
+注意事項：
+- 只能放**有 JS entry point** 的套件（如 `vue`, `pinia`）
+- `bootstrap-icons` 是純 CSS/字型套件，**不能**放入 `manualChunks`，否則 build 報錯
+- 分割後的 chunk 由瀏覽器平行下載，實際載入速度取決於 HTTP/2 支援
