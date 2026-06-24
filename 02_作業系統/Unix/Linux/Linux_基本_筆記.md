@@ -178,41 +178,24 @@ systemctl list-units --type=service
 
 # 軟體組合 LAMP
 
+> Apache 完整指令請見 `03_伺服器服務/WebServer(網站伺服器)/Apache/Apache_筆記.md`
+
 ```bash
 # 安裝必要軟體
-yum install httpd mysql mysql-server php php-mysql
+yum install httpd mysql mysql-server php php-mysql   # CentOS/RedHat
+apt install apache2 mysql-server php libapache2-mod-php  # Ubuntu/Debian
 
-/etc/hosts $hostname
-
-#網頁存放位置
+# 網頁存放位置
 /var/www/html
 
 # php 設定檔
 /etc/php.ini
 
-# 啟動
-/etc/init.d/httpd start
-
-# 測試設定檔語法
-/etc/init.d/httpd configtest
-
-# 開機啟動
-chkconfig httpd on
-
-#啟動apache
-/usr/sbin/apachectl start
-
-# 查看port
+# 查看 port
 netstat -tulnp | grep 'http'
 
-# 列出所有的區域
-firewall-cmd --get-zones
-
-# 開啟 tcp 的 8080 連接埠
-firewall-cmd --zone=public --add-port=8080/tcp
-
-# 永久開啟 tcp 的 8080 連接埠
-firewall-cmd --zone=public --permanent --add-port=8080/tcp
+# 永久開啟 tcp 的 80 連接埠
+firewall-cmd --zone=public --permanent --add-port=80/tcp
 ```
 
 # dep 和 rpm 是兩種主要的軟體套件管理系統
