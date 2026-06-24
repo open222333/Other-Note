@@ -1,34 +1,67 @@
 # docker-compose 範例
 
+```
+收集各服務的 docker-compose.yml 範例，依服務類型分類。
+```
+
 ## 目錄
 
 - [docker-compose 範例](#docker-compose-範例)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-    - [安裝相關](#安裝相關)
-    - [配置相關](#配置相關)
-      - [log配置](#log配置)
-    - [網路相關](#網路相關)
-      - [網路 心得相關](#網路-心得相關)
-    - [Docker Hub相關](#docker-hub相關)
-    - [範例相關](#範例相關)
-    - [例外狀況](#例外狀況)
-      - [PHP相關](#php相關)
-- [範例](#範例)
-  - [Dockerfile](#dockerfile)
-  - [docker-compose](#docker-compose)
-    - [docker-compose.centos.yml](#docker-composecentosyml)
-    - [docker-compose.elasticsearch.yml](#docker-composeelasticsearchyml)
-    - [docker-compose.gitea.yml](#docker-composegiteayml)
-    - [docker-compose.mongodb\_clusters\_replica\_set.yml](#docker-composemongodb_clusters_replica_setyml)
-    - [docker-compose.mysql\_phpmyadmin.yml](#docker-composemysql_phpmyadminyml)
-    - [docker-compose.php.yml](#docker-composephpyml)
-    - [docker-compose.scrapy\_splash.yml](#docker-composescrapy_splashyml)
-    - [docker-compose.celery\_python.yml](#docker-composecelery_pythonyml)
-    - [docker-compose.mysql\_master\_slave.yml](#docker-composemysql_master_slaveyml)
-    - [docker-compose.nginx\_plus(centos)-php\_fpm.yml](#docker-composenginx_pluscentos-php_fpmyml)
-    - [多個服務使用同資料 示例用例](#多個服務使用同資料-示例用例)
-    - [連線 主機別名](#連線-主機別名)
+- [Dockerfile 範例](#dockerfile-範例)
+- [基礎語法](#基礎語法)
+  - [完整欄位說明](#完整欄位說明)
+  - [網路設定](#網路設定)
+  - [多服務共用設定（extends）](#多服務共用設定extends)
+  - [連線主機別名](#連線主機別名)
+- [服務範例](#服務範例)
+  - [CI/CD](#cicd)
+    - [Jenkins](#jenkins)
+  - [AI / LLM](#ai--llm)
+    - [Ollama](#ollama)
+  - [資料庫](#資料庫)
+    - [MySQL + phpMyAdmin](#mysql--phpmyadmin)
+    - [MySQL Master-Slave](#mysql-master-slave)
+    - [MySQL InnoDB Cluster](#mysql-innodb-cluster)
+    - [ProxySQL](#proxysql)
+    - [MongoDB Replica Set（3 節點）](#mongodb-replica-set3-節點)
+    - [MongoDB Replica Set（單節點）](#mongodb-replica-set單節點)
+    - [Redis Cluster（6 節點）](#redis-cluster6-節點)
+  - [Elastic Stack](#elastic-stack)
+    - [Elasticsearch + Kibana（單節點）](#elasticsearch--kibana單節點)
+    - [Elasticsearch 3 節點叢集（無 TLS）](#elasticsearch-3-節點叢集無-tls)
+    - [Elasticsearch 3 節點叢集（官方 TLS）](#elasticsearch-3-節點叢集官方-tls)
+    - [Elasticsearch + Kibana + Logstash](#elasticsearch--kibana--logstash)
+    - [Elasticsearch + Kibana + Logstash JDBC](#elasticsearch--kibana--logstash-jdbc)
+    - [Elasticsearch + Kibana + APM Server](#elasticsearch--kibana--apm-server)
+    - [docker-elk（deviantony）](#docker-elkdeviantony)
+  - [郵件伺服器](#郵件伺服器)
+    - [docker-mailserver（後端 MTA）](#docker-mailserver後端-mta)
+    - [Poste.io（全功能郵件）](#posteio全功能郵件)
+    - [RainLoop（Web 客戶端）](#rainloopweb-客戶端)
+    - [Roundcube（Web 客戶端 + DB）](#roundcubeweb-客戶端--db)
+  - [監控](#監控)
+    - [LibreNMS（SNMP 網路監控）](#librenmssnmp-網路監控)
+  - [代理 / 負載均衡](#代理--負載均衡)
+    - [HAProxy（Web）](#haproxyweb)
+    - [HAProxy（Redis 代理）](#haproxyredis-代理)
+    - [Redis（HAProxy 測試用雙節點）](#redishaproxy-測試用雙節點)
+  - [檔案伺服器](#檔案伺服器)
+    - [FileBrowser（基本）](#filebrowser基本)
+    - [FileBrowser（固定 IP）](#filebrowser固定-ip)
+  - [網站框架](#網站框架)
+    - [PHP（Nginx + PHP-FPM + MongoDB）](#phpnginx--php-fpm--mongodb)
+    - [PHP Laravel（Nginx + PHP-FPM + MySQL）](#php-laravelnginx--php-fpm--mysql)
+    - [Nginx Plus（CentOS）+ PHP-FPM](#nginx-pluscentos-php-fpm)
+    - [CentOS 容器](#centos-容器)
+  - [爬蟲工具](#爬蟲工具)
+    - [Scrapy + Splash（基本）](#scrapy--splash基本)
+    - [Scrapy + Splash（含 volume）](#scrapy--splash含-volume)
+    - [FlareSolverr（反爬蟲繞過）](#flaresolverr反爬蟲繞過)
+    - [Celery（Python 任務佇列）](#celerypython-任務佇列)
+  - [Git 服務](#git-服務)
+    - [Gitea](#gitea)
 
 ## 參考資料
 
@@ -112,13 +145,11 @@
 
 [[Day4] Linux 排程工具 Crontab，也有Docker 的範例喔](https://ithelp.ithome.com.tw/m/articles/10293218)
 
-# 範例
+---
 
-## Dockerfile
+# Dockerfile 範例
 
-`檔名要是Dockerfile`
-
-`Dockerfile.sample`
+`檔名要是 Dockerfile`
 
 ```dockerfile
 # 使用官方的 Python 執行環境作為基本的 Docker 影像
@@ -135,25 +166,9 @@ EXPOSE 80
 ENV NAME World
 # 當 Docker 容器啟動時，自動執行 app.py
 CMD ["python", "app.py"]
-
-FROM pytorch/pytorch:latest
-RUN pip install Pillow
-RUN pip install flask
-WORKDIR /models
-COPY ./script ./
-EXPOSE 5002
-ENTRYPOINT ["bash","run.sh"]
-
-
-# From: 依據哪個Docker image，可以直接在Docker hub去搜尋已經被建立好的Docker Image，好處是可以節省自己建立環境、安裝套件的時間。
-# RUN: 執行的指令，通常會在內部用 pip install 去安裝一些套件
-# WORKDIR: 去到該資料夾，跟 RUN cd 不同的地方在於，RUN cd 只會在剛行程式碼去到指定位置，但下一行執行時，就又會回到原本的地方。
-# COPY: 可以將本機端的資料，複製到 Docker 內部所指定的位置
-# EXPOSE: 開啟的 Port
-# ENTRYPOINT: Docker 建立好後，需要執行的指令
 ```
 
-Python Dockerfile範例：
+Python Dockerfile 範例：
 
 ```dockerfile
 FROM python:3.6.12-buster
@@ -170,199 +185,400 @@ RUN apt-get install ffmpeg -y
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT      ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 ```
 
-## docker-compose
+---
+
+# 基礎語法
+
+## 完整欄位說明
+
+> `version:` 在 Docker Compose V2（`docker compose`，現在的預設）已廢棄，不需要加，加了會出現 `WARN: version is obsolete`。
 
 ```yml
-version: "3"
-# 容器
 services:
-    sample:
-		# 指定服務的映像檔名稱或映像檔ID
-		image: dockerhub/sample
-		volumes:
-			- db-data:/etc/data # 設定volume
-		# 定義容器內的環境變數，類似docker run -e的效果
-		environment:
-			- MYSQL_USER=wordpress
-		# 設定容器間的依賴關係，即決定容器啟動的先後順序
-		depends_on: # 依賴 db 服務
-			- db
-		# 用來定義本機與容器間Port的對映關係，基本的格式也是HOST:CONTAINER
-		ports:
-			- "3000" # 不指定本機Port，本機會隨機自動產生
-			- "45678:22" # 本機的45678 Port對映到容器的Port 22
-		# 開放port
-		expose:
-			- 1234
-		# 設定Container重新啟動的規則
-		# 目前支援no、always、on-failure、unless-stopped等四個選項
-		# 一般會設為「always」，即當Container停止或開機時可以自動啟動Container
-		restart: always
-		# 容器設定networks
-		networks:
-			- front-tier
-			- back-tier
-		healthcheck:
-			# 指定了健康檢查的命令
-			test: ['CMD', 'mysql/healthcheck.sh']
-			test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
-			# 健康檢查的間隔時間
-			interval: 30s
-			# 設定了每次健康檢查的超時時間，即每次健康檢查最多執行 10 秒，超過這個時間將視為失敗。
-			timeout: 10s
-			# 設定了容器允許的最大重試次數，即如果連續 3 次健康檢查都失敗，則容器被標記為不健康。
-			retries: 3
-
-# 定義網路
-networks:
-	front-tier:
-	back-tier:
-	app-network:
-		driver: bridge
-		# 官方說明
-		# https://docs.docker.com/network/
-		# https://docs.docker.com/compose/networking/
-
-		# bridge:默認網絡驅動程序。橋接網絡。
-		host: Docker主機網路。
-
-		# # 錯誤 解決方案
-		# Docker ERROR: only one instance of "host" network is allowed
-		# https://stackoverflow.com/questions/63777655/docker-error-only-one-instance-of-host-network-is-allowed
-		# network_mode: host
-
-	# 使用預先存在的網絡
-	# 如果希望容器加入預先存在的網絡，請使用以下external選項：
-	default:
-		external:
-			name: my-pre-existing-network
-
-		# overlay:將多個Docker守護進程連接在一起，使swarm服務能夠相互通信。
-		# ipvlan:完全控制IPv4和IPv6尋址。
-		# macvlan:將MAC地址分配給容器，網絡上顯示為物理設備。
-
-		# 預設Docker Compose會自動建立default network，其名稱為「目錄名稱_default」
-		# 換言之，networks是可以省略的
-
-	# 設定網段
-	mynetwork:
-		ipam:
-			config:
-				- subnet: '172.6.0.0/16'
-
-	mynet1:
-		ipam:
-			driver: default
-			config:
-				- subnet: 172.28.0.0/16
-					ip_range: 172.28.5.0/24
-					gateway: 172.28.5.254
-					aux_addresses:
-					host1: 172.28.1.5
-					host2: 172.28.1.6
-					host3: 172.28.1.7
-		options:
-			foo: bar
-			baz: "0"
-```
-
-### docker-compose.centos.yml
-
-```yml
-version: '3'
-services:
-  centos:
-    container_name: centos
-    image: centos:centos7
-    ports:
-      - "8080:80"
-      - "1022:22"
-    command: ping 127.0.0.1
+  sample:
+    # 指定服務的映像檔名稱或映像檔ID
+    image: dockerhub/sample
     volumes:
-      - ./etc/ssl/nginx:/etc/ssl/nginx
-```
-
-### docker-compose.elasticsearch.yml
-
-```yml
-version: '3'
-services:
-  elasticsearch:
-    image: elasticsearch:7.13.3
-    container_name: elasticsearch
-    privileged: true
-    command: bash -c "cd /usr/local/dockercompose/elasticsearch/plugins && elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.13.3/elasticsearch-analysis-ik-7.13.3.zip" # 安裝 ik分詞器 需根據elasticsearch版本替換版本號
+      - db-data:/etc/data
+    # 定義容器內的環境變數
     environment:
-      - "cluster.name=elasticsearch" # 設置集群名稱為elasticsearch
-      - "discovery.type=single-node" # 以單一節點模式啟動
-      - "ES_JAVA_OPTS=-Xms512m -Xmx2g" # 設置使用jvm內存大小
-      - bootstrap.memory_lock=true # 關閉 swap
-    volumes:
-      - ./es/plugins:/usr/share/elasticsearch/plugins # 插件文件掛載
-      - ./es/data:/usr/local/dockercompose/elasticsearch/data:rw # 數據文件掛載
-      - ./es/logs:/usr/local/dockercompose/elasticsearch/logs:rw
-    ports:
-      - 9200:9200
-      - 9300:9300
-    deploy: # 限制物理資源
-      resources:
-        limits:
-          cpus: "2"
-          memory: 1000M
-        reservations:
-          memory: 200M
-  kibana:
-    image: kibana:7.13.3
-    container_name: kibana
+      - MYSQL_USER=wordpress
+    # 設定容器間的依賴關係
     depends_on:
-      - elasticsearch # kibana在elasticsearch啟動之後再啟動
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200 # 設置訪問elasticsearch的地址
-      I18N_LOCALE: zh-CN
-      # English - en (default)
-      # Chinese - zh-CN
-      # Japanese - ja-JP
-      # French - fr-FR
+      - db
+    # 本機與容器間 Port 對映
     ports:
-      - 5601:5601
-```
-
-### docker-compose.gitea.yml
-
-```yml
-version: "3"
-services:
-  gitea:
-    image: gitea/gitea:1.13.1
-    container_name: gitea
-    # environment:
-    #   - USER_UID=1000
-    #   - USER_GID=1000
+      - "3000"          # 不指定本機 Port，隨機產生
+      - "45678:22"      # 本機 45678 → 容器 22
+    expose:
+      - 1234
+    # 重啟規則：no / always / on-failure / unless-stopped
     restart: always
-    volumes:
-      - ./gitea:/data
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "80:80"
-      - "22:22"
+    networks:
+      - front-tier
+      - back-tier
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  front-tier:
+  back-tier:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
 ```
 
-### docker-compose.mongodb_clusters_replica_set.yml
+## 網路設定
 
 ```yml
-version: "3"
+networks:
+  # bridge：預設網路驅動
+  app-network:
+    driver: bridge
+
+  # 設定固定網段
+  mynetwork:
+    ipam:
+      config:
+        - subnet: '172.6.0.0/16'
+
+  mynet1:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          ip_range: 172.28.5.0/24
+          gateway: 172.28.5.254
+
+  # 使用預先存在的網絡
+  default:
+    external:
+      name: my-pre-existing-network
+```
+
+## 多服務共用設定（extends）
+
+在 `common.yml` 中定義通用配置：
+
+```yml
+services:
+  app:
+    build: .
+    environment:
+      CONFIG_FILE_PATH: /code/config
+      API_KEY: xxxyyy
+    cpu_shares: 5
+```
+
+在 `docker-compose.yml` 中引用：
+
+```yml
+services:
+  webapp:
+    extends:
+      file: common.yml
+      service: app
+    command: /code/run_web_app
+    ports:
+      - 8080:8080
+    depends_on:
+      - queue
+      - db
+
+  queue_worker:
+    extends:
+      file: common.yml
+      service: app
+    command: /code/run_worker
+    depends_on:
+      - queue
+```
+
+## 連線主機別名
+
+`IMAGE://DOCKER_IP:PORT`
+
+```yml
+services:
+  web:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.custom
+    ports:
+      - "8000:8000"
+  db:
+    image: postgres
+    ports:
+      - "8001:5432"
+```
+
+---
+
+# 服務範例
+
+## CI/CD
+
+### Jenkins
+
+```yml
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
+```
+
+---
+
+## AI / LLM
+
+### Ollama
+
+```yml
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+```
+
+---
+
+## 資料庫
+
+### MySQL + phpMyAdmin
+
+```yml
+services:
+  mysql:
+    container_name: mysql
+    hostname: mysql-container
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./log/mysql:/var/log/mysql
+      - ./conf/mysql:/etc/mysql/conf.d
+  phpmyadmin:
+    container_name: phpmyadmin
+    hostname: phpmyadmin-container
+    image: phpmyadmin/phpmyadmin
+    volumes:
+      - ./conf/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+    ports:
+      - 80:80
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - mysql
+```
+
+### MySQL Master-Slave
+
+```yml
+services:
+  mysql1:
+    container_name: mysql1
+    hostname: mysql1-container
+    image: mysql:5.7
+    ports:
+      - 31216:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - ./data/mysql1:/var/lib/mysql
+      - ./config/mysql1/master.cnf:/etc/mysql/my.cnf
+  mysql2:
+    container_name: mysql2
+    hostname: mysql2-container
+    image: mysql:5.7
+    ports:
+      - 31217:3306
+    depends_on:
+      - mysql1
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - ./data/mysql2:/var/lib/mysql
+      - ./config/mysql2/slave.cnf:/etc/mysql/my.cnf
+```
+
+```conf
+; master.cnf
+[mysqld]
+server-id = 1
+log-bin = mysql-bin
+```
+
+```conf
+; slave.cnf
+[mysqld]
+server-id = 2
+read-only = ON
+```
+
+### MySQL InnoDB Cluster
+
+```yml
+services:
+  common:
+    image: neumayer/mysql-shell-batch
+    volumes:
+      - ./scripts/:/scripts/
+    environment:
+      - MYSQL_USER=mysql_innodb_cluster_admin
+      - MYSQL_PASSWORD=mysql_innodb_cluster_admin_password
+      - MYSQL_HOST=node1
+      - MYSQL_PORT=3306
+  boot:
+    extends:
+      service: common
+    environment:
+      - EXECUTE_SCRIPT=boot.js
+    network_mode: host
+  run:
+    extends:
+      service: common
+    environment:
+      - EXECUTE_SCRIPT=run.js
+    network_mode: host
+```
+
+### ProxySQL
+
+```yml
+services:
+  proxysql:
+    image: proxysql/proxysql
+    container_name: proxysql
+    ports:
+      - "6032:6032"
+      - "6033:6033"
+    volumes:
+      - ./proxysql.cnf:/etc/proxysql.cnf
+    restart: always
+```
+
+### MongoDB Replica Set（3 節點）
+
+含 healthcheck + 自動初始化：
+
+```yml
+
+services:
+  mongo1:
+    image: mongo:6
+    container_name: mongo1
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo1_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mongo2:
+    image: mongo:6
+    container_name: mongo2
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo2_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mongo3:
+    image: mongo:6
+    container_name: mongo3
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo3_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  mongo-init:
+    image: mongo:6
+    container_name: mongo-init
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_healthy
+      mongo3:
+        condition: service_healthy
+    command: >
+      mongosh --host mongo1:27017 --eval
+      '
+      rs.initiate({
+        _id: "rs0",
+        members: [
+          { _id: 0, host: "mongo1:27017" },
+          { _id: 1, host: "mongo2:27017" },
+          { _id: 2, host: "mongo3:27017" }
+        ]
+      })
+      '
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:
+```
+
+舊版 3 節點（mongo image 預設版）：
+
+```yml
 services:
   mongo1:
     image: mongo
     container_name: mongo1
     ports:
       - 31141:27017
-    # expose: # 開給內網
-    #     - 5000
     command: mongod --replSet RS --bind_ip_all --dbpath /data/db
     volumes:
       - ./data/mongo1:/data/db
@@ -384,47 +600,881 @@ services:
       - ./data/mongo3:/data/db
 ```
 
-### docker-compose.mysql_phpmyadmin.yml
+### MongoDB Replica Set（單節點）
 
 ```yml
-version: '3'
+
 services:
-  mysql:
-    container_name: mysql
-    hostname: mysql-container
-    image: mysql:5.7
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     ports:
-      - 3306:3306
-    environment:
-      MYSQL_ROOT_PASSWORD: root
+      - "27017:27017"
     volumes:
-      - ./data/mysql:/var/lib/mysql
-      - ./log/mysql:/var/log/mysql
-      - ./conf/mysql:/etc/mysql/conf.d
-  phpmyadmin:
-    container_name: phpmyadmin
-    hostname: phpmyadmin-container
-    image: phpmyadmin/phpmyadmin
-    volumes:
-      - ./conf/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
-      - ./data/phpmyadmin/:/srv/phpmyadmin/
-    ports:
-      - 80:80
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: root
-      MYSQL_ROOT_PASSWORD: root
-      # UPLOAD_LIMIT: '100M'
-    depends_on:
-      - mysql
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
 ```
 
-### docker-compose.php.yml
+### Redis Cluster（6 節點）
 
 ```yml
-version: '3'
+
+services:
+  redis-7001:
+    image: redis:7
+    container_name: redis-7001
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    ports:
+      - "7001:7001"
+    volumes:
+      - ./conf/redis/7001:/etc/redis
+    networks:
+      - redis-cluster-net
+
+  redis-7002:
+    image: redis:7
+    container_name: redis-7002
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    ports:
+      - "7002:7002"
+    volumes:
+      - ./conf/redis/7002:/etc/redis
+    networks:
+      - redis-cluster-net
+
+  redis-7003:
+    image: redis:7
+    container_name: redis-7003
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    ports:
+      - "7003:7003"
+    volumes:
+      - ./conf/redis/7003:/etc/redis
+    networks:
+      - redis-cluster-net
+
+  redis-7004:
+    image: redis:7
+    container_name: redis-7004
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    ports:
+      - "7004:7004"
+    volumes:
+      - ./conf/redis/7004:/etc/redis
+    networks:
+      - redis-cluster-net
+
+  redis-7005:
+    image: redis:7
+    container_name: redis-7005
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    ports:
+      - "7005:7005"
+    volumes:
+      - ./conf/redis/7005:/etc/redis
+    networks:
+      - redis-cluster-net
+
+  redis-7006:
+    image: redis:7
+    container_name: redis-7006
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    ports:
+      - "7006:7006"
+    volumes:
+      - ./conf/redis/7006:/etc/redis
+    networks:
+      - redis-cluster-net
+
+networks:
+  redis-cluster-net:
+    driver: bridge
+```
+
+---
+
+## Elastic Stack
+
+### Elasticsearch + Kibana（單節點）
+
+```yml
+services:
+  elasticsearch:
+    image: elasticsearch:7.13.3
+    container_name: elasticsearch
+    privileged: true
+    environment:
+      - "cluster.name=elasticsearch"
+      - "discovery.type=single-node"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx2g"
+      - bootstrap.memory_lock=true
+    volumes:
+      - ./es/plugins:/usr/share/elasticsearch/plugins
+      - ./es/data:/usr/share/elasticsearch/data:rw
+    ports:
+      - 9200:9200
+      - 9300:9300
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1000M
+  kibana:
+    image: kibana:7.13.3
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      I18N_LOCALE: zh-CN
+    ports:
+      - 5601:5601
+```
+
+### Elasticsearch 3 節點叢集（無 TLS）
+
+```yml
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.4
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.4
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.4
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.13.4
+    container_name: kibana
+    ports:
+      - 5601:5601
+    environment:
+      ELASTICSEARCH_HOSTS: '["http://es01:9200","http://es02:9200","http://es03:9200"]'
+    networks:
+      - elastic
+
+volumes:
+  data01:
+  data02:
+  data03:
+
+networks:
+  elastic:
+    driver: bridge
+```
+
+### Elasticsearch 3 節點叢集（官方 TLS）
+
+> 透過 `.env` 設定 `ELASTIC_PASSWORD`、`KIBANA_PASSWORD`、`STACK_VERSION` 等環境變數。
+
+```yml
+
+services:
+  setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+    user: "0"
+    command: >
+      bash -c '
+        if [ x${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        if [ ! -f config/certs/ca.zip ]; then
+          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+          unzip config/certs/ca.zip -d config/certs;
+        fi;
+        if [ ! -f config/certs/certs.zip ]; then
+          echo -ne "instances:\n  - name: es01\n    dns:\n      - es01\n      - localhost\n    ip:\n      - 127.0.0.1\n  - name: es02\n    dns:\n      - es02\n      - localhost\n    ip:\n      - 127.0.0.1\n  - name: es03\n    dns:\n      - es03\n      - localhost\n    ip:\n      - 127.0.0.1\n" > config/certs/instances.yml;
+          bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+          unzip config/certs/certs.zip -d config/certs;
+        fi;
+        chown -R root:root config/certs;
+        find . -type d -exec chmod 750 \{\} \;;
+        find . -type f -exec chmod 640 \{\} \;;
+        until curl -s --cacert config/certs/ca/ca.crt https://es01:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        until curl -s -X POST --cacert config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} -H "Content-Type: application/json" https://es01:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        echo "All done!";
+      '
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/es01/es01.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+
+  es01:
+    depends_on:
+      setup:
+        condition: service_healthy
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata01:/usr/share/elasticsearch/data
+    ports:
+      - ${ES_PORT}:9200
+    environment:
+      - node.name=es01
+      - cluster.name=${CLUSTER_NAME}
+      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=es02,es03
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es01/es01.key
+      - xpack.security.http.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es01/es01.key
+      - xpack.security.transport.ssl.certificate=certs/es01/es01.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  es02:
+    depends_on:
+      - es01
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata02:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es02
+      - cluster.name=${CLUSTER_NAME}
+      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=es01,es03
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es02/es02.key
+      - xpack.security.http.ssl.certificate=certs/es02/es02.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es02/es02.key
+      - xpack.security.transport.ssl.certificate=certs/es02/es02.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  es03:
+    depends_on:
+      - es02
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+      - esdata03:/usr/share/elasticsearch/data
+    environment:
+      - node.name=es03
+      - cluster.name=${CLUSTER_NAME}
+      - cluster.initial_master_nodes=es01,es02,es03
+      - discovery.seed_hosts=es01,es02
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=certs/es03/es03.key
+      - xpack.security.http.ssl.certificate=certs/es03/es03.crt
+      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.key=certs/es03/es03.key
+      - xpack.security.transport.ssl.certificate=certs/es03/es03.crt
+      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
+    mem_limit: ${MEM_LIMIT}
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+  kibana:
+    depends_on:
+      es01:
+        condition: service_healthy
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    volumes:
+      - certs:/usr/share/kibana/config/certs
+      - kibanadata:/usr/share/kibana/data
+    ports:
+      - ${KIBANA_PORT}:5601
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=https://es01:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+
+volumes:
+  certs:
+  esdata01:
+  esdata02:
+  esdata03:
+  kibanadata:
+```
+
+### Elasticsearch + Kibana + Logstash
+
+```yml
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.13.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.13.3
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.13.3
+    container_name: logstash
+    volumes:
+      - ./pipeline:/usr/share/logstash/pipeline
+    depends_on:
+      - elasticsearch
+```
+
+### Elasticsearch + Kibana + Logstash JDBC
+
+```yml
+services:
+  elasticsearch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.13.3
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.13.3
+    container_name: logstash
+    volumes:
+      - ./pipeline:/usr/share/logstash/pipeline
+      - ./drivers:/usr/share/logstash/drivers
+    depends_on:
+      - elasticsearch
+```
+
+### Elasticsearch + Kibana + APM Server
+
+```yml
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:${STACK_VERSION}
+    container_name: apm-server
+    ports:
+      - "8200:8200"
+    depends_on:
+      - elasticsearch
+      - kibana
+    environment:
+      - output.elasticsearch.hosts=["elasticsearch:9200"]
+      - apm-server.kibana.enabled=true
+      - apm-server.kibana.host=kibana:5601
+
+volumes:
+  esdata:
+```
+
+### docker-elk（deviantony）
+
+```yml
+
+services:
+  setup:
+    profiles:
+      - setup
+    build:
+      context: setup/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    init: true
+    volumes:
+      - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
+      - ./setup/lib.sh:/lib.sh:ro,Z
+      - ./setup/roles:/roles:ro,Z
+    environment:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - elasticsearch:/usr/share/elasticsearch/data:Z
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      node.name: elasticsearch
+      ES_JAVA_OPTS: -Xms256m -Xmx256m
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      discovery.type: single-node
+    networks:
+      - elk
+    restart: unless-stopped
+
+  logstash:
+    build:
+      context: logstash/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+    ports:
+      - 5044:5044
+      - 50000:50000/tcp
+      - 50000:50000/udp
+      - 9600:9600
+    environment:
+      LS_JAVA_OPTS: -Xms256m -Xmx256m
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+    ports:
+      - 5601:5601
+    environment:
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+networks:
+  elk:
+    driver: bridge
+
+volumes:
+  elasticsearch:
+```
+
+---
+
+## 郵件伺服器
+
+### docker-mailserver（後端 MTA）
+
+```yml
+services:
+  mailserver:
+    image: docker.io/mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: mail.example.com
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - ./docker-data/dms/mail-data/:/var/mail/
+      - ./docker-data/dms/mail-state/:/var/mail-state/
+      - ./docker-data/dms/mail-logs/:/var/log/mail/
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - ENABLE_RSPAMD=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_FAIL2BAN=1
+    restart: always
+    stop_grace_period: 1m
+    cap_add:
+      - NET_ADMIN
+```
+
+### Poste.io（全功能郵件）
+
+```yml
+services:
+  poste:
+    image: analogic/poste.io
+    container_name: poste
+    ports:
+      - "25:25"
+      - "80:80"
+      - "443:443"
+      - "110:110"
+      - "143:143"
+      - "993:993"
+      - "995:995"
+    volumes:
+      - ./data:/data
+    restart: always
+```
+
+### RainLoop（Web 客戶端）
+
+```yml
+services:
+  rainloop:
+    image: hardware/rainloop
+    container_name: rainloop
+    ports:
+      - "8888:80"
+    volumes:
+      - ./data:/rainloop/data
+    restart: always
+```
+
+### Roundcube（Web 客戶端 + DB）
+
+```yml
+services:
+  db:
+    image: mariadb
+    container_name: roundcube-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: roundcube
+      MYSQL_USER: roundcube
+      MYSQL_PASSWORD: roundcubepassword
+    volumes:
+      - db-data:/var/lib/mysql
+    restart: always
+
+  roundcube:
+    image: roundcube/roundcubemail
+    container_name: roundcube
+    ports:
+      - "8080:80"
+    environment:
+      ROUNDCUBEMAIL_DB_TYPE: mysql
+      ROUNDCUBEMAIL_DB_HOST: db
+      ROUNDCUBEMAIL_DB_NAME: roundcube
+      ROUNDCUBEMAIL_DB_USER: roundcube
+      ROUNDCUBEMAIL_DB_PASSWORD: roundcubepassword
+      ROUNDCUBEMAIL_DEFAULT_HOST: ssl://mail.example.com
+      ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.example.com
+    volumes:
+      - roundcube-data:/var/www/html
+    depends_on:
+      - db
+    restart: always
+
+volumes:
+  db-data:
+  roundcube-data:
+```
+
+---
+
+## 監控
+
+### LibreNMS（SNMP 網路監控）
+
+```yml
+
+services:
+  db:
+    image: "mariadb:10.5"
+    container_name: librenms_db
+    command:
+      - "mysqld"
+      - "--innodb-file-per-table=1"
+      - "--lower-case-table-names=0"
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+    environment:
+      - "TZ=${TZ}"
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
+      - "MYSQL_DATABASE=${MYSQL_DATABASE}"
+      - "MYSQL_USER=${MYSQL_USER}"
+      - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
+    volumes:
+      - "./db:/var/lib/mysql"
+    restart: always
+
+  redis:
+    image: "redis:5.0-alpine"
+    container_name: librenms_redis
+    environment:
+      - "TZ=${TZ}"
+    restart: always
+
+  librenms:
+    image: librenms/librenms:latest
+    container_name: librenms
+    hostname: librenms
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - "./librenms:/data"
+    environment:
+      - "TZ=${TZ}"
+      - "DB_HOST=db"
+      - "DB_NAME=${MYSQL_DATABASE}"
+      - "DB_USER=${MYSQL_USER}"
+      - "DB_PASSWORD=${MYSQL_PASSWORD}"
+      - "REDIS_HOST=redis"
+      - "REDIS_PORT=6379"
+    restart: always
+
+  dispatcher:
+    image: librenms/librenms:latest
+    container_name: librenms_dispatcher
+    hostname: librenms-dispatcher
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    depends_on:
+      - librenms
+      - redis
+    volumes:
+      - "./librenms:/data"
+    environment:
+      - "TZ=${TZ}"
+      - "DB_HOST=db"
+      - "DB_NAME=${MYSQL_DATABASE}"
+      - "DB_USER=${MYSQL_USER}"
+      - "DB_PASSWORD=${MYSQL_PASSWORD}"
+      - "REDIS_HOST=redis"
+      - "REDIS_PORT=6379"
+      - "DISPATCHER_NODE_ID=dispatcher1"
+      - "SIDECAR_DISPATCHER=1"
+    restart: always
+```
+
+---
+
+## 代理 / 負載均衡
+
+### HAProxy（Web）
+
+```yml
+services:
+  haproxy:
+    image: haproxy:latest
+    container_name: haproxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    restart: always
+```
+
+### HAProxy（Redis 代理）
+
+```yml
+services:
+  haproxy:
+    image: haproxy:latest
+    container_name: haproxy
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    networks:
+      - my_shared_net
+
+networks:
+  my_shared_net:
+    external: true
+```
+
+### Redis（HAProxy 測試用雙節點）
+
+```yml
+services:
+  redis1:
+    image: redis:latest
+    container_name: redis1
+    ports:
+      - "6380:6379"
+    networks:
+      - my_shared_net
+
+  redis2:
+    image: redis:latest
+    container_name: redis2
+    ports:
+      - "6381:6379"
+    networks:
+      - my_shared_net
+
+networks:
+  my_shared_net:
+    external: true
+```
+
+---
+
+## 檔案伺服器
+
+### FileBrowser（基本）
+
+```yml
+services:
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    ports:
+      - "8080:80"
+    volumes:
+      - ./data:/srv
+      - ./database.db:/database.db
+    restart: always
+```
+
+### FileBrowser（固定 IP）
+
+```yml
+services:
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    ports:
+      - "8080:80"
+    volumes:
+      - ./data:/srv
+      - ./database.db:/database.db
+    restart: always
+    networks:
+      restricted_network:
+        ipv4_address: 192.168.1.100
+
+networks:
+  restricted_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+```
+
+---
+
+## 網站框架
+
+### PHP（Nginx + PHP-FPM + MongoDB）
+
+```yml
 services:
   nginx:
     container_name: nginx
@@ -447,172 +1497,78 @@ services:
       - 27017
 ```
 
-### docker-compose.scrapy_splash.yml
+### PHP Laravel（Nginx + PHP-FPM + MySQL）
 
 ```yml
-version: '3'
-# 爬蟲 splash伺服器
 services:
-  scrapy:
-    container_name: scrapy
-    image: scrapinghub/splash
-    ports:
-      - 8050:8050
-    volumes:
-      - ../spiders:/usr/src/app
-    command: ping 127.0.0.1 # 為了不讓他中止
-```
-
-### docker-compose.celery_python.yml
-
-```yml
-version: '3'
-services:
-  redis_celery:
-    image: redis
-  worker:
+  nginx:
     build:
-      # Dockerfile 路徑
-      context: ./docker
-      dockerfile: Dockerfile.custom
-    env_file:
-      - ./env/celery.env
-    volumes:
-      - .:/usr/src/app
-    command: celery worker -A celery -l info -E -P gevent --purge -n worker%i@%h
-  beat:
-    build:
-      # Dockerfile 路徑
-      context: ./docker
-      dockerfile: Dockerfile.custom
-    env_file:
-      - ./env/celery.env
-    volumes:
-      - .:/usr/src/app
-    command: celery beat -A celery -l info --pidfile=
-```
-
-```.env
-# python celery
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/1
-```
-
-### docker-compose.mysql_master_slave.yml
-
-```yml
-version: '3'
-services:
-  mysql1:
-    container_name: mysql1
-    hostname: mysql1-container
-    image: mysql:5.7
+      context: .
+      dockerfile: nginx/Dockerfile
+    container_name: nginx
     ports:
-      - 31216:3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      # - MYSQL_REPLICATION_MODE=master
-      # - MYSQL_REPLICATION_USER=replication
-      # - MYSQL_REPLICATION_PASSWORD=testpassword
+      - "80:80"
     volumes:
-      - ./data/mysql1:/var/lib/mysql
-      - ./config/mysql1/master.cnf:/etc/mysql/my.cnf
-  mysql2:
-    container_name: mysql2
-    hostname: mysql2-container
-    image: mysql:5.7
-    ports:
-      - 31217:3306
+      - ./:/var/www/html
+      - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
-      - mysql1
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      # - MYSQL_REPLICATION_MODE=slave
-      # - MYSQL_REPLICATION_USER=replication
-      # - MYSQL_REPLICATION_PASSWORD=testpassword
-      # - MYSQL_MASTER_HOST=mysql1
-      # - MYSQL_MASTER_PORT_NUMBER=31216
-      # - MYSQL_MASTER_ROOT_PASSWORD=root
+      - php
+    networks:
+      - app_network
+
+  php:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+    container_name: php-fpm
     volumes:
-      - ./data/mysql2:/var/lib/mysql
-      - ./config/mysql2/slave.cnf:/etc/mysql/my.cnf
+      - ./:/var/www/html
+    networks:
+      - app_network
+
+  mysql57:
+    image: mysql:5.7
+    container_name: mysql57
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mysql57
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql57
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
 ```
 
-```conf
-; master.cnf
-[mysqld]
-server-id = 1
-log-bin = mysql-bin
-# 第一個參數是新增時從第幾個編號開始，第二個參數是每次新增資料要加幾號
-# auto-increment-increment = 1
-# auto-increment-offset = 1
-```
-
-```conf
-; slave.cnf
-[mysqld]
-server-id = 2
-# log-bin=MySQL-bin
-# super user 依然可寫入
-read-only = ON
-# 第一個參數是新增時從第幾個編號開始，第二個參數是每次新增資料要加幾號
-# auto-increment-increment = 1
-# auto-increment-offset = 1
-```
-
-```sql
-clone 資料庫的資料夾 已建立
-docker-compose up -d 拉起容器
-
-建立 MySQL master-slave 架構
-
- ======== master server 部分 ========
-
--- 確認mysql-master server_id和log_bin變數
-SHOW VARIABLES LIKE 'server_id%';
-SHOW VARIABLES LIKE 'log_bin%';
-
--- 顯示master狀態：該File列顯示日誌文件的名稱並Position顯示文件中的位置。記錄這些值。稍後在設置副本時需要它們。它們表示副本應開始處理來自源的新更新的複制坐標。
-SHOW MASTER STATUS;
-
--- 建立master-slave使用者：要創建新帳戶，請使用CREATE USER。要授予此帳戶複製所需的權限，請使用該GRANT 語句。如果您僅為複制目的創建帳戶，則該帳戶只需要 REPLICATION SLAVE權限。例如，要設置一個repl可以從example.com域內的任何主機連接以進行複制 的新用戶
-CREATE USER 'user'@'host' IDENTIFIED BY 'password';
-GRANT REPLICATION SLAVE ON *.* TO 'user'@'host';
-
--- 列出所有使用者帳號
-SELECT User,Host FROM mysql.user;
-
- ======== slave server 部分 ========
-
--- 檢查mysql-slave server_id和read_only變數
-SHOW VARIABLES LIKE 'server_id%';
-SHOW VARIABLES LIKE 'read_only%';
-
--- 新增mysql-slave設定master資料 綁定到master
-CHANGE MASTER TO MASTER_HOST = 'master ip',
-MASTER_PORT = 3306,
-MASTER_USER = 'user',
-MASTER_PASSWORD = 'password',
--- 在master server時，輸入 SHOW MASTER STATUS 找出的資訊;
-MASTER_LOG_FILE = 'master bin_log filename',
-MASTER_LOG_POS = 'log position';
-
--- 確認slave狀態：SHOW SLAVE STATUS，注意：Slave_IO_Running: Yes、Slave_SQL_Running: Yes
-SHOW SLAVE STATUS\G
-
--- 執行slave
-START SLAVE;
-```
-
-### docker-compose.nginx_plus(centos)-php_fpm.yml
+### Nginx Plus（CentOS）+ PHP-FPM
 
 ```yml
-version: '3'
 services:
   centos:
     container_name: centos
     build:
-      # Dockerfile 路徑
       context: ./docker
       dockerfile: Dockerfile.custom
     ports:
@@ -639,103 +1595,117 @@ networks:
     driver: bridge
 ```
 
-```Dockerfile
-# php
-FROM php:7.4-fpm
-
-RUN apt-get update
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-```
-
-```Dockerfile
-# centos
-FROM centos/systemd
-COPY . .
-
-RUN yum install wget -y
-RUN yum install vim -y
-RUN yum install GeoIP  GeoIP-data -y
-
-COPY ./setup_info/nginx-repo.crt /etc/ssl/nginx/nginx-repo.crt
-COPY ./setup_info/nginx-repo.key /etc/ssl/nginx/nginx-repo.key
-
-RUN touch /etc/ssl/nginx/nginx-repo.crt
-RUN touch /etc/ssl/nginx/nginx-repo.key
-
-RUN wget -P /etc/yum.repos.d git@cs.nginx.com/static/files/nginx-plus-7.4.repo
-
-RUN yum install nginx-plus -y
-RUN yum install nginx-plus-module-geoip -y
-RUN yum install nginx-plus-module-image-filter -y
-RUN yum install nginx-plus-module-subs-filter -y
-
-RUN cp -r /etc/nginx /etc/nginx_bak
-RUN rm -rf /etc/nginx/*
-CMD ["nginx", "-g", "daemon off;"]
-```
-
-### 多個服務使用同資料 示例用例
-
-```
-當您有多個具有通用配置的服務時，擴展單個服務非常有用。
-下面的示例是具有兩個服務的 Compose 應用程序：一個 Web 應用程序和一個隊列工作器。
-這兩種服務使用相同的代碼庫並共享許多配置選項。
-```
-
-在common.yml 中，我們定義了通用配置：
+### CentOS 容器
 
 ```yml
 services:
-  app:
-    build: .
-    environment:
-      CONFIG_FILE_PATH: /code/config
-      API_KEY: xxxyyy
-    cpu_shares: 5
-```
-
-在docker-compose.yml 中，我們定義了使用通用配置的具體服務：
-
-```yml
-services:
-  webapp:
-    extends:
-      file: common.yml
-      service: app
-    command: /code/run_web_app
+  centos:
+    container_name: centos
+    image: centos:centos7
     ports:
-      - 8080:8080
-    expose:
-      - "80"
-    depends_on:
-      - queue
-      - db
-
-  queue_worker:
-    extends:
-      file: common.yml
-      service: app
-    command: /code/run_worker
-    depends_on:
-      - queue
+      - "8080:80"
+      - "1022:22"
+    command: ping 127.0.0.1
+    volumes:
+      - ./etc/ssl/nginx:/etc/ssl/nginx
 ```
 
-### 連線 主機別名
+---
 
-`IMAGE`://`DOCKER_IP`:`PORT`
+## 爬蟲工具
+
+### Scrapy + Splash（基本）
 
 ```yml
-version: "3.9"
 services:
-  web:
+  splash:
+    image: scrapinghub/splash
+    container_name: splash
+    ports:
+      - "8050:8050"
+    restart: always
+```
+
+### Scrapy + Splash（含 volume）
+
+```yml
+services:
+  scrapy:
+    container_name: scrapy
+    image: scrapinghub/splash
+    ports:
+      - 8050:8050
+    volumes:
+      - ../spiders:/usr/src/app
+    command: ping 127.0.0.1
+```
+
+### FlareSolverr（反爬蟲繞過）
+
+```yml
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=${TZ:-Europe/London}
+    ports:
+      - "${PORT:-8191}:8191"
+    restart: unless-stopped
+```
+
+### Celery（Python 任務佇列）
+
+```yml
+services:
+  redis_celery:
+    image: redis
+  worker:
     build:
-      # Dockerfile 路徑
       context: ./docker
       dockerfile: Dockerfile.custom
+    env_file:
+      - ./env/celery.env
+    volumes:
+      - .:/usr/src/app
+    command: celery worker -A celery -l info -E -P gevent --purge -n worker%i@%h
+  beat:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.custom
+    env_file:
+      - ./env/celery.env
+    volumes:
+      - .:/usr/src/app
+    command: celery beat -A celery -l info --pidfile=
+```
+
+```.env
+# python celery
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/1
+```
+
+---
+
+## Git 服務
+
+### Gitea
+
+```yml
+services:
+  gitea:
+    image: gitea/gitea:1.13.1
+    container_name: gitea
+    restart: always
+    volumes:
+      - ./gitea:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     ports:
-      - "8000:8000"
-  db:
-    image: postgres
-    ports:
-      - "8001:5432"
+      - "80:80"
+      - "22:22"
 ```
