@@ -43,6 +43,10 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
     - [指令相關](#指令相關)
       - [鎖定資料庫](#鎖定資料庫)
     - [升級相關](#升級相關)
+    - [效能優化相關](#效能優化相關)
+- [效能優化](#效能優化)
+  - [索引建立](#索引建立)
+  - [查詢優化注意事項](#查詢優化注意事項)
 - [安裝](#安裝)
   - [Docker部署](#docker部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
@@ -148,6 +152,94 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
 [MongoDB Versioning](https://www.mongodb.com/zh-cn/docs/v6.0/reference/versioning/#std-label-release-version-numbers)
 
 [升级到MongoDB的最新自我管理补丁版本](https://www.mongodb.com/zh-cn/docs/v6.0/tutorial/upgrade-revision/)
+
+# 效能優化
+
+## 索引建立
+
+MongoDB 查詢若無對應 index，會進行 **Collection Scan**（全表掃描），資料量大時效能急速下降。
+
+### pymongo 建立索引
+
+```python
+from pymongo import ASCENDING, DESCENDING
+
+db = get_db()
+
+# 單欄位索引
+db['logs'].create_index([('username', ASCENDING)], name='logs_username')
+
+# 複合索引（依查詢 WHERE 欄位順序排列）
+db['logs'].create_index(
+    [('username', ASCENDING), ('created_at', DESCENDING)],
+    name='logs_username_time'
+)
+
+# 唯一索引
+db['inventory'].create_index(
+    [('product_id', ASCENDING), ('warehouse_id', ASCENDING)],
+    unique=True, name='inv_product_warehouse'
+)
+
+# Sparse 索引（跳過欄位不存在的文件，適合選填欄位）
+db['users'].create_index(
+    [('store_id', ASCENDING)],
+    name='users_store_id', sparse=True
+)
+```
+
+### 在應用啟動時建立索引（冪等）
+
+```python
+def _ensure_indexes():
+    """應用啟動時呼叫，create_index 具冪等性，重複執行不會報錯。"""
+    from pymongo import ASCENDING, DESCENDING
+    db = get_db()
+    indexes = [
+        ('logs',    [('username', ASCENDING), ('created_at', DESCENDING)], {'name': 'logs_username_time'}),
+        ('logs',    [('action',   ASCENDING), ('created_at', DESCENDING)], {'name': 'logs_action_time'}),
+        ('orders',  [('created_at', DESCENDING)],                          {'name': 'orders_created_at'}),
+    ]
+    for col, keys, kwargs in indexes:
+        try:
+            db[col].create_index(keys, **kwargs)
+        except Exception as e:
+            print(f'索引建立失敗 {col}: {e}')
+```
+
+### 查看現有索引 / 分析查詢
+
+```javascript
+// mongosh
+db.collection_name.getIndexes()
+
+// 分析查詢是否使用 index
+db.logs.find({ username: "admin" }).explain("executionStats")
+// 檢查 winningPlan.stage：
+//   IXSCAN  → 使用 index（良好）
+//   COLLSCAN → 全表掃描（需要建立 index）
+```
+
+## 查詢優化注意事項
+
+| 問題 | 原因 | 解法 |
+|---|---|---|
+| `$regex` 搜尋慢 | 無法使用普通 index | 改用 text index 或限縮搜尋欄位 |
+| `find()` 回傳大量文件 | 無 limit | 加 `.limit(n)` 或分頁 |
+| 迴圈內呼叫 DB | N+1 查詢 | 批次查詢後用 dict 對應 |
+| 不需要的欄位 | 傳輸量大 | 加 projection 只取必要欄位 |
+
+```python
+# 避免：每次迴圈查一筆
+for order in orders:
+    product = db.products.find_one({'_id': order['product_id']})
+
+# 改為：批次查詢
+product_ids = [o['product_id'] for o in orders]
+products = {p['_id']: p for p in db.products.find({'_id': {'$in': product_ids}})}
+for order in orders:
+    product = products.get(order['product_id'])
+```
 
 # 安裝
 
