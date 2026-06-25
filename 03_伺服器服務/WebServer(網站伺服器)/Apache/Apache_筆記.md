@@ -28,6 +28,8 @@ Debian 系列服務名稱為 apache2，RedHat 系列為 httpd。
   - [apachectl（兩種發行版通用）](#apachectl兩種發行版通用)
   - [模組管理（Debian）](#模組管理debian)
   - [站點管理（Debian）](#站點管理debian)
+    - [sites-available / sites-enabled 機制](#sites-available--sites-enabled-機制)
+    - [停用預設站點](#停用預設站點)
 
 ## 參考資料
 
@@ -284,3 +286,50 @@ sudo systemctl reload apache2
 # 列出已啟用站點
 ls /etc/apache2/sites-enabled/
 ```
+
+### sites-available / sites-enabled 機制
+
+`sites-available/` 存放所有設定檔原始檔；`sites-enabled/` 只存 symlink，Apache 實際讀的是 symlink 指向的檔案。
+
+```
+/etc/apache2/
+├── sites-available/
+│   ├── 000-default.conf       # 原始檔
+│   ├── 001-8888.conf
+│   └── default-ssl.conf
+└── sites-enabled/
+    ├── 000-default.conf -> ../sites-available/000-default.conf   # symlink（啟用中）
+    └── 001-8888.conf    -> ../sites-available/001-8888.conf      # symlink（啟用中）
+    # default-ssl.conf 沒有 symlink → 停用狀態
+```
+
+`a2ensite` / `a2dissite` 的本質就是新增或移除 `sites-enabled/` 裡的 symlink。
+
+**`.conf` 副檔名是必要的**，因為 `apache2.conf` 用 glob 載入：
+
+```apacheconf
+# /etc/apache2/apache2.conf
+IncludeOptional sites-enabled/*.conf
+```
+
+沒有 `.conf` 結尾的檔案（例如 `.bak`）不會被載入，即使放在 `sites-enabled/` 也無效。
+
+### 停用預設站點
+
+Debian 安裝後預設啟用 `000-default.conf`（HTTP）與視情況的 `default-ssl.conf`（HTTPS），通常不需要這兩個：
+
+```bash
+# 停用預設 HTTP 站點
+a2dissite 000-default.conf
+
+# 停用預設 SSL 站點（若有啟用）
+a2dissite default-ssl.conf
+
+service apache2 reload
+```
+
+執行後 `sites-enabled/` 移除對應 symlink，`sites-available/` 的原始檔不動。
+
+> 若直接在 `sites-available/` 改名（如 `.bak`），但 `sites-enabled/` 裡的 symlink 仍存在，
+> 該 symlink 會變成 broken symlink，Apache reload 時會出現警告。
+> 應先用 `a2dissite` 移除 symlink，再改名或保留原始檔。
