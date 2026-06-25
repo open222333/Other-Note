@@ -8,6 +8,8 @@
 |---|---|
 | Apache、httpd、apache2、VirtualHost | `03_伺服器服務/WebServer(網站伺服器)/Apache/Apache_筆記.md` |
 | MySQL、mysqldump、my.cnf | `03_伺服器服務/.../MySQL/MySQL_筆記.md` |
+| ER 圖、資料表設計、dbdiagram、Workbench | `03_伺服器服務/DatabaseServer/資料表設計工具/資料表設計工具_總覽.md` |
+| MongoDB 文件設計、嵌入 vs 引用、Hackolade | `03_伺服器服務/DatabaseServer/資料表設計工具/MongoDB_資料表設計工具.md` |
 | XtraBackup、全量備份、增量備份 | `03_伺服器服務/.../MySQL/MySQL_工具_Percona_XtraBackup(資料備份的工具).md` |
 | ProxySQL、讀寫分離、Hostgroup | `03_伺服器服務/.../MySQL/MySQL_工具_ProxySQL(高性能_高可用性的_MySQL_代理).md` |
 | MongoDB、Replica Set、rs.reconfig | `03_伺服器服務/.../MongoDB/MongoDB_筆記_Replica-Set(複本集).md` |
@@ -66,6 +68,7 @@
 |---|---|
 | WebServer（Nginx / Apache / Gunicorn） | `03_伺服器服務/WebServer(網站伺服器)/WebServer_總覽.md` |
 | DatabaseServer（MySQL / MongoDB / Redis / SQLite / Memcached） | `03_伺服器服務/DatabaseServer(資料庫伺服器)/DatabaseServer_總覽.md` |
+| 資料表設計工具（Workbench / dbdiagram / Hackolade） | `03_伺服器服務/DatabaseServer(資料庫伺服器)/資料表設計工具/資料表設計工具_總覽.md` |
 | GPU 雲端市場（Vast.ai / RunPod / Lambda 等） | `00_其他/.../LLM/GPU雲端市場/GPU雲端市場_總覽與選擇建議.md` |
 | API 金流串接 | `00_其他/串接API/金流/API_金流串接總覽.md` |
 | API 外送平台串接 | `00_其他/串接API/外送平台/API_外送平台串接總覽.md` |
