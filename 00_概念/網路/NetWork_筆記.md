@@ -14,6 +14,8 @@
   - [網路 IPv6](#網路-ipv6)
 - [狀況](#狀況)
   - [CDN 出現 50x 錯誤（如 500、502、503、504 等）](#cdn-出現-50x-錯誤如-500502503504-等)
+  - [ERR\_CONNECTION\_RESET](#err_connection_reset)
+  - [DNS\_PROBE\_FINISHED\_NXDOMAIN](#dns_probe_finished_nxdomain)
   - [網路檢測程序](#網路檢測程序)
 
 ## 參考資料
@@ -80,6 +82,102 @@ CDN 出現 50x 錯誤（如 500、502、503、504 等）通常表示伺服器在
 調整 CDN 的超時配置（如 Cloudflare 的 Timeout 設定）。
 確保後端伺服器的網絡連接穩定。
 
+## ERR_CONNECTION_RESET
+
+瀏覽器與伺服器之間的 TCP 連線被強制中斷，通常是本機網路堆疊或 DNS 問題。
+
+**Windows**
+
+```powershell
+# 重置 Winsock（網路堆疊）
+netsh winsock reset
+
+# 重置 TCP/IP 堆疊
+netsh int ip reset
+
+# 清除 DNS 快取
+ipconfig /flushdns
+```
+
+> 執行後需重新開機。
+
+**macOS**
+
+```bash
+# 清除 DNS 快取
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+```
+
+其他排查步驟：
+- **優先檢查瀏覽器 Proxy / VPN 擴充功能**（如 SwitchyOmega）是否攔截流量
+- 停用瀏覽器擴充功能或以無痕模式測試
+- 關閉 VPN / Proxy
+- 換用其他 DNS（如 8.8.8.8 或 1.1.1.1）
+- 確認防火牆未封鎖連線
+
+診斷指令：
+
+```bash
+# 確認目標服務是否可達（能回傳任何 HTTP 狀態碼即代表網路正常）
+curl -s -o /dev/null -w "%{http_code}\n" https://claude.ai
+
+# 確認路由是否完整
+traceroute -m 20 api.anthropic.com   # macOS / Linux
+tracert api.anthropic.com            # Windows
+```
+
+## DNS_PROBE_FINISHED_NXDOMAIN
+
+DNS 查詢回傳「此域名不存在」，瀏覽器無法解析域名為 IP。
+
+**常見原因**
+
+| 原因 | 說明 |
+|---|---|
+| DNS 快取過期 / 汙染 | 本機快取的舊紀錄已失效 |
+| DNS 伺服器異常 | ISP 提供的 DNS 服務故障 |
+| 域名確實不存在 | 打錯網址或域名已過期 |
+| hosts 檔案設定錯誤 | 本機 hosts 覆蓋了正確解析 |
+
+**Windows**
+
+```powershell
+# 清除 DNS 快取
+ipconfig /flushdns
+
+# 更換 DNS 伺服器（控制台 > 網路介面卡 > IPv4 內容）
+# 慣用 DNS：8.8.8.8（Google）或 1.1.1.1（Cloudflare）
+
+# 手動測試 DNS 解析
+nslookup claude.ai
+```
+
+**macOS**
+
+```bash
+# 清除 DNS 快取
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+
+# 手動測試 DNS 解析
+nslookup claude.ai
+
+# 檢查 hosts 檔案是否有異常設定
+cat /etc/hosts
+```
+
+**Linux**
+
+```bash
+# systemd-resolved
+sudo systemd-resolve --flush-caches
+
+# 或 nscd
+sudo systemctl restart nscd
+
+# 測試解析
+dig claude.ai
+```
+
 ## 網路檢測程序
 
 需要檢查的通常有三個部份﹕
@@ -120,3 +218,36 @@ CDN 出現 50x 錯誤（如 500、502、503、504 等）通常表示伺服器在
 	* 先將一些駐留程式(TSR)設備驅動程式卸載(unload)﹐然後重新開機試試看。
 	* 將一些非必要的設備暫時關閉(disable)再重新開機。
 	* 如果程式依然有問題﹐將網路設備也給關閉看看。
+
+---
+
+# 例外狀況
+
+## ERR_CONNECTION_RESET：瀏覽器 Proxy 擴充功能攔截
+
+**現象：** 網路其他頁面正常，但特定網站（如 claude.ai）出現 ERR_CONNECTION_RESET。curl 測試可正常連線，traceroute 路由完整，清除 DNS 快取無效。
+
+**根本原因：** 瀏覽器安裝了 Proxy / VPN 擴充功能（如 SwitchyOmega），在應用層攔截特定域名流量，導致 TCP 連線被強制中斷。網路層完全正常，問題發生在瀏覽器擴充功能層。
+
+**診斷方式：**
+
+```bash
+# 確認網路層正常（能回傳任何 HTTP 狀態碼即可）
+curl -s -o /dev/null -w "%{http_code}\n" https://claude.ai
+
+# 確認路由完整
+traceroute -m 20 api.anthropic.com   # macOS / Linux
+tracert api.anthropic.com            # Windows
+
+# 若 curl 正常但瀏覽器仍 ERR_CONNECTION_RESET → 懷疑擴充功能
+```
+
+**解決：** 開啟 `chrome://extensions/` → 停用 Proxy / VPN 類擴充功能 → 重試。
+
+**排錯優先順序（避免走彎路）：**
+
+1. curl 確認基本連線
+2. **優先停用瀏覽器 Proxy / VPN 擴充功能**
+3. 無痕模式測試（擴充功能預設停用）
+4. 清除 DNS 快取
+5. 最後才考慮 Winsock reset / 路由器重啟

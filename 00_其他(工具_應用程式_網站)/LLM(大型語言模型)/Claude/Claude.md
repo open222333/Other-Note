@@ -7,7 +7,9 @@
 - [模型系列](#模型系列)
 - [Claude Code (CLI)](#claude-code-cli)
 - [API](#api)
+- [常見連線錯誤](#常見連線錯誤)
 - [重要功能](#重要功能)
+- [例外狀況](#例外狀況)
 
 ## 介紹
 
@@ -77,6 +79,112 @@ npm install -g @anthropic-ai/claude-code
 | **Files API** | 上傳檔案並跨請求引用 |
 | **Citations** | 引用來源段落，提升回答可信度 |
 
+## 常見連線錯誤
+
+開啟 Claude（claude.ai）或使用 Claude Code / VS Code 擴充功能時若出現連線錯誤，通常是本機網路或瀏覽器設定問題，與 Claude 服務本身無關。
+
+### ERR_CONNECTION_RESET / ECONNRESET
+
+瀏覽器出現 `ERR_CONNECTION_RESET`，或 VS Code 擴充功能出現 `API Error: Unable to connect to API (ECONNRESET)`。
+
+**根本原因（最常見）：瀏覽器 Proxy 擴充功能**
+
+Claude Code 登入採用 OAuth 流程：`claude.com` → 307 redirect → `claude.ai`
+
+若瀏覽器安裝了 Proxy / VPN 擴充功能（如 SwitchyOmega），會攔截 `claude.ai` 流量導致：
+
+```
+claude.ai 被 Proxy 攔截 → ERR_CONNECTION_RESET
+→ OAuth 登入頁面無法載入
+→ VS Code 擴充功能認證失敗 → ECONNRESET
+```
+
+**解決方式**
+
+1. 開啟 `chrome://extensions/`
+2. 找到 Proxy / VPN 類擴充功能（SwitchyOmega 等）
+3. 關閉或停用
+4. 重新在 VS Code 執行 Claude 登入流程
+
+**排錯優先順序**
+
+1. 先確認基本連線是否正常
+
+```bash
+# 能回傳 4xx 代表網路可達 api.anthropic.com
+curl -v https://api.anthropic.com/v1/messages \
+  -H "x-api-key: test" \
+  -H "anthropic-version: 2023-06-01"
+```
+
+2. 確認 OAuth redirect 是否正常
+
+```bash
+curl -v "https://claude.com/cai/oauth/authorize" 2>&1 | grep location
+# 應看到：location: https://claude.ai/oauth/authorize
+```
+
+3. 測試 claude.ai 連線
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" https://claude.ai
+# 應回傳 200 或 403；若 ECONNRESET 代表被 Proxy 攔截
+```
+
+4. **檢查瀏覽器 Proxy / VPN 擴充功能**（最常見原因，應提前排查）
+
+5. 若以上均正常仍有問題，再清除網路快取
+
+**Windows**
+
+```powershell
+netsh winsock reset
+netsh int ip reset
+ipconfig /flushdns
+```
+
+> 執行後重新開機。
+
+**macOS**
+
+```bash
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+```
+
+**已排除的常見誤判原因**
+
+| 假設 | 排除方式 |
+|------|----------|
+| 網路不穩定 | curl 多次測試全部正常 |
+| ISP 封鎖 | traceroute 路由完整 |
+| DNS 封鎖 | 換 IP 直連仍可到達 |
+| Claude Code 版本 | 重裝無法解決 OAuth 問題 |
+
+### DNS_PROBE_FINISHED_NXDOMAIN
+
+DNS 無法解析 `claude.ai`，瀏覽器找不到伺服器。
+
+**Windows**
+
+```powershell
+ipconfig /flushdns
+nslookup claude.ai
+```
+
+**macOS**
+
+```bash
+sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
+dig claude.ai
+```
+
+其他排查步驟：
+- 換用 DNS `8.8.8.8`（Google）或 `1.1.1.1`（Cloudflare）
+- 關閉 VPN / Proxy 後重試
+- 以無痕模式或其他瀏覽器測試
+
+> 詳細說明見 [NetWork_筆記.md](../../../00_概念/網路/NetWork_筆記.md)
+
 ## 重要功能
 
 ### Extended Thinking（延伸思考）
@@ -101,3 +209,61 @@ Claude 在回答前進行內部推理（`<thinking>` 區塊），適合數學、
 MCP 是 Anthropic 提出的開放標準，讓 Claude（及其他 LLM）能以統一介面連接外部資料來源與工具（如資料庫、API、檔案系統等）。
 
 [MCP 官方文件](https://modelcontextprotocol.io/)
+
+---
+
+# 例外狀況
+
+## VS Code 擴充功能 ECONNRESET（Chrome Proxy 攔截 OAuth）
+
+**現象：**
+- VS Code Claude 擴充功能出現 `API Error: Unable to connect to API (ECONNRESET)`
+- Chrome 開啟 Claude 登入頁面出現 `ERR_CONNECTION_RESET`
+- curl 測試 `api.anthropic.com` 正常，traceroute 路由完整
+
+**根本原因：**
+
+Claude Code 登入採用 OAuth 流程，`claude.com` 會 307 redirect 到 `claude.ai`：
+
+```
+claude.com/cai/oauth/authorize → 307 → claude.ai/oauth/authorize
+```
+
+若瀏覽器安裝了 Proxy 擴充功能（SwitchyOmega 等）並攔截 `claude.ai`：
+
+```
+claude.ai 被 Proxy 攔截 → ERR_CONNECTION_RESET
+→ OAuth 登入頁面無法載入
+→ VS Code 擴充功能認證失敗 → ECONNRESET
+```
+
+**解決方式：**
+
+1. 開啟 `chrome://extensions/`
+2. 找到 Proxy / VPN 類擴充功能，關閉開關
+3. 重新在 VS Code 執行 Claude 登入流程
+
+**診斷指令：**
+
+```bash
+# 確認 api.anthropic.com 可達（回傳 4xx 代表正常）
+curl -v https://api.anthropic.com/v1/messages \
+  -H "x-api-key: test" \
+  -H "anthropic-version: 2023-06-01"
+
+# 確認 OAuth redirect 是否正常
+curl -v "https://claude.com/cai/oauth/authorize" 2>&1 | grep location
+# 應看到：location: https://claude.ai/oauth/authorize
+
+# 測試 claude.ai 連線（被 Proxy 攔截時會 ECONNRESET，正常應回傳 200/403）
+curl -s -o /dev/null -w "%{http_code}\n" https://claude.ai
+```
+
+**已排除的誤判原因：**
+
+| 假設 | 排除原因 |
+|------|----------|
+| 網路不穩定 | curl 多次測試全部正常 |
+| ISP 封鎖 | traceroute 路由完整到達目標 IP |
+| DNS 封鎖 | 換 IP 直連仍可到達 |
+| Claude Code 版本問題 | 重裝無法解決 OAuth 問題 |

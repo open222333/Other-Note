@@ -41,6 +41,11 @@
 - [Helm](#helm)
   - [安裝 Helm](#安裝-helm)
   - [常用指令](#常用指令)
+- [應用範例：Python Flask ERP/WMS 雲端部署](#應用範例python-flask-erp-wms-雲端部署)
+  - [k3s vs k8s 選擇原則](#k3s-vs-k8s-選擇原則)
+  - [雲端 Managed K8s 差異](#雲端-managed-k8s-差異)
+  - [多節點 MongoDB Replica Set](#多節點-mongodb-replica-set)
+  - [CI/CD 映像更新流程](#cicd-映像更新流程)
 
 ## 參考資料
 
@@ -588,4 +593,111 @@ helm create my-chart
 # └── templates/        ← Manifest 模板（使用 Go template 語法）
 #     ├── deployment.yaml
 #     └── service.yaml
+```
+
+---
+
+# 應用範例：Python Flask ERP/WMS 雲端部署
+
+> 完整的 Manifest 範例（namespace / secret / MongoDB / Redis / Flask / HPA / Ingress）見 [k3s 筆記 — 應用範例](k3s.md#應用範例python-flask--mongodb--redis-部署)。
+> 此章節補充從 k3s 遷移至雲端 Managed K8s 時需要調整的差異項目。
+
+## k3s vs k8s 選擇原則
+
+| 情境 | 建議 |
+|---|---|
+| 單台 VPS / 小型自建主機 | k3s，資源佔用低，Manifest 完全通用 |
+| 多節點 HA（3+ 節點） | k3s 也支援，或改用雲端 Managed K8s |
+| 雲端（GCP / AWS / Azure） | GKE / EKS / AKS，省去 Control Plane 管理 |
+| 流量高峰明顯（ERP 白天、WMS 夜班） | k8s + HPA，按實際負載自動擴縮 |
+
+## 雲端 Managed K8s 差異
+
+| 項目 | k3s（自建） | GKE / EKS / AKS |
+|---|---|---|
+| Ingress | 內建 Traefik | 需安裝 Nginx Ingress Controller 或用雲端 LB |
+| LoadBalancer Service | 內建 Klipper（單節點） | 自動配置雲端 LB（有費用） |
+| PVC | Local Path Provisioner | 對應雲端 StorageClass（如 `gp3`、`premium-ssd`） |
+| TLS | cert-manager + Let's Encrypt | 同，或用雲端 Certificate Manager |
+| HPA Metrics Server | 內建 | 需確認雲端是否預設啟用 |
+
+```bash
+# GKE：取得 kubeconfig
+gcloud container clusters get-credentials <CLUSTER_NAME> --region <REGION>
+
+# EKS：取得 kubeconfig
+aws eks update-kubeconfig --name <CLUSTER_NAME> --region <REGION>
+
+# AKS：取得 kubeconfig
+az aks get-credentials --resource-group <RG> --name <CLUSTER_NAME>
+
+# 確認連線
+kubectl get nodes
+```
+
+```yaml
+# 雲端 PVC StorageClass 範例（AWS EKS gp3）
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongo-data-mongo-0
+  namespace: erp-wms
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3      # k3s 用 local-path，雲端改為對應 StorageClass
+  resources:
+    requests:
+      storage: 20Gi
+```
+
+## 多節點 MongoDB Replica Set
+
+> 生產環境建議 3 個 MongoDB 節點組成 Replica Set，避免單點故障。
+
+```yaml
+# mongodb-statefulset.yaml（3 節點版）
+spec:
+  replicas: 3
+  # ...（其餘同單節點）
+```
+
+```bash
+# 部署後初始化 Replica Set（只需執行一次）
+kubectl exec -n erp-wms mongo-0 -- mongosh --eval "
+rs.initiate({
+  _id: 'rs0',
+  members: [
+    { _id: 0, host: 'mongo-0.mongo.erp-wms.svc.cluster.local:27017' },
+    { _id: 1, host: 'mongo-1.mongo.erp-wms.svc.cluster.local:27017' },
+    { _id: 2, host: 'mongo-2.mongo.erp-wms.svc.cluster.local:27017' },
+  ]
+})"
+
+# 確認 Replica Set 狀態
+kubectl exec -n erp-wms mongo-0 -- mongosh --eval "rs.status()"
+```
+
+```
+Flask 的 MONGO_URI 對應改為：
+mongodb://mongo-0.mongo:27017,mongo-1.mongo:27017,mongo-2.mongo:27017/erp?replicaSet=rs0
+```
+
+## CI/CD 映像更新流程
+
+```bash
+# 建置並推送新映像（GitHub Actions / GitLab CI 中執行）
+docker build -t your-registry/python-erp-wms:${GIT_SHA} .
+docker push your-registry/python-erp-wms:${GIT_SHA}
+
+# 觸發滾動更新（零停機，maxUnavailable: 0）
+kubectl set image deployment/flask-api \
+  flask-api=your-registry/python-erp-wms:${GIT_SHA} \
+  -n erp-wms
+
+# 等待更新完成再結束 CI Job
+kubectl rollout status deployment/flask-api -n erp-wms --timeout=120s
+
+# 若更新失敗，自動回滾
+# kubectl rollout undo deployment/flask-api -n erp-wms
 ```

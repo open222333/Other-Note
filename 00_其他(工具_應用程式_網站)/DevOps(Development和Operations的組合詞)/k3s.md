@@ -28,6 +28,16 @@
   - [常用 kubectl 操作](#常用-kubectl-操作)
 - [Helm 搭配 k3s](#helm-搭配-k3s)
 - [內建元件](#內建元件)
+- [應用範例：Python Flask + MongoDB + Redis 部署](#應用範例python-flask--mongodb--redis-部署)
+  - [Manifest 目錄結構](#manifest-目錄結構)
+  - [namespace.yaml](#namespaceyaml)
+  - [secret.yaml](#secretyaml)
+  - [mongodb-statefulset.yaml](#mongodb-statefulseyaml)
+  - [redis-deployment.yaml](#redis-deploymentyaml)
+  - [flask-api-deployment.yaml](#flask-api-deploymentyaml)
+  - [flask-api-hpa.yaml](#flask-api-hpayaml)
+  - [ingress.yaml](#ingressyaml)
+  - [部署流程](#部署流程)
 
 ## 參考資料
 
@@ -260,4 +270,289 @@ helm install cert-manager jetstack/cert-manager \
 ```bash
 # 查看目前內建元件狀態
 kubectl get pods -n kube-system
+```
+
+---
+
+# 應用範例：Python Flask + MongoDB + Redis 部署
+
+> 適用於 Flask + Gunicorn + MongoDB + Redis + Nginx 架構的 ERP/WMS 類專案。
+> k3s 在單台 VPS（2C4G 起）即可運行完整堆疊，比 docker-compose 多出 HPA 自動擴縮能力。
+
+## Manifest 目錄結構
+
+```
+k8s/
+├── namespace.yaml
+├── secret.yaml               # 對應 .env 敏感變數
+├── mongodb-statefulset.yaml  # 有狀態，需 PVC
+├── redis-deployment.yaml
+├── flask-api-deployment.yaml
+├── flask-api-hpa.yaml        # 水平自動擴縮
+└── ingress.yaml              # 取代 docker-compose nginx
+```
+
+## namespace.yaml
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: erp-wms
+```
+
+## secret.yaml
+
+> 比 `.env` 更安全；`stringData` 會自動 base64 編碼，免手動轉換。
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: erp-secrets
+  namespace: erp-wms
+stringData:
+  MONGO_URI: "mongodb://mongo:27017/erp"
+  REDIS_URL: "redis://redis:6379/0"
+  JWT_SECRET_KEY: "your-secret-key"
+  FLASK_PORT: "5000"
+  GUNICORN_WORKERS: "4"
+  GUNICORN_THREADS: "2"
+```
+
+## mongodb-statefulset.yaml
+
+> MongoDB 必須用 StatefulSet + Headless Service，否則 Pod 重建後資料遺失。
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  namespace: erp-wms
+spec:
+  serviceName: mongo
+  replicas: 1           # 單機；生產多節點改為 3（需搭配 Replica Set 設定）
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:7
+        resources:
+          requests:
+            memory: "512Mi"
+          limits:
+            memory: "1Gi"
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: mongo-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: erp-wms
+spec:
+  clusterIP: None       # headless：StatefulSet DNS 解析需要
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+```
+
+## redis-deployment.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: erp-wms
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        args: ["--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+        resources:
+          limits:
+            memory: "192Mi"
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: erp-wms
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+```
+
+## flask-api-deployment.yaml
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-api
+  namespace: erp-wms
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flask-api
+  template:
+    metadata:
+      labels:
+        app: flask-api
+    spec:
+      containers:
+      - name: flask-api
+        image: your-registry/python-erp-wms:latest
+        command: ["gunicorn", "-c", "gunicorn.py", "run:app"]
+        envFrom:
+        - secretRef:
+            name: erp-secrets
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /api/docs/    # Swagger 端點，Flask 啟動後才會回應 200
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /api/docs/
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-api
+  namespace: erp-wms
+spec:
+  selector:
+    app: flask-api
+  ports:
+  - port: 5000
+```
+
+## flask-api-hpa.yaml
+
+> CPU 使用率超過 70% 時自動從 2 個 Pod 擴縮到最多 10 個。
+> 需要 Metrics Server（k3s 內建已啟用）。
+
+```yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: flask-api-hpa
+  namespace: erp-wms
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: flask-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+```
+
+## ingress.yaml
+
+> k3s 內建 Traefik，直接用 Traefik annotation；若改裝 Nginx Ingress 則換 annotation。
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: erp-ingress
+  namespace: erp-wms
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    cert-manager.io/cluster-issuer: letsencrypt-prod    # 需先安裝 cert-manager
+spec:
+  rules:
+  - host: erp.yourdomain.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: flask-api
+            port:
+              number: 5000
+  tls:
+  - hosts:
+    - erp.yourdomain.com
+    secretName: erp-tls
+```
+
+## 部署流程
+
+```bash
+# 1. 安裝 k3s（VPS 上執行）
+curl -sfL https://get.k3s.io | sh -
+
+# 2. 安裝 cert-manager（HTTPS 自動簽憑證）
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+
+# 3. 套用所有 Manifest
+kubectl apply -f k8s/
+
+# 4. 確認服務狀態
+kubectl get all -n erp-wms
+
+# 5. 確認 Flask Pod 就緒（readinessProbe 通過後才收流量）
+kubectl get pods -n erp-wms -w
+
+# 6. 查看 Flask log
+kubectl logs -n erp-wms -l app=flask-api -f
+
+# 更新映像後滾動更新（零停機）
+kubectl set image deployment/flask-api flask-api=your-registry/python-erp-wms:v2 -n erp-wms
+kubectl rollout status deployment/flask-api -n erp-wms
 ```
