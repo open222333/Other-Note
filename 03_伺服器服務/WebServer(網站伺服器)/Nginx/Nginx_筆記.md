@@ -1,5 +1,11 @@
 # Nginx 筆記
 
+## 目錄
+
+- [try_files](#try_files)
+- [SPA 部署：Cache-Control 設定陷阱](#spa-部署cache-control-設定陷阱)
+- [CORS 錯誤](#cors-錯誤)
+
 ## 參考資料
 
 [官方文檔](http://nginx.org/en/docs/)
@@ -380,6 +386,71 @@ location /images {
 # 將所有的 HTTP 路由，在目標路徑找不到時，重導向去回應 index.html 的檔案，進而使 SPA 在抓取其路徑進行渲染，並使用 History API 來控制各種頁面的跳轉與資料的傳遞。
 try_files $uri /$uri /index.html;
 ```
+
+## SPA 部署：Cache-Control 設定陷阱
+
+### 問題描述
+
+更新 nginx image 後刷新瀏覽器，側欄/頁面仍顯示舊版內容。
+
+### 根本原因
+
+Vite/Vue 打包後的 `index.html` 本身沒有 hash（hash 只在 `/assets/*.js` 上）。
+
+常見寫法是只幫 `location = /index.html` 加 no-cache：
+
+```conf
+# ❌ 錯誤寫法：只有直接請求 /index.html 才生效
+location = /index.html {
+    add_header Cache-Control "no-cache, no-store, must-revalidate";
+}
+
+location / {
+    try_files $uri $uri/ /index.html;   # ← 這裡回傳 index.html 內容，但沒有 no-cache header
+}
+```
+
+使用者實際訪問的是 `/admin/dashboard`、`/admin/products` 等 SPA 路由：
+
+1. nginx 走 `location /` → `try_files ... /index.html`，把 `index.html` 內容回傳
+2. 但 HTTP response 的 URL 是 `/admin/dashboard`，不是 `/index.html`
+3. `location = /index.html` 的規則**不適用**，response 沒有 Cache-Control header
+4. 瀏覽器對無 Cache-Control 的 HTML 使用**啟發式快取**（heuristic caching），可能快取幾分鐘到幾小時
+5. 下次造訪 `/admin/dashboard` 直接吃 disk cache，不向 nginx 發請求，看到的永遠是舊版
+
+### 正確修法
+
+在 `location /` 也加上 no-cache，確保所有 SPA fallback 回應都不被快取：
+
+```conf
+location = /index.html {
+    add_header Cache-Control "no-cache, no-store, must-revalidate";
+    add_header Pragma "no-cache";
+    add_header Expires 0;
+}
+
+location ^~ /assets/ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";   # hashed 資源可長期快取
+    access_log off;
+}
+
+# ✅ 正確：location / 也要加 no-cache
+location / {
+    try_files $uri $uri/ /index.html;
+    add_header Cache-Control "no-cache, no-store, must-revalidate";
+    add_header Pragma "no-cache";
+    add_header Expires 0;
+}
+```
+
+### 快取層級說明
+
+| 路徑 | 快取策略 | 說明 |
+|---|---|---|
+| `/assets/*.js` `/assets/*.css` | `public, immutable` 1 年 | Vite 產生 content hash，內容不變就不重傳 |
+| `/index.html`（直接請求） | `no-store` | 每次都重新取得 |
+| `/admin/*` 等 SPA 路由 | `no-store` | fallback 到 index.html，必須也加 no-cache |
 
 ## set 宣告變數
 

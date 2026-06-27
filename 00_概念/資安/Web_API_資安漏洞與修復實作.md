@@ -5,6 +5,7 @@
 涵蓋：暴力破解、JWT 洩漏、XSS Token 竊取、CSRF、注入、IDOR、敏感資料暴露
       Function Level 授權、密碼儲存、Timing Attack、業務邏輯、SSRF
       依賴套件 CVE、Insecure Deserialization、CORS、API 版本管理
+      ReDoS（正規表達式阻斷服務）、Race Condition / TOCTOU、Python 設定陷阱
 ```
 
 ## 目錄
@@ -36,6 +37,9 @@
   - [H20 無 Security Logging / Monitoring](#h20-無-security-logging--monitoring)
   - [H21 CORS 設定過寬](#h21-cors-設定過寬)
   - [H22 API 版本洩漏 / 過時端點](#h22-api-版本洩漏--過時端點)
+  - [H23 ReDoS — 正規表達式阻斷服務](#h23-redos--正規表達式阻斷服務)
+  - [H24 Race Condition / TOCTOU — 並發競爭條件](#h24-race-condition--toctou--並發競爭條件)
+  - [H25 Python 設定陷阱 — 尾端逗號 Tuple](#h25-python-設定陷阱--尾端逗號-tuple)
 
 ## 參考資料
 
@@ -75,6 +79,9 @@
 | H20 | 無 Security Logging / Monitoring | A09: Logging Failures | 攻擊發生後無法追溯 | ★☆☆ |
 | H21 | CORS 設定過寬 | A05: Security Misconfiguration | 跨域請求攜帶 Cookie 存取 API | ★★☆ |
 | H22 | API 版本洩漏 / 過時端點 | A09: Security Misconfiguration | 舊版端點繞過新版安全機制 | ★★☆ |
+| H23 | ReDoS（正規表達式阻斷服務） | A03: Injection | 惡意輸入讓正規表達式回溯爆炸，CPU 100%，API 不可用 | ★☆☆ |
+| H24 | Race Condition / TOCTOU | A01: Broken Access Control | 並發請求繞過庫存/狀態機驗證，造成超賣或重複操作 | ★★★ |
+| H25 | Python 設定陷阱（Tuple / 尾端逗號） | A05: Security Misconfiguration | `DEBUG = (False,)` 永遠為 True，生產環境開啟 debug | ★☆☆ |
 
 ---
 
@@ -993,6 +1000,73 @@ def reserve_stock(product_id: int, qty: int):
     db.session.commit()
 ```
 
+**⑤ 狀態機未強制驗證（Status Machine Bypass）**
+
+攻擊者可跳過正常流程，將訂單從 `pending` 直接改為 `completed`，繞過付款步驟。
+
+```python
+# 危險：只驗證新狀態合法，沒驗證「可從當前狀態轉換過去」
+@app.route("/order/<id>/status", methods=["PATCH"])
+def update_status(id):
+    new_status = request.json["status"]
+    if new_status not in ("pending", "processing", "completed", "cancelled"):
+        abort(400)
+    db.orders.update_one({"_id": id}, {"$set": {"status": new_status}})
+
+# 正確：明確定義允許的狀態轉換矩陣
+VALID_TRANSITIONS = {
+    "pending":    ["processing", "cancelled"],
+    "processing": ["completed",  "cancelled"],
+    # delivered / cancelled 為終止態，無法再轉換
+}
+
+@app.route("/order/<id>/status", methods=["PATCH"])
+@jwt_required()
+def update_status(id):
+    order = db.orders.find_one({"_id": ObjectId(id)})
+    if not order:
+        abort(404)
+    new_status = request.json.get("status", "")
+    if new_status not in VALID_TRANSITIONS.get(order["status"], []):
+        return jsonify({"success": False,
+                        "message": f"不允許從 {order['status']} 轉換至 {new_status}"}), 400
+    db.orders.update_one({"_id": ObjectId(id)}, {"$set": {"status": new_status}})
+    return jsonify({"success": True})
+```
+
+**⑥ 鎖定帳號可繞過登入**
+
+帳號被停用後，若 login / refresh 端點沒有檢查 `locked` 欄位，攻擊者仍可取得有效 Token。
+
+```python
+# 危險：鎖定帳號仍可登入
+@app.route("/auth/login", methods=["POST"])
+def login():
+    user = db.users.find_one({"username": data["username"]})
+    if not user or not verify_password(data["password"], user["password_hash"]):
+        abort(401)
+    return jsonify({"token": create_token(user)})   # 未檢查 locked
+
+# 正確：login 與 refresh 都要檢查
+@app.route("/auth/login", methods=["POST"])
+def login():
+    user = db.users.find_one({"username": data["username"]})
+    if not user or not verify_password(data["password"], user["password_hash"]):
+        abort(401)
+    if user.get("locked"):
+        return jsonify({"success": False, "message": "帳號已停用"}), 403
+    return jsonify({"token": create_token(user)})
+
+@app.route("/auth/refresh", methods=["POST"])
+@jwt_required(refresh=True)
+def refresh():
+    identity = get_jwt_identity()
+    user = db.users.find_one({"username": identity})
+    if user and user.get("locked"):
+        return jsonify({"success": False, "message": "帳號已停用"}), 403
+    return jsonify({"token": create_access_token(identity)})
+```
+
 ---
 
 ## H17 SSRF — 伺服器端請求偽造
@@ -1379,4 +1453,209 @@ def remove_version_headers(response):
 - 棄用前發出 Deprecation Header 通知使用者
 - 定期用 grep / route inventory 確認有哪些端點存活
 - 使用 Swagger / OpenAPI 文件管理端點生命週期
+```
+
+---
+
+## H23 ReDoS — 正規表達式阻斷服務
+
+**問題**：將使用者輸入直接放入正規表達式搜尋時，精心構造的輸入（如 `(a+)+b`）會讓回溯指數爆炸，讓單次請求占滿一顆 CPU 核心數秒甚至更久，達成阻斷服務。
+
+**常見場景**：關鍵字搜尋、過濾器、資料驗證
+
+```python
+from flask import request, jsonify
+
+# 危險：使用者輸入直接進入 $regex，或用 re.compile
+@app.route("/product/search")
+def search():
+    keyword = request.args.get("keyword", "")
+    # 攻擊輸入例：'((((((((((a+)+)+)+)+)+)+)+)+)+)!'
+    results = db.products.find({"name": {"$regex": keyword}})  # 危險
+    return jsonify(list(results))
+
+# 同樣危險：直接 re.compile 後 match
+import re
+pattern = re.compile(keyword)  # 攻擊者控制 pattern
+```
+
+```python
+import re
+from flask import request, jsonify
+
+# 正確：re.escape() 轉義所有特殊字元，讓輸入只能當字面字串
+@app.route("/product/search")
+def search():
+    keyword = request.args.get("keyword", "")
+    safe_keyword = re.escape(keyword)           # 轉義 . * + ? [ ] ( ) 等特殊字元
+    results = db.products.find({
+        "name": {"$regex": safe_keyword, "$options": "i"}  # i = case-insensitive
+    })
+    return jsonify([...])
+```
+
+```
+額外防護措施：
+- 對 keyword 長度做限制（例如最長 100 字元），避免過長輸入放大回溯
+- 設定 API timeout（Gunicorn worker timeout）或 per-request timeout，
+  防止單一請求長期占用 worker
+- 使用 Full-Text Search（MongoDB Atlas Search / Elasticsearch）取代 $regex，
+  FTS 索引查詢不受 ReDoS 影響
+- Rate Limiting：限制搜尋端點每秒請求次數
+```
+
+---
+
+## H24 Race Condition / TOCTOU — 並發競爭條件
+
+**問題**：先讀取狀態再更新（Check-then-Act / TOCTOU）在高並發下可能讓兩個請求都通過驗證，導致超賣、重複完成訂單、庫存負值等問題。
+
+**① MongoDB 原子操作（find_one_and_update + filter）**
+
+```python
+# 危險：讀取後更新，兩步驟之間有競爭窗口
+def complete_order(order_id):
+    order = col.find_one({"_id": ObjectId(order_id)})
+    if order["status"] != "confirmed":
+        return None
+    # ← 此處另一個請求也可能通過上面的判斷
+    col.update_one({"_id": ObjectId(order_id)},
+                   {"$set": {"status": "completed"}})
+    return order
+
+# 正確：將條件放入 filter，原子性地「條件成立才更新」
+from pymongo import ReturnDocument
+
+def complete_order(order_id):
+    result = col.find_one_and_update(
+        {"_id": ObjectId(order_id), "status": "confirmed"},  # 條件：必須是 confirmed
+        {"$set": {"status": "completed", "completed_at": datetime.utcnow()}},
+        return_document=False,  # 回傳更新前文件；若條件不符則回傳 None
+    )
+    if result is None:
+        return None  # 已被完成或狀態不對，直接忽略
+    return result
+```
+
+**② MongoDB 原子庫存扣減（$inc + rollback）**
+
+```python
+from datetime import datetime
+from bson import ObjectId
+
+def adjust_inventory(product_id, warehouse_id, delta):
+    """
+    原子扣減庫存，delta 負數=減少。
+    若結果為負值，回滾 $inc 並拋出例外。
+    """
+    q = {"product_id": ObjectId(product_id), "warehouse_id": ObjectId(warehouse_id)}
+
+    # 1. 原子 $inc：不管當前值為何，先扣減
+    before_doc = col.find_one_and_update(
+        q,
+        {"$inc": {"quantity": delta}, "$setOnInsert": {"created_at": datetime.utcnow()}},
+        upsert=True,
+        return_document=False,
+    )
+    before_qty = before_doc.get("quantity", 0) if before_doc else 0
+    after_qty  = before_qty + delta
+
+    # 2. 結果驗證：若為負值，回滾
+    if after_qty < 0:
+        col.update_one(q, {"$inc": {"quantity": -delta}})
+        raise ValueError(f"庫存不足（現有 {before_qty}，欲扣 {abs(delta)}）")
+
+    return before_qty, after_qty
+```
+
+**③ Thread-safe Singleton（Python MongoClient）**
+
+```python
+# 危險：多執行緒可能同時進入 if 判斷，建立多個連線池
+_client = None
+
+def get_client():
+    global _client
+    if _client is None:
+        _client = MongoClient(MONGO_URI)   # 競爭條件！
+    return _client
+
+# 正確：雙重檢查鎖定（Double-Checked Locking）
+import threading
+
+_client = None
+_lock   = threading.Lock()
+
+def get_client():
+    global _client
+    if _client is None:           # 第一次快速判斷（不鎖）
+        with _lock:
+            if _client is None:   # 第二次在鎖內確認
+                _client = MongoClient(MONGO_URI)
+    return _client
+```
+
+```
+適用原則：
+- 所有「先讀取狀態，再根據狀態執行操作」的邏輯都是 TOCTOU 風險點
+- 使用資料庫原子操作（MongoDB $inc / findOneAndUpdate，SQL SELECT FOR UPDATE）
+  把 Check + Act 合併為一次資料庫呼叫
+- Python Gunicorn 多 worker 共享同一 MongoClient 時，務必用 Lock 保護初始化
+```
+
+---
+
+## H25 Python 設定陷阱 — 尾端逗號 Tuple
+
+**問題**：Python 中 `(False,)` 是一個含有一個元素的 tuple，不是 `False`。tuple 在 boolean context 永遠為 `True`（非空），因此 `DEBUG = (False,)` 等同於 `DEBUG = True`，導致生產環境不知不覺開啟 debug mode。
+
+```python
+# conf/config.py
+
+# 危險：尾端多了一個逗號，值是 tuple 而非 bool
+class ProductionConfig(Config):
+    DEBUG   = False,   # ← 這是 (False,)，永遠為 True！
+    TESTING = False,   # ← 同上
+
+# 正確：去掉逗號
+class ProductionConfig(Config):
+    DEBUG   = False
+    TESTING = False
+```
+
+**為什麼難發現？**
+
+```python
+>>> x = False,
+>>> type(x)
+<class 'tuple'>
+>>> bool(x)
+True         # 非空 tuple 永遠為 True
+
+>>> if x:
+...     print("debug is ON")   # 永遠執行！
+```
+
+**影響**：
+
+| 副作用 | 說明 |
+|---|---|
+| Flask debug mode 開啟 | Werkzeug interactive debugger 可在瀏覽器執行任意 Python |
+| Stack trace 暴露 | 任何例外都回傳完整堆疊給客戶端 |
+| Auto-reloader 啟動 | 每次檔案變更重啟，生產環境不穩定 |
+| Pin secret 洩漏 | debug console 有 PIN，但若被猜中即 RCE |
+
+```python
+# 快速驗證設定是否正確
+python -c "from conf.config import ProductionConfig; c = ProductionConfig(); print('DEBUG:', c.DEBUG, type(c.DEBUG))"
+# 期望輸出：DEBUG: False <class 'bool'>
+# 危險輸出：DEBUG: (False,) <class 'tuple'>
+```
+
+```
+預防建議：
+- CI 加入設定型別檢查：assert isinstance(app.config["DEBUG"], bool)
+- 使用 pydantic / dynaconf 管理設定，強制型別驗證
+- 生產部署前跑 pytest 確認 ProductionConfig.DEBUG is False（is 比對，不是 ==）
+- Code Review 重點掃描 config.py 中所有 = False / = True 結尾，確認沒有多餘逗號
 ```
