@@ -718,10 +718,17 @@ docker run [OPTIONS] [Image 名稱]:[Image 版本] [執行指令]
 	-t, --tty         配置一個終端機
 	-d, --detach      在背景執行
 	-p 				  本機端port:docker內部port
+	--rm              容器執行完畢後自動刪除（適合一次性任務，不留殘留容器）
 	--cpus=1.5        限制容器只能使用到 1.5 顆實體的 CPU。
 	# 允許 Docker 容器使用 300m 的記憶體，以及 1g - 300m = 700m 的 swap 交換空間。
 	--memory=300m     限制記憶體使用量
 	--memory-swap=1g  限制swap交換空間
+
+# docker-compose run vs up -d
+# run  → 建立一次性容器執行指定服務，執行完即結束（適合批次任務、腳本）
+# up -d → 容器常駐背景持續運行（適合 Web server、API 等長時間服務）
+docker-compose run --rm [服務名稱]            # 執行完自動刪除容器
+docker-compose -f [compose檔] run --rm [服務] # 指定 compose 檔
 
 # 查看contianer的logs紀錄
 docker logs -f --tail=20 [Container ID]
