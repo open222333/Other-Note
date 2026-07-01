@@ -21,6 +21,7 @@ Vite 的目標是為開發者提供更快速、更靈活的開發體驗。
     - [心得相關](#心得相關)
 - [安裝](#安裝)
 - [指令](#指令)
+  - [清除快取](#清除快取)
 - [vite.config 設定](#viteconfigts-設定)
   - [manualChunks（程式碼分割）](#manualchunks程式碼分割)
 
@@ -46,6 +47,28 @@ npm install -g create-vite
 ```bash
 # 創建一個新的 Vue 項目, my-project 替換為你想要的項目名稱
 create-vite my-project
+```
+
+## 清除快取
+
+Vite 的開發伺服器快取存放於 `node_modules/.vite`，遇到以下情況需手動清除：
+- 修改 `vite.config.ts` 後仍看到舊行為
+- 升級套件版本後出現奇怪錯誤
+- HMR 熱更新失效或畫面不正確
+
+```bash
+# 清除 Vite 快取
+rm -rf node_modules/.vite
+
+# 重新啟動開發伺服器
+npm run dev
+```
+
+```bash
+# 若同時懷疑 node_modules 有問題，完整重裝
+rm -rf node_modules/.vite node_modules
+npm install
+npm run dev
 ```
 
 # vite.config.ts 設定
