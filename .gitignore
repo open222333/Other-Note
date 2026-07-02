@@ -3,6 +3,7 @@
 node_modules
 note_tool.conf
 .claude
+note_temp/
 
 # 排除忽略
 !Python_模組-內建_unittest(單元測試框架).md
