@@ -130,6 +130,7 @@ RDBMS
   - [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
   - [mysqldump: Got error: 1290: The MySQL server is running with the --secure-file-priv option so it cannot execute this statement when executing 'SELECT INTO OUTFILE'](#mysqldump-got-error-1290-the-mysql-server-is-running-with-the---secure-file-priv-option-so-it-cannot-execute-this-statement-when-executing-select-into-outfile)
   - [ERROR 1805 (HY000): Column count of mysql.user is wrong. Expected 45, found 48. The table is probably corrupted](#error-1805-hy000-column-count-of-mysqluser-is-wrong-expected-45-found-48-the-table-is-probably-corrupted)
+  - [max\_connections 被自動調降（open\_files\_limit / LimitNOFILE 不足）](#max_connections-被自動調降open_files_limit--limitnofile-不足)
 
 ## 參考資料
 
@@ -2898,4 +2899,140 @@ mysqldump -u root -p --all-databases > all_databases_backup.sql
 
 ```sql
 FLUSH PRIVILEGES;
+```
+
+---
+
+## max_connections 被自動調降（open_files_limit / LimitNOFILE 不足）
+
+> 環境：Percona MySQL 8.4 / Ubuntu 24.04 LTS
+
+### 問題現象
+
+設定檔寫的是 `max_connections = 20480`，但實際查詢執行中的值卻只有 `9190`：
+
+```bash
+mysql -uroot -p -e "SHOW VARIABLES LIKE 'max_connections';"
+```
+
+```
++-----------------+-------+
+| Variable_name   | Value |
++-----------------+-------+
+| max_connections | 9190  |
++-----------------+-------+
+```
+
+### 原因
+
+每條 MySQL 連線都需要一個 file descriptor（fd）。當 systemd 給 `mysqld` 行程的 `LimitNOFILE` 不足以支撐 `max_connections` 時，MySQL **不會報錯停機**，而是**靜默調降** `max_connections` 並在 error log 留下一行警告。
+
+三層關係：
+
+| 層級 | 名稱 | 意義 |
+|---|---|---|
+| OS / systemd | `LimitNOFILE` | mysqld 行程可開啟的 fd 硬上限（真正的天花板） |
+| MySQL 內部 | `open_files_limit` | MySQL 認為自己可用的 fd 上限（不可能超過 `LimitNOFILE`） |
+| MySQL 內部 | `max_connections` / `table_open_cache` | 由 fd 額度分配而來，額度不夠就被靜默調降 |
+
+> **my.cnf 寫再大都沒用，OS 的 `LimitNOFILE` 才是天花板。**
+
+### 確認是否被調降
+
+```bash
+# 1. MySQL 執行中的實際值
+mysql -uroot -p -e "SELECT @@max_connections, @@open_files_limit, @@table_open_cache;"
+
+# 2. systemd 允許的硬上限
+systemctl show mysql -p LimitNOFILE
+
+# 3. mysqld 行程實際生效的 fd 限制
+cat /proc/$(pgrep -x mysqld)/limits | grep "open files"
+
+# 4. error log 調降警告
+grep -i "changed limits\|max_connections\|open_files" /var/log/mysql/error.log | tail -20
+```
+
+預期會看到：
+
+```
+[Warning] Changed limits: max_connections: 9190 (requested 20480)
+```
+
+### 修正步驟
+
+**步驟 1：提高 systemd 的 `LimitNOFILE`**
+
+```bash
+mkdir -p /etc/systemd/system/mysql.service.d
+
+cat > /etc/systemd/system/mysql.service.d/limits.conf << 'EOF'
+[Service]
+LimitNOFILE=65535
+EOF
+```
+
+> 放在 `/etc/systemd/system/<服務名>.service.d/` 的設定會疊加覆寫原套件的 service 設定，套件升級不會被覆蓋。
+
+**步驟 2：在 my.cnf 明確指定 `open_files_limit`**
+
+```ini
+[mysqld]
+open_files_limit = 65535
+max_connections  = 20480
+```
+
+**步驟 3：重新載入 systemd 並重啟 MySQL**
+
+```bash
+systemctl daemon-reload
+systemctl restart mysql
+```
+
+> `systemctl reload` 對設定檔變更無效，**必須用 `restart`**。
+
+**步驟 4：驗證**
+
+```bash
+mysql -uroot -p -e "SELECT @@max_connections, @@open_files_limit;"
+grep -i "changed limits" /var/log/mysql/error.log | tail -5
+```
+
+### 一次性診斷與修正指令
+
+```bash
+# --- 診斷 ---
+mysql -uroot -p -e "SELECT @@max_connections, @@open_files_limit, @@table_open_cache;"
+grep -i "changed limits\|max_connections\|open_files" /var/log/mysql/error.log | tail -20
+systemctl show mysql -p LimitNOFILE
+cat /proc/$(pgrep -x mysqld)/limits | grep "open files"
+
+# --- 提高 systemd LimitNOFILE ---
+mkdir -p /etc/systemd/system/mysql.service.d
+cat > /etc/systemd/system/mysql.service.d/limits.conf << 'EOF'
+[Service]
+LimitNOFILE=65535
+EOF
+
+# --- 修改 my.cnf（[mysqld] 區段）---
+# open_files_limit = 65535
+# max_connections  = 20480
+
+# --- 重載並重啟 ---
+systemctl daemon-reload
+systemctl restart mysql
+
+# --- 驗證 ---
+mysql -uroot -p -e "SELECT @@max_connections, @@open_files_limit;"
+grep -i "changed limits" /var/log/mysql/error.log | tail -5
+```
+
+### 補充：關於高 max_connections 的注意事項
+
+- 每條連線都有 per-connection 記憶體開銷（`sort_buffer_size`、`join_buffer_size`、`read_buffer_size` 等），極端情況 `max_connections × 每連線 buffer 總和` 可能耗盡記憶體。
+- 若前端有 ProxySQL，建議先確認後端實際連線數，再評估是否真的需要這麼高的上限：
+
+```sql
+SHOW STATUS LIKE 'Threads_connected';
+SHOW STATUS LIKE 'Max_used_connections';
 ```
