@@ -131,6 +131,8 @@ RDBMS
   - [mysqldump: Got error: 1290: The MySQL server is running with the --secure-file-priv option so it cannot execute this statement when executing 'SELECT INTO OUTFILE'](#mysqldump-got-error-1290-the-mysql-server-is-running-with-the---secure-file-priv-option-so-it-cannot-execute-this-statement-when-executing-select-into-outfile)
   - [ERROR 1805 (HY000): Column count of mysql.user is wrong. Expected 45, found 48. The table is probably corrupted](#error-1805-hy000-column-count-of-mysqluser-is-wrong-expected-45-found-48-the-table-is-probably-corrupted)
   - [max\_connections 被自動調降（open\_files\_limit / LimitNOFILE 不足）](#max_connections-被自動調降open_files_limit--limitnofile-不足)
+    - [實戰流程：override 檔尚未存在的節點（從頭建立）](#實戰流程override-檔尚未存在的節點從頭建立)
+    - [附錄：fd 限制的三個層級](#附錄fd-限制的三個層級)
 
 ## 參考資料
 
@@ -3036,3 +3038,168 @@ grep -i "changed limits" /var/log/mysql/error.log | tail -5
 SHOW STATUS LIKE 'Threads_connected';
 SHOW STATUS LIKE 'Max_used_connections';
 ```
+
+---
+
+### 實戰流程：override 檔尚未存在的節點（從頭建立）
+
+適用於檢查後發現尚無 override 檔的情況：
+
+```bash
+cat /etc/systemd/system/mysql.service.d/limits.conf
+# cat: ... No such file or directory   ← 代表這台還沒建立，需從頭建
+```
+
+> 設定檔路徑以本環境為例為 `/etc/mysql/mysql.conf.d/mysqld.cnf`，請依實際情況調整。
+
+**步驟 1：建立前診斷**
+
+```bash
+mysql -uroot -p -e "SELECT @@max_connections, @@open_files_limit;"
+systemctl show mysql -p LimitNOFILE
+grep -i "open_files_limit\|max_connections" /etc/mysql/mysql.conf.d/mysqld.cnf
+```
+
+**步驟 2：建立 systemd override**
+
+```bash
+mkdir -p /etc/systemd/system/mysql.service.d
+
+cat > /etc/systemd/system/mysql.service.d/limits.conf << 'EOF'
+[Service]
+LimitNOFILE=65535
+EOF
+
+cat /etc/systemd/system/mysql.service.d/limits.conf   # 確認寫入成功
+```
+
+**步驟 3：確認 my.cnf 的 `[mysqld]` 已指定 `open_files_limit`**
+
+```bash
+grep -i "open_files_limit\|max_connections" /etc/mysql/mysql.conf.d/mysqld.cnf
+```
+
+若缺 `open_files_limit`，手動編輯補上（建議 `vi`，避免加錯區段或產生重複行）：
+
+```ini
+[mysqld]
+open_files_limit = 65535
+max_connections  = 20480
+```
+
+**步驟 4：重載並重啟**
+
+```bash
+systemctl daemon-reload
+systemctl restart mysql
+```
+
+> ⚠️ **master 重啟注意**：`restart` 會中斷現有連線、短暫中斷寫入。若有 slave 正在複製，重啟期間複製暫停，恢復後自動追上（GTID 環境不需手動介入）。建議挑**低峰時段**執行。
+
+**步驟 5：驗證**
+
+```bash
+systemctl show mysql -p LimitNOFILE                        # 應為 65535
+cat /proc/$(pgrep -x mysqld)/limits | grep "open files"    # 應為 65535
+mysql -uroot -p -e "SELECT @@max_connections, @@open_files_limit;"   # 應為 20480 / 65535
+grep -i "changed limits" /var/log/mysql/error.log | tail -5
+```
+
+**一次性複製貼上（從頭建立版）**
+
+```bash
+# --- 診斷 ---
+mysql -uroot -p -e "SELECT @@max_connections, @@open_files_limit;"
+systemctl show mysql -p LimitNOFILE
+grep -i "open_files_limit\|max_connections" /etc/mysql/mysql.conf.d/mysqld.cnf
+
+# --- 建立 systemd override ---
+mkdir -p /etc/systemd/system/mysql.service.d
+cat > /etc/systemd/system/mysql.service.d/limits.conf << 'EOF'
+[Service]
+LimitNOFILE=65535
+EOF
+cat /etc/systemd/system/mysql.service.d/limits.conf
+
+# --- (若 my.cnf 缺 open_files_limit，先手動 vi 補在 [mysqld] 底下再繼續) ---
+
+# --- 重載並重啟（master 請挑低峰時段）---
+systemctl daemon-reload
+systemctl restart mysql
+
+# --- 驗證 ---
+systemctl show mysql -p LimitNOFILE
+cat /proc/$(pgrep -x mysqld)/limits | grep "open files"
+mysql -uroot -p -e "SELECT @@max_connections, @@open_files_limit;"
+grep -i "changed limits" /var/log/mysql/error.log | tail -5
+```
+
+---
+
+### 附錄：fd 限制的三個層級
+
+調整「可開啟檔案數」時，會遇到三個不同層級的設定，作用對象不同。**最關鍵的一點：`/etc/security/limits.conf` 對 systemd 管理的服務（MySQL、Nginx）完全無效。** 很多人只改了 limits.conf，結果服務 fd 上限根本沒變，就是因為走錯路徑。
+
+```
+fs.file-max（整台機器全域總量上限，kernel 全域）
+   └── 單一行程的 nofile 上限，依「怎麼啟動」分兩條路：
+         ├── 登入 session 啟動  → 看 /etc/security/limits.conf (PAM)   ← 對 SSH/手動執行有效
+         └── systemd 啟動的服務 → 看 unit 的 LimitNOFILE               ← MySQL / Nginx 走這條
+```
+
+| 設定 | 檔案 / 指令 | 作用對象 | 對 MySQL/Nginx |
+|------|-------------|----------|----------------|
+| `fs.file-max` | `/etc/sysctl.conf` → `sysctl -p` | 整台機器所有行程的 fd 總量 | 需夠大（通常預設已足夠） |
+| `limits.conf` | `/etc/security/limits.conf` | **僅登入 session（PAM）** | ❌ **無效** |
+| `LimitNOFILE` | systemd unit / override | systemd 啟動的服務 | ✅ **真正生效的那個** |
+
+**`fs.file-max`（系統全域上限）**
+
+```bash
+vi /etc/sysctl.conf
+# fs.file-max = 3268890
+sysctl -p     # 重新載入使即時生效
+```
+
+整台機器所有行程加起來能開的 fd 總量，最外層天花板。通常依記憶體自動計算、預設就很大，一般不會卡到。
+
+**`/etc/security/limits.conf`（PAM 登入 session 限制）⚠️ 對 systemd 服務無效**
+
+```bash
+vi /etc/security/limits.conf
+# * soft nofile 65535
+# * hard nofile 65535
+```
+
+透過 **PAM（pam_limits）** 生效，**只作用於經由登入流程建立的 session**（SSH 登入、切換使用者、終端機啟動的行程）。systemd 直接啟動的服務**不經過 PAM**，所以此設定對 MySQL / Nginx **完全無效**。
+
+- `*` 代表所有使用者（**不含 root**，root 需另寫 `root soft/hard nofile`）
+- `soft` 為預設生效值、`hard` 為可自行調高的上限
+
+**systemd `LimitNOFILE`（服務層）✅ 對服務真正有效**
+
+```bash
+# 推薦：override 片段（drop-in），只覆寫指定行，套件升級不受影響
+systemctl edit mysql.service
+
+# 不推薦：完整副本，套件更新時原始 service 檔會改版但副本不跟著更新
+systemctl edit --full mysql.service
+```
+
+內容：
+
+```ini
+[Service]
+LimitNOFILE=65535
+```
+
+修改後同樣要 `systemctl daemon-reload` 再 `restart` 服務。
+
+**驗證服務實際生效值**
+
+```bash
+cat /proc/$(pgrep -x mysqld)/limits | grep "open files"
+cat /proc/$(pgrep -x nginx | head -1)/limits | grep "open files"
+```
+
+> 結論：對 MySQL / Nginx 這類 systemd 服務，重點只有兩個——`fs.file-max` 要夠大（通常預設就夠），服務的 `LimitNOFILE` 要調高（**這才是真正生效的**）。`limits.conf` 設了不會錯，但別以為服務吃得到。
