@@ -910,10 +910,16 @@ SAVE MYSQL VARIABLES TO DISK;
 確認結果：
 
 ```sql
+-- 查詢所有 mysql 變數
 SELECT variable_name, variable_value
 FROM global_variables
 WHERE variable_name LIKE 'mysql-%'
 ORDER BY variable_name;
+
+-- 查詢單一變數
+SELECT variable_name, variable_value
+FROM global_variables
+WHERE variable_name = 'mysql-max_connections';
 ```
 
 ### ProxySQL Cluster 相關
