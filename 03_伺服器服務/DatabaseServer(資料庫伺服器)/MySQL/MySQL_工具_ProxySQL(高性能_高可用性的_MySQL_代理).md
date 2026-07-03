@@ -64,6 +64,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [設定路由規則](#設定路由規則)
     - [應用配置](#應用配置)
     - [設定](#設定)
+    - [修改 mysql\_variables（proxysql.db 已存在時）](#修改-mysql_variablesproxysqldb-已存在時)
     - [ProxySQL Cluster 相關](#proxysql-cluster-相關)
     - [觀察群集狀況 （所有 ProxySQL 節點上都可以查看）](#觀察群集狀況-所有-proxysql-節點上都可以查看)
   - [設定 ProxySQL 監聽端口](#設定-proxysql-監聽端口)
@@ -102,6 +103,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
 - [例外狀況](#例外狀況)
   - [Can't connect to local MySQL server through socket '/var/lib/mysql/mysql. sock' (2)](#cant-connect-to-local-mysql-server-through-socket-varlibmysqlmysql-sock-2)
   - [MySQL 8.4 caching_sha2_password 不相容](#mysql-84-caching_sha2_password-不相容)
+  - [connection is locked to hostgroup X but trying to reach hostgroup Y](#connection-is-locked-to-hostgroup-x-but-trying-to-reach-hostgroup-y)
 - [高可用 說明](#高可用-說明)
 - [ProxySQL 部署方案](#proxysql-部署方案)
   - [MySQL 節點故障 vs ProxySQL 本身故障](#mysql-節點故障-vs-proxysql-本身故障)
@@ -272,6 +274,14 @@ services:
 ```
 
 ## 配置文檔
+
+> ⚠️ **`proxysql.cnf` 僅第一次啟動時有效**
+>
+> ProxySQL 首次啟動時讀取 `proxysql.cnf` 並產生 `proxysql.db`。
+> 之後重啟只讀 `proxysql.db`，**修改 `.cnf` 不會生效**。
+>
+> 若 `proxysql.db` 已存在，須透過 Admin 介面用 SQL 修改，
+> 詳見 [修改 mysql\_variables（proxysql.db 已存在時）](#修改-mysql_variablesproxysqldb-已存在時)。
 
 通常在 `/etc/proxysql/proxysql.cnf`
 
@@ -604,6 +614,52 @@ SELECT rule_id, active, match_pattern, destination_hostgroup, comment FROM mysql
 SELECT username, active, default_hostgroup, transaction_persistent FROM mysql_users;
 ```
 
+### 確認設定已生效（Runtime 驗證）
+
+ProxySQL 設定分三層：memory（暫存）→ runtime（生效）→ disk（持久化）。
+`LOAD ... TO RUNTIME` 後才真正生效；`SAVE ... TO DISK` 後重啟才不會遺失。
+
+**查看 runtime（當前生效）**
+
+```sql
+-- 路由規則是否生效
+SELECT rule_id, active, match_pattern, destination_hostgroup
+FROM runtime_mysql_query_rules ORDER BY rule_id;
+
+-- Server 狀態是否生效
+SELECT hostgroup_id, hostname, port, status, weight
+FROM runtime_mysql_servers ORDER BY hostgroup_id;
+
+-- User 設定是否生效
+SELECT username, active, default_hostgroup, transaction_persistent
+FROM runtime_mysql_users;
+```
+
+**對比 memory vs runtime**
+
+若兩者結果不同，表示改了但忘了執行 `LOAD ... TO RUNTIME`。
+
+```sql
+SELECT rule_id, destination_hostgroup FROM mysql_query_rules ORDER BY rule_id;         -- memory
+SELECT rule_id, destination_hostgroup FROM runtime_mysql_query_rules ORDER BY rule_id; -- runtime（生效）
+```
+
+**確認路由命中情況**
+
+```sql
+-- hits 數字增加表示該 rule 有被使用
+SELECT rule_id, hits, destination_hostgroup, match_pattern
+FROM stats_mysql_query_rules ORDER BY rule_id;
+```
+
+**確認各 hostgroup 流量**
+
+```sql
+-- Queries 持續增加，確認 SELECT 走 HG2、寫入走 HG1
+SELECT hostgroup, srv_host, srv_port, ConnUsed, ConnFree, Queries
+FROM stats_mysql_connection_pool ORDER BY hostgroup;
+```
+
 ## 透過 ProxySQL 連接到已設定的 MySQL 伺服器
 
 ProxySQL 的管理端口（6032）
@@ -637,6 +693,35 @@ VALUES ('your_username', 'your_password', 1, 1);
 UPDATE mysql_users
 SET username = 'new_username', password = 'new_password'
 WHERE username = 'old_username';
+```
+
+`刪除使用者`
+
+ProxySQL 層（在 ProxySQL Admin 執行）：
+
+```sql
+DELETE FROM mysql_users WHERE username = 'your_username';
+LOAD MYSQL USERS TO RUNTIME;
+SAVE MYSQL USERS TO DISK;
+```
+
+MySQL 層（在 MySQL 執行）——確認該 user 的所有 host：
+
+```sql
+-- 查詢確認該 user 存在（含所有 host）
+SELECT user, host FROM mysql.user WHERE user = 'your_username';
+
+-- 依查到的 host 刪除
+DROP USER 'your_username'@'%';
+FLUSH PRIVILEGES;
+```
+
+若不確定 host，批量產生 DROP 指令後再執行：
+
+```sql
+SELECT CONCAT("DROP USER '", user, "'@'", host, "';")
+FROM mysql.user
+WHERE user = 'your_username';
 ```
 
 `應用 MYSQL USERS 配置`
@@ -787,6 +872,48 @@ SAVE ADMIN VARIABLES TO DISK;
 UPDATE global_variables SET variable_value = 20000 WHERE variable_name = 'mysql-connections_max_connect_timeout';
 LOAD MYSQL VARIABLES TO RUNTIME;
 SAVE MYSQL VARIABLES TO DISK;
+```
+
+### 修改 mysql_variables（proxysql.db 已存在時）
+
+`proxysql.db` 已存在時，重啟不會重讀 `proxysql.cnf`，需透過 Admin 介面用 SQL 修改。
+
+```sql
+UPDATE global_variables SET variable_value='4'        WHERE variable_name='mysql-threads';
+UPDATE global_variables SET variable_value='2048'     WHERE variable_name='mysql-max_connections';
+UPDATE global_variables SET variable_value='0'        WHERE variable_name='mysql-default_query_delay';
+UPDATE global_variables SET variable_value='36000000' WHERE variable_name='mysql-default_query_timeout';
+UPDATE global_variables SET variable_value='true'     WHERE variable_name='mysql-have_compress';
+UPDATE global_variables SET variable_value='2000'     WHERE variable_name='mysql-poll_timeout';
+UPDATE global_variables SET variable_value='0.0.0.0:6033' WHERE variable_name='mysql-interfaces';
+UPDATE global_variables SET variable_value='information_schema' WHERE variable_name='mysql-default_schema';
+UPDATE global_variables SET variable_value='1048576'  WHERE variable_name='mysql-stacksize';
+UPDATE global_variables SET variable_value='8.4.0'    WHERE variable_name='mysql-server_version';
+UPDATE global_variables SET variable_value='3000'     WHERE variable_name='mysql-connect_timeout_server';
+UPDATE global_variables SET variable_value='monitor'  WHERE variable_name='mysql-monitor_username';
+UPDATE global_variables SET variable_value='密碼'     WHERE variable_name='mysql-monitor_password';
+UPDATE global_variables SET variable_value='600000'   WHERE variable_name='mysql-monitor_history';
+UPDATE global_variables SET variable_value='60000'    WHERE variable_name='mysql-monitor_connect_interval';
+UPDATE global_variables SET variable_value='10000'    WHERE variable_name='mysql-monitor_ping_interval';
+UPDATE global_variables SET variable_value='1500'     WHERE variable_name='mysql-monitor_read_only_interval';
+UPDATE global_variables SET variable_value='500'      WHERE variable_name='mysql-monitor_read_only_timeout';
+UPDATE global_variables SET variable_value='120000'   WHERE variable_name='mysql-ping_interval_server_msec';
+UPDATE global_variables SET variable_value='500'      WHERE variable_name='mysql-ping_timeout_server';
+UPDATE global_variables SET variable_value='true'     WHERE variable_name='mysql-commands_stats';
+UPDATE global_variables SET variable_value='true'     WHERE variable_name='mysql-sessions_sort';
+UPDATE global_variables SET variable_value='10'       WHERE variable_name='mysql-connect_retries_on_failure';
+
+LOAD MYSQL VARIABLES TO RUNTIME;
+SAVE MYSQL VARIABLES TO DISK;
+```
+
+確認結果：
+
+```sql
+SELECT variable_name, variable_value
+FROM global_variables
+WHERE variable_name LIKE 'mysql-%'
+ORDER BY variable_name;
 ```
 
 ### ProxySQL Cluster 相關
@@ -1725,6 +1852,44 @@ MySQL 8.4 已完全移除 `mysql_native_password`，僅支援 `caching_sha2_pass
 **症狀**：應用程式透過 ProxySQL 連線時驗證失敗，直接連線 MySQL 則正常。
 
 **處置方式**：將 Slave 設為 `OFFLINE_HARD`，並將所有 SELECT 流量導向 Master，詳見 [Slave 狀態管理（下線 / 重新啟用）](#slave-狀態管理下線--重新啟用)。
+
+## connection is locked to hostgroup X but trying to reach hostgroup Y
+
+**完整錯誤訊息**
+
+```
+ERROR: connection is locked to hostgroup 1 but trying to reach hostgroup 2
+```
+
+**原因**
+
+當連線在 transaction 期間（或被鎖定在某個 hostgroup 後），若後續查詢被 query rule 路由到不同 hostgroup，ProxySQL 無法在同一連線中途切換，即報此錯。
+
+| 觸發情境 | 說明 |
+|---------|------|
+| 顯式 transaction | `BEGIN` 之後有 SELECT 被 read rule 路由到 HG2 |
+| `SET autocommit=0` | 隱式開啟 transaction，後續 SELECT 被導向 reader |
+| `transaction_persistent=0` | query rule 未開啟，transaction 中仍重新評估路由 |
+
+**修正方式**
+
+對所有 active query rule 開啟 `transaction_persistent=1`，確保 transaction 內的查詢不再重新評估路由，全部留在 transaction 開始的 hostgroup：
+
+```sql
+UPDATE mysql_query_rules
+SET transaction_persistent = 1
+WHERE active = 1;
+
+LOAD MYSQL QUERY RULES TO RUNTIME;
+SAVE MYSQL QUERY RULES TO DISK;
+```
+
+**確認**
+
+```sql
+SELECT rule_id, active, match_pattern, destination_hostgroup, transaction_persistent
+FROM mysql_query_rules ORDER BY rule_id;
+```
 
 # 高可用 說明
 
