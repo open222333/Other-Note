@@ -926,6 +926,50 @@ INSERT INTO mysql_query_rules (rule_id, active, match_pattern, destination_hostg
 VALUES (2, 1, '.*', 1, 1);
 ```
 
+### 測試連線（確認可透過 ProxySQL 存取 MySQL 資料）
+
+透過 ProxySQL 對外埠（6033）連線，確認帳號權限與後端路由正常。
+
+**基本連線測試**
+
+```bash
+# 互動式登入（手動下查詢）
+mysql -u<user> -p -h127.0.0.1 -P6033
+
+# 快速非互動測試（不需進入 shell）
+mysql -u<user> -p<password> -h127.0.0.1 -P6033 -e "SELECT 1;"
+```
+
+**確認可存取資料庫與資料表**
+
+```bash
+# 列出所有資料庫（確認帳號有權限）
+mysql -u<user> -p<password> -h127.0.0.1 -P6033 -e "SHOW DATABASES;"
+
+# 列出指定 DB 的資料表
+mysql -u<user> -p<password> -h127.0.0.1 -P6033 -e "SHOW TABLES FROM <db_name>;"
+
+# 實際查詢一筆資料
+mysql -u<user> -p<password> -h127.0.0.1 -P6033 -e "SELECT * FROM <db_name>.<table_name> LIMIT 1;"
+```
+
+**確認連到哪台後端 MySQL**
+
+```bash
+# 回傳後端 MySQL 的 server_id，多執行幾次可觀察是否輪流
+mysql -u<user> -p<password> -h127.0.0.1 -P6033 -e "SELECT @@server_id, @@hostname;"
+```
+
+**確認管理介面（port 6032）可連**
+
+```bash
+mysql -uadmin -padmin -h127.0.0.1 -P6032 -e "SELECT * FROM mysql_servers\G"
+```
+
+> 若連線失敗，先確認：ProxySQL 服務是否啟動（`systemctl status proxysql`）、帳號是否已加入 `mysql_users` 並 `LOAD MYSQL USERS TO RUNTIME`、後端 MySQL 節點的 `status` 是否為 `ONLINE`（`SELECT hostname, status FROM mysql_servers;`）。
+
+---
+
 ### 測試讀寫分離
 
 `測試讀取操作`
