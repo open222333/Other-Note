@@ -15,20 +15,20 @@
 | MongoDB、Replica Set、rs.reconfig | `03_伺服器服務/.../MongoDB/MongoDB_筆記_Replica-Set(複本集).md` |
 | Redis、maxmemory、CONFIG SET | `03_伺服器服務/.../Redis/Redis_筆記.md` |
 | Git、fetch、stash、branch | `00_其他/.../Git(版本紀錄)/Git_筆記.md` |
-| Bitbucket、API Token、credential | `00_其他/.../Git(版本紀錄)/Bucket/Bitbucket_API_Token.md` |
-| iOS、Xcode、IPA、TestFlight | `00_其他/行動應用程式(Mobile_App)/iOS_建置與打包.md` |
-| Android、APK、AAB、Keystore | `00_其他/行動應用程式(Mobile_App)/Android_建置與打包.md` |
+| Bitbucket、API Token、credential | `00_其他/.../Git(版本紀錄)/Bucket(Bitbucket)/Bitbucket_API_Token(認證設定).md` |
+| iOS、Xcode、IPA、TestFlight | `00_其他/行動應用程式(Mobile_App)/iOS_建置與打包(行動App).md` |
+| Android、APK、AAB、Keystore | `00_其他/行動應用程式(Mobile_App)/Android_建置與打包(行動App).md` |
 | Capacitor、cap sync、WebView | `00_其他/行動應用程式(Mobile_App)/Capacitor_筆記.md` |
-| PWA、manifest.json、Service Worker | `00_其他/行動應用程式(Mobile_App)/PWA_Progressive_Web_App.md` |
+| PWA、manifest.json、Service Worker | `00_其他/行動應用程式(Mobile_App)/PWA_Progressive_Web_App(網頁App).md` |
 | React Native、Expo | `00_其他/行動應用程式(Mobile_App)/React_Native_筆記.md` |
 | Flutter、Dart、Widget | `00_其他/行動應用程式(Mobile_App)/Flutter_筆記.md` |
 | GPU 雲端市場、選擇建議、品牌比較 | `00_其他/.../LLM/GPU雲端市場/GPU雲端市場_總覽與選擇建議.md` |
-| Vast.ai、vastai CLI | `00_其他/.../LLM/GPU雲端市場/Vast.ai.md` |
-| RunPod、Serverless GPU | `00_其他/.../LLM/GPU雲端市場/RunPod.md` |
-| Lambda Labs、A100、H100 | `00_其他/.../LLM/GPU雲端市場/Lambda_Labs.md` |
-| Salad、SaladCloud、分散式 GPU | `00_其他/.../LLM/GPU雲端市場/Salad.md` |
-| Paperspace、Gradient Notebook | `00_其他/.../LLM/GPU雲端市場/Paperspace.md` |
-| CoreWeave、企業 GPU、k8s | `00_其他/.../LLM/GPU雲端市場/CoreWeave.md` |
+| Vast.ai、vastai CLI | `00_其他/.../LLM/GPU雲端市場/Vast.ai(GPU雲端).md` |
+| RunPod、Serverless GPU | `00_其他/.../LLM/GPU雲端市場/RunPod(GPU雲端).md` |
+| Lambda Labs、A100、H100 | `00_其他/.../LLM/GPU雲端市場/Lambda_Labs(GPU雲端).md` |
+| Salad、SaladCloud、分散式 GPU | `00_其他/.../LLM/GPU雲端市場/Salad(GPU雲端).md` |
+| Paperspace、Gradient Notebook | `00_其他/.../LLM/GPU雲端市場/Paperspace(GPU雲端).md` |
+| CoreWeave、企業 GPU、k8s | `00_其他/.../LLM/GPU雲端市場/CoreWeave(GPU雲端).md` |
 
 > 路徑中 `...` 為省略的中間目錄，實際搜尋用 `find . -name "筆記名稱"`。
 
@@ -55,6 +55,25 @@
 | Go 語法筆記 | `00_sample/golang_sample.md` |
 | GitHub 相關筆記 | `00_sample/github_sample.md` |
 
+### 命名規則
+
+筆記檔名後方須加上括號說明該工具 / 服務的用途或類型，一到三個詞即可：
+
+```
+格式：{名稱}({用途說明}).md
+
+範例：
+  Claude(AI).md
+  Vite(前端開發工具).md
+  Synology(NAS).md
+  k3s(輕量K8s).md
+  ProxySQL(MySQL代理).md
+```
+
+- 括號內使用繁體中文或通用縮寫（AI、NAS、CLI 等）
+- **目錄名稱**同樣需要括號描述（如 `Claude(AI)/`、`爬蟲相關(網路爬蟲)/`）
+- 純語法筆記（如 `Git_筆記.md`、`MySQL_筆記.md`）、`_總覽.md`、`_範例.md` 不強制加括號
+
 ### 結構要求
 
 - 開頭用 ```` ```...``` ```` 區塊寫一行摘要
@@ -70,8 +89,8 @@
 | DatabaseServer（MySQL / MongoDB / Redis / SQLite / Memcached） | `03_伺服器服務/DatabaseServer(資料庫伺服器)/DatabaseServer_總覽.md` |
 | 資料表設計工具（Workbench / dbdiagram / Hackolade） | `03_伺服器服務/DatabaseServer(資料庫伺服器)/資料表設計工具/資料表設計工具_總覽.md` |
 | GPU 雲端市場（Vast.ai / RunPod / Lambda 等） | `00_其他/.../LLM/GPU雲端市場/GPU雲端市場_總覽與選擇建議.md` |
-| API 金流串接 | `00_其他/串接API/金流/API_金流串接總覽.md` |
-| API 外送平台串接 | `00_其他/串接API/外送平台/API_外送平台串接總覽.md` |
+| API 金流串接 | `00_其他/串接API(第三方API串接)/金流(金流API)/API_金流串接總覽.md` |
+| API 外送平台串接 | `00_其他/串接API(第三方API串接)/外送平台(外送API)/API_外送平台串接總覽.md` |
 
 ## 總覽筆記規則
 
