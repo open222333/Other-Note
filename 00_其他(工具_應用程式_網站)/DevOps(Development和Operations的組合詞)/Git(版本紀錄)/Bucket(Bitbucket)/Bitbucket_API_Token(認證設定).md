@@ -17,6 +17,7 @@ Bitbucket Cloud 的單一用途存取金鑰，支援指定 Scope 的細粒度授
   - [互動式輸入（密碼提示）](#互動式輸入密碼提示)
   - [直接嵌入 URL](#直接嵌入-url)
   - [更新現有 Remote](#更新現有-remote)
+- [常見情境：App Password 已停用需遷移](#常見情境app-password-已停用需遷移)
 - [搭配 Bitbucket REST API 使用](#搭配-bitbucket-rest-api-使用)
   - [Basic Auth（curl）](#basic-authcurl)
   - [Authorization Header（Base64）](#authorization-headerbase64)
@@ -107,6 +108,29 @@ git clone https://x-bitbucket-api-token-auth:{api_token}@bitbucket.org/{workspac
 > 嵌入 URL 會將 Token 明文存入 git config / shell 歷史，CI/CD 環境請改用環境變數注入。
 
 ## 更新現有 Remote
+
+```bash
+git remote set-url origin https://{bitbucket_username}:{api_token}@bitbucket.org/{workspace}/{repository}.git
+```
+
+---
+
+# 常見情境：App Password 已停用需遷移
+
+Bitbucket Cloud 已停用 App Password 認證，若 repo 的 remote URL 仍是舊式帳密組合（帳號 + App Password），clone / push 會出現認證失敗。
+
+**判斷方式**
+
+```bash
+git remote -v
+# 輸出格式類似 https://{username}@bitbucket.org/{workspace}/{repository}.git
+# 且 push/pull 提示輸入密碼卻驗證失敗，代表該帳密已失效，需改用 API Token
+```
+
+**處理步驟**
+
+1. 依「[建立 API Token](#建立-api-token)」建立新 Token，Scope 至少勾選 `repository:write`（push 需要寫入權限）
+2. 依「[更新現有 Remote](#更新現有-remote)」章節，將 remote URL 換成 Token 版本：
 
 ```bash
 git remote set-url origin https://{bitbucket_username}:{api_token}@bitbucket.org/{workspace}/{repository}.git
