@@ -70,6 +70,7 @@
   - [fatal: unable to access : Failed to connect to bitbucket.org port 443: Connection timed out](#fatal-unable-to-access--failed-to-connect-to-bitbucketorg-port-443-connection-timed-out)
   - [TCP connection reset by peer](#tcp-connection-reset-by-peer)
   - [PowerShell 無法辨識 git 指令](#powershell-無法辨識-git-指令)
+  - [部署主機 git pull 分支分岔 (diverged)，衝突標記外洩到網站](#部署主機-git-pull-分支分岔-diverged衝突標記外洩到網站)
 
 ## 參考資料
 
@@ -1357,3 +1358,72 @@ $env:PATH += ";C:\Program Files\Git\cmd"
 ```
 
 **說明**：使用 `Git\cmd` 而非 `Git\bin`，可避免覆蓋系統內建的 `find`、`sort` 等同名工具。
+
+## 部署主機 git pull 分支分岔 (diverged)，衝突標記外洩到網站
+
+**症狀**
+
+瀏覽器打開網站，畫面直接顯示原始的 git 衝突標記文字，而不是正常頁面：
+
+```
+<<<<<<< HEAD
+=======
+>>>>>>> 70a248221e7d5be1ec8b2badf3bb15fa9d477829
+```
+
+代表 merge 衝突沒有真的解決，衝突標記被當成正常檔案內容存在硬碟上，直接被 nginx/PHP serve 出來。通常發生在有人在部署主機上直接 `git pull` 卡在衝突，卻沒有處理完就離開。
+
+**判斷方式**
+
+到部署主機上的專案目錄跑：
+
+```sh
+git status
+```
+
+如果看到：
+
+```
+# Your branch and 'origin/master' have diverged,
+# and have 1 and 1 different commit each, respectively.
+#
+# You have unmerged paths.
+#   (fix conflicts and run "git commit")
+#
+# Unmerged paths:
+#   both modified:      xxx.php
+```
+
+代表**這台機器自己也有一個獨立的 local commit**，不是單純落後遠端而已——pull 下來時兩邊有各自的變更，需要人工解決衝突，不會自動 fast-forward。
+
+**解法**
+
+1. 先確認本機分岔出去的那個 commit 內容，避免誤刪有用的修改：
+
+   ```sh
+   git log --oneline -3
+   git show HEAD --stat
+   ```
+
+2. 如果確認這台部署主機本來就不該有獨立 commit（正常情況下 code 只會單向從遠端流向部署主機），可以直接採用遠端版本解掉衝突：
+
+   ```sh
+   git checkout --theirs <衝突檔案1> <衝突檔案2> ...
+   git add <衝突檔案1> <衝突檔案2> ...
+   git commit
+   ```
+
+   或者不管本機分岔的 commit，直接強制對齊遠端（會捨棄本機獨有的修改，動手前務必先確認 `.env` 等未追蹤設定檔不受影響）：
+
+   ```sh
+   git fetch origin
+   git reset --hard origin/master
+   ```
+
+3. 解完衝突、程式碼更新後，如果網站行為還是跟新版程式碼對不上，檢查 PHP OPcache 是否開著 `opcache.validate_timestamps=0`——這種設定下 PHP-FPM 不會偵測到檔案內容變更，需要手動重啟：
+
+   ```sh
+   systemctl reload php-fpm
+   ```
+
+   nginx 本身不需要重啟，它只負責轉發請求跟讀取靜態檔案，不會快取程式碼。
