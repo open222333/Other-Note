@@ -7,3 +7,6 @@
 [submodule "01_程式語言/Python/Python_Book_Code"]
 	path = 01_程式語言/Python/Python_Book_Code
 	url = https://github.com/open222333/Python-Code.git
+[submodule "00_其他(工具_應用程式_網站)/LLM(大型語言模型)/0_制度文件(規章制度)"]
+	path = 00_其他(工具_應用程式_網站)/LLM(大型語言模型)/0_制度文件(規章制度)
+	url = https://github.com/open222333/ai-governance.git

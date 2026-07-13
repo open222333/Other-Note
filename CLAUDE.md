@@ -1,121 +1,32 @@
-# Claude Code 專案指令
+# CLAUDE.md｜Other-Note 筆記庫
 
-## 常用筆記索引
+> 定位：個人技術筆記知識庫（繁體中文）。本檔只放行為約束與指標；索引與格式規範外部化（見下方引用）。
 
-更新筆記前先查這裡，直接定位正確檔案。
+## 查找筆記（先索引、後搜尋，控 token）
 
-| 關鍵字 | 筆記路徑 |
-|---|---|
-| Apache、httpd、apache2、VirtualHost | `03_伺服器服務/WebServer(網站伺服器)/Apache/Apache_筆記.md` |
-| MySQL、mysqldump、my.cnf | `03_伺服器服務/.../MySQL/MySQL_筆記.md` |
-| ER 圖、資料表設計、dbdiagram、Workbench | `03_伺服器服務/DatabaseServer/資料表設計工具/資料表設計工具_總覽.md` |
-| MongoDB 文件設計、嵌入 vs 引用、Hackolade | `03_伺服器服務/DatabaseServer/資料表設計工具/MongoDB_資料表設計工具.md` |
-| XtraBackup、全量備份、增量備份 | `03_伺服器服務/.../MySQL/MySQL_工具_Percona_XtraBackup(資料備份的工具).md` |
-| ProxySQL、讀寫分離、Hostgroup | `03_伺服器服務/.../MySQL/MySQL_工具_ProxySQL(高性能_高可用性的_MySQL_代理).md` |
-| MongoDB、Replica Set、rs.reconfig | `03_伺服器服務/.../MongoDB/MongoDB_筆記_Replica-Set(複本集).md` |
-| Redis、maxmemory、CONFIG SET | `03_伺服器服務/.../Redis/Redis_筆記.md` |
-| Git、fetch、stash、branch | `00_其他/.../Git(版本紀錄)/Git_筆記.md` |
-| Bitbucket、API Token、credential | `00_其他/.../Git(版本紀錄)/Bucket(Bitbucket)/Bitbucket_API_Token(認證設定).md` |
-| iOS、Xcode、IPA、TestFlight | `00_其他/行動應用程式(Mobile_App)/iOS_建置與打包(行動App).md` |
-| Android、APK、AAB、Keystore | `00_其他/行動應用程式(Mobile_App)/Android_建置與打包(行動App).md` |
-| Capacitor、cap sync、WebView | `00_其他/行動應用程式(Mobile_App)/Capacitor_筆記.md` |
-| PWA、manifest.json、Service Worker | `00_其他/行動應用程式(Mobile_App)/PWA_Progressive_Web_App(網頁App).md` |
-| React Native、Expo | `00_其他/行動應用程式(Mobile_App)/React_Native_筆記.md` |
-| Flutter、Dart、Widget | `00_其他/行動應用程式(Mobile_App)/Flutter_筆記.md` |
-| GPU 雲端市場、選擇建議、品牌比較 | `00_其他/.../LLM/GPU雲端市場/GPU雲端市場_總覽與選擇建議.md` |
-| Vast.ai、vastai CLI | `00_其他/.../LLM/GPU雲端市場/Vast.ai(GPU雲端).md` |
-| RunPod、Serverless GPU | `00_其他/.../LLM/GPU雲端市場/RunPod(GPU雲端).md` |
-| Lambda Labs、A100、H100 | `00_其他/.../LLM/GPU雲端市場/Lambda_Labs(GPU雲端).md` |
-| Salad、SaladCloud、分散式 GPU | `00_其他/.../LLM/GPU雲端市場/Salad(GPU雲端).md` |
-| Paperspace、Gradient Notebook | `00_其他/.../LLM/GPU雲端市場/Paperspace(GPU雲端).md` |
-| CoreWeave、企業 GPU、k8s | `00_其他/.../LLM/GPU雲端市場/CoreWeave(GPU雲端).md` |
+1. 先讀 `00_索引.md` 直接定位目標檔案。
+2. 索引沒有 → `find . -name "*關鍵字*"` 或 `grep -rn`，**禁止**無定位掃整個目錄。
+3. 只讀本次任務相關的筆記，不順手瀏覽。
 
-> 路徑中 `...` 為省略的中間目錄，實際搜尋用 `find . -name "筆記名稱"`。
+## 更新與新增
 
-## 筆記更新優先規則
+- **先更新、後新增**：已有主題相符的筆記 → 在現有筆記補章節，不建新檔。
+- 無適合筆記 → 依 `00_sample/00_筆記規範.md` 建立（範本對照、命名、結構、總覽規則都在該檔）。
+- **單一真相**：內容過時或錯誤 → 直接刪修原檔，不留舊段落、不建 `_v2` / `_copy` / `_backup` 副本；歷史交給 Git。
+- 新增、移動、改名筆記後 → **必須同步更新 `00_索引.md`**；新的常查主題也補進索引。
+- 同目錄出現 3 個以上同類工具筆記 → 依規範建立 `_總覽.md` 並登記到索引。
 
-新增筆記內容前，先確認 repo 內是否已有主題相符的筆記：
+## 邊界
 
-- **已有適合筆記**：在現有筆記中新增章節或補充內容，不建立新檔案
-- **無適合筆記**：依下方「新增筆記規則」建立新檔案
+- 不讀、不動：`node_modules/`、`.git/`、`.DS_Store`。
+- 筆記內不得出現金鑰、token、密碼明文（引用一律 `$ENV_VAR` 形式）。
+- `00_sample/` 是範本目錄：修範本前先確認影響範圍，不放測試垃圾檔。
 
-## 新增筆記規則
+## 語言與風格
 
-在此 repo 建立新的 Markdown 筆記時，必須依照 `00_sample/` 目錄內的對應範本：
+- 章節標題繁體中文；程式碼、指令、識別字保留英文。
+- 說明文字精簡條列，可執行的內容一律用 code block。
 
-| 筆記類型 | 使用範本 |
-|---|---|
-| 工具 / 服務（含安裝步驟） | `00_sample/00_common_sample.md` |
-| 概念 / 方法論（無安裝步驟） | `00_sample/00_note_sample.md` |
-| Python 語法筆記 | `00_sample/python_sample.md` |
-| JavaScript 語法筆記 | `00_sample/javascript_sample.md` |
-| MySQL 語法筆記 | `00_sample/mysql_sample.md` |
-| MongoDB 語法筆記 | `00_sample/mongodb_sample.md` |
-| Linux 指令筆記 | `00_sample/linux_sample.md` |
-| Go 語法筆記 | `00_sample/golang_sample.md` |
-| GitHub 相關筆記 | `00_sample/github_sample.md` |
+## 相關制度
 
-### 命名規則
-
-筆記檔名後方須加上括號說明該工具 / 服務的用途或類型，一到三個詞即可：
-
-```
-格式：{名稱}({用途說明}).md
-
-範例：
-  Claude(AI).md
-  Vite(前端開發工具).md
-  Synology(NAS).md
-  k3s(輕量K8s).md
-  ProxySQL(MySQL代理).md
-```
-
-- 括號內使用繁體中文或通用縮寫（AI、NAS、CLI 等）
-- **目錄名稱**同樣需要括號描述（如 `Claude(AI)/`、`爬蟲相關(網路爬蟲)/`）
-- 純語法筆記（如 `Git_筆記.md`、`MySQL_筆記.md`）、`_總覽.md`、`_範例.md` 不強制加括號
-
-### 結構要求
-
-- 開頭用 ```` ```...``` ```` 區塊寫一行摘要
-- 必須有 `## 目錄` 與 `## 參考資料` section
-- 章節標題使用繁體中文，程式碼識別字保留英文
-- 工具類筆記包含：安裝（docker-compose / Debian / RedHat / Homebrew / Windows）、配置文檔、指令
-
-## 現有總覽筆記
-
-| 總覽 | 路徑 |
-|---|---|
-| WebServer（Nginx / Apache / Gunicorn） | `03_伺服器服務/WebServer(網站伺服器)/WebServer_總覽.md` |
-| DatabaseServer（MySQL / MongoDB / Redis / SQLite / Memcached） | `03_伺服器服務/DatabaseServer(資料庫伺服器)/DatabaseServer_總覽.md` |
-| 資料表設計工具（Workbench / dbdiagram / Hackolade） | `03_伺服器服務/DatabaseServer(資料庫伺服器)/資料表設計工具/資料表設計工具_總覽.md` |
-| GPU 雲端市場（Vast.ai / RunPod / Lambda 等） | `00_其他/.../LLM/GPU雲端市場/GPU雲端市場_總覽與選擇建議.md` |
-| API 金流串接 | `00_其他/串接API(第三方API串接)/金流(金流API)/API_金流串接總覽.md` |
-| API 外送平台串接 | `00_其他/串接API(第三方API串接)/外送平台(外送API)/API_外送平台串接總覽.md` |
-
-## 總覽筆記規則
-
-當一個目錄下收錄了**同類型的多個工具**時，建立 `XXX_總覽.md` 作為導覽入口。
-
-### 命名
-
-`{目錄名稱}_總覽.md`，放在該目錄的根層。
-
-### 必要章節
-
-| 章節 | 說明 |
-|---|---|
-| 開頭摘要區塊 | 說明此目錄收錄哪類工具 |
-| `## 目錄` | 含錨點連結的 TOC |
-| `## 參考資料` | 連結至子目錄各筆記 |
-| **工具清單** | 表格列出所有工具，含類型、主要用途、筆記連結 |
-| **類型 / 特性比較表** | 以表格對比各工具的核心差異（架構、效能、適用情境等） |
-| **各工具說明** | 每個工具一節，說明定位、適用 / 不適用情境，有子工具時列出生態連結表 |
-| **需求選擇建議** | 以情境為列，對應推薦工具，說明理由 |
-
-### 選填章節（視工具性質加入）
-
-| 章節 | 適用時機 |
-|---|---|
-| **HA / 叢集方案總覽** | 工具有多種 HA 或叢集部署模式時（資料庫、快取） |
-| **常見部署組合** | 工具通常需要搭配其他工具使用時（Web Server、Application Server） |
-| **角色區分** | 目錄內工具分屬不同層次（如 Web Server vs App Server）時 |
+- AI 協作制度（S/W/R 派工、權限邊界、token 紀律）已拆分至 `ai-governance` repo，本檔不重複其內容；跨 repo 任務時遵守該套 A~M。
