@@ -45,7 +45,13 @@ dnf install rsync
 
 # openSUSE
 zypper install rsync
+
+# macOS（Homebrew，更新至最新版）
+brew install rsync
 ```
+
+> macOS 內建 rsync 為 2.6.9（openrsync），不支援 `--info=progress2` 等新選項。
+> 透過 Homebrew 安裝後可升級至 3.x，安裝完重開 terminal 或執行 `hash -r` 讓 shell 重新載入路徑。
 
 # 指令
 
@@ -66,7 +72,8 @@ zypper install rsync
 -z  傳輸時壓縮
 -e  指定通道協定，例如 -e ssh
 -a  等同 -rlptgoD，最常用的參數
--P / --progress  顯示進度
+-P / --progress      顯示每個檔案的傳輸進度（舊版相容）
+--info=progress2     顯示整體傳輸進度（總 bytes / 速度 / 剩餘時間，需 rsync 3.x）
 --delete         刪除目標端有但來源端沒有的檔案（鏡像同步用，見下方注意）
 --temp-dir=/tmp  指定暫存檔位置
 --remove-source-files  同步完成後刪除來源檔案
@@ -96,6 +103,25 @@ rsync -v user@192.168.100.10:~ /tmp
 
 # 排除特定目錄
 rsync -av --progress --exclude="dir2" /source/ /dest/
+
+# 傳送至遠端，排除 .gitignore 內容（output/、data/、conf/schedules.json、.git/）
+# --info=progress2 顯示整體進度（需 rsync 3.x）
+rsync -av --info=progress2 \
+  --exclude='output/' \
+  --exclude='data/' \
+  --exclude='conf/schedules.json' \
+  --exclude='.git/' \
+  /local/project/ \
+  user@host:/remote/project/
+
+# 加上 --delete 讓遠端與本地完全一致（--exclude 的目錄不受影響，不會被刪）
+rsync -av --info=progress2 --delete \
+  --exclude='output/' \
+  --exclude='data/' \
+  --exclude='conf/schedules.json' \
+  --exclude='.git/' \
+  /local/project/ \
+  user@host:/remote/project/
 
 # 僅複製目錄結構，忽略檔案
 rsync -av --include '*/' --exclude '*' /source/ /dest/
