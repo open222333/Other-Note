@@ -1,6 +1,7 @@
 *.pdf
 *test*.*
 node_modules
+.DS_Store
 note_tool.conf
 .claude
 note_temp/

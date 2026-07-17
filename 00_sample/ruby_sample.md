@@ -1,11 +1,11 @@
-# Rudy 套件 sample()
+# Ruby 套件 sample()
 
 ```
 ```
 
 ## 目錄
 
-- [Rudy 套件 sample()](#rudy-套件-sample)
+- [Ruby 套件 sample()](#ruby-套件-sample)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [用法](#用法)
@@ -16,5 +16,5 @@
 
 # 用法
 
-```Rudy
+```ruby
 ```
