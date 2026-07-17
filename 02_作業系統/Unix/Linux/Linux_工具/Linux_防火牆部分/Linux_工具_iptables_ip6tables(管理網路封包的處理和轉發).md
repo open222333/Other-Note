@@ -17,14 +17,17 @@ Version 2.4 與 2.6：使用 iptables 這個防火牆機制
   - [參考資料](#參考資料)
 - [安裝部分](#安裝部分)
   - [安裝步驟 CentOS7](#安裝步驟-centos7)
+  - [安裝步驟 Debian / Ubuntu](#安裝步驟-debian--ubuntu)
 - [指令](#指令)
 - [防火牆規則](#防火牆規則)
 - [配置文檔](#配置文檔)
   - [CentOS](#centos)
+  - [Debian / Ubuntu（netfilter-persistent）](#debian--ubuntunetfilter-persistent)
   - [IPv6部分](#ipv6部分)
 - [範例](#範例)
 - [例外狀況](#例外狀況)
   - [Failed to start IPv4 firewall with iptables](#failed-to-start-ipv4-firewall-with-iptables)
+  - [ssh/rsync Connection timed out（來源 IP 未放行）](#sshrsync-connection-timed-out來源-ip-未放行)
 - [範例](#範例-1)
   - [開放 UDP 53（DNS）](#開放-udp-53dns)
 
@@ -56,6 +59,15 @@ yum install iptables-services -y
 # 停用 firewalld
 systemctl stop firewalld
 systemctl mask firewalld
+```
+
+## 安裝步驟 Debian / Ubuntu
+
+```bash
+# iptables 規則存在核心記憶體，重開機即消失
+# iptables-persistent 提供 netfilter-persistent.service，開機自動載入規則
+# 安裝過程會詢問是否保存當前規則
+apt install iptables-persistent
 ```
 
 # 指令
@@ -295,6 +307,37 @@ systemctl restart iptables.service
 reload iptables
 ```
 
+## Debian / Ubuntu（netfilter-persistent）
+
+Debian / Ubuntu **沒有** `/etc/sysconfig/iptables`（那是 CentOS / RHEL 路徑），
+規則持久化由 `netfilter-persistent`（`iptables-persistent` 套件）管理。
+
+規則檔位置：
+
+- IPv4：`/etc/iptables/rules.v4`
+- IPv6：`/etc/iptables/rules.v6`
+
+```bash
+# 查詢服務狀態（服務名是 netfilter-persistent，不是 iptables）
+systemctl status netfilter-persistent
+
+# 保存當前規則到 /etc/iptables/rules.v4 / rules.v6
+netfilter-persistent save
+
+# 從規則檔重新載入
+netfilter-persistent reload
+
+# 查看目前生效規則
+iptables -L -n -v --line-numbers
+ip6tables -L -n -v
+
+# 規則檔不存在時，直接輸出當前規則確認
+iptables-save
+```
+
+判斷方式：`systemctl status iptables` 顯示 `netfilter-persistent.service` 且
+log 出現 `run-parts: executing .../plugins.d/15-ip4tables start`，即為 Debian / Ubuntu 體系。
+
 ## IPv6部分
 
 `/etc/sysconfig/network`
@@ -350,6 +393,46 @@ service iptables save
 
 # 開啟服務
 systemctl restart iptables.service
+```
+
+## ssh/rsync Connection timed out（來源 IP 未放行）
+
+rsync/scp/ssh 出現以下錯誤，且目標主機開機中、sshd 正常：
+
+```
+ssh: connect to host xxx.xxx.xxx.xxx port 22: Connection timed out
+rsync: connection unexpectedly closed (0 bytes received so far) [sender]
+rsync error: unexplained error (code 255) at io.c(235) [sender=3.1.2]
+```
+
+- `timed out`（逾時）→ 封包被 DROP：多半是目標主機防火牆 INPUT policy DROP 且未放行來源 IP，或雲端平台安全群組未開 port
+- `refused`（拒絕）→ 封包有到達，但服務沒監聽或被 REJECT
+
+排查與處理（在目標主機執行）：
+
+```bash
+# 確認 INPUT 規則與 policy
+iptables -L INPUT -n -v --line-numbers
+
+# 取得來源主機對外 IP（在來源主機執行）
+curl -s ifconfig.me
+
+# 放行單一來源 IP 的 SSH（下指令後立即生效，不用重啟服務）
+# 用 -I 插到最前，避免排在 DROP/REJECT 規則之後不生效
+iptables -I INPUT -s <來源IP> -p tcp --dport 22 -j ACCEPT
+
+# 放行多個來源 IP 的 SSH
+for ip in 1.2.3.4 5.6.7.8; do
+  iptables -I INPUT -s "$ip" -p tcp --dport 22 -j ACCEPT
+done
+
+# 保存（Debian/Ubuntu，寫入 /etc/iptables/rules.v4，重開機仍有效）
+netfilter-persistent save
+# 保存（CentOS）
+service iptables save
+
+# 從來源主機驗證
+nc -zv 目標IP 22
 ```
 
 # 範例

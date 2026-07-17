@@ -1,8 +1,8 @@
-# Rudy 筆記
+# Ruby 筆記
 
 ## 目錄
 
-- [Rudy 筆記](#rudy-筆記)
+- [Ruby 筆記](#ruby-筆記)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [安裝步驟 MacOS](#安裝步驟-macos)
@@ -17,5 +17,5 @@
 
 ```bash
 # 安裝
-brew install rudy
+brew install ruby
 ```
