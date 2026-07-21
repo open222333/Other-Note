@@ -82,6 +82,15 @@ echo "set nu" >> ~/.vimrc
 
 ## Vim 如果直接接上代碼，出現格式跑掉（自動縮排）可透過以下方式解決
 
+`成因`
+
+```
+autoindent/smartindent 開啟時，終端機把貼上內容當成逐行輸入，
+vim 每行又自動補一次縮排，於是愈縮愈右形成「階梯縮排」。
+透過 SSH / tmux 貼上時特別容易發生（bracketed paste 常失效）。
+檔案本身沒壞，只是貼上當下被 vim 加了縮排。
+```
+
 `關閉縮排`
 
 ```bash
@@ -100,6 +109,20 @@ echo "set paste" >> ~/.vimrc
 
 ```bash
 echo "set nopaste" >> ~/.vimrc
+```
+
+`一鍵切換（推薦，貼上前後只按一鍵）`
+
+```bash
+# ~/.vimrc 設定切換鍵，按 F2 進 paste、貼上、再按 F2 關閉
+echo "set pastetoggle=<F2>" >> ~/.vimrc
+```
+
+`若已誤貼成階梯縮排（尚未存檔）`
+
+```bash
+# 直接放棄離開，原檔不受影響
+:q!
 ```
 
 ## vim 出現亂碼
