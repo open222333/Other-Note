@@ -71,6 +71,7 @@
   - [TCP connection reset by peer](#tcp-connection-reset-by-peer)
   - [PowerShell 無法辨識 git 指令](#powershell-無法辨識-git-指令)
   - [部署主機 git pull 分支分岔 (diverged)，衝突標記外洩到網站](#部署主機-git-pull-分支分岔-diverged衝突標記外洩到網站)
+  - [submodule 殘留造成 GUI 顯示空白的待 commit 項目](#submodule-殘留造成-gui-顯示空白的待-commit-項目)
 
 ## 參考資料
 
@@ -1427,3 +1428,44 @@ git status
    ```
 
    nginx 本身不需要重啟，它只負責轉發請求跟讀取靜態檔案，不會快取程式碼。
+
+## submodule 殘留造成 GUI 顯示空白的待 commit 項目
+
+**症狀**
+
+GUI（VS Code / SourceTree 等）出現一個完全空白、沒有任何 diff 內容的待 commit 項目；`git status` 只顯示該目錄為 untracked：
+
+```
+Untracked files:
+	src/common_tool/
+```
+
+**原因**
+
+該目錄是**殘留的 submodule**：目錄內有 `.git` 檔（gitfile，指向主 repo 的 `.git/modules/<path>`），`.git/config` 也留有 `submodule.<path>.url`，但 `.gitmodules` 與 index 中都沒有對應記錄。主 repo 因此把它當成「未追蹤的內嵌 git 倉庫」，Git 對這種目錄只記錄 gitlink（commit 指標）而非檔案內容，GUI 便呈現為空白 diff。常見成因：submodule 被 `git rm --cached` 或改壞 `.gitmodules` 後，工作目錄與 `.git/modules/` 中繼資料沒清乾淨。
+
+**判斷方式**
+
+```sh
+# 目錄內是 .git「檔案」而非目錄，即為 submodule 殘留
+cat <path>/.git
+# 輸出類似：gitdir: ../../.git/modules/<path>
+
+# 查主 repo 是否留有 submodule 設定
+git config --list | grep submodule
+```
+
+**解法（徹底移除）**
+
+```sh
+# 1. 移除 .git/config 中的殘留段落（若已不存在會回 no such section，可忽略）
+git config --remove-section submodule.<path>
+
+# 2. 刪除工作目錄與 submodule 中繼資料
+rm -rf <path> .git/modules/<path>
+
+# 3. 確認乾淨
+git status
+```
+
+若要**保留**該 submodule 而非移除，改為補回 `.gitmodules` 段落後 `git add .gitmodules <path>` 重新註冊。
