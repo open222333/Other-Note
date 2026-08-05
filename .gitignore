@@ -6,6 +6,14 @@ note_tool.conf
 .claude
 note_temp/
 
+# 憑證 / 本機設定（禁止入版控）
+.env
+.env.*
+config.local
+*.pem
+*.key
+credentials.json
+
 # 排除忽略
 !Python_模組-內建_unittest(單元測試框架).md
 !Linux_工具_test(檢查).md
