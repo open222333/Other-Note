@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,7 +22,7 @@ DJANGO_SETTINGS_MODULE = 'Django_LineBot.settings'
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '^^xn+ae$-^bd#59ucr&#!o7150nl10&wz^@76!i)(ja#8%&oqk'
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -127,5 +128,5 @@ STATIC_URL = '/static/'
 
 
 # LINE BOT
-LINE_CHANNEL_ACCESS_TOKEN = '9sNHzK9fe++M2HpTjrVMIh60iBvdkEcC+JyJy/hKbrLzOgv7Xu3qXyINBwb9tOEUzCu0NPTSoawQ73opF3fCCcTXO4MqfbJvX7qeJ725UkshR9PIhXv/b7m4SKACnUytHB18BBgF4JHQY9RY4oNrBgdB04t89/1O/w1cDnyilFU='
-LINE_CHANNEL_SECERT = '2f3748a8f2a08838c3869627c7822d9b'
+LINE_CHANNEL_ACCESS_TOKEN = os.environ['LINE_CHANNEL_ACCESS_TOKEN']
+LINE_CHANNEL_SECERT = os.environ['LINE_CHANNEL_SECRET']

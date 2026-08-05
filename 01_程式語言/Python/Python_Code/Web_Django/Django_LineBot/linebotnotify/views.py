@@ -1,3 +1,4 @@
+import os
 from django.http import HttpResponse
 from django.http.response import JsonResponse
 import requests
@@ -5,18 +6,18 @@ from .models import User_Info
 from django.views.decorators.csrf import csrf_exempt
 
 # 連動鏈結
-# https://notify-bot.line.me/oauth/authorize?response_type=code&client_id=jz2l4k1HcnjOszeNNk4w4Z&redirect_uri=https://0adee5a7e592.ngrok.io/linebotnotify/getAuthorize&scope=notify&state=NO_STATE
+# https://notify-bot.line.me/oauth/authorize?response_type=code&client_id=<LINE_NOTIFY_CLIENT_ID>&redirect_uri=<REDIRECT_URL>/linebotnotify/getAuthorize&scope=notify&state=NO_STATE
 
-ClientID = "jz2l4k1HcnjOszeNNk4w4Z"
-ClientSecret = "OypnXJMWd6lUEtBmSkBifiBmg4Klqzc3NeMPixq3lbm"
-RedirectUrl = "https://af0a1002f339.ngrok.io/linebotnotify/getAuthorize"
+ClientID = os.environ['LINE_NOTIFY_CLIENT_ID']
+ClientSecret = os.environ['LINE_NOTIFY_CLIENT_SECRET']
+RedirectUrl = os.environ['LINE_NOTIFY_REDIRECT_URL']  # 例：https://<your-host>/linebotnotify/getAuthorize
 
 
 @csrf_exempt
 def getLink():
     # 建立跳轉鏈結
     Url = "https://notify-bot.line.me/oauth/authorize?"
-    returnUrl = Url + 'response_type=code&client_id=jz2l4k1HcnjOszeNNk4w4Z&redirect_uri=' + \
+    returnUrl = Url + 'response_type=code&client_id=' + ClientID + '&redirect_uri=' + \
         RedirectUrl + '&scope=notify&state=NO_STATE'
     return HttpResponse(returnUrl)
 

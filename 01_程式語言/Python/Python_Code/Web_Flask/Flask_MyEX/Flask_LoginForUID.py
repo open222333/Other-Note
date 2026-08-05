@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask.helpers import url_for
 from werkzeug.utils import redirect
@@ -5,10 +6,10 @@ from flask import request
 
 app = Flask(__name__)
 
-channelID = '1656040702'
-channelSecret = '68debe05603e4431cc2ba7e424567e03'
-userID = 'U34cb393ef0a5e9acb847b25765c4778d'
-callbackURL = 'https://b756c1c348a9.ngrok.io'
+channelID = os.environ['LINE_LOGIN_CHANNEL_ID']
+channelSecret = os.environ['LINE_LOGIN_CHANNEL_SECRET']
+userID = os.environ['LINE_USER_ID']
+callbackURL = os.environ['LINE_LOGIN_CALLBACK_URL']  # 例：https://<your-host>
 
 
 @app.route("/")

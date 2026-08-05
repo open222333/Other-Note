@@ -1,3 +1,4 @@
+import os
 import requests
 
 
@@ -12,7 +13,7 @@ def getAuthorizeCode():
     # }
     parameters = {
         'response_type': 'code',
-        'client_id': 'EUMModIySUtlEQccGFA8hs',
+        'client_id': os.environ['LINE_NOTIFY_CLIENT_ID'],
         'redirect_uri': 'https://www.pureentertainment.cc/bot/callback',
         'scope': 'notify',
         'state': 'NO_STATE',
@@ -24,7 +25,7 @@ def getAuthorizeCode():
 
 def postForToken():
     url = 'https://notify-bot.line.me/oauth/token'
-    client_secret = 'M095I758qq4ab3EQPqE0uc0JaFKiPGD0DUmdpO65uyZ'
+    client_secret = os.environ['LINE_NOTIFY_CLIENT_SECRET']
     headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
@@ -32,7 +33,7 @@ def postForToken():
         'grant_type': 'authorization_code',
         'code': getAuthorizeCode(),
         'redirect_uri': 'https://www.pureentertainment.cc/bot/callback',
-        'client_id': 'EUMModIySUtlEQccGFA8hs',
+        'client_id': os.environ['LINE_NOTIFY_CLIENT_ID'],
         'client_secret': client_secret,
     }
     result = requests.post(url, headers=headers, params=parameters)
