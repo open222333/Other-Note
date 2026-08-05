@@ -3,7 +3,7 @@ from telegram.ext.commandhandler import CommandHandler
 
 
 # 根據Token創建dispatcher與bot
-token = '5020521993:AAH7drnyxRjbte5oFdlY93HXMzX5rIqAioQ'
+token = ''
 updater = Updater(token)
 
 # 設定調度器
