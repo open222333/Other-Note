@@ -10,13 +10,15 @@
 	- [參考資料](#參考資料)
 - [bitbucket webhook 創建與接收處理](#bitbucket-webhook-創建與接收處理)
 - [code review流程](#code-review流程)
-- [app passwords](#app-passwords)
+- [認證方式](#認證方式)
 
 ## 參考資料
 
 [Bitbucket Cloud resources](https://support.atlassian.com/bitbucket-cloud/resources/)
 
 [atlassian REST APIs](https://developer.atlassian.com/cloud/bitbucket/rest/intro/)
+
+[Bitbucket API Token(認證設定)](./Bitbucket_API_Token(認證設定).md)
 
 # bitbucket webhook 創建與接收處理
 
@@ -28,12 +30,8 @@
 
 [透過 bitbucket 用 pull request 做 code review](https://www.atlassian.com/git/tutorials/learn-about-code-review-in-bitbucket-cloud)
 
-# app passwords
+# 認證方式
 
-若clone時一直遇到權限不足,可使用
+App Password 已於 2026-07-28 全面停用（CHANGE-3222），clone / push 一律改用 **API Token** 或 **SSH**；沿用舊 App Password 的 git over HTTPS 操作會回傳 `410`。
 
-```
-Personal settings -> App passwords
-
-App passwords allow users to access their Bitbucket account through apps such as Sourcetree. We'll generate the app passwords for you, and you won't need to remember them.
-```
+建立方式、Scope、Credential 快取清除與錯誤排除見 [Bitbucket API Token(認證設定)](./Bitbucket_API_Token(認證設定).md)。
