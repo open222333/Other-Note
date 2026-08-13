@@ -1671,6 +1671,22 @@ docker ps -a | grep elasticsearch | awk '{print $1}' | xargs docker rm -f
 docker volume prune -f
 ```
 
+**`只清理已停止(Exited)的容器，不動到運行中的服務`**
+
+若不想用 `docker-compose down`（會連同還在正常運行的容器一起關閉），可改用 `docker` 指令依狀態 + 名稱過濾，只清掉已經 Exited 的容器：
+
+```bash
+# 先確認會刪到哪些容器
+# status=exited 限定已停止的容器；name 限定專案前綴，避免誤刪其他 stack 的容器
+docker ps -a -f status=exited -f name=<專案前綴>
+
+# 確認無誤後再移除（-v 連同匿名 volume 一併清掉）
+docker rm -v $(docker ps -a -q -f status=exited -f name=<專案前綴>)
+```
+
+- 多個 `-f` 為 AND 條件：同時符合「已停止」與「名稱含專案前綴」才會被選到
+- 這類殘留的舊容器（尤其是名稱前面帶一串 hash 的孤兒容器）清掉後，通常就能解決 `KeyError: 'ContainerConfig'`；清完再重新 `docker-compose up -d` 即可
+
 **`Docker Compose 文件問題`**
 
 **`舊容器的殘留配置`**
