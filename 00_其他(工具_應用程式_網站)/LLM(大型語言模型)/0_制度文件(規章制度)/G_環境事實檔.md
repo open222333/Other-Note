@@ -40,6 +40,14 @@
 - Telegram bot：Node.js（express + node-telegram-bot-api + @anthropic-ai/sdk），部署位置：<待填>。
 - 其他 repo：`avnight/proxysql`（Bitbucket）。
 
+### Python-FBOrderHub（訂單管理 + FB 整合）
+- repo：`open222333/Python-FBOrderHub`（GitHub）；制度引用見該 repo `CLAUDE.md`。
+- 技術棧：Python 3.11 / Flask 2.2.3 / MongoDB（pymongo）/ Vue 3 + Vite 4 / JWT / gunicorn（preload + post_fork 排程）。
+- 部署：Docker Compose（nginx + app + mongo + mysql + redis），nginx 模式由 `.env` 的 `NGINX_MODE` 決定（http / cloudflare / https-letsencrypt）。
+- FB Graph API：版本由 config `FB_API_VERSION` 控制，現行 v25.0。**Meta API 版本約 2 年下線**（v18 於 2026-01-26 到期曾使發文失效），每次升版需同步改 config 與本行。
+- Messenger webhook：`/fb/webhook`（GET verify + POST 簽章驗證），需 HTTPS 有效憑證；上線收顧客訊息需 Meta App Review（`pages_messaging`）。
+- 正式環境部署位置：<待填：主機、Compose 路徑>。
+
 ## 3. Port 對照表
 
 | Port | 服務 | 開放範圍 |
@@ -54,6 +62,11 @@
 ### Telegram bot
 `TELEGRAM_TOKEN`、`ANTHROPIC_API_KEY`、`ALLOWED_USER_IDS`、`PROJECT_ROOT`、`WEBHOOK_URL`、`PORT`、`CHAT_ID`
 
+### Python-FBOrderHub
+- `.env`：`FLASK_PORT`、`JWT_ACCESS_TOKEN_EXPIRES_HOURS`、`NGINX_MODE`、`DOMAIN`、`CF_CERT_DIR`
+- `conf/config.ini`（禁讀，欄位名見 `.default`）：`MONGO_URI`、`MONGO_DB`、`MYSQL_*`、`REDIS_*`、`FB_ACCESS_TOKEN`、`FB_GROUP_ID`、`FB_API_VERSION`、`FB_VERIFY_TOKEN`、`FB_APP_SECRET`、`SWAGGER_ENABLE`
+- `conf/flask.json`（禁讀）：`SECRET_KEY`（run.py 首次啟動自動產生）
+
 ### <其他服務待填>
 
 ## 5. 認證與金鑰盤點
@@ -62,6 +75,8 @@
 |-----------|------|---------|---------|------|
 | SSH key <待填名稱> | Bitbucket git 操作 | <主機> | <待填> | 全 repo 已統一 SSH（HTTPS token 已淘汰） |
 | repl 帳號 | MySQL replication | db-master | <待填> | caching_sha2_password |
+| FB_ACCESS_TOKEN | Graph API 發文（FBOrderHub） | conf/config.ini | <待填> | Page/User token，注意權限與效期 |
+| FB_APP_SECRET | Messenger webhook 簽章（FBOrderHub） | conf/config.ini | <待填> | Meta App Dashboard 取得 |
 | <待填> | | | | |
 
 ## 6. 外部服務依賴
@@ -72,6 +87,7 @@
 | Telegram Bot API | 通知/指令 | 群組升級 supergroup 會改 chat_id（程式已/應自動處理） |
 | Linode | 主機 | — |
 | Anthropic API | AI 代理 | 模型字串更新時同步改文件 B 對應表 |
+| Meta Graph API | FBOrderHub 發文 / Messenger webhook | 版本約 2 年強制下線（v18 已過期教訓）；webhook 需 App Review 才能收顧客訊息 |
 | <待填：CDN/DNS 供應商> | | |
 
 ## 7. 備份現況
