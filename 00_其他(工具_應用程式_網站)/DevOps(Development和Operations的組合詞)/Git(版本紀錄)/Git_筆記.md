@@ -66,12 +66,14 @@
   - [Git pull 錯誤操作](#git-pull-錯誤操作)
   - [Git submodule 子模組](#git-submodule-子模組)
   - [Git subtree 子樹](#git-subtree-子樹)
+  - [讓兩個分岔的分支指向同一個 commit](#讓兩個分岔的分支指向同一個-commit)
 - [例外狀況](#例外狀況)
   - [fatal: unable to access : Failed to connect to bitbucket.org port 443: Connection timed out](#fatal-unable-to-access--failed-to-connect-to-bitbucketorg-port-443-connection-timed-out)
   - [TCP connection reset by peer](#tcp-connection-reset-by-peer)
   - [PowerShell 無法辨識 git 指令](#powershell-無法辨識-git-指令)
   - [部署主機 git pull 分支分岔 (diverged)，衝突標記外洩到網站](#部署主機-git-pull-分支分岔-diverged衝突標記外洩到網站)
   - [submodule 殘留造成 GUI 顯示空白的待 commit 項目](#submodule-殘留造成-gui-顯示空白的待-commit-項目)
+  - [殘留的 .git/*.lock 檔案導致所有指令失敗](#殘留的-gitlock-檔案導致所有指令失敗)
 
 ## 參考資料
 
@@ -1312,6 +1314,45 @@ git pull -s subtree <remote_name> <branch_name>
 git push <remote_name> master
 ```
 
+## 讓兩個分岔的分支指向同一個 commit
+
+情境：兩個 local branch 各自有對方沒有的 commit（分岔），目的是讓它們日後代表同一份程式碼、指向同一個 commit。單純執行一次 `git merge` 只會讓「當下所在」的那個分支前進，另一個分支不會自動同步，必須兩邊都手動 merge 一次。
+
+`方法一`：merge（保留兩條歷史，較安全，沒有檔案衝突時建議用這個）
+
+```sh
+# 先確認兩邊分支各自獨有的 commit 有沒有動到同一批檔案，有重疊要留意合併衝突
+git diff <branch-a> <branch-b> --name-only
+
+git checkout <branch-a>
+git merge <branch-b> --no-edit
+# 這步會在 branch-a 上產生一個 merge commit（兩個 parent）
+
+git checkout <branch-b>
+git merge <branch-a> --no-edit
+# branch-a 的 merge commit 已經包含 branch-b 原本所有的 commit，
+# 這次一定是 fast-forward，兩個分支現在指向同一個 commit
+```
+
+驗證兩邊是否已經指向同一個 commit：
+
+```sh
+git rev-parse <branch-a> <branch-b>   # 兩行輸出應相同
+```
+
+`方法二`：rebase（線性歷史，但會改寫 commit hash，需注意風險）
+
+```sh
+git checkout <branch-b>
+git rebase <branch-a>
+# branch-b 的 commit 會被重新套用在 branch-a 之後，產生新的 commit hash
+
+git checkout <branch-a>
+git merge <branch-b> --no-edit   # 直接 fast-forward
+```
+
+⚠ rebase 後如果 branch-b 的舊 commit 已經被其他人 pull 過，對方本地會跟遠端分岔；push 前需要 `git push --force-with-lease`，且動手前務必確認沒有人還在用那些舊 commit。
+
 # 例外狀況
 
 ## fatal: unable to access : Failed to connect to bitbucket.org port 443: Connection timed out
@@ -1469,3 +1510,49 @@ git status
 ```
 
 若要**保留**該 submodule 而非移除，改為補回 `.gitmodules` 段落後 `git add .gitmodules <path>` 重新註冊。
+
+## 殘留的 .git/*.lock 檔案導致所有指令失敗
+
+**症狀**
+
+執行任何 git 指令都失敗，錯誤訊息類似：
+
+```
+fatal: Unable to create '.../.git/index.lock': File exists.
+```
+
+或
+
+```
+fatal: 對引用 'ORIG_HEAD' 執行 update_ref 失敗：cannot lock ref 'ORIG_HEAD': 無法建立 '.../.git/ORIG_HEAD.lock'：File exists.
+```
+
+**原因**
+
+Git 執行 merge、commit、checkout 等操作時會先建立對應的 `.lock` 檔案防止併發寫入，操作正常結束後會自動刪除。如果該次 git 程序中途被中斷（例如程序被強制終止、或執行環境的檔案系統權限問題導致寫入失敗），`.lock` 檔案會殘留在 `.git/` 底下，之後所有 git 指令都會因為鎖已存在而拒絕執行。
+
+**判斷方式**
+
+先確認沒有其他 git 程序真的還在跑（避免刪掉正在使用中的鎖），再檢查 `.git/` 底下是否有殘留的 `.lock` 檔案：
+
+```sh
+ps aux | grep git
+ls -la .git/*.lock
+```
+
+**解法**
+
+```sh
+# 1. 刪除殘留的 lock 檔案（依實際出現的檔名調整，常見有 index.lock、ORIG_HEAD.lock）
+rm -f .git/index.lock
+rm -f .git/ORIG_HEAD.lock
+
+# 2. 如果有操作做到一半（例如 merge 卡住），先中止
+git merge --abort
+
+# 3. 捨棄未完成的工作目錄變更（視情況，會遺失尚未 commit 的修改）
+git checkout -- .
+
+# 4. 確認乾淨後再重跑原本的操作
+git status
+```
