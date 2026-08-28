@@ -66,6 +66,7 @@
     - [測試容器連線](#測試容器連線)
     - [手動將容器加入網路](#手動將容器加入網路)
 - [例外狀況](#例外狀況)
+  - [docker-compose restart 要用 service 名稱，不是 container\_name](#docker-compose-restart-要用-service-名稱不是-container_name)
   - [使用 Docker 容器限制日誌大小](#使用-docker-容器限制日誌大小)
   - [KeyError: 'ContainerConfig' \[26571\] Failed to execute script docker-compose](#keyerror-containerconfig-26571-failed-to-execute-script-docker-compose)
   - [ERROR: Service 'api' failed to build : Error processing tar file(exit status 1)](#error-service-api-failed-to-build--error-processing-tar-fileexit-status-1)
@@ -681,6 +682,9 @@ journalctl -u docker
 # 顯示 docker 的資訊
 docker info
 
+# 只取出關鍵欄位（CPU 核數、總記憶體），用 --format 搭配 Go template
+docker info --format 'CPUs: {{.NCPU}}  Memory: {{.MemTotal}}'
+
 # 顯示 docker 的版本
 docker version
 
@@ -902,6 +906,9 @@ docker-compose start
 
 # 重新執行容器
 docker-compose start [Name]
+
+# 重新啟動容器（須帶 service 名稱，不是 container name，見「例外狀況」）
+docker-compose restart <service>
 
 # 停止容器
 docker-compose stop
@@ -1607,6 +1614,32 @@ docker network connect my_shared_net web_container
 ```
 
 # 例外狀況
+
+## docker-compose restart 要用 service 名稱，不是 container_name
+
+`docker-compose restart` 的參數必須是 `docker-compose.yml` 裡定義的 **service 名稱**，不是 `container_name` 設定的實際容器名稱，兩者不一定相同。
+
+```yml
+services:
+  worker-animation:                    # ← service 名稱，restart 要用這個
+    container_name: worker-animation-crawler   # ← 只是顯示用的實際容器名稱，restart 不吃這個
+    image: worker-animation:latest
+```
+
+```bash
+# 正確：用 service 名稱
+docker-compose restart worker-animation
+
+# 錯誤：用 container_name 會找不到 service
+docker-compose restart worker-animation-crawler
+# ERROR: No such service: worker-animation-crawler
+```
+
+不確定 service 名稱時，先列出該 `docker-compose.yml` 裡所有合法的 service 名稱：
+
+```bash
+docker-compose config --services
+```
 
 ## 使用 Docker 容器限制日誌大小
 
