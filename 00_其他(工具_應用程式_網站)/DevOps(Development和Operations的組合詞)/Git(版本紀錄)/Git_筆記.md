@@ -1556,3 +1556,21 @@ git checkout -- .
 # 4. 確認乾淨後再重跑原本的操作
 git status
 ```
+
+**變體：AI 助手（如 Claude）透過檔案橋接操作 repo 時殘留的 lock**
+
+透過 sandbox / 掛載磁碟橋接執行 git 指令的 AI 工具（例如 Claude Code、Cowork），若該掛載點不允許 `unlink` 系統呼叫，git 建立的 `.lock` 檔案會建立成功、但操作中斷或結束時**刪不掉**，之後在自己真正的 Terminal 執行 git 指令就會直接卡在 `index.lock: File exists`，即使沒有任何 git 程序在跑。
+
+判斷特徵：`ps aux | grep git` 完全沒有結果，但 lock 檔還在，且是在用 AI 工具操作過這個 repo 之後才發生。
+
+解法同上（`rm -f .git/index.lock`），但要注意兩點：
+
+```sh
+# 1. 一般 lock 之外，也要看 submodule 自己的 .git/modules/ 底下有沒有殘留
+find .git/modules -name "index.lock" -delete 2>/dev/null
+
+# 2. 確認清完後、在真正的 Terminal（不是 AI 工具的橋接環境）重新執行
+git status
+```
+
+因為 AI 工具的沙盒環境本身權限受限，這類殘留只能由使用者在自己機器的真實 Terminal 手動清除，AI 工具自己無法刪除。
