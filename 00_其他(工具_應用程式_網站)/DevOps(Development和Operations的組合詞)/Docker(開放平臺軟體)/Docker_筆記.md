@@ -76,6 +76,7 @@
     - [清理 Log Script](#清理-log-script)
   - [使用 網卡 讓 host mode 可以連到內網的ip(192.168.154.112)](#使用-網卡-讓-host-mode-可以連到內網的ip192168154112)
   - [查看 /var/lib/docker/overlay2 的容量使用情況](#查看-varlibdockeroverlay2-的容量使用情況)
+  - [docker pull 連公開 image（hello-world）都失敗、報 missing signature key](#docker-pull-連公開-imagehello-world都失敗報-missing-signature-key)
 
 ## 參考資料
 
@@ -2171,3 +2172,64 @@ du -h --max-depth=1 /var/lib/docker/overlay2 | sort -rh
 # -r 或 --reverse：以相反的順序排序（即降序）。
 # -h 或 --human-numeric-sort：比較版本號的數字部分（即包含 K、M、G 的數字，以及十進制小數）。
 ```
+
+## docker pull 連公開 image（hello-world）都失敗、報 missing signature key
+
+**症狀**
+
+`docker pull` 私有 repo 出現 `not found: no pull access` 之類「疑似帳密/權限」的錯誤，一開始容易誤判成登入或授權問題。但連 `docker pull hello-world` 這種完全公開、不需要登入的 image 都失敗，且錯誤訊息是 `missing signature key` 而不是網路 / 認證類錯誤——這代表問題不在「有沒有登入」，而是這台機器的 Docker 在做 image 簽章驗證（Docker Content Trust, DCT）時本身就故障了，剛好連公開 image 都拉不動。
+
+私有 repo 那個「no pull access」很可能是同一個根因偽裝出來的：Docker Hub 對私有 repo 一律回模糊的 `not found` 訊息以避免洩漏 repo 是否存在，不代表真的是帳密問題。
+
+**排查步驟**
+
+1. 檢查有沒有開 Content Trust（環境變數層級）
+
+```bash
+echo "DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST"
+env | grep -i docker
+```
+
+2. 檢查是否在系統層級被強制開啟
+
+```bash
+grep -ri "content_trust" /etc/environment /etc/default/docker /lib/systemd/system/docker.service /etc/systemd/system/docker.service.d/*.conf 2>/dev/null
+```
+
+3. 用同一條指令，明確關掉 Content Trust 再拉一次 hello-world（純測試，不會動到任何現有資料）
+
+```bash
+DOCKER_CONTENT_TRUST=0 docker pull hello-world
+```
+
+如果這行成功 → 證實就是 Content Trust 搞的鬼：這台機器某處被設定要求驗證簽章，但本地信任金鑰（`~/.docker/trust/`）缺失或損毀。回頭再測一次原本失敗的私有 repo（一樣先關掉再測）：
+
+```bash
+DOCKER_CONTENT_TRUST=0 docker login
+DOCKER_CONTENT_TRUST=0 docker pull <私有image>:latest
+```
+
+如果私有 repo 這次也拉得動，就證明先前的「no pull access」跟登入帳密無關，純粹是簽章驗證問題偽裝出來的。
+
+4. 確認是 Content Trust 造成後，檢查信任金鑰狀態
+
+```bash
+ls -la /root/.docker/trust/ 2>&1
+docker version | grep -i "engine\|server"
+```
+
+5. 排查是否為 docker engine 版本升級／containerd snapshotter 造成的另一種可能
+
+```bash
+docker info 2>&1 | grep -iE "storage driver|containerd|snapshotter"
+cat /etc/docker/daemon.json 2>/dev/null
+```
+
+**解法**
+
+第 3 步關掉 `DOCKER_CONTENT_TRUST` 就能解決的話，有兩種修法擇一：
+
+- 治標：把 `DOCKER_CONTENT_TRUST=0` 寫進這台機器的環境變數（`/etc/environment`）或部署腳本的 shell profile，永久關閉簽章驗證。
+- 治本：修復損毀的本地信任金鑰（`~/.docker/trust/`），讓簽章驗證恢復正常運作，不必關閉 Content Trust。
+
+怎麼選視這台機器原本是否真的需要 Content Trust（例如供應鏈安全要求）而定。

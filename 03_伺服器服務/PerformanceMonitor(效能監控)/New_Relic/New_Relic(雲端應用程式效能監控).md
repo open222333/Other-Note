@@ -34,6 +34,10 @@ Alerts & Dashboards — 設定閾值告警，自訂監控儀表板
   - [Python APM 操作](#python-apm-操作)
   - [PHP APM 操作](#php-apm-操作)
 - [環境變數](#環境變數)
+- [查詢與匯出（NRQL）](#查詢與匯出nrql)
+  - [方法一：Query Builder 直接查詢 + 匯出 CSV（最簡單）](#方法一query-builder-直接查詢--匯出-csv最簡單)
+  - [方法二：NerdGraph API 批次拉取（適合超過單次查詢上限、或要排程）](#方法二nerdgraph-api-批次拉取適合超過單次查詢上限或要排程)
+  - [依查詢結果判斷問題類型](#依查詢結果判斷問題類型)
 
 ## 參考資料
 
@@ -295,3 +299,47 @@ NEW_RELIC_LOG_LEVEL=info
 # 關閉監控（用於開發環境）
 NEW_RELIC_MONITOR_MODE=false
 ```
+
+# 查詢與匯出（NRQL）
+
+New Relic 內建查詢/匯出功能，排查錯誤爆量、統計來源分佈時不需要額外工具，兩種做法擇一：
+
+## 方法一：Query Builder 直接查詢 + 匯出 CSV（最簡單）
+
+```
+1. 左側選單找「Query your data」/ Query Builder（介面上有時顯示「NRQL 查詢」）
+2. 貼上 NRQL，時間範圍抓到跟目標事件（如錯誤爆量）一致的區間
+3. 查詢結果表格右上角有「Export results / Download CSV」圖示，點下去匯出目前查到的筆數
+   （LIMIT MAX 通常能拉到單次查詢上限，一般是 2000 筆內）
+```
+
+```sql
+-- 依 error.class 查特定錯誤的交易明細（把 error.class、appName、時間範圍換成實際值）
+SELECT timestamp, request.uri, http.statusCode, request.headers.userAgent, request.headers.X-Forwarded-For, appName
+FROM TransactionError
+WHERE error.class = 'YOUR_ERROR_CLASS'
+SINCE 10 days ago
+LIMIT MAX
+```
+
+若查出來某些欄位是空的，代表該屬性沒被記錄下來；先用 `SELECT *` 看實際有哪些欄位可用，再調整要選的欄位：
+
+```sql
+SELECT * FROM TransactionError WHERE error.class = 'YOUR_ERROR_CLASS' SINCE 10 days ago LIMIT 1
+```
+
+## 方法二：NerdGraph API 批次拉取（適合超過單次查詢上限、或要排程）
+
+適用情境：資料量超過 Query Builder 單次查詢上限、或要固定排程拉取。需要 New Relic **User API Key**（帳號設定內產生），用 curl 打 GraphQL API 分頁把資料抓下來存成 CSV/JSON。
+
+```
+API Key 屬於敏感憑證，不要貼在對話或聊天工具裡；在自己的終端機用環境變數帶入執行，
+腳本本身可以先寫好、參數化，Key 由使用者自行貼進終端機執行時提供。
+```
+
+## 依查詢結果判斷問題類型
+
+拿到匯出的 timestamp、User-Agent、IP 這幾欄後，可以分辨問題方向：
+
+- 集中在少數幾個 IP / User-Agent → 像是單一異常來源（特定 App 版本、爬蟲、壓測腳本）
+- 廣泛分散在大量不同來源 → 比較像是驗證邏輯本身壞了（session / token 驗證機制、Session 儲存），影響到所有真實使用者
