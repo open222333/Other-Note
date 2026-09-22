@@ -1353,6 +1353,31 @@ git merge <branch-b> --no-edit   # 直接 fast-forward
 
 ⚠ rebase 後如果 branch-b 的舊 commit 已經被其他人 pull 過，對方本地會跟遠端分岔；push 前需要 `git push --force-with-lease`，且動手前務必確認沒有人還在用那些舊 commit。
 
+`情境`：把 feature 分支合併回 master、確認兩邊同步後再各自 push 到遠端（實務上完整流程，對應上面的方法一）
+
+```sh
+cd /path/to/repo
+
+# 0. 先確認沒有其他程序在動（沒有殘留 index.lock，或那個 lock 是別人正在跑的；
+#    如果卡在 index.lock，見「例外狀況 → 殘留的 .git/*.lock 檔案導致所有指令失敗」）
+git status
+
+# 1. 把 feature-branch 合進 master（帶進 feature-branch 上的修復/變更）
+git checkout master
+git merge feature-branch -m "Merge branch 'feature-branch' into master"
+
+# 2. 讓 feature-branch 對齊到現在的 master（這是 fast-forward，不會產生新內容，只是移動指標）
+git checkout feature-branch
+git merge master
+
+# 3. 確認兩邊現在真的是同一個 commit
+git rev-parse master feature-branch
+
+# 4. 都一致之後才 push（先 push master，再 push feature-branch）
+git push origin master
+git push origin feature-branch
+```
+
 # 例外狀況
 
 ## fatal: unable to access : Failed to connect to bitbucket.org port 443: Connection timed out
