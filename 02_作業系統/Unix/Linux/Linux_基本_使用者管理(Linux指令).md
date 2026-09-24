@@ -16,6 +16,7 @@
       - [一行命令創建使用者並加群組 + home](#一行命令創建使用者並加群組--home)
   - [visudo 設定使用者群組的指令限制與權限](#visudo-設定使用者群組的指令限制與權限)
     - [sudoers 配置檔 Cmnd\_Alias](#sudoers-配置檔-cmnd_alias)
+    - [情境：把帳號從限定指令（例如只能跑 docker）改為完整 sudo all](#情境把帳號從限定指令例如只能跑-docker改為完整-sudo-all)
   - [groupadd (新增群組)](#groupadd-新增群組)
 - [範例](#範例)
   - [groupadd (新增群組)](#groupadd-新增群組-1)
@@ -382,6 +383,61 @@ username ALL=(ALL) MY_ALIAS
 ```sh
 sudo -l -U username
 ```
+
+### 情境：把帳號從限定指令（例如只能跑 docker）改為完整 sudo all
+
+以下以帳號 `deploy` 為例，請替換成實際帳號名稱。
+
+先找出目前的設定位置：
+
+```sh
+sudo grep -rn deploy /etc/sudoers /etc/sudoers.d/
+```
+
+通常會看到類似：
+
+```
+/etc/sudoers.d/deploy:1:deploy ALL=(ALL) NOPASSWD: /usr/bin/docker
+```
+
+`方法 A`：修改 sudoers 設定檔（建議）。務必用 `visudo` 編輯，存檔前會檢查語法，避免 sudo 壞掉：
+
+```sh
+sudo visudo -f /etc/sudoers.d/deploy
+```
+
+將原本那行改為：
+
+```
+deploy ALL=(ALL:ALL) ALL
+```
+
+若要維持免密碼：
+
+```
+deploy ALL=(ALL:ALL) NOPASSWD: ALL
+```
+
+`方法 B`：加入 sudo 群組。Ubuntu 預設 `sudo` 群組擁有完整權限：
+
+```sh
+sudo usermod -aG sudo deploy
+```
+
+此方式需要輸入密碼，帳號必須已設定密碼（`sudo passwd deploy`）；記得刪除原本只允許 docker 的那行設定，避免混淆；需**重新登入**後才會生效。
+
+驗證：
+
+```sh
+sudo -l -U deploy
+```
+
+看到 `(ALL : ALL) ALL` 即代表成功。
+
+⚠ 注意事項：
+
+- **資安風險**：若此帳號原本是給 CI/CD 或自動化腳本使用，改成 `NOPASSWD: ALL` 後，一旦金鑰外洩，攻擊者即可完全控制主機。
+- **保留後路**：修改期間請另外保持一個 root session 開著，萬一設定出錯還能修回來。
 
 ## groupadd (新增群組)
 
