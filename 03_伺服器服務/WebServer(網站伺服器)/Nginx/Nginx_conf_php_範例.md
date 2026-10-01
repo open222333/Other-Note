@@ -1,5 +1,24 @@
 # Nginx conf php 範例
 
+## 目錄
+
+- [Nginx conf php 範例](#nginx-conf-php-範例)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+- [php 基本配置](#php-基本配置)
+- [php laravel nginx 官方推薦配置](#php-laravel-nginx-官方推薦配置)
+- [php laraver-admin 自行配置 20220401](#php-laraver-admin-自行配置-20220401)
+- [php laraver-admin 自行配置 20220126](#php-laraver-admin-自行配置-20220126)
+- [nginx 配置php / pathinfo 模式/ php 多版本服務](#nginx-配置php--pathinfo-模式-php-多版本服務)
+  - [pathinfo 模式](#pathinfo-模式)
+- [php 多版本服務](#php-多版本服務)
+
+## 參考資料
+
+[]()
+
+# php 基本配置
+
 ```conf
 server {
     index index.php index.html;

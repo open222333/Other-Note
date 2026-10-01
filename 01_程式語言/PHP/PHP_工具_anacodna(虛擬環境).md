@@ -6,12 +6,14 @@ Conda 主要用於管理 Python 和 R 的環境及依賴，但它也能安裝一
 
 ## 目錄
 
-- [Python 工具 anacodna(虛擬環境) 筆記](# python-工具-anacodna虛擬環境-筆記)
-	- [目錄](# 目錄)
-	- [參考資料](# 參考資料)
-- [安裝步驟 Anaconda](# 安裝步驟-anaconda)
-- [安裝步驟 CentOS7 Miniconda](# 安裝步驟-centos7-miniconda)
-- [指令](# 指令)
+- [PHP 工具 anacodna(虛擬環境)](#php-工具-anacodna虛擬環境)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [Miniconda相關](#miniconda相關)
+- [安裝](#安裝)
+  - [CentOS7 Miniconda(輕量化)](#centos7-miniconda輕量化)
+  - [卸載](#卸載)
+- [指令](#指令)
 
 ## 參考資料
 

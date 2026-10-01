@@ -3,19 +3,24 @@
 
 ## 目錄
 
-- [環境](#環境)
-- [共同步驟（兩台都執行）](#master-與-slave-共同步驟兩台都執行)
+- [Ubuntu 24.04 LTS 安裝 MySQL 8.0 完整步驟](#ubuntu-2404-lts-安裝-mysql-80-完整步驟)
+- [1 Master + 1 Slave（全新主機）](#1-master--1-slave全新主機)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+  - [環境](#環境)
+- [Master 與 Slave 共同步驟（兩台都執行）](#master-與-slave-共同步驟兩台都執行)
   - [一、安裝 MySQL 8.0](#一安裝-mysql-80)
   - [二、確認服務狀態](#二確認服務狀態)
   - [三、執行安全性初始化](#三執行安全性初始化)
+    - [關於 root 密碼](#關於-root-密碼)
 - [Master 專屬步驟](#master-專屬步驟)
-  - [四、編輯 my.cnf](#四編輯-etcmysqlmycnf)
-  - [五、編輯 mysqld.cnf（64GB）](#五編輯-etcmysqlmysqlconfdmysqldcnflinode-dedicated-64gb)
+  - [四、編輯 /etc/mysql/my.cnf](#四編輯-etcmysqlmycnf)
+  - [五、編輯 /etc/mysql/mysql.conf.d/mysqld.cnf（Linode Dedicated 64GB）](#五編輯-etcmysqlmysqlconfdmysqldcnflinode-dedicated-64gb)
   - [六、檢查語法並重啟](#六檢查語法並重啟)
   - [七、建立 Replication 帳號](#七建立-replication-帳號)
 - [Slave 專屬步驟](#slave-專屬步驟)
-  - [四、編輯 my.cnf](#四編輯-etcmysqlmycnf-1)
-  - [五、編輯 mysqld.cnf（32GB）](#五編輯-etcmysqlmysqlconfdmysqldcnflinode-32gb)
+  - [四、編輯 /etc/mysql/my.cnf](#四編輯-etcmysqlmycnf-1)
+  - [五、編輯 /etc/mysql/mysql.conf.d/mysqld.cnf（Linode 32GB）](#五編輯-etcmysqlmysqlconfdmysqldcnflinode-32gb)
   - [六、檢查語法並重啟](#六檢查語法並重啟-1)
   - [七、設定連線到 Master](#七設定連線到-master)
   - [八、啟動同步](#八啟動同步)
@@ -23,13 +28,17 @@
 - [驗證同步與只讀](#驗證同步與只讀)
   - [Master 建立測試資料](#master-建立測試資料)
   - [Slave 確認同步](#slave-確認同步)
-  - [Slave 測試只讀](#slave-測試只讀應失敗)
-  - [清除測試資料](#清除測試資料master-執行)
+  - [Slave 測試只讀（應失敗）](#slave-測試只讀應失敗)
+  - [清除測試資料（Master 執行）](#清除測試資料master-執行)
 - [常見錯誤處理](#常見錯誤處理)
-  - [Replica_IO_Running: No](#replica_io_running-no)
+  - [Replica\_IO\_Running: No](#replica_io_running-no)
   - [防火牆開放 3306](#防火牆開放-3306)
   - [確認 replicator 帳號權限](#確認-replicator-帳號權限)
 - [MySQL 8.0 vs 8.4 主要差異](#mysql-80-vs-84-主要差異)
+
+## 參考資料
+
+[]()
 
 ---
 

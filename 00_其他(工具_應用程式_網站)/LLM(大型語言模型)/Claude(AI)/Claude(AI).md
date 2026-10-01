@@ -2,20 +2,29 @@
 
 ## 目錄
 
-- [介紹](#介紹)
-- [官方資源](#官方資源)
-- [模型系列](#模型系列)
-- [Claude Code (CLI)](#claude-code-cli)
-- [API](#api)
-- [常見連線錯誤](#常見連線錯誤)
-- [重要功能](#重要功能)
+- [Claude](#claude)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+  - [介紹](#介紹)
+  - [模型系列](#模型系列)
+    - [Claude 4（最新）](#claude-4最新)
+  - [Claude Code (CLI)](#claude-code-cli)
+    - [安裝](#安裝)
+    - [主要功能](#主要功能)
+  - [API](#api)
+    - [重要 API 功能](#重要-api-功能)
+  - [常見連線錯誤](#常見連線錯誤)
+    - [ERR\_CONNECTION\_RESET / ECONNRESET](#err_connection_reset--econnreset)
+    - [DNS\_PROBE\_FINISHED\_NXDOMAIN](#dns_probe_finished_nxdomain)
+  - [重要功能](#重要功能)
+    - [Extended Thinking（延伸思考）](#extended-thinking延伸思考)
+    - [Artifacts](#artifacts)
+    - [Projects](#projects)
+    - [Model Context Protocol (MCP)](#model-context-protocol-mcp)
 - [例外狀況](#例外狀況)
+  - [VS Code 擴充功能 ECONNRESET（Chrome Proxy 攔截 OAuth）](#vs-code-擴充功能-econnresetchrome-proxy-攔截-oauth)
 
-## 介紹
-
-Claude 是由 [Anthropic](https://www.anthropic.com/) 開發的大型語言模型，以安全性 (AI Safety)、可靠性與理解深度為核心設計理念。
-
-## 官方資源
+## 參考資料
 
 [Claude 官方網站](https://claude.ai/)
 
@@ -26,6 +35,10 @@ Claude 是由 [Anthropic](https://www.anthropic.com/) 開發的大型語言模�
 [Claude API 文件](https://docs.anthropic.com/)
 
 [Claude Code 文件](https://docs.anthropic.com/en/docs/claude-code/overview)
+
+## 介紹
+
+Claude 是由 [Anthropic](https://www.anthropic.com/) 開發的大型語言模型，以安全性 (AI Safety)、可靠性與理解深度為核心設計理念。
 
 ## 模型系列
 

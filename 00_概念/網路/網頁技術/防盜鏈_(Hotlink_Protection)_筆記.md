@@ -1,5 +1,12 @@
 # 防盜鏈 (Hotlink Protection) 筆記
 
+## 目錄
+
+- [防盜鏈 (Hotlink Protection) 筆記](#防盜鏈-hotlink-protection-筆記)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+- [防盜鏈 (Hotlink Protection)](#防盜鏈-hotlink-protection)
+
 ## 參考資料
 
 [Referer偽造，防盜鏈與反盜鏈](https://kknews.cc/zh-tw/history/al5l2yx.html)

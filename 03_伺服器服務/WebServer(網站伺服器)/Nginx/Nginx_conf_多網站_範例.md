@@ -1,5 +1,20 @@
 # Nginx conf 多網站 範例
 
+## 目錄
+
+- [Nginx conf 多網站 範例](#nginx-conf-多網站-範例)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+- [/etc/nginx/nginx.conf](#etcnginxnginxconf)
+- [/etc/nginx/conf.d/default.conf](#etcnginxconfddefaultconf)
+- [/etc/nginx/conf.d/test.com.conf](#etcnginxconfdtestcomconf)
+
+## 參考資料
+
+[]()
+
+# /etc/nginx/nginx.conf
+
 ```conf
 # /etc/nginx/nginx.conf
 user nginx nginx;
@@ -164,6 +179,8 @@ http {
 }
 ```
 
+# /etc/nginx/conf.d/default.conf
+
 ```conf
 # /etc/nginx/conf.d/default.conf
 server {
@@ -189,6 +206,8 @@ server {
 	}
 }
 ```
+
+# /etc/nginx/conf.d/test.com.conf
 
 ```conf
 # /etc/nginx/conf.d/test.com.conf

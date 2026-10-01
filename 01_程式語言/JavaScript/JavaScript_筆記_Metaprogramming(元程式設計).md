@@ -31,6 +31,7 @@ Metaprogramming通常需要謹慎使用，因為它可能使程式碼更難理�
 
 - [JavaScript 筆記 Metaprogramming(元程式設計)](#javascript-筆記-metaprogramming元程式設計)
 	- [目錄](#目錄)
+	- [參考資料](#參考資料)
 - [特性的屬性](#特性的屬性)
 	- [Object.getOwnPropertyDescriptor()](#objectgetownpropertydescriptor)
 	- [Object.defineProperty()](#objectdefineproperty)
@@ -38,6 +39,10 @@ Metaprogramming通常需要謹慎使用，因為它可能使程式碼更難理�
 	- [Object.isExtensible() 以及 Object.preventExtensions()](#objectisextensible-以及-objectpreventextensions)
 	- [Object.seal(), Object.freeze(), Object.isFrozen()](#objectseal-objectfreeze-objectisfrozen)
 	- [Object.getPrototypeOf(), Object.isPrototypeOf(), Object.setPrototypeOf()](#objectgetprototypeof-objectisprototypeof-objectsetprototypeof)
+
+## 參考資料
+
+[]()
 
 # 特性的屬性
 

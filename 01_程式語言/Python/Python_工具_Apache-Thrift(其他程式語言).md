@@ -4,6 +4,7 @@
 
 - [Python 工具 Apache-Thrift(其他程式語言)](#python-工具-apache-thrift其他程式語言)
 	- [目錄](#目錄)
+	- [參考資料](#參考資料)
 
 ```
 Apache Thrift 是 Facebook 實現的一種高效的、支援多種程式語言的遠端服務呼叫的框架。
@@ -153,3 +154,7 @@ Thrift的用法實際上很簡單，定義好IDL，然後實現service對應的h
 4. 執行驗證結果
     1) 先啟動 server(進入server目錄，執行python server.py)，之後再另一個視窗執行 client（進入client目前，執行python client.py）:
 ```
+
+## 參考資料
+
+[]()

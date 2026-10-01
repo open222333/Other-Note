@@ -6,6 +6,7 @@
 - [Ubuntu 24.04 LTS 安裝 MySQL 8.4 完整步驟](#ubuntu-2404-lts-安裝-mysql-84-完整步驟)
 - [1 Master + 1 Slave（全新主機）](#1-master--1-slave全新主機)
   - [目錄](#目錄)
+  - [參考資料](#參考資料)
   - [環境](#環境)
 - [Master 與 Slave 共同步驟（兩台都執行）](#master-與-slave-共同步驟兩台都執行)
   - [一、下載 MySQL 8.4 官方 deb bundle](#一下載-mysql-84-官方-deb-bundle)
@@ -40,6 +41,10 @@
   - [確認 replicator 帳號權限](#確認-replicator-帳號權限)
   - [mysqld --validate-config 錯誤：Can't find error-message file](#mysqld---validate-config-錯誤cant-find-error-message-file)
   - [mysqld --validate-config 警告：replica-parallel-type deprecated](#mysqld---validate-config-警告replica-parallel-type-deprecated)
+
+## 參考資料
+
+[]()
 
 ---
 

@@ -4,6 +4,7 @@
 
 - [Algorithm Sliding Windows(滑動窗口演算法)](#algorithm-sliding-windows滑動窗口演算法)
 	- [目錄](#目錄)
+	- [參考資料](#參考資料)
 
 ```
 1.在字串S中使用雙指標中的左右指標技巧，初始化 left = right = 0，把索引閉區間 [left, right] 稱為一個「視窗」。
@@ -14,3 +15,7 @@
 
 4.重複第 2 和第 3 步，直到 right 到達字串 S 的盡頭。
 ```
+
+## 參考資料
+
+[]()

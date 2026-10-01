@@ -1,5 +1,26 @@
 # ubuntu-server-setup.skill 使用說明
 
+## 目錄
+
+- [ubuntu-server-setup.skill 使用說明](#ubuntu-server-setupskill-使用說明)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+  - [.skill 檔案是什麼](#skill-檔案是什麼)
+  - [安裝方式](#安裝方式)
+    - [Claude Code（命令列）](#claude-code命令列)
+    - [Claude Cowork（桌面應用）](#claude-cowork桌面應用)
+  - [安裝後的效果](#安裝後的效果)
+  - [自行編輯](#自行編輯)
+    - [1. 解壓縮](#1-解壓縮)
+    - [2. 編輯](#2-編輯)
+    - [3. frontmatter 格式說明](#3-frontmatter-格式說明)
+    - [4. 編輯完重新打包](#4-編輯完重新打包)
+  - [注意事項](#注意事項)
+
+## 參考資料
+
+[]()
+
 ## .skill 檔案是什麼
 
 `.skill` 檔案本質上是一個 **zip 壓縮檔**，安裝後 Claude 會在相關情境下自動載入內容。

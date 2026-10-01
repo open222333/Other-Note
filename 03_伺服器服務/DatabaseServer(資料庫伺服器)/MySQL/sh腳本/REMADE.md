@@ -1,5 +1,22 @@
 # 腳本用法
 
+## 目錄
+
+- [腳本用法](#腳本用法)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+  - [check\_all\_tables.sh](#check_all_tablessh)
+  - [check\_table\_binlog.sh](#check_table_binlogsh)
+  - [create\_export\_temp\_table.sh](#create_export_temp_tablesh)
+  - [create\_export\_temp\_table\_2.sh](#create_export_temp_table_2sh)
+  - [mysqldump\_timer.sh](#mysqldump_timersh)
+  - [mysqldump\_and\_sync\_timer.sh](#mysqldump_and_sync_timersh)
+  - [mysqlrestore\_and\_fix\_mysql84\_timer.sh](#mysqlrestore_and_fix_mysql84_timersh)
+
+## 參考資料
+
+[]()
+
 ## check_all_tables.sh
 
 ```

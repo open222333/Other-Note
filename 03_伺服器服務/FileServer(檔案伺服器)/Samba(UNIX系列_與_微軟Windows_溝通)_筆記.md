@@ -6,6 +6,27 @@
 簡而言之，此軟體在Windows與UNIX系列作業系統之間搭起一座橋梁，讓兩者的資源可互通有無。
 ```
 
+## 目錄
+
+- [Samba(UNIX系列 與 微軟Windows 溝通) 筆記](#sambaunix系列-與-微軟windows-溝通-筆記)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+    - [安裝相關](#安裝相關)
+    - [配置文件相關](#配置文件相關)
+    - [掛載相關](#掛載相關)
+- [安裝步驟](#安裝步驟)
+  - [CentOS7](#centos7)
+- [配置文件](#配置文件)
+  - [修改 /etc/lmhosts](#修改-etclmhosts)
+  - [設定 /etc/smb.conf](#設定-etcsmbconf)
+    - [官方範例(包含選項說明)](#官方範例包含選項說明)
+    - [範例 允許訪客訪問 Creating a Basic guest only smb.conf File](#範例-允許訪客訪問-creating-a-basic-guest-only-smbconf-file)
+- [指令](#指令)
+  - [操作指令](#操作指令)
+  - [客戶端掛載方式](#客戶端掛載方式)
+    - [mount(手動掛載)](#mount手動掛載)
+    - [fstab(開機自動掛載)](#fstab開機自動掛載)
+
 ## 參考資料
 
 [Samba - wiki](https://zh.wikipedia.org/zh-tw/Samba)

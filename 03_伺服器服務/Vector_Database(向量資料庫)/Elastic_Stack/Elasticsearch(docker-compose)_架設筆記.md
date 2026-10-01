@@ -11,6 +11,25 @@ Elasticsearch是用Java開發的，並在Apache授權條款下作為開源軟體
 Kibana 是一個免費且開放的用戶界面，能夠讓您對Elasticsearch 數據進行可視化，並讓您在Elastic Stack 中進行導航。
 ```
 
+## 目錄
+
+- [Elasticsearch(docker-compose) 架設筆記](#elasticsearchdocker-compose-架設筆記)
+  - [目錄](#目錄)
+  - [參考資料](#參考資料)
+- [指令](#指令)
+- [使用方法](#使用方法)
+- [詳細內容](#詳細內容)
+  - [docker-compose](#docker-compose)
+  - [優化 自動安裝 IK 分詞插件](#優化-自動安裝-ik-分詞插件)
+  - [配置文檔 Java jvm.options](#配置文檔-java-jvmoptions)
+  - [配置文檔 elasticsearch.yml](#配置文檔-elasticsearchyml)
+  - [配置文檔 override.conf](#配置文檔-overrideconf)
+  - [生產環境 建議設定](#生產環境-建議設定)
+
+## 參考資料
+
+[]()
+
 # 指令
 
 ```bash
