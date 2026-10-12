@@ -31,6 +31,8 @@
   - [連線設定1](#連線設定1)
   - [腳本 自動化生成 SSH 密鑰對並配置 SSH 連接](#腳本-自動化生成-ssh-密鑰對並配置-ssh-連接)
   - [排查 SSH 金鑰認證未生效（某主機仍要求密碼）](#排查-ssh-金鑰認證未生效某主機仍要求密碼)
+  - [排查 SSH 暴力破解（大量密碼登入失敗）](#排查-ssh-暴力破解大量密碼登入失敗)
+    - [關閉密碼登入](#關閉密碼登入)
 
 ## 參考資料
 
@@ -620,3 +622,71 @@ vim ~/.ssh/authorized_keys
 ```bash
 cat ~/.ssh/authorized_keys
 ```
+
+## 排查 SSH 暴力破解（大量密碼登入失敗）
+
+情境：對外主機開著 `PasswordAuthentication yes`，日誌出現大量 `Failed password`，需確認是否有人成功登入。
+
+**案例（2026-10-12）**
+
+- 24 小時內 7724 次密碼登入失敗，0 次密碼登入成功
+- 7 天內成功登入皆為管理者 IP、用金鑰登入的 root
+- 被猜最多的帳號：`root` 3468、`admin` 209、`ubuntu` 187、`user` 99、`deploy` 66
+- 攻擊來源前幾名：`77.239.124.72`、`77.239.124.202`（各約 1460 次）、`4.195.33.191`、`109.160.32.145`、`109.160.32.103`
+
+**檢查指令**
+
+```bash
+# 即時看登入失敗
+journalctl -u ssh -f | grep --line-buffered "Failed password"
+
+# 過去 24 小時失敗次數
+journalctl -u ssh --since "24 hours ago" -o cat | grep -c "Failed password"
+
+# 攻擊來源 IP 排行
+journalctl -u ssh --since "24 hours ago" -o cat | grep "Failed password" | grep -oE "from [0-9.]+" | sort | uniq -c | sort -rn | head
+
+# 成功登入紀錄（確認有沒有不是自己的）
+journalctl -u ssh --since "7 days ago" -o cat | grep "Accepted"
+
+# 目前登入中的使用者
+who
+
+# 查看 sshd 實際生效的認證設定
+sshd -T | grep -E "permitrootlogin|passwordauthentication|pubkeyauthentication"
+```
+
+> CentOS / RHEL 的 unit 名稱是 `sshd`，改用 `journalctl -u sshd`。
+
+**判讀**
+
+| 設定 | 值 | 意思 |
+|---|---|---|
+| `permitrootlogin` | `yes` | root 可以登入 |
+| `passwordauthentication` | `yes` | 可用密碼登入，因此持續被猜密碼 |
+| `pubkeyauthentication` | `yes` | 可用金鑰登入 |
+
+### 關閉密碼登入
+
+已改用金鑰登入時，關閉密碼登入對自己無影響，可完全擋掉猜密碼攻擊。
+
+- 改之前先確認主機商後台有網頁主控台（Console），金鑰出問題時可從主控台救回
+- 修改期間**保留目前的 SSH 連線不要關**，另開一個新連線測試成功後再離開
+
+```bash
+# 寫入獨立設定檔（Ubuntu 的 sshd_config 預設會 Include sshd_config.d/*.conf）
+echo "PasswordAuthentication no" > /etc/ssh/sshd_config.d/00-disable-password.conf
+
+# 檢查語法並確認生效值
+sshd -t && sshd -T | grep passwordauthentication
+
+# 重新載入（不中斷現有連線）
+systemctl reload ssh
+
+# 另開終端機測試金鑰登入
+ssh root@<host_ip>
+```
+
+> Ubuntu 的雲端映像檔可能帶有 `50-cloud-init.conf` 設 `PasswordAuthentication yes`；sshd 對同一參數採用**第一個**讀到的值，所以檔名用 `00-` 開頭確保優先。
+
+進一步可加裝 Fail2Ban，自動封鎖反覆登入失敗的 IP，見 [Linux 工具 Fail2Ban(防止暴力破解攻擊)](<../Linux_防止暴力破解攻擊/Linux_工具_Fail2Ban(防止暴力破解攻擊).md>)。

@@ -26,6 +26,8 @@ Fail2Ban 是一個用來防止暴力破解攻擊的開源軟件。
 
 [官方文檔](https://fail2ban.readthedocs.io/en/latest/)
 
+[排查 SSH 暴力破解（日誌分析、關閉密碼登入）](<../Linux_SSH_工具/Linux_工具_OpenSSL_OpenSSH(連線、密鑰).md#排查-ssh-暴力破解大量密碼登入失敗>)
+
 # 安裝
 
 ## Debian (Ubuntu)
