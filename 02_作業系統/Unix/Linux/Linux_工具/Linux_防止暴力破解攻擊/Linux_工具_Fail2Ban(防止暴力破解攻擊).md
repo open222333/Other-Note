@@ -16,6 +16,7 @@ Fail2Ban 是一個用來防止暴力破解攻擊的開源軟件。
   - [RedHat (CentOS)](#redhat-centos)
   - [配置文檔](#配置文檔)
     - [Ubuntu 24.04 SSH 防護範例](#ubuntu-2404-ssh-防護範例)
+    - [改為永久封鎖](#改為永久封鎖)
 - [指令](#指令)
   - [服務操作](#服務操作)
 
@@ -54,7 +55,7 @@ Fail2Ban 的配置文件位於 `/etc/fail2ban` 目錄下，主要是 `fail2ban.c
 | 參數 | 說明 |
 |---|---|
 | `ignoreip` | 白名單，不會被封鎖的 IP / 網段（空白分隔） |
-| `bantime` | 封鎖時間，可用 `10m`、`1h`、`1d` 等單位（不加單位為秒） |
+| `bantime` | 封鎖時間，可用 `10m`、`1h`、`1d` 等單位（不加單位為秒）；`-1` 為永久 |
 | `findtime` | 計算失敗次數的時間窗口 |
 | `maxretry` | `findtime` 內允許的最大失敗次數 |
 | `backend` | 讀日誌的方式；`systemd` 直接讀 journal，不需指定 `logpath` |
@@ -88,6 +89,43 @@ systemctl enable --now fail2ban
 > Ubuntu 24.04 預設可能沒有 `/var/log/auth.log`，沿用舊的 `logpath = /var/log/auth.log` 會導致 fail2ban 啟動失敗，所以改用 `backend = systemd`。
 > 關閉密碼登入的做法見 [排查 SSH 暴力破解](<../Linux_SSH_工具/Linux_工具_OpenSSL_OpenSSH(連線、密鑰).md#關閉密碼登入>)。
 
+### 改為永久封鎖
+
+效果：目前封鎖中的 IP 與之後自動封鎖的 IP 一律永久封鎖，重開機或重啟服務後名單仍在。
+
+**臨時改法**（立即生效，含目前封鎖中的 IP；fail2ban 重啟後失效）：
+
+```bash
+fail2ban-client set sshd bantime -1
+```
+
+**長期保留**需改兩個設定：
+
+| 檔案 | 設定 | 原因 |
+|---|---|---|
+| `/etc/fail2ban/jail.local` | `bantime = -1` | 封鎖不會到期 |
+| `/etc/fail2ban/fail2ban.local` | `dbpurgeage = 3650d` | 資料庫預設只保留 1 天（`dbpurgeage = 1d`）的封鎖紀錄，重啟後超過 1 天的封鎖會消失；改成 10 年才能保住名單 |
+
+```bash
+# 1. jail.local 的 bantime 改成永久
+sed -i 's/^bantime\s*=.*/bantime  = -1/' /etc/fail2ban/jail.local
+
+# 2. 延長資料庫保留期限
+cat > /etc/fail2ban/fail2ban.local <<'EOF'
+[Definition]
+dbpurgeage = 3650d
+EOF
+
+# 3. 重啟套用
+systemctl restart fail2ban
+
+# 4. 確認目前封鎖名單與到期時間（永久封鎖不會出現到期時間）
+fail2ban-client status sshd
+fail2ban-client get sshd banip --with-time
+```
+
+> **注意**：永久封鎖不會自動解除。若自己的 IP 被誤封，要從主機商後台的網頁主控台（Console）登入，執行 `fail2ban-client set sshd unbanip <IP_ADDRESS>` 解封。因此 `ignoreip` 一定要先加上自己的 IP。
+
 # 指令
 
 ```bash
@@ -96,6 +134,9 @@ fail2ban-client status sshd
 
 # 即時看封鎖紀錄
 tail -f /var/log/fail2ban.log
+
+# 手動封鎖某個 IP（只擋 sshd jail 監控的 port，到期規則依 bantime）
+fail2ban-client set sshd banip <IP_ADDRESS>
 
 # 手動解除封鎖某個 IP
 fail2ban-client set sshd unbanip <IP_ADDRESS>
