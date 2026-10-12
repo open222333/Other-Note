@@ -19,6 +19,8 @@
 
 [CLAUDE.md 官方說明](https://docs.anthropic.com/claude-code/memory)
 
+[AGENTS.md 筆記（跨工具共用的 AI 代理指令檔，與 CLAUDE.md 的讀取優先順序）](../AGENTS_md(AI代理指令檔).md)
+
 # 作用
 
 - Claude Code 啟動時自動載入，不需每次重新說明專案背景
