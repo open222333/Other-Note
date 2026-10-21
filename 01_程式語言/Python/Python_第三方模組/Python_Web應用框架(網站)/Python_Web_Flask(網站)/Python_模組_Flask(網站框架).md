@@ -1,6 +1,13 @@
 # Python 模組 Flask(網站框架)
 
 ```
+Flask 是 Python 的輕量網站框架，建立在 Werkzeug（WSGI 工具函式庫）與 Jinja2（模板引擎）之上。
+
+Flask 負責 app 這一層：Flask 物件、@app.route 路由宣告、藍圖、設定、模板渲染、擴充套件整合。
+Werkzeug 負責 HTTP 底層：解析 WSGI 環境變數成 Request 物件、組出 Response、URL 比對（werkzeug.routing）、
+cookie / header 處理、開發用伺服器（flask run 用的就是 werkzeug.serving）、除錯器、測試客戶端、密碼雜湊（werkzeug.security）。
+
+安裝 Flask 時會一併安裝 Werkzeug，不用另外裝；from werkzeug.xxx import ... 可以直接使用。
 ```
 
 ## 目錄
@@ -60,6 +67,10 @@
 [flask 官方文檔](https://flask.palletsprojects.com/en/latest/)
 
 [API - Flask 官方文件](https://flask.palletsprojects.com/en/latest/api/)
+
+[Werkzeug 官方文件（Flask 底層的 WSGI 工具函式庫）](https://werkzeug.palletsprojects.com/)
+
+[Werkzeug 密碼雜湊筆記（werkzeug.security）](Python_模組_Flask-werkzeug.security(加密和解密).md)
 
 [【Flask 教學】2022 Flask 入門指南](https://www.maxlist.xyz/2020/05/01/flask-list/)
 
