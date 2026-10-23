@@ -1,5 +1,9 @@
 # Algorithm Depth-First Search(深度優先搜尋法)
 
+```
+深度優先搜尋（DFS）：沿分支走到底再回溯的搜尋演算法。
+```
+
 ## 目錄
 
 - [Algorithm Depth-First Search(深度優先搜尋法)](#algorithm-depth-first-search深度優先搜尋法)

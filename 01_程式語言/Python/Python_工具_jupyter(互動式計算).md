@@ -1,5 +1,9 @@
 # Python 工具 jupyter(互動式計算)
 
+```
+Jupyter 互動式計算環境與 VS Code 整合。
+```
+
 ## 目錄
 
 - [Python 工具 jupyter(互動式計算)](#python-工具-jupyter互動式計算)

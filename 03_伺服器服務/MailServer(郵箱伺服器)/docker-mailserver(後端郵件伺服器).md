@@ -190,7 +190,7 @@ setup alias list
 ## docker-compose 啟動
 
 ```bash
-docker-compose up -d mailserver
+docker compose up -d mailserver
 ```
 
 創建郵件用戶

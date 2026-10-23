@@ -6,7 +6,7 @@
 
 ## 目錄
 
-- [Cowork(協作)](#cowork協作)
+- [Claude Cowork(協作)](#claude-cowork協作)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [相關心得](#相關心得)

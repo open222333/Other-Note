@@ -1,5 +1,9 @@
 # Linux 工具 rsync(同步鏡像備份)
 
+```
+rsync 同步鏡像備份：常用選項、基本用法與 --delete 注意事項。
+```
+
 ## 目錄
 
 - [Linux 工具 rsync(同步鏡像備份)](#linux-工具-rsync同步鏡像備份)

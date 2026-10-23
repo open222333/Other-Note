@@ -1,5 +1,9 @@
 # Nginx conf php 範例
 
+```
+Nginx 搭配 PHP-FPM 的設定範例（含 pathinfo 模式）。
+```
+
 ## 目錄
 
 - [Nginx conf php 範例](#nginx-conf-php-範例)

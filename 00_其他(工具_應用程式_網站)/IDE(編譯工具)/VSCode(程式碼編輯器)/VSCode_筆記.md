@@ -1,5 +1,9 @@
 # VSCode 筆記
 
+```
+VSCode 快捷鍵、擴充套件（Quokka.js 等）與使用紀錄。
+```
+
 ## 目錄
 
 - [VSCode 筆記](#vscode-筆記)

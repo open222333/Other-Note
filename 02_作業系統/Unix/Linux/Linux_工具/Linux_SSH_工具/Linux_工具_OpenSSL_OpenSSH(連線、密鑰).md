@@ -3,6 +3,8 @@
 ```
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [Linux 工具 OpenSSL OpenSSH(連線、密鑰)](#linux-工具-openssl-openssh連線密鑰)

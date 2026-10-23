@@ -1,5 +1,9 @@
 # Nginx conf 多網站 範例
 
+```
+Nginx 同一台主機設定多個網站的範例。
+```
+
 ## 目錄
 
 - [Nginx conf 多網站 範例](#nginx-conf-多網站-範例)

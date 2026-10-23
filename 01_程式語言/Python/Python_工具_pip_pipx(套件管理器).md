@@ -1,5 +1,9 @@
 # Python 工具 pip(套件管理器)
 
+```
+pip / pipx 套件管理器用法與常見錯誤處理。
+```
+
 ## 目錄
 
 - [Python 工具 pip(套件管理器)](#python-工具-pip套件管理器)

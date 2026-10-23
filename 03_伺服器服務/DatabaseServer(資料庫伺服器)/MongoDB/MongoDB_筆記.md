@@ -6,6 +6,8 @@ MongoDB是一種介於關係型和非關係型中間的資料庫。它是文件�
 停止容器運作導致 MongoDB process（(行程）) 停止，類似 kill process 非正常關閉 MongoDB，在有進行讀寫的情況下可能會產生無法預期的情況。
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ```
 Cluster
 
@@ -43,7 +45,6 @@ MongoDB Shell mongosh 是一個功能齊全的 JavaScript 和 Node.js 16.x REPL 
     - [指令相關](#指令相關)
       - [鎖定資料庫](#鎖定資料庫)
     - [升級相關](#升級相關)
-    - [效能優化相關](#效能優化相關)
 - [效能優化](#效能優化)
   - [索引建立](#索引建立)
   - [查詢優化注意事項](#查詢優化注意事項)
@@ -386,13 +387,14 @@ apt install -y gnupg apt-transport-https ca-certificates
 匯入 MongoDB 的 GPG 金鑰
 
 ```sh
-wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+# apt-key 已棄用，金鑰改放 keyring 並用 signed-by 指定
+curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-4.4.gpg
 ```
 
 新增 MongoDB 4.4 的 APT 倉庫
 
 ```sh
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-4.4.gpg ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
 ```
 
 更新 apt 並安裝 MongoDB

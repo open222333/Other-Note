@@ -11,6 +11,8 @@ myloader：多執行緒平行還原，速度遠快於 mysql < dump.sql。
   - 備份用哪個工具，還原就必須用對應的工具。
 ```
 
+> 適用版本：部分內容以 CentOS 7、MySQL 5.x、Ubuntu 16.04 撰寫（皆已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [MySQL 工具 mydumper myloader(平行備份還原工具)](#mysql-工具-mydumper-myloader平行備份還原工具)

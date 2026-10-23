@@ -32,7 +32,6 @@ Cloudflare 提供免費 SSL 憑證與多種 TLS 模式，
   - [HSTS（HTTP Strict Transport Security）](#hstshttp-strict-transport-security)
   - [Always Use HTTPS](#always-use-https)
   - [Automatic HTTPS Rewrites](#automatic-https-rewrites)
-  - [Minimum TLS Version](#minimum-tls-version)
 - [常見使用情境](#常見使用情境)
   - [情境一：伺服器無 SSL 憑證（最快上手）](#情境一伺服器無-ssl-憑證最快上手)
   - [情境二：已有 Let's Encrypt 憑證](#情境二已有-lets-encrypt-憑證)

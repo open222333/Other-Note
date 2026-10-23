@@ -1,5 +1,9 @@
 # JavaScript 筆記
 
+```
+JavaScript 雜記：i++/++i、字串格式化、迭代器與產生器等。
+```
+
 ## 目錄
 
 - [JavaScript 筆記](#javascript-筆記)

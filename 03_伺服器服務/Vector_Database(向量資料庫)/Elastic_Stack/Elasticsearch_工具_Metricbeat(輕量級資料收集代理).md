@@ -20,7 +20,7 @@ Metricbeat 通常將收集的度量數據發送到 Elasticsearch 中，並可以
 
 ## 目錄
 
-- [Linux 工具 sample($num)()](#linux-工具-sample$num)
+- [Elasticsearch 工具 Metricbeat(輕量級資料收集代理)](#elasticsearch-工具-metricbeat輕量級資料收集代理)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
@@ -30,8 +30,6 @@ Metricbeat 通常將收集的度量數據發送到 Elasticsearch 中，並可以
   - [Homebrew (MacOS)](#homebrew-macos)
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
-- [指令](#指令)
-  - [服務操作](#服務操作)
 
 ## 參考資料
 

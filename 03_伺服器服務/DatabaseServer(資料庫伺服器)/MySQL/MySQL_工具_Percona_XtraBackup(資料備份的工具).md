@@ -24,6 +24,8 @@ Xtrabackup工具支援對InnoDB儲存引擎的增量備份，工作原理如下�
 因為logfile裡面記錄全部的資料修改情況，所以，即時在備份過程中資料檔案被修改過了，恢復時仍然能夠通過解析xtrabackup_logfile保持資料的一致。
 ```
 
+> 適用版本：部分內容以 CentOS 7、MySQL 5.x 撰寫（皆已停止維護），新版系統的套件名稱與指令可能不同
+
 ### innobackupex 對比 xtrabackup
 
 ```
@@ -41,7 +43,7 @@ xtrabackup 僅複製 InnoDB 數據和日誌。它不會復製表定義文件（.
 
 ## 目錄
 
-- [MySQL Percona XtraBackup(資料備份的工具)](#mysql-percona-xtrabackup資料備份的工具)
+- [MySQL 工具 Percona XtraBackup(資料備份的工具)](#mysql-工具-percona-xtrabackup資料備份的工具)
 		- [innobackupex 對比 xtrabackup](#innobackupex-對比-xtrabackup)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
@@ -264,20 +266,22 @@ apt-get install percona-xtrabackup
 匯入 Percona APT GPG 金鑰
 
 ```sh
+# apt-key 已棄用，金鑰改放 keyring 並用 signed-by 指定
 wget https://www.percona.com/downloads/RPM-GPG-KEY-percona
-apt-key add RPM-GPG-KEY-percona
+sudo gpg --dearmor -o /usr/share/keyrings/percona.gpg RPM-GPG-KEY-percona
 ```
 
 手動匯入正確的 GPG 公鑰
 
 ```sh
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 9334A25F8507EFA5
+gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 9334A25F8507EFA5
+gpg --export 9334A25F8507EFA5 | sudo tee -a /usr/share/keyrings/percona.gpg > /dev/null
 ```
 
 加入 Percona APT 套件來源
 
 ```sh
-echo "deb http://repo.percona.com/apt bionic main" | sudo tee /etc/apt/sources.list.d/percona.list
+echo "deb [signed-by=/usr/share/keyrings/percona.gpg] http://repo.percona.com/apt bionic main" | sudo tee /etc/apt/sources.list.d/percona.list
 ```
 
 更新套件庫

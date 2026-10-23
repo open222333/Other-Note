@@ -6,7 +6,7 @@
 
 ## 目錄
 
-- [Claude Code 終端機](#claude-code-終端機)
+- [Claude Code Terminal(終端機)](#claude-code-terminal終端機)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)

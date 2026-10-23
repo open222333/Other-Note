@@ -1,5 +1,9 @@
 # Markdown 筆記
 
+```
+Markdown 語法與撰寫參考。
+```
+
 ## 目錄
 
 - [Markdown 筆記](#markdown-筆記)
@@ -12,8 +16,8 @@
 			- [H4 小標題](#h4-小標題)
 				- [H5 小標題](#h5-小標題)
 					- [H6 小標題](#h6-小標題)
-- [H1 大標題](#h1-大標題-1)
-	- [H2 標題](#h2-標題-1)
+- [H1 大標題](#h1-大標題)
+	- [H2 標題](#h2-標題)
 		- [Table - Align](#table---align)
 		- [Table - Text](#table---text)
 		- [Table - Html](#table---html)

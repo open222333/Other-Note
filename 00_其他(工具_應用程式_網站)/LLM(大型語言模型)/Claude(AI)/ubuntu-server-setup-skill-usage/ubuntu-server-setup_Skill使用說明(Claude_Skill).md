@@ -1,5 +1,9 @@
 # ubuntu-server-setup.skill 使用說明
 
+```
+ubuntu-server-setup.skill 是什麼、如何安裝與自行編輯。
+```
+
 ## 目錄
 
 - [ubuntu-server-setup.skill 使用說明](#ubuntu-server-setupskill-使用說明)

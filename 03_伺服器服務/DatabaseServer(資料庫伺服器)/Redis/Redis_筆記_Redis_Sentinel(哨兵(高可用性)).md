@@ -28,18 +28,9 @@ Cluster 是 分片 + HA 的大型分布式架構
 
 ## 目錄
 
-- [Linux 工具 sample($num)()](#linux-工具-sample$num)
+- [Redis 筆記 Redis Sentinel(哨兵(高可用性))](#redis-筆記-redis-sentinel哨兵高可用性)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-- [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
-- [指令](#指令)
-  - [服務操作](#服務操作)
 
 ## 參考資料
 

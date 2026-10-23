@@ -1,5 +1,11 @@
 # Redis 筆記
 
+```
+Redis 安裝（Ubuntu / CentOS / Mac）與基本操作。
+```
+
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [Redis 筆記](#redis-筆記)

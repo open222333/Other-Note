@@ -1,5 +1,9 @@
 # Algorithm 筆記
 
+```
+演算法基本概念與學習參考資料。
+```
+
 ## 目錄
 
 - [Algorithm 筆記](#algorithm-筆記)

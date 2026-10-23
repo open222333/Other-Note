@@ -1,5 +1,9 @@
 # UML PlantUML(流程圖)
 
+```
+PlantUML 以文字描述繪製 UML 流程圖的操作方式。
+```
+
 ## 目錄
 
 - [UML PlantUML(流程圖)](#uml-plantuml流程圖)

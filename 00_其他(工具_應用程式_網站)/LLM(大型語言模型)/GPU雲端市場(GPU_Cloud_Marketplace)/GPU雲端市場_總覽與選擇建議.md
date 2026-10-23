@@ -21,13 +21,13 @@
 
 ## 參考資料
 
-- [Vast.ai 筆記](./Vast.ai.md)
-- [RunPod 筆記](./RunPod.md)
-- [Lambda Labs 筆記](./Lambda_Labs.md)
-- [TensorDock 筆記](./TensorDock.md)
-- [Salad 筆記](./Salad.md)
-- [Paperspace 筆記](./Paperspace.md)
-- [CoreWeave 筆記](./CoreWeave.md)
+- [Vast.ai 筆記](./Vast.ai(GPU雲端).md)
+- [RunPod 筆記](./RunPod(GPU雲端).md)
+- [Lambda Labs 筆記](./Lambda_Labs(GPU雲端).md)
+- [TensorDock 筆記](./TensorDock(GPU雲端).md)
+- [Salad 筆記](./Salad(GPU雲端).md)
+- [Paperspace 筆記](./Paperspace(GPU雲端).md)
+- [CoreWeave 筆記](./CoreWeave(GPU雲端).md)
 
 ---
 

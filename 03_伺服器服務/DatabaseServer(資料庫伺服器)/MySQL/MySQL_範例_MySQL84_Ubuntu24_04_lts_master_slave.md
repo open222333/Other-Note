@@ -1,10 +1,12 @@
-# Ubuntu 24.04 LTS 安裝 MySQL 8.4 完整步驟
-# 1 Master + 1 Slave（全新主機）
+# Ubuntu 24.04 LTS 安裝 MySQL 8.4 完整步驟（1 Master + 1 Slave 全新主機）
+
+```
+Ubuntu 24.04 安裝 MySQL 8.4 並建立 1 Master + 1 Slave 複製。
+```
 
 ## 目錄
 
-- [Ubuntu 24.04 LTS 安裝 MySQL 8.4 完整步驟](#ubuntu-2404-lts-安裝-mysql-84-完整步驟)
-- [1 Master + 1 Slave（全新主機）](#1-master--1-slave全新主機)
+- [Ubuntu 24.04 LTS 安裝 MySQL 8.4 完整步驟（1 Master + 1 Slave 全新主機）](#ubuntu-2404-lts-安裝-mysql-84-完整步驟1-master--1-slave-全新主機)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
   - [環境](#環境)

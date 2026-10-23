@@ -1,5 +1,9 @@
 # Python 模組 botocore boto3(AWS開發套件)
 
+```
+boto3 / botocore（AWS SDK for Python）用法與 S3 範例。
+```
+
 ## 目錄
 
 - [Python 模組 botocore boto3(AWS開發套件)](#python-模組-botocore-boto3aws開發套件)

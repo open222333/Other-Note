@@ -3,6 +3,8 @@
 ```
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [NFS-NetworkFileShare(NFS伺服器-檔案分享) 筆記](#nfs-networkfilesharenfs伺服器-檔案分享-筆記)

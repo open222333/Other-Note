@@ -5,6 +5,14 @@
 通過它，可以自動化瀏覽器操作、網頁抓取、測試應用程式等
 ```
 
+基於 Node.js、控制無頭 Chromium / Chrome 的高階 API，常見用途：
+
+- 網頁抓取：導航互動式網站並擷取資料
+- PDF 生成：從網頁或 HTML 產生 PDF 報告
+- 截圖：網站監控、視覺回歸測試
+- 自動化測試：模擬使用者操作做端到端測試，可等待 SPA 動態內容載入
+- 效能監控：量測頁面載入時間等指標
+
 ## 目錄
 
 - [JavaScript Node 模組 puppeteer(網頁自動化)](#javascript-node-模組-puppeteer網頁自動化)
@@ -19,10 +27,15 @@
   - [等待某個元素](#等待某個元素)
   - [模擬點擊](#模擬點擊)
   - [錯誤處理與排錯](#錯誤處理與排錯)
+  - [Page.exposeFunction() method](#pageexposefunction-method)
 
 ## 參考資料
 
 [puppeteer npm 頁面](https://www.npmjs.com/package/puppeteer)
+
+[官方文檔](https://pptr.dev/api/puppeteer.puppeteernode)
+
+[Page.exposeFunction() method](https://pptr.dev/api/puppeteer.page.exposefunction)
 
 # 指令
 
@@ -133,4 +146,58 @@ try {
 } catch (error) {
   console.error('元素未找到或超時', error);
 }
+```
+
+## Page.exposeFunction() method
+
+```JavaScript
+/**
+ * 在 Page(WebPage) 插入底層 js 的程式碼，
+ * 主要目的是用來避免在頁面執行 js 腳本打 api 傳資料會有跨網域問題，
+ * 所以 js 腳本爬到的資料在 js 腳本用 page.exposeFunction ，
+ * 透過底層的 function 去打 api
+ */
+import puppeteer from 'puppeteer';
+import crypto from 'crypto';
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  page.on('console', msg => console.log(msg.text()));
+  await page.exposeFunction('md5', text =>
+    crypto.createHash('md5').update(text).digest('hex')
+  );
+  await page.evaluate(async () => {
+    // use window.md5 to compute hashes
+    const myString = 'PUPPETEER';
+    const myHash = await window.md5(myString);
+    console.log(`md5 of ${myString} is ${myHash}`);
+  });
+  await browser.close();
+})();
+```
+
+```JavaScript
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  page.on('console', msg => console.log(msg.text()));
+  await page.exposeFunction('readfile', async filePath => {
+    return new Promise((resolve, reject) => {
+      fs.readFile(filePath, 'utf8', (err, text) => {
+        if (err) reject(err);
+        else resolve(text);
+      });
+    });
+  });
+  await page.evaluate(async () => {
+    // use window.readfile to read contents of a file
+    const content = await window.readfile('/etc/hosts');
+    console.log(content);
+  });
+  await browser.close();
+})();
 ```

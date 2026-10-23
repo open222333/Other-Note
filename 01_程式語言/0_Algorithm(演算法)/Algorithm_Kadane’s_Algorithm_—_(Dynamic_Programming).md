@@ -1,5 +1,9 @@
 # Algorithm Kadane’s Algorithm — (Dynamic Programming)
 
+```
+Kadane 演算法：以動態規劃在 O(n) 求最大子陣列和。
+```
+
 ## 目錄
 
 - [Algorithm Kadane’s Algorithm — (Dynamic Programming)](#algorithm-kadanes-algorithm--dynamic-programming)

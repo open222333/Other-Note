@@ -35,7 +35,7 @@ Keepalived 的核心技術是：
 
 ## 目錄
 
-- [Linux 工具 keepalived($num)()](#linux-工具-keepalived$num)
+- [Linux 工具 keepalived(高可用性（High Availability, HA）的工具)](#linux-工具-keepalived高可用性high-availability-ha的工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)

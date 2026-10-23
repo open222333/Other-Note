@@ -1,12 +1,12 @@
-# Synology (群暉)
+# Synology SSL VPN(群暉VPN)
 
 ```
-Synology 核心技術的發展，就專注在提供不同規模的企業一個安全、高效率的資料管理系統
+Synology（群暉）NAS 內建的 SSL VPN 服務與用戶端存取授權資料。
 ```
 
 ## 目錄
 
-- [Synology (群暉)](#synology-群暉)
+- [Synology SSL VPN(群暉VPN)](#synology-ssl-vpn群暉vpn)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 

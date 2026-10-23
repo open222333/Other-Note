@@ -6,6 +6,8 @@ S3fs:Amazon S3或Amazon Simple Storage Service
 s3fs 工具是用於將 Amazon S3 存儲桶掛載到本地文件系統的工具
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [Linux 工具 s3fs(Amazon S3 存儲桶掛載到本地工具)](#linux-工具-s3fsamazon-s3-存儲桶掛載到本地工具)

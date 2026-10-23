@@ -1,5 +1,9 @@
 # Claude Skill（自訂指令）
 
+```
+Claude Skill（自訂技能）的放置位置、檔案格式與呼叫方式。
+```
+
 ## 目錄
 
 - [Claude Skill（自訂指令）](#claude-skill自訂指令)

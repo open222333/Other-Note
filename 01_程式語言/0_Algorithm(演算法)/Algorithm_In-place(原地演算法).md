@@ -1,5 +1,9 @@
 # Algorithm In-place(原地演算法)
 
+```
+原地演算法（In-place）：不額外配置大量記憶體、直接修改輸入資料的演算法。
+```
+
 ## 目錄
 
 - [Algorithm In-place(原地演算法)](#algorithm-in-place原地演算法)

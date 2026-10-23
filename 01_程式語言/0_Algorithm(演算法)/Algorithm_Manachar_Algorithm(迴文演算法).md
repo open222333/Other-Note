@@ -1,5 +1,9 @@
 # Algorithm Manachar Algorithm(迴文演算法)
 
+```
+Manacher 演算法：在 O(n) 找出最長迴文子字串。
+```
+
 ## 目錄
 
 - [Algorithm Manachar Algorithm(迴文演算法)](#algorithm-manachar-algorithm迴文演算法)

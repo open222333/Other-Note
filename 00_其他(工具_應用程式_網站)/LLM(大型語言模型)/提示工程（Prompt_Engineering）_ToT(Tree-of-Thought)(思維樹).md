@@ -7,7 +7,7 @@
 
 ## 目錄
 
-- [OCR(Optical Character Recognition)(光學字符識別)](#ocroptical-character-recognition光學字符識別)
+- [ToT(Tree-of-Thought)(思維樹)](#tottree-of-thought思維樹)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 

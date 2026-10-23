@@ -17,6 +17,8 @@ CI/CD：GitLab 內置了持續集成和持續交付的功能，可以自動化�
 集成和擴展：GitLab 支持與其他工具和服務的集成，如Slack、Jira、Jenkins 等，並提供了豐富的API和插件機制。
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [GitLab(DevOps平台)](#gitlabdevops平台)

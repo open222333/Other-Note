@@ -44,7 +44,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [心得相關](#心得相關)
     - [percona 相關](#percona-相關)
     - [例外狀況相關](#例外狀況相關)
-    - [SQL 語句 (轉址)`                              `](#sql-語句-轉址------------------------------)
+    - [SQL 語句 (轉址)`                              `](#sql-語句-轉址)
     - [相關筆記](#相關筆記)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
@@ -2047,7 +2047,7 @@ Standby 主機改兩項：`state BACKUP`、`priority 90`。
 
 ```bash
 # 停止 Primary ProxySQL，確認 VIP 轉到 Standby
-docker-compose stop proxysql
+docker compose stop proxysql
 ip addr show | grep <VIP>   # 在 Standby 主機執行，應出現 VIP
 
 # 確認應用仍可連線

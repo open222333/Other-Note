@@ -41,7 +41,7 @@
 - [Helm](#helm)
   - [安裝 Helm](#安裝-helm)
   - [常用指令](#常用指令)
-- [應用範例：Python Flask ERP/WMS 雲端部署](#應用範例python-flask-erp-wms-雲端部署)
+- [應用範例：Python Flask ERP/WMS 雲端部署](#應用範例python-flask-erpwms-雲端部署)
   - [k3s vs k8s 選擇原則](#k3s-vs-k8s-選擇原則)
   - [雲端 Managed K8s 差異](#雲端-managed-k8s-差異)
   - [多節點 MongoDB Replica Set](#多節點-mongodb-replica-set)
@@ -599,7 +599,7 @@ helm create my-chart
 
 # 應用範例：Python Flask ERP/WMS 雲端部署
 
-> 完整的 Manifest 範例（namespace / secret / MongoDB / Redis / Flask / HPA / Ingress）見 [k3s 筆記 — 應用範例](k3s.md#應用範例python-flask--mongodb--redis-部署)。
+> 完整的 Manifest 範例（namespace / secret / MongoDB / Redis / Flask / HPA / Ingress）見 [k3s 筆記 — 應用範例](k3s(輕量K8s).md#應用範例python-flask--mongodb--redis-部署)。
 > 此章節補充從 k3s 遷移至雲端 Managed K8s 時需要調整的差異項目。
 
 ## k3s vs k8s 選擇原則

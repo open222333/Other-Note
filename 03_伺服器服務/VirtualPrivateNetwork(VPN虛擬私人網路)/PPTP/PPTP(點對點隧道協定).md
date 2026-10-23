@@ -4,12 +4,14 @@
 點對點隧道協定（英語：Point to Point Tunneling Protocol，縮寫為PPTP）是實現虛擬私人網路（VPN）的方式之一。
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [PPTP(點對點隧道協定)](#pptp點對點隧道協定)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝步驟 `CentOS 7 `](#安裝步驟-centos-7-)
+- [安裝步驟 `CentOS 7 `](#安裝步驟-centos-7)
 	- [安裝VPN Server](#安裝vpn-server)
 	- [安裝VPN Client](#安裝vpn-client)
 

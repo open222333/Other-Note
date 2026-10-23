@@ -86,6 +86,8 @@ replica shard 可以一定程度的提高讀取(查詢)的效能
 ES 7.0 開始，primary shard 預設為 1，replica shard 預設為 0
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [Elasticsearch(搜尋引擎) \& Kibana(Elasticsearch用戶界面) 筆記](#elasticsearch搜尋引擎--kibanaelasticsearch用戶界面-筆記)
@@ -1201,11 +1203,11 @@ networks:
 
 ```bash
 # 集群
-docker-compose exec es01 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
-docker-compose exec es02 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+docker compose exec es01 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
+docker compose exec es02 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.2.0/elasticsearch-analysis-ik-7.2.0.zip
 # 重啟es容器
-docker-compose restart es01
-docker-compose restart es02
+docker compose restart es01
+docker compose restart es02
 ```
 
 ### 自定義 ik 的啟用詞和停用詞

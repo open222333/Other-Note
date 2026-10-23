@@ -1,5 +1,9 @@
 # Linux Debian筆記
 
+```
+Debian 使用紀錄，如 apt-get update 無法解析軟體來源域名的處理。
+```
+
 ## 目錄
 
 - [Linux Debian筆記](#linux-debian筆記)

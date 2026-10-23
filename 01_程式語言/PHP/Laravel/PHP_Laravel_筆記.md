@@ -1,5 +1,9 @@
 # PHP Laravel 筆記
 
+```
+Laravel 安裝（composer）、docker-compose 部署、.env 與 nginx 設定。
+```
+
 ## 目錄
 
 - [PHP Laravel 筆記](#php-laravel-筆記)

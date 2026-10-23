@@ -1,5 +1,9 @@
 # Redis 筆記 Redis Keepalived(HA工具)
 
+```
+Redis 搭配 Keepalived 做高可用的幾種架構（含 Sentinel 方案）。
+```
+
 ## 目錄
 
 - [Redis 筆記 Redis Keepalived(HA工具)](#redis-筆記-redis-keepalivedha工具)

@@ -1,5 +1,9 @@
 # Windows PowerShell 筆記
 
+```
+Windows PowerShell 使用筆記，如設定安裝路徑（以 Conda 為例）。
+```
+
 ## 目錄
 
 - [Windows PowerShell 筆記](#windows-powershell-筆記)

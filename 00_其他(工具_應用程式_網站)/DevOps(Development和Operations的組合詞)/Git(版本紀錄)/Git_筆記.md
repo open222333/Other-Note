@@ -274,7 +274,7 @@ brew upgrade git
 
 ## SSH 綁定 創建
 
-[Linux 基本 網路相關](../../02_作業系統/01_Unix/01_Linux/Linux%20基本%20網路相關.md)
+[Linux 基本 網路相關](../../../02_作業系統/Unix/Linux/Linux_基本_網路相關(Linux指令).md)
 
 ```bash
 # 創建RSA SSH Key

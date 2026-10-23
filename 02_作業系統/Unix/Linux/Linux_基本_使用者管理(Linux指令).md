@@ -1,5 +1,9 @@
 # Linux 基本 使用者管理
 
+```
+Linux 使用者與群組管理：useradd、passwd、UID/GID 規範。
+```
+
 ## 目錄
 
 - [Linux 基本 使用者管理](#linux-基本-使用者管理)

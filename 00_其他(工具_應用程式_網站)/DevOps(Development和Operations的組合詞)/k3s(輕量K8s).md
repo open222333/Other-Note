@@ -32,7 +32,7 @@
   - [Manifest 目錄結構](#manifest-目錄結構)
   - [namespace.yaml](#namespaceyaml)
   - [secret.yaml](#secretyaml)
-  - [mongodb-statefulset.yaml](#mongodb-statefulseyaml)
+  - [mongodb-statefulset.yaml](#mongodb-statefulsetyaml)
   - [redis-deployment.yaml](#redis-deploymentyaml)
   - [flask-api-deployment.yaml](#flask-api-deploymentyaml)
   - [flask-api-hpa.yaml](#flask-api-hpayaml)

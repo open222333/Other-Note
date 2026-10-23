@@ -7,6 +7,8 @@ TCP BBR（Bottleneck Bandwidth and Round-trip propagation time）是由Google設
 封包傳輸的每個累積或選擇性確認用於生成記錄在封包傳輸過程和確認返回期間的時間內所傳送資料量的取樣率。
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [Linux 筆記 bbr(Google BBR 擁塞演算法)](#linux-筆記-bbrgoogle-bbr-擁塞演算法)

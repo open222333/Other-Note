@@ -1,5 +1,9 @@
 # GCP(Google Cloud Platform) 筆記
 
+```
+GCP（Google Cloud Platform）相關參考資料。
+```
+
 ## 目錄
 
 - [GCP(Google Cloud Platform) 筆記](#gcpgoogle-cloud-platform-筆記)

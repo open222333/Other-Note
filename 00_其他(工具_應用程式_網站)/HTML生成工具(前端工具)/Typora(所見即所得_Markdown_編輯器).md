@@ -66,7 +66,8 @@ Typora 內建工具（常用）
 
 ```bash
 # 匯入 GPG Key
-wget -qO - https://typora.io/linux/public-key.asc | sudo apt-key add -
+# apt-key 已棄用，改放到 trusted.gpg.d
+wget -qO - https://typora.io/linux/public-key.asc | sudo tee /etc/apt/trusted.gpg.d/typora.asc
 
 # 加入 source
 sudo add-apt-repository 'deb https://typora.io/linux ./'

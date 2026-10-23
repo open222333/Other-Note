@@ -12,18 +12,9 @@ TLS 指紋驗證 是一種用於識別客戶端或伺服器在 TLS/SSL 連線中
 
 ## 目錄
 
-- [TLS 指紋驗證()](#TLS 指紋驗證)
+- [TLS 指紋驗證(識別客戶端或伺服器)](#tls-指紋驗證識別客戶端或伺服器)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-- [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
-  - [Windows](#windows)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
-- [指令](#指令)
 
 ## 參考資料
 

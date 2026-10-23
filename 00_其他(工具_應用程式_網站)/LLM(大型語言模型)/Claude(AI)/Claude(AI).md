@@ -1,17 +1,23 @@
 # Claude
 
+```
+Anthropic Claude 介紹、模型系列、Claude Code CLI 與 API 用法。
+```
+
 ## 目錄
 
 - [Claude](#claude)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
   - [介紹](#介紹)
+  - [系列筆記](#系列筆記)
   - [模型系列](#模型系列)
     - [Claude 4（最新）](#claude-4最新)
   - [Claude Code (CLI)](#claude-code-cli)
     - [安裝](#安裝)
     - [主要功能](#主要功能)
   - [API](#api)
+    - [呼叫範例](#呼叫範例)
     - [重要 API 功能](#重要-api-功能)
   - [常見連線錯誤](#常見連線錯誤)
     - [ERR\_CONNECTION\_RESET / ECONNRESET](#err_connection_reset--econnreset)
@@ -39,6 +45,19 @@
 ## 介紹
 
 Claude 是由 [Anthropic](https://www.anthropic.com/) 開發的大型語言模型，以安全性 (AI Safety)、可靠性與理解深度為核心設計理念。
+
+## 系列筆記
+
+| 筆記 | 內容 |
+|---|---|
+| [CLAUDE.md 專案設定檔](CLAUDE_md(專案設定檔).md) | 放在專案根目錄、每次自動讀取的指令設定檔 |
+| [Claude Code 專案設定](Claude_Code_專案設定(CLI設定).md) | CLAUDE.md 與 .claude/settings.json 專案規則設定 |
+| [Claude Code Terminal](Claude_Code_Terminal(終端機).md) | 在終端機內與 Claude 協作開發的 CLI |
+| [Claude Code Channels](Claude_Code_Channels(更新頻道).md) | 從 Telegram、Discord 等外部平台推送訊息到 Claude Code session |
+| [Claude Skill](Claude_Skill(自訂技能).md) | 自訂技能 |
+| [Claude Cowork](Claude_Cowork(協作).md) | 在 IDE 內與 Claude 協作開發 |
+| [Claude Dispatch](Claude_Dispatch(多Agent分派).md) | 用 Agent SDK 把任務分派給多個子 Agent 並行執行 |
+| [ubuntu-server-setup Skill](ubuntu-server-setup-skill-usage/ubuntu-server-setup_Skill使用說明(Claude_Skill).md) | Skill 實例：Ubuntu 伺服器安裝 |
 
 ## 模型系列
 
@@ -95,6 +114,21 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bash_profile && source ~/.bash
 [Python SDK](https://github.com/anthropics/anthropic-sdk-python)
 
 [TypeScript/Node.js SDK](https://github.com/anthropics/anthropic-sdk-typescript)
+
+### 呼叫範例
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()  # 讀取環境變數 $ANTHROPIC_API_KEY
+
+message = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[{"role": "user", "content": "Hello, Claude!"}],
+)
+print(message.content[0].text)
+```
 
 ### 重要 API 功能
 

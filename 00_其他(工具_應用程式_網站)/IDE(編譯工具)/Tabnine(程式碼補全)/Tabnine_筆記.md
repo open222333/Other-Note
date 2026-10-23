@@ -1,5 +1,9 @@
 # Tabnine 筆記
 
+```
+Tabnine AI 程式碼補全工具的參考資料。
+```
+
 ## 目錄
 
 - [Tabnine 筆記](#tabnine-筆記)

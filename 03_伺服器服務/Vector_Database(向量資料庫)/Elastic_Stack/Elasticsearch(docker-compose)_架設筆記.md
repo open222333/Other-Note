@@ -169,7 +169,7 @@ chmod 777 es/data/
 chmod 777 es/logs/
 
 # 啟動
-docker-compose up -d
+docker compose up -d
 
 docker exec -ti elasticsearch bash
 
@@ -181,7 +181,7 @@ elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/
 
 elasticsearch-plugin install https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v${version}/elasticsearch-analysis-ik-${version}.zip
 
-docker-compose restart elasticsearch
+docker compose restart elasticsearch
 ```
 
 ```bash

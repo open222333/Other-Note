@@ -5,6 +5,8 @@ CentOS 7 在 2024 年 6 月已進入維護結束階段，官方不再提供更�
 如果仍需使用 CentOS 7，請切換到 Vault 存儲庫（已存檔的鏡像源）。
 ```
 
+> 適用版本：CentOS 7（已停止維護，新主機建議改用 Rocky Linux / AlmaLinux）
+
 ## 目錄
 
 - [Linux CentOS 筆記](#linux-centos-筆記)

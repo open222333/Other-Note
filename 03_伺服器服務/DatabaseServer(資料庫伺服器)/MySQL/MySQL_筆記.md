@@ -8,6 +8,8 @@ RDBMS
 「關係」是不同資料表之間的邏輯連結，是根據這些資料表之間的互動來建立。
 ```
 
+> 適用版本：部分內容以 CentOS 7、MySQL 5.x、Ubuntu 18.04 撰寫（皆已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [MySQL 筆記](#mysql-筆記)
@@ -948,7 +950,9 @@ innodb_redo_log_capacity = 2G
 若 `apt-get update` 出現 GPG key 錯誤：
 
 ```bash
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+# apt-key 已棄用，改用 gpg 取得金鑰後放到 trusted.gpg.d
+gpg --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+gpg --export B7B3B788A8D3785C | sudo tee /etc/apt/trusted.gpg.d/mysql-B7B3B788A8D3785C.gpg > /dev/null
 ```
 
 ##### 允許遠端連線
@@ -1119,8 +1123,11 @@ apt-get update
 遇到類似這樣的 "signature couldn't be verified" 錯誤：NO_PUBKEY 467B942D3A79BD29，則需要透過執行下列指令來匯入遺失的 gpg 金鑰：:
 
 ```sh
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B7B3B788A8D3785C
+# apt-key 已棄用，改用 gpg 取得金鑰後放到 trusted.gpg.d
+for KEY in 467B942D3A79BD29 B7B3B788A8D3785C; do
+  gpg --keyserver keyserver.ubuntu.com --recv-keys $KEY
+  gpg --export $KEY | sudo tee /etc/apt/trusted.gpg.d/mysql-$KEY.gpg > /dev/null
+done
 apt-get update
 ```
 

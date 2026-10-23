@@ -6,7 +6,7 @@
 
 ## 目錄
 
-- [CLAUDE.md](#claudemd)
+- [CLAUDE md(專案設定檔)](#claude-md專案設定檔)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [作用](#作用)
@@ -19,7 +19,7 @@
 
 [CLAUDE.md 官方說明](https://docs.anthropic.com/claude-code/memory)
 
-[AGENTS.md 筆記（跨工具共用的 AI 代理指令檔，與 CLAUDE.md 的讀取優先順序）](../AGENTS_md(AI代理指令檔).md)
+[AGENTS.md 筆記（跨工具共用的 AI 代理指令檔，與 CLAUDE.md 的讀取優先順序）](../../../01_程式語言/AI/AGENTS_md(AI代理指令檔).md)
 
 # 作用
 

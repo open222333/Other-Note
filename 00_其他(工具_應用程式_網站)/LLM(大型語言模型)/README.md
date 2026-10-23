@@ -27,7 +27,7 @@
 
 [chatgpt](https://chatgpt.com/)
 
-[Claude](./Claude/Claude.md)
+[Claude](./Claude(AI)/Claude(AI).md)
 
 [grok](https://grok.com/)
 

@@ -6,6 +6,8 @@ VPN 屬於作業系統層級，連上VPN 之後，整台設備都會受影響，
 而Proxy 的作用是局部的，只適用於指定的應用程式。
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [squid(ProxyServer)](#squidproxyserver)

@@ -1,5 +1,9 @@
 # JavaScript 基本 陣列 Array
 
+```
+JavaScript 陣列方法：迭代、攤平、相加、堆疊與佇列。
+```
+
 ## 目錄
 
 - [JavaScript 基本 陣列 Array](#javascript-基本-陣列-array)

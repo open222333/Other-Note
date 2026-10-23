@@ -6,7 +6,7 @@
 
 ## 目錄
 
-- [Claude Dispatch](#claude-dispatch)
+- [Claude Dispatch(多Agent分派)](#claude-dispatch多agent分派)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [概念](#概念)

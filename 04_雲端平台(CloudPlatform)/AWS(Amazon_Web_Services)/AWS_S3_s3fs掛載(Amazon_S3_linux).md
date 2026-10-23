@@ -4,6 +4,8 @@
 S3fs:Amazon S3或Amazon Simple Storage Service
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [AWS S3 s3fs掛載(Amazon S3)](#aws-s3-s3fs掛載amazon-s3)

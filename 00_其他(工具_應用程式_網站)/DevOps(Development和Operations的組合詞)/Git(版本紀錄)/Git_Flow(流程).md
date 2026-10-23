@@ -8,7 +8,7 @@ Git Flow 是一種 Git 的工作流程管理擴展，用於協助團隊在軟體
 
 ## 目錄
 
-- [git flow()](#git flow)
+- [Git Flow(流程)](#git-flow流程)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 

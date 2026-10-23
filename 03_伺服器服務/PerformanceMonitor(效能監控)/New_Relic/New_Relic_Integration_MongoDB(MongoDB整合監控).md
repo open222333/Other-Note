@@ -12,7 +12,7 @@ Replica Set 狀態與同步延遲（replication lag）
 
 ## 目錄
 
-- [New Relic Integration MongoDB(MongoDB整合監控)](#new-relic-integration-mongodbbmongodb整合監控)
+- [New Relic Integration MongoDB(MongoDB整合監控)](#new-relic-integration-mongodbmongodb整合監控)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)

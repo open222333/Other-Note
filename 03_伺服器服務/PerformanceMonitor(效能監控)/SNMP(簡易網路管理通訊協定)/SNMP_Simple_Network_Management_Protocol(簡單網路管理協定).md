@@ -6,6 +6,8 @@
 它由一組網路管理的標準組成，包含一個應用層協定（application layer protocol）、資料庫模式（database schema），和一組資料物件。
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [SNMP Simple Network Management Protocol(簡單網路管理協定)](#snmp-simple-network-management-protocol簡單網路管理協定)
@@ -321,7 +323,7 @@ services:
 
 ```bash
 cd examples/compose/
-docker-compose up -d
+docker compose up -d
 ```
 
 # 配置範例

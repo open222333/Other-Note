@@ -1,5 +1,9 @@
 # Python 工具 ngrok (測試webhook)
 
+```
+ngrok 將本機服務暴露到公網，用於測試 webhook。
+```
+
 ## 目錄
 
 - [Python 工具 ngrok (測試webhook)](#python-工具-ngrok-測試webhook)

@@ -1,5 +1,9 @@
 # Algorithm Sliding Windows(滑動窗口演算法)
 
+```
+滑動窗口演算法：以移動區間處理連續子陣列 / 子字串問題。
+```
+
 ## 目錄
 
 - [Algorithm Sliding Windows(滑動窗口演算法)](#algorithm-sliding-windows滑動窗口演算法)

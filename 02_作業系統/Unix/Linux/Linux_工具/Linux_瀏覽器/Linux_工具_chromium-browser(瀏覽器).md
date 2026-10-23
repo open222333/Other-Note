@@ -5,14 +5,12 @@
 
 ## 目錄
 
-- [Linux 工具 chromium-browser($num)()](#linux-工具-chromium-browser$num)
+- [Linux 工具 chromium-browser(瀏覽器)](#linux-工具-chromium-browser瀏覽器)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
 - [指令](#指令)

@@ -30,13 +30,14 @@ Filebeat 是 Elastic Stack 的一部分，用於收集、轉送和聚合日誌�
 添加 Elastic APT 存儲庫 下載並安裝 Elastic 公鑰：
 
 ```bash
-wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+# apt-key 已棄用，金鑰改放 keyring 並用 signed-by 指定
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
 ```
 
 將 Elastic APT 存儲庫添加到 sources.list.d 目錄中
 
 ```bash
-sh -c 'echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" > /etc/apt/sources.list.d/elastic-7.x.list'
+echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list
 ```
 
 更新包索引並安裝 Filebeat

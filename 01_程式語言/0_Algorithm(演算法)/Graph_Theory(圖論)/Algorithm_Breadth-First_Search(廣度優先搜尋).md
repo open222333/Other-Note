@@ -1,5 +1,9 @@
 # Algorithm Breadth-First Search(廣度優先搜尋)
 
+```
+廣度優先搜尋（BFS）：逐層走訪圖或樹的搜尋演算法。
+```
+
 ## 目錄
 
 - [Algorithm Breadth-First Search(廣度優先搜尋)](#algorithm-breadth-first-search廣度優先搜尋)

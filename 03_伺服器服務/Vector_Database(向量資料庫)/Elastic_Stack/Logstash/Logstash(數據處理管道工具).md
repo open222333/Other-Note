@@ -21,6 +21,8 @@ Logstash 是 Elastic Stack（以前稱為 ELK Stack）的一部分，與 Elastic
 實時數據處理： 實時處理和分析流式數據，以便快速響應業務需求。
 ```
 
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [Logstash(數據處理管道工具)](#logstash數據處理管道工具)

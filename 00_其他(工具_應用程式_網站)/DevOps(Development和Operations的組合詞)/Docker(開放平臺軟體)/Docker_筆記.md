@@ -1,5 +1,11 @@
 # Docker 筆記
 
+```
+Docker 安裝（CentOS / Ubuntu / macOS / Windows）、常用指令與疑難排解。
+```
+
+> 適用版本：部分內容以 CentOS 7、MySQL 5.x 撰寫（皆已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [Docker 筆記](#docker-筆記)
@@ -657,6 +663,8 @@ docker compose version
 
 # 指令
 
+> Compose v2 起指令為 `docker compose`（空格）；仍習慣 `docker-compose` 可用安裝章節的 alias / wrapper。
+
 ## 服務
 
 ```bash
@@ -729,11 +737,11 @@ docker run [OPTIONS] [Image 名稱]:[Image 版本] [執行指令]
 	--memory=300m     限制記憶體使用量
 	--memory-swap=1g  限制swap交換空間
 
-# docker-compose run vs up -d
+# docker compose run vs up -d
 # run  → 建立一次性容器執行指定服務，執行完即結束（適合批次任務、腳本）
 # up -d → 容器常駐背景持續運行（適合 Web server、API 等長時間服務）
-docker-compose run --rm [服務名稱]            # 執行完自動刪除容器
-docker-compose -f [compose檔] run --rm [服務] # 指定 compose 檔
+docker compose run --rm [服務名稱]            # 執行完自動刪除容器
+docker compose -f [compose檔] run --rm [服務] # 指定 compose 檔
 
 # 查看contianer的logs紀錄
 docker logs -f --tail=20 [Container ID]
@@ -886,45 +894,45 @@ docker network inspect <network_name>
 
 ```bash
 # 建立並執行容器
-docker-compose up -d
+docker compose up -d
 
 # 同一個容器執行多個 —scale !!!
-docker-compose up -—scale %CONTAINER_NAME%=5 -d
+docker compose up --scale %CONTAINER_NAME%=5 -d
 
 # 根據yml檔案建立並執行容器 -f file.yml
-docker-compose -f file.yml up -d
+docker compose -f file.yml up -d
 
 # 建立並執行容器並清除沒在檔案內的容器
 	--remove-orphans
 	# orphans(孤兒)
-docker-compose up -d --remove-orphans
+docker compose up -d --remove-orphans
 
 # 列出容器
-docker-compose ps
+docker compose ps
 
 # 執行容器
-docker-compose start
+docker compose start
 
 # 重新執行容器
-docker-compose start [Name]
+docker compose start [Name]
 
 # 重新啟動容器（須帶 service 名稱，不是 container name，見「例外狀況」）
-docker-compose restart <service>
+docker compose restart <service>
 
 # 停止容器
-docker-compose stop
+docker compose stop
 
 # 停止並刪除容器
-docker-compose down
+docker compose down
 
 # 印出log
-docker-compose logs
+docker compose logs
 
 # 建構 或重新建構
-docker-compose build
+docker compose build
 
 # 進入容器
-docker-compose exec <service> bash  -f  docker exec -it <id or container-name> bash
+docker compose exec <service> bash  -f  docker exec -it <id or container-name> bash
 ```
 
 ### 排錯
@@ -933,7 +941,7 @@ docker-compose exec <service> bash  -f  docker exec -it <id or container-name> b
 # 讀取並解析 docker-compose.yml 檔案，然後輸出檔案的解析結果。
 # 如果檔案的語法沒有錯誤，它會顯示成功的訊息並輸出解析的內容。
 # 如果檔案包含語法錯誤，它會顯示相關的錯誤訊息以及具體的錯誤位置。
-docker-compose config
+docker compose config
 ```
 
 # 範例
@@ -1386,7 +1394,7 @@ read-only = ON
 
 ```sql
 clone 資料庫的資料夾 已建立
-docker-compose up -d 拉起容器
+docker compose up -d 拉起容器
 
 建立 MySQL master-slave 架構
 
@@ -1618,7 +1626,7 @@ docker network connect my_shared_net web_container
 
 ## docker-compose restart 要用 service 名稱，不是 container_name
 
-`docker-compose restart` 的參數必須是 `docker-compose.yml` 裡定義的 **service 名稱**，不是 `container_name` 設定的實際容器名稱，兩者不一定相同。
+`docker compose restart` 的參數必須是 `docker-compose.yml` 裡定義的 **service 名稱**，不是 `container_name` 設定的實際容器名稱，兩者不一定相同。
 
 ```yml
 services:
@@ -1629,17 +1637,17 @@ services:
 
 ```bash
 # 正確：用 service 名稱
-docker-compose restart worker-animation
+docker compose restart worker-animation
 
 # 錯誤：用 container_name 會找不到 service
-docker-compose restart worker-animation-crawler
+docker compose restart worker-animation-crawler
 # ERROR: No such service: worker-animation-crawler
 ```
 
 不確定 service 名稱時，先列出該 `docker-compose.yml` 裡所有合法的 service 名稱：
 
 ```bash
-docker-compose config --services
+docker compose config --services
 ```
 
 ## 使用 Docker 容器限制日誌大小

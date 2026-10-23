@@ -1,5 +1,9 @@
 # Unix 工具 OpenBSD(ssh連線工具)
 
+```
+OpenSSH（OpenBSD 開發的 ssh 連線工具）相關參考資料。
+```
+
 ## 目錄
 
 - [Unix 工具 OpenBSD(ssh連線工具)](#unix-工具-openbsdssh連線工具)

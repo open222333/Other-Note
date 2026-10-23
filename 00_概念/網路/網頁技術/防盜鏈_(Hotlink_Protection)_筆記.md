@@ -1,5 +1,9 @@
 # 防盜鏈 (Hotlink Protection) 筆記
 
+```
+防盜鏈（Hotlink Protection）原理與相關參考資料。
+```
+
 ## 目錄
 
 - [防盜鏈 (Hotlink Protection) 筆記](#防盜鏈-hotlink-protection-筆記)

@@ -1,5 +1,9 @@
 # Python 基本 筆記
 
+```
+Python 基本：書籍推薦、Python 之禪、pip 與 python 指令。
+```
+
 ## 目錄
 
 - [Python 基本 筆記](#python-基本-筆記)

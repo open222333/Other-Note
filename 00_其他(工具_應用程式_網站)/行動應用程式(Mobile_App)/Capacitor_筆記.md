@@ -193,8 +193,8 @@ console.log(photo.webPath);
 
 詳見各平台打包筆記的「Capacitor → Vue + 後端分離架構」章節：
 
-- [iOS 建置與打包](./iOS_建置與打包.md)
-- [Android 建置與打包](./Android_建置與打包.md)
+- [iOS 建置與打包](./iOS_建置與打包(行動App).md)
+- [Android 建置與打包](./Android_建置與打包(行動App).md)
 
 重點摘要：
 

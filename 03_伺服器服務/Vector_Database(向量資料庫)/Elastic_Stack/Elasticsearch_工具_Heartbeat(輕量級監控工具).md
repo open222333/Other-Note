@@ -12,7 +12,7 @@ Ping 檢查：可以執行 ICMP（類似 ping）、TCP、HTTP 等協議的監控
 
 ## 目錄
 
-- [Linux 工具 sample($num)()](#linux-工具-sample$num)
+- [Elasticsearch 工具 Heartbeat(輕量級監控工具)](#elasticsearch-工具-heartbeat輕量級監控工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
@@ -23,7 +23,6 @@ Ping 檢查：可以執行 ICMP（類似 ping）、TCP、HTTP 等協議的監控
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
 - [指令](#指令)
-  - [服務操作](#服務操作)
 
 ## 參考資料
 

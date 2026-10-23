@@ -8,7 +8,7 @@ GitLens 是 VSCode 最熱門的 Git 擴充套件，
 
 ## 目錄
 
-- [VSCode 擴充套件 GitLens（Git 歷史視覺化）](#vscode-擴充套件-gitlens-git-歷史視覺化)
+- [VSCode 擴充套件 GitLens（Git 歷史視覺化）](#vscode-擴充套件-gitlensgit-歷史視覺化)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)

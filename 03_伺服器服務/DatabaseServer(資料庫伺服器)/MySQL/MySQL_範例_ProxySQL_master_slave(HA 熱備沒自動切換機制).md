@@ -1,5 +1,9 @@
 # ProxySQL master/slave（HA 熱備，無自動切換機制）
 
+```
+ProxySQL 搭配 MySQL master/slave 做讀寫分離（熱備，無自動切換）。
+```
+
 ## 目錄
 
 - [ProxySQL master/slave（HA 熱備，無自動切換機制）](#proxysql-masterslaveha-熱備無自動切換機制)
@@ -185,7 +189,7 @@ cp docker-compose.yml.default docker-compose.yml
 cp conf/proxysql.cnf.default conf/proxysql.cnf
 cp conf/phpmyadmin/config.user.inc.php.default conf/phpmyadmin/config.user.inc.php
 mkdir -p logs/proxysql
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Step 3：設定後端節點

@@ -51,7 +51,7 @@
 
 ### 相關筆記
 
-[iOS 建置與打包](./iOS_建置與打包.md)
+[iOS 建置與打包](./iOS_建置與打包(行動App).md)
 
 [Capacitor 筆記](./Capacitor_筆記.md)
 
@@ -59,7 +59,7 @@
 
 [Flutter 筆記](./Flutter_筆記.md)
 
-[PWA — Progressive Web App](./PWA_Progressive_Web_App.md)
+[PWA — Progressive Web App](./PWA_Progressive_Web_App(網頁App).md)
 
 ---
 

@@ -1,5 +1,11 @@
 # Linux 工具 tmux(終端機管理工具)
 
+```
+tmux 終端機多工工具：session 持久化、視窗分割，含各平台安裝方式。
+```
+
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 tmux（Terminal Multiplexer）是一個終端機多工管理工具，讓一個終端機視窗同時管理多個 session、window 和 pane。
 
 主要特點：

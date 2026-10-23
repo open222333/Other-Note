@@ -23,7 +23,7 @@ WAF（Cloudflare、PerimeterX、DataDome、Akamai）繞過、CAPTCHA 破解、�
   - [API Mode 基本請求（Python）](#api-mode-基本請求python)
   - [Proxy Mode 基本請求（cURL）](#proxy-mode-基本請求curl)
   - [啟用 Headless Browser 渲染 JS](#啟用-headless-browser-渲染-js)
-  - [使用住宅/行動代理 + 指定地區](#使用住宅行動代理-指定地區)
+  - [使用住宅/行動代理 + 指定地區](#使用住宅行動代理--指定地區)
   - [確認本次請求花了多少點數](#確認本次請求花了多少點數)
 - [例外狀況](#例外狀況)
 

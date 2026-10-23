@@ -1,5 +1,9 @@
 # Python 工具 Apache-Thrift(其他程式語言)
 
+```
+Apache Thrift 跨語言 RPC 框架相關參考資料。
+```
+
 ## 目錄
 
 - [Python 工具 Apache-Thrift(其他程式語言)](#python-工具-apache-thrift其他程式語言)

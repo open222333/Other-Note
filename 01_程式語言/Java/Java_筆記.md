@@ -1,5 +1,9 @@
 # Java 筆記
 
+```
+Java 筆記與 cURL 請求範本（GET / POST / Basic Auth）。
+```
+
 ## 目錄
 
 - [Java 筆記](#java-筆記)

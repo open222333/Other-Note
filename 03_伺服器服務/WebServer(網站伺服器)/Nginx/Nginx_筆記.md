@@ -1,5 +1,11 @@
 # Nginx 筆記
 
+```
+Nginx 安裝（macOS / CentOS7 / Ubuntu / nginx-plus）與設定筆記。
+```
+
+> 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [Nginx 筆記](#nginx-筆記)

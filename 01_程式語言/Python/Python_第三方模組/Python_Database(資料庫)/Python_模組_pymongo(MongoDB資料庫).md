@@ -42,7 +42,7 @@ NoSQL最常⻅的解釋是“non-relational”，“Not Only SQL”也被很多�
   - [使用ObjectID搜尋資料](#使用objectid搜尋資料)
   - [slaveOk 更換寫法](#slaveok-更換寫法)
 - [狀況](#狀況)
-  - [ImportError: cannot import name 'MutableMapping' from 'collections' (/usr/local/anaconda3/envs/py311/lib/python3.11/collections/__init__.py)](#importerror-cannot-import-name-mutablemapping-from-collections-usrlocalanaconda3envspy311libpython311collectionsinitpy)
+  - [ImportError: cannot import name 'MutableMapping' from 'collections' (/usr/local/anaconda3/envs/py311/lib/python3.11/collections/__init__.py)](#importerror-cannot-import-name-mutablemapping-from-collections-usrlocalanaconda3envspy311libpython311collections__init__py)
 
 ## 參考資料
 

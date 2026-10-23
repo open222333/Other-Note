@@ -4,6 +4,8 @@
 收集各服務的 docker-compose.yml 範例，依服務類型分類。
 ```
 
+> 適用版本：部分內容以 MySQL 5.x 撰寫（已停止維護），新版系統的套件名稱與指令可能不同
+
 ## 目錄
 
 - [docker-compose 範例](#docker-compose-範例)
