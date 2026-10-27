@@ -39,6 +39,8 @@ Commit 訊息要解決的問題只有一個：三個月後有人 git log 找「�
 
 [Semantic Versioning 2.0.0](https://semver.org/lang/zh-TW/)
 
+[工作流程 - DevNote(開發紀錄撰寫規範)](<../../../00_概念/工作流程_-_DevNote(開發紀錄撰寫規範).md>) —— dev_note 主分類沿用本篇的 commit type
+
 ---
 
 # 格式

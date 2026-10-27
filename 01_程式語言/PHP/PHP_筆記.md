@@ -44,6 +44,8 @@ PHP 安裝（CentOS7 / macOS）、型別轉換與比較運算子等基礎。
 
 [官方文檔](https://www.php.net/docs.php)
 
+[PHP 資安漏洞紀錄筆記（重大 CVE、支援分支、緊急應變）](PHP_資安漏洞紀錄(CVE與緊急應變).md)
+
 [PHP 手册](https://www.php.net/manual/zh/)
 
 [PDO Drivers](https://www.php.net/manual/en/pdo.drivers.php)

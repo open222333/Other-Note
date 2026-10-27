@@ -32,6 +32,7 @@ script 運作時需要的環境變數預先宣告與設定。
 - [常用的環境變數](#常用的環境變數)
 - [範例](#範例)
 	- [將目前執行 process 的 PID 依照數字大小排序](#將目前執行-process-的-pid-依照數字大小排序)
+	- [嚴格模式 set -euo pipefail](#嚴格模式-set--euo-pipefail)
 	- [特殊 set -e exec](#特殊-set--e-exec)
 
 ## 參考資料
@@ -261,6 +262,74 @@ echo "=== 將目前執行 process 的 PID 依照數字大小排序，取出前 1
 # ps 為列出 process 相關資訊，透過 | pipe 管線傳遞資料。awk 可以根據 pattern 進行資料處理（這邊印出第一欄 PID）而 sort 是進行排序，其排序時，預設都是把資料當作字串來排序，若想讓資料根據實際數值的大小來排序，可以加上 -n 參數。-r 則是由大到小排序，預設是由小到大
 ps | awk '{print $1}' | sort -rn | head -10
 ```
+
+## 嚴格模式 set -euo pipefail
+
+Bash 腳本的「嚴格模式」：任何一步出錯就立刻停止，避免錯誤一路累積，例如變數落空讓 `rm -rf "$DIR/"` 變成 `rm -rf /`。
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+```
+
+| 選項 | 完整名稱 | 作用 |
+|---|---|---|
+| `-e` | errexit | 任一指令回傳非 0（失敗）就立刻結束腳本 |
+| `-u` | nounset | 讀取未定義的變數時報錯並結束（例如變數名打錯） |
+| `-o pipefail` | pipefail | 管道 `a \| b \| c` 中任一指令失敗，整條管道就算失敗；預設只看最後一個指令的結果 |
+
+```bash
+# -e：失敗即停
+set -e
+false
+echo "不會執行到這裡"
+
+# -u：未定義變數直接報錯（unbound variable）
+set -u
+echo "$NOPE"                      # bash: NOPE: unbound variable
+
+# pipefail：沒開時 false | true 算成功，開了就算失敗
+set -o pipefail
+false | true                      # 觸發 -e 結束
+```
+
+注意事項（皆在 bash 5.1 實測）：
+
+```bash
+# 1. -e 在 if / while 條件、&& / || 左邊不會觸發 → 「允許失敗」就用 || true 接住
+if ! grep -q "x" file; then echo "沒找到"; fi
+rm -f /tmp/maybe_missing || true
+
+# 2. -u：可能沒設定的變數、位置參數要給預設值
+echo "${OPTIONAL_VAR:-}"          # 沒設定時為空字串
+NAME="${1:-default}"              # 沒傳參數時用 default（直接用 $1 會報 unbound variable）
+
+# 3. pipefail：grep 沒找到也回傳 1，會讓整條管道失敗而結束腳本
+count=$(grep -c "ERROR" app.log || true)
+
+# 4. pipefail：yes / cat 大檔接 head 時，前面的指令會因 SIGPIPE 回傳 141 而被視為失敗
+yes | head -1                     # pipefail 下回傳 141
+
+# 5. local 會吞掉 $( ) 的錯誤：local 本身成功就回傳 0，-e 不會觸發
+f() {
+  local v=$(false)                # ✗ 錯誤被吞掉，函式繼續執行
+  local w; w=$(false)             # ✓ 先宣告再賦值，失敗會觸發 -e
+}
+
+# 6. 空陣列：bash 4.4 以前（例如 macOS 內建的 /bin/bash 3.2）在 -u 下展開空陣列會報錯
+arr=()
+for x in ${arr[@]+"${arr[@]}"}; do echo "$x"; done   # 相容舊版的寫法
+```
+
+搭配 `trap` 在出錯時印出行號與指令，方便除錯：
+
+```bash
+#!/usr/bin/env bash
+set -eEuo pipefail                # -E：讓函式內的錯誤也觸發 ERR trap
+trap 'echo "錯誤：第 $LINENO 行，指令：$BASH_COMMAND" >&2' ERR
+```
+
+腳本撰寫慣例（開頭必加 `set -euo pipefail` 等）見 [Bash 腳本規範](Bash_腳本規範.md)。
 
 ## 特殊 set -e exec
 

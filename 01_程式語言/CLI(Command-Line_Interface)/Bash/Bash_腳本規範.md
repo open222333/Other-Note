@@ -29,7 +29,7 @@
 
 # 基本結構
 
-- Shebang 一律 `#!/usr/bin/env bash`；開頭必加 `set -euo pipefail`。
+- Shebang 一律 `#!/usr/bin/env bash`；開頭必加 `set -euo pipefail`（各選項作用與常見陷阱見 [Bash 基本筆記 → 嚴格模式](Bash_基本_筆記.md#嚴格模式-set--euo-pipefail)）。
 - 檔頭註解依序：用途（一行）、用法、旗標說明、前置需求。
 - 執行順序固定：檔頭 → 設定區 → 參數解析 → 共用函式 → preflight → 主流程。
 - 變數引用一律加大括號與引號：`"${VAR}"`。

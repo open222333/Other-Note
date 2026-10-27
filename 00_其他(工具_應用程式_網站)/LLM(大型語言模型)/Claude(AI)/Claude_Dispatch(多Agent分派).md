@@ -24,6 +24,10 @@
 
 [Claude Code Hooks 文件](https://docs.anthropic.com/claude-code/hooks)
 
+[Claude Code 主機巡檢筆記（不寫程式，用 Claude Code subagent 平行檢查多台主機）](Claude_Code_主機巡檢(多主機異常檢查).md)
+
+[Claude API 主機巡檢系統筆記（Messages API tool use，可擴充架構）](Claude_API_主機巡檢系統(可擴充架構).md)
+
 # 概念
 
 ```

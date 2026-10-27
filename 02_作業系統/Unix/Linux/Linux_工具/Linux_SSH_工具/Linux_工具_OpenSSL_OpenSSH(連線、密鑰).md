@@ -42,6 +42,8 @@
 
 [OpenSSL commands](https://www.openssl.org/docs/man3.0/man1/)
 
+[age 筆記（用 SSH 公鑰或 age 金鑰加密檔案）](../Linux_加密/Linux_工具_age(檔案公鑰加密).md)
+
 [OpenSSH Manual Pages](https://www.openssh.com/manual.html)
 
 [openssl-rand, rand - generate pseudo-random bytes](https://www.openssl.org/docs/man1.0.2/man1/openssl-rand.html)

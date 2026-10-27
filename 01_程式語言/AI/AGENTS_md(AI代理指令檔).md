@@ -31,7 +31,7 @@ AGENTS.md 是給 AI 程式碼代理（coding agent）看的專案說明檔，可
 
 [Claude Code - How Claude remembers your project（AGENTS.md 章節）](https://code.claude.com/docs/en/memory#agents-md)
 
-[CLAUDE.md 筆記](Claude(AI)/CLAUDE_md(專案設定檔).md)
+[CLAUDE.md 筆記](../../00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/CLAUDE_md(專案設定檔).md)
 
 # 用途
 
