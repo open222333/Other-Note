@@ -15,13 +15,22 @@ VPC 本身免費，VPC 內部流量不計入每月網路傳輸量。
   - [私有網路選項比較（VPC / VLAN / Private IP）](#私有網路選項比較vpc--vlan--private-ip)
   - [規格與限制](#規格與限制)
   - [建立 VPC 與子網路](#建立-vpc-與子網路)
+  - [網段規劃（CIDR）](#網段規劃cidr)
   - [把 Linode 加入 VPC](#把-linode-加入-vpc)
   - [每台 Linode 可個別設定的內網項目](#每台-linode-可個別設定的內網項目)
   - [VPC 與防火牆怎麼搭配](#vpc-與防火牆怎麼搭配)
+  - [不同 VPC 之間的連線](#不同-vpc-之間的連線)
   - [設定步驟（Cloud Manager）](#設定步驟cloud-manager)
   - [linode-cli 指令](#linode-cli-指令)
+  - [例外狀況](#例外狀況)
+    - [建立主機時 VPC 下拉選單出現 Invalid filterable: $.vpc\_type](#建立主機時-vpc-下拉選單出現-invalid-filterable-vpc_type)
+    - [建立子網路時出現 not in the allowed VPC ranges](#建立子網路時出現-not-in-the-allowed-vpc-ranges)
 
 ## 參考資料
+
+[Linode API - VPC subnet 欄位（vpc_type：regular / rdma）](https://techdocs.akamai.com/linode-api/reference/vpcs)
+
+[Akamai - VLANs（同資料中心第 2 層私有網路）](https://techdocs.akamai.com/cloud-computing/docs/vlan)
 
 [VPC 總覽（可用區域、規格限制）](https://techdocs.akamai.com/cloud-computing/docs/vpc)
 
@@ -79,6 +88,43 @@ Subnets：至少 1 個，最多 10 個
 ```
 
 子網路建立後仍可新增、修改、刪除。
+
+## 網段規劃（CIDR）
+
+原則：從 `10.0.0.0/8` 取一小段當整體範圍（例 `10.20.0.0/16`），再依用途切子網路，並預留擴充空間。
+
+| RFC1918 網段 | 範圍 | 適合 |
+|---|---|---|
+| `10.0.0.0/8` | `10.0.0.0` ~ `10.255.255.255` | 雲端內網、多環境規劃（建議） |
+| `172.16.0.0/12` | `172.16.0.0` ~ `172.31.255.255` | 可用，但容易撞 Docker 預設網段 |
+| `192.168.0.0/16` | `192.168.0.0` ~ `192.168.255.255` | 不建議：撞家用 / 辦公室 LAN，且 `192.168.128.0/17` 是 Linode 保留 |
+
+配置範例（整體 `10.20.0.0/16`）：
+
+| 用途 | Subnet CIDR | 總 IP 數 |
+|---|---|---|
+| Production | `10.20.0.0/20` | 4,096 |
+| Staging | `10.20.16.0/20` | 4,096 |
+| Development | `10.20.32.0/20` | 4,096 |
+| Management | `10.20.48.0/24` | 256 |
+| VPN / Bastion | `10.20.49.0/24` | 256 |
+| 預留 | `10.20.50.0` ~ `10.20.255.255` | 之後依 CIDR 邊界切（例 `10.20.64.0/20`），不要寫成 `10.20.50.0/16` |
+
+CIDR 大小速查（可用數 = 總數 − 4，Linode 保留子網路頭尾各兩個位址）：
+
+| CIDR | 總 IP | 可用 | 適用 |
+|---|---|---|---|
+| `/29` | 8 | 4 | Linode 允許的最小子網路 |
+| `/24` | 256 | 252 | 小型服務、管理網路 |
+| `/22` | 1,024 | 1,020 | 中小型服務群組 |
+| `/20` | 4,096 | 4,092 | 多台 VPS、較大環境 |
+| `/16` | 65,536 | — | 整體規劃範圍 |
+
+注意：
+
+- 避免重疊：其他雲端、辦公室 LAN、VPN、Docker（預設 bridge `172.17.0.0/16`，預設 address pool 涵蓋 `172.17.0.0/12`、`192.168.0.0/16`）。之後要接 VPN 或混合雲時，重疊的網段無法路由。
+- **同 VPC 的子網路一律互通**：環境用子網路分開只是方便管理，不是隔離；要隔離就靠 VPC 介面防火牆（見「VPC 與防火牆怎麼搭配」），或正式環境開獨立 VPC（不同 VPC 互連方式見「不同 VPC 之間的連線」）。
+- 每個 VPC 最多 10 個子網路，不用一開始全部切完，但要先定好分配規則。
 
 ## 把 Linode 加入 VPC
 
@@ -175,6 +221,22 @@ Configuration Profile（只能一組）
 | db | VPC | fw-db | 同做法 A |
 
 兩種做法的 db 都不需要公網：要對外更新套件時，暫時開 VPC 介面的 1:1 NAT，或走 forward proxy。
+
+## 不同 VPC 之間的連線
+
+**不行直接走 VPC 內網**：Linode 不支援 VPC peering（同資料中心、跨資料中心都一樣），每個 VPC 是完全隔離的網路。
+
+| 情況 | 做法 | 說明 |
+|---|---|---|
+| 同一資料中心、可以調整架構 | **放進同一個 VPC，用不同子網路區隔** | 官方建議做法；同 VPC 子網路自動互通，隔離靠各主機 VPC 介面的防火牆 |
+| 同一資料中心、必須維持兩個 VPC | **另外掛一個 VLAN 介面** | 一台主機可以有 1 個 VPC 介面 + 多個 VLAN 介面，要互通的主機接同一個 VLAN |
+| 跨資料中心 | **走公網並加密** | WireGuard 等 VPN 或 TLS；Cloud Firewall 只放行對方的公網 IP |
+| 舊做法 | Private IP（`192.168.128.0/17`） | 同地區有 Private IP 的主機都能互連，**沒有隔離**；Linode Interfaces 也不支援，不建議 |
+
+VLAN 方案注意：
+
+- **Cloud Firewall 不過濾 VLAN 流量**，VLAN 上的存取控制要在主機內用 ufw / iptables 做。
+- VLAN 是第 2 層網路、沒有路由，IP 要自己規劃，而且只在同一資料中心內有效。
 
 ## 設定步驟（Cloud Manager）
 
@@ -277,3 +339,64 @@ ip addr show eth0
 # 測試同 VPC 另一台的內網 IP
 ping -c 3 10.0.1.3
 ```
+
+## 例外狀況
+
+### 建立主機時 VPC 下拉選單出現 Invalid filterable: $.vpc_type
+
+**症狀**：建立 Linode 時，VPC 欄位只顯示 `None`，下方紅字 `Invalid filterable: $.vpc_type`；子網路欄位跟著出現 `Subnet is required.`，導致無法建立主機。
+
+**原因**（依 API 文件推測，未見官方公告）：Cloud Manager 載入 VPC 清單時用 `vpc_type` 欄位篩選（`vpc_type` 用來區分一般 VPC `regular` 與 GPU 用的 RDMA VPC `rdma`，沒有 RDMA 功能的帳號不會有這個欄位），但 API 不接受用它篩選，清單載入失敗。屬於 Cloud Manager 前端與 API 不同步的問題，不是設定錯誤。
+
+**先試**：
+
+- 強制重新整理（Mac `Cmd + Shift + R`）、無痕視窗或換瀏覽器重新登入（排除快取到舊版前端）。
+
+**繞過方式：先建主機、再加入 VPC**
+
+```
+1. 建立主機時網路介面改選 Public Internet（不選 VPC），讓主機能先建立
+   ⚠ 建立時一定要套 Cloud Firewall：Inbound Policy = Drop，只放行自己 IP 的 TCP 22
+
+2. 主機建好後加入 VPC（二選一）
+   - VPCs → 該 VPC → Subnets → 子網路 ⋯ → Assign Linodes（建議先試，這個畫面列的是主機，可能不觸發同一個錯誤）
+   - Linodes → 主機 → Power Off → Network 分頁 → Add Network Interface → VPC（也有 VPC 下拉選單，可能遇到同樣錯誤）
+
+3. 開機（或重開機）讓設定生效，進主機 ip addr 確認內網 IP
+
+4. 建議移除公網介面：需要連外網就在 VPC 介面勾 1:1 NAT（Public access），再刪掉 Public 介面
+   （用 Assign Linodes 加入時會自動多出 eth1 公網介面，也要一併處理）
+```
+
+- VPC 必須和主機在**同一個資料中心**。
+- 兩條路都卡住時：改用 `linode-cli`（先 `linode-cli vpcs list`、`linode-cli vpcs subnets-list $VPC_ID` 取得 ID，再看 `linode-cli linodes --help` 找加入介面的子指令），或附截圖與錯誤字串開工單給 Linode Support，並查看 status.linode.com。
+
+### 建立子網路時出現 not in the allowed VPC ranges
+
+症狀：Subnet IP Address Range 填 `192.168.0.0/16`，畫面顯示可用 65,532 個 IP，但送出時錯誤 `not in the allowed VPC ranges`。
+
+原因：
+
+- `192.168.0.0/16` 涵蓋 `192.168.128.0/17`，而這段是 Linode Private IP 的保留網段，VPC 子網路不能與它重疊（見「建立 VPC 與子網路」）。
+- 畫面顯示的 65,532 只是 65,536 扣掉頭尾各兩個保留位址的計算結果，**不代表網段合法**。
+
+解法：改用不與保留網段重疊的範圍（規劃方式見「網段規劃（CIDR）」）。
+
+| Subnet IP Range | 總 IP 數 | 用途 |
+|---|---|---|
+| `10.20.0.0/24` | 256 | 一般 VPS、小型服務（優先建議） |
+| `10.20.0.0/20` | 4,096 | 多台 VPS、較大服務 |
+| `172.20.0.0/24` | 256 | 替代網段（先確認沒撞 Docker） |
+| `192.168.0.0/17` | 32,768 | 一定要用 192.168 時，只能用前半段 `192.168.0.0` ~ `192.168.127.255` |
+
+```
+範例：
+Subnet Label：prod-private-01
+Subnet IP Address Range：10.20.0.0/24
+```
+
+換成 `10.x` 仍然出現同樣錯誤時：
+
+- 確認沒有與同 VPC 其他子網路重疊。
+- 確認前綴長度在 `/1` ~ `/29` 之間。
+- 用 `linode-cli vpcs view $VPC_ID` 查看這個 VPC 的設定，或查官方 VPC 文件確認目前允許的範圍，不要繼續猜網段。

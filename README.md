@@ -132,7 +132,7 @@
 | 多人 AI 協作開發、Multi-Agent、AI IDE 共用 | [AI_多人協作開發架構(團隊AI整合)](01_程式語言/AI/AI_多人協作開發架構(團隊AI整合).md) |
 | 金流串接、綠界 ECPay、藍新 NewebPay、歐付寶、電子發票 | [API_金流串接總覽](00_其他(工具_應用程式_網站)/串接API(第三方API串接)/金流(金流API)/API_金流串接總覽.md) |
 | 外送串接、UberEats、Foodpanda | [API_外送平台串接總覽](00_其他(工具_應用程式_網站)/串接API(第三方API串接)/外送平台(外送API)/API_外送平台串接總覽.md) |
-| Linode VPC、子網路、VLAN、Private IP、1:1 NAT、手動指定 VPC IP、VPC 防火牆搭配、linode-cli vpcs | [Linode_VPC(私有網路)](04_雲端平台(CloudPlatform)/Linode/Linode_VPC(私有網路).md) |
+| Linode VPC、子網路、VLAN、Private IP、1:1 NAT、手動指定 VPC IP、VPC 防火牆搭配、不同 VPC 互連、CIDR 網段規劃、Invalid filterable vpc_type、not in the allowed VPC ranges、linode-cli vpcs | [Linode_VPC(私有網路)](04_雲端平台(CloudPlatform)/Linode/Linode_VPC(私有網路).md) |
 | Linode Cloud Firewall、Linode Interfaces vs Configuration Profile、主機防火牆搭配 | [Linode_筆記](04_雲端平台(CloudPlatform)/Linode/Linode_筆記.md)（見「網路介面」「Firewall」章節） |
 | 雲端主機比價、Hetzner/Vultr/DigitalOcean/Azure VM | [04_雲端平台(CloudPlatform)_總覽](04_雲端平台(CloudPlatform)/04_雲端平台(CloudPlatform)_總覽.md) |
 | Fail2Ban、封鎖 IP、jail.local、unbanip、ignoreip、永久封鎖、bantime -1、dbpurgeage | [Linux_工具_Fail2Ban(防止暴力破解攻擊)](02_作業系統/Unix/Linux/Linux_工具/Linux_防止暴力破解攻擊/Linux_工具_Fail2Ban(防止暴力破解攻擊).md) |
