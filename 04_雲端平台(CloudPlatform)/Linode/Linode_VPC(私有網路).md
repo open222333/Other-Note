@@ -25,6 +25,7 @@ VPC 本身免費，VPC 內部流量不計入每月網路傳輸量。
   - [例外狀況](#例外狀況)
     - [建立主機時 VPC 下拉選單出現 Invalid filterable: $.vpc\_type](#建立主機時-vpc-下拉選單出現-invalid-filterable-vpc_type)
     - [建立子網路時出現 not in the allowed VPC ranges](#建立子網路時出現-not-in-the-allowed-vpc-ranges)
+    - [只有 VPC 網卡、沒有公網介面導致 SSH timeout](#只有-vpc-網卡沒有公網介面導致-ssh-timeout)
 
 ## 參考資料
 
@@ -400,3 +401,66 @@ Subnet IP Address Range：10.20.0.0/24
 - 確認沒有與同 VPC 其他子網路重疊。
 - 確認前綴長度在 `/1` ~ `/29` 之間。
 - 用 `linode-cli vpcs view $VPC_ID` 查看這個 VPC 的設定，或查官方 VPC 文件確認目前允許的範圍，不要繼續猜網段。
+
+### 只有 VPC 網卡、沒有公網介面導致 SSH timeout
+
+**症狀**：
+
+- 從外面 `ssh root@$PUBLIC_IP` 卡住後出現 `connect to host ... port 22: Operation timed out`（不是 `Connection refused`，也還沒到驗證階段）。
+- Cloud Manager → Linode → Network 分頁：
+  - Network Interfaces 只有一張 `VPC`（例 `10.0.0.2`），沒有 `Public` 介面
+  - IP Addresses 裡的 Public IPv4 是**灰色**（有配發，但沒掛在任何介面上）
+  - Network Transfer History 從建立起一直是 0
+- 從 Lish 進主機檢查：
+
+```bash
+ip -4 addr show eth0               # 只有 10.0.0.x 內網 IP，沒有公網 IP
+tcpdump -ni eth0 tcp port 22       # 外面連線時抓到 0 個封包 → 流量根本沒進到主機
+```
+
+**原因**：建立主機時網路介面只選了 VPC，且沒勾「Assign a public IPv4 address」（1:1 NAT）。VPC 內的 Linode 預設無法連外，也無法從外部連入，公網 IP 雖然配發了卻沒有作用。
+
+**排查順序**（timeout 時用 tcpdump 判斷封包卡在哪一層）：
+
+| tcpdump 結果 | 判斷 |
+|---|---|
+| 完全沒有封包 | 擋在主機外：網卡沒有公網 IP（本例）、Cloud Firewall、或自己這端網路擋 22 |
+| 有 SYN 但沒回應 | 主機內防火牆擋掉（`nft list ruleset`、`iptables -S`） |
+| 有 SYN、主機回 RST | 22 沒在監聽，檢查 sshd |
+
+**解法**（擇一，之後需關機再開機才生效）：
+
+```
+A. VPC 介面開 1:1 NAT（較符合本筆記「把 Linode 加入 VPC」的建議）
+   Network 分頁 → VPC 介面 ⋯ → Edit → 勾選 Assign a public IPv4 address / Public access
+
+B. 另外加一張公網介面
+   Network 分頁 → Add Network Interface → Public（並套用 Cloud Firewall）
+```
+
+- 確認套用的 Cloud Firewall Inbound 有放行 TCP 22（預設 Drop 時不加規則一樣連不上）。
+- 開機後在 Lish 確認：
+
+```bash
+ip -4 addr                 # 看得到公網 IP（1:1 NAT 時公網 IP 不會出現在網卡上，改用外部測試）
+ip route                   # default route 正常
+ss -tlnp | grep ':22'      # Ubuntu 24.04 預設由 ssh.socket 監聽，程序名稱顯示 systemd
+```
+
+**同時遇到的其他坑**：
+
+- Ubuntu 24.04 的 `ssh.service` 顯示 `inactive (dead)` 是正常的，由 `ssh.socket` 在連線進來時才啟動；`ss -tlnp | grep ssh` 抓不到，要 `grep ':22'`。想改回傳統模式：
+
+```bash
+systemctl disable --now ssh.socket
+systemctl enable --now ssh
+```
+
+- 建立時沒帶 SSH key，`/root/.ssh/authorized_keys` 是 0 bytes：網路修好後要先從 Lish 貼入公鑰，否則會卡在 `Permission denied (publickey)`。
+
+```bash
+echo "$YOUR_PUBLIC_KEY" >> /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+```
+
+- `ssh -vvv` 的除錯訊息輸出到 stderr，完整保存：`ssh -vvv -E ~/ssh-debug.log root@$PUBLIC_IP`。
