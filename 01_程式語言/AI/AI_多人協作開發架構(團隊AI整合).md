@@ -27,6 +27,7 @@
 [LangGraph](https://langchain-ai.github.io/langgraph/)
 [CrewAI](https://www.crewai.com/)
 [AutoGen](https://microsoft.github.io/autogen/)
+[pgvector(PostgreSQL向量擴充)](../../03_伺服器服務/Vector_Database(向量資料庫)/pgvector(PostgreSQL向量擴充).md)
 
 # 一、AI 應用共同開發
 

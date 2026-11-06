@@ -82,6 +82,7 @@
 | Redis、maxmemory、CONFIG SET | [Redis_筆記](03_伺服器服務/DatabaseServer(資料庫伺服器)/Redis/Redis_筆記.md) |
 | Redis Cluster、分散式部署 | [Redis_筆記_Redis_Cluster(分散式部署模式)](03_伺服器服務/DatabaseServer(資料庫伺服器)/Redis/Redis_筆記_Redis_Cluster(分散式部署模式).md) |
 | Elasticsearch、Kibana、index、query DSL | [Elasticsearch(搜尋引擎)_&_Kibana(Elasticsearch用戶界面)_筆記](03_伺服器服務/Vector_Database(向量資料庫)/Elastic_Stack/Elasticsearch(搜尋引擎)_&_Kibana(Elasticsearch用戶界面)_筆記.md) |
+| pgvector、PostgreSQL 向量、Embedding、語意搜尋、HNSW、IVFFlat、Hybrid Search | [pgvector(PostgreSQL向量擴充)](03_伺服器服務/Vector_Database(向量資料庫)/pgvector(PostgreSQL向量擴充).md) |
 | Samba、smb.conf、網路芳鄰 | [Samba(UNIX系列_與_微軟Windows_溝通)_筆記](03_伺服器服務/FileServer(檔案伺服器)/Samba(UNIX系列_與_微軟Windows_溝通)_筆記.md) |
 | Poste.io、郵件伺服器、新增網域、DKIM、SPF、DMARC、PTR 反解 | [Poste.io(郵件伺服器管理工具)](03_伺服器服務/MailServer(郵箱伺服器)/Poste.io(郵件伺服器管理工具).md) |
 | New Relic、NRQL、Query Builder、NerdGraph、匯出 CSV、TransactionError | [New_Relic(雲端應用程式效能監控)](03_伺服器服務/PerformanceMonitor(效能監控)/New_Relic/New_Relic(雲端應用程式效能監控).md) |
@@ -99,6 +100,7 @@
 | Claude Code settings.json、權限、hooks | [Claude_Code_專案設定(CLI設定)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Code_專案設定(CLI設定).md) |
 | Claude Skill、自訂技能、SKILL.md | [Claude_Skill(自訂技能)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Skill(自訂技能).md) |
 | Claude Dispatch、Agent SDK、子 Agent 並行 | [Claude_Dispatch(多Agent分派)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Dispatch(多Agent分派).md) |
+| Claude Desktop 多帳號、多實例、user-data-dir、Parall | [Claude_Desktop_多實例(多帳號)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Desktop_多實例(多帳號).md) |
 | Gemini、Google AI Studio、Gemini API | [Gemini(Google_AI)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Gemini(Google_AI)/Gemini(Google_AI).md) |
 | Chrome DevTools、Network 分頁、追蹤 API 呼叫、SSL 證書 | [Chrome(Google瀏覽器)](00_其他(工具_應用程式_網站)/影像工具(圖片處理)/瀏覽器開發者工具(偵錯工具)/Chrome(Google瀏覽器).md) |
 | iOS、Xcode、IPA、TestFlight | [iOS_建置與打包(行動App)](00_其他(工具_應用程式_網站)/行動應用程式(Mobile_App)/iOS_建置與打包(行動App).md) |
@@ -124,6 +126,8 @@
 | dev_note、開發紀錄、bug 追查紀錄、分類 fix/feat/data/investigate、嚴重度 P0~P3、章節骨架 | [工作流程_-_DevNote(開發紀錄撰寫規範)](00_概念/工作流程_-_DevNote(開發紀錄撰寫規範).md) |
 | Commit 分類、Conventional Commits、commit type | [Commit_分類(內容分類建議)](00_其他(工具_應用程式_網站)/DevOps(Development和Operations的組合詞)/Git(版本紀錄)/Commit_分類(內容分類建議).md) |
 | SaaS、IaaS/PaaS/SaaS、多租戶、Silo/Pool/Bridge、SaaS 成熟度模型 | [概念_-_SaaS(軟體即服務)](00_概念/概念_-_SaaS(軟體即服務).md) |
+| 視覺UI工具模板、Next.js、shadcn/ui、Vue 3、shadcn-vue、Flask 前後端分工、編輯器 / 建構器架構、技術選型 | [程式設計_-_視覺UI工具模板(前端架構選型)](00_概念/程式設計_-_視覺UI工具模板(前端架構選型).md) |
+| Template repo、專案模板、Template-PythonRepo、Template-PythonFlaskAPI、Template-PythonWatcher、Template-PythonCrawler、Template-Backup、Template-PythonVectorAPI、Template-VisualTool、Template-ReactDashboard、待新增模板、copier、cookiecutter | [工作流程_-_專案模板(Template_Repo規劃)](00_概念/工作流程_-_專案模板(Template_Repo規劃).md) |
 | AI 自動化、BDD、RPA、n8n、MCP、Agent、RAG、成熟度分級 | [技術_-_AI自動化(AI_Automation)](00_概念/技術_-_AI自動化(AI_Automation).md) |
 | AGENTS.md、AI 代理指令檔、Codex/Cursor/Gemini CLI 共用規則、AGENTS.md vs CLAUDE.md | [AGENTS_md(AI代理指令檔)](01_程式語言/AI/AGENTS_md(AI代理指令檔).md) |
 | Claude Code subagent、主機巡檢、多主機異常檢查、claude -p 排程、.claude/agents | [Claude_Code_主機巡檢(多主機異常檢查)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Code_主機巡檢(多主機異常檢查).md) |
