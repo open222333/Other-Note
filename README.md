@@ -144,7 +144,7 @@
 | 敏感檔案加密選擇、GPG、7-Zip、SOPS、git-crypt、LUKS、VeraCrypt、gocryptfs、restic、密碼管理器 | [資安_-_敏感檔案加密(加密工具比較與選擇)](00_概念/資安/資安_-_敏感檔案加密(加密工具比較與選擇).md) |
 | age、檔案加密、公鑰加密、age-keygen、加密備份、SSH 金鑰加密檔案 | [Linux_工具_age(檔案公鑰加密)](02_作業系統/Unix/Linux/Linux_工具/Linux_加密/Linux_工具_age(檔案公鑰加密).md) |
 | iptables、netfilter-persistent、rules.v4、防火牆規則 | [Linux_工具_iptables_ip6tables(管理網路封包的處理和轉發)](02_作業系統/Unix/Linux/Linux_工具/Linux_防火牆部分/Linux_工具_iptables_ip6tables(管理網路封包的處理和轉發).md) |
-| 網路診斷、ping、dig、curl、mtr、netstat、tcpdump、iftop | [Linux_網路狀態部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_網路狀態部分/Linux_網路狀態部分_總覽.md) |
+| 網路診斷、ping、dig、getent、curl、mtr、netstat、tcpdump、iftop | [Linux_網路狀態部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_網路狀態部分/Linux_網路狀態部分_總覽.md) |
 | 磁碟、掛載、NFS、sshfs、rsync、swap | [Linux_磁碟與檔案系統部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_磁碟與檔案系統部分/Linux_磁碟與檔案系統部分_總覽.md) |
 | systemctl、systemd、service、enable、unit 類型 | [Linux_工具_systemctl(系統管理工具)](02_作業系統/Unix/Linux/Linux_工具/Linux_基本/Linux_工具_systemctl(系統管理工具).md) |
 | sh、ash、dash、/bin/sh、chsh、登入 shell | [Unix_Shell(UNIX作業系統_殼層與命令列介面)](02_作業系統/Unix/Unix_Shell(殼層與命令列介面)/Unix_Shell(UNIX作業系統_殼層與命令列介面).md) |
@@ -166,6 +166,7 @@
 | vim、貼上縮排跑掉、autoindent、set paste、pastetoggle | [Linux_工具_vim(文字編輯器)](02_作業系統/Unix/Linux/Linux_工具/Linux_文本編碼/Linux_工具_vim(文字編輯器).md) |
 | Flask、Werkzeug、WSGI、Flask 與 Werkzeug 的關係 | [Python_模組_Flask(網站框架)](01_程式語言/Python/Python_第三方模組/Python_Web應用框架(網站)/Python_Web_Flask(網站)/Python_模組_Flask(網站框架).md) |
 | Celery、排程、非同步任務、worker、beat | [Python_模組_celery(排程)](01_程式語言/Python/Python_第三方模組/Python_模組_celery(排程).md) |
+| SQLAlchemy 連線字串、密碼 URL 編碼、env 檔密碼佔位字串替換、getpass | [Python_模組_SQLAlchemy(SQL_ORM工具)](01_程式語言/Python/Python_第三方模組/Python_Database(資料庫)/Python_模組_SQLAlchemy(SQL_ORM工具).md) |
 | Python 基本語法 | [Python_基本_筆記](01_程式語言/Python/Python_基本_筆記.md) |
 | Anaconda、conda、虛擬環境 | [Python_工具_anacodna(虛擬環境)_筆記](01_程式語言/Python/Python_工具_anacodna(虛擬環境)_筆記.md) |
 | Python 爬蟲、requests、BeautifulSoup | [Python_基本_爬蟲筆記](01_程式語言/Python/Python_第三方模組/Python_Crawler(爬蟲)/Python_基本_爬蟲筆記.md) |
@@ -189,6 +190,6 @@
 | 外送平台串接（UberEats / Foodpanda） | [API_外送平台串接總覽](00_其他(工具_應用程式_網站)/串接API(第三方API串接)/外送平台(外送API)/API_外送平台串接總覽.md) |
 | 雲端平台比較（AWS / GCP / Linode / Hetzner 等） | [04_雲端平台(CloudPlatform)_總覽](04_雲端平台(CloudPlatform)/04_雲端平台(CloudPlatform)_總覽.md) |
 | CI/CD（Jenkins / CircleCI / GitLab CI / Bamboo / TeamCity / Travis CI） | [CI_CD_總覽](00_其他(工具_應用程式_網站)/DevOps(Development和Operations的組合詞)/CI_CD_-_持續整合(Continuous_Integration)_持續交付(Continuous_Delivery)_工具/CI_CD_總覽.md) |
-| Linux 網路工具（ping / dig / curl / mtr / netstat / tcpdump 等） | [Linux_網路狀態部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_網路狀態部分/Linux_網路狀態部分_總覽.md) |
+| Linux 網路工具（ping / dig / getent / curl / mtr / netstat / tcpdump 等） | [Linux_網路狀態部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_網路狀態部分/Linux_網路狀態部分_總覽.md) |
 | Linux 磁碟與檔案系統（df / du / mount / NFS / sshfs / rsync） | [Linux_磁碟與檔案系統部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_磁碟與檔案系統部分/Linux_磁碟與檔案系統部分_總覽.md) |
 | 域名商比較（Cloudflare / Porkbun / Namecheap / GoDaddy 等） | [域名商(比較與選擇)](00_其他(工具_應用程式_網站)/域名(Domain_Name)/域名商(比較與選擇).md) |

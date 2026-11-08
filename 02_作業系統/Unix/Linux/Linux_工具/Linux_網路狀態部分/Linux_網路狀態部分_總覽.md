@@ -24,6 +24,7 @@
 - [curl](./Linux_工具_curl(對指定URL進行網路傳輸).md)
 - [dig](./Linux_工具_dig(DNS偵錯工具).md)
 - [ethtool](./Linux_工具_ethtool(網路卡狀態及設定).md)
+- [getent](./Linux_工具_getent(查詢系統名稱解析).md)
 - [ifconfig](./Linux_工具_ifconfig(查詢和設定網路介面卡).md)
 - [iftop](./Linux_工具_iftop(網路流量監控工具).md)
 - [ip route](./Linux_工具_ip-route(顯示和管理_Linux_系統的_IP_路由表).md)
@@ -51,6 +52,7 @@
 | **nmap** | 掃描 | 掃描主機或網段開放的 port | [nmap](./Linux_工具_nmap(網路檢測工具).md) |
 | **dig** | DNS | 查詢 A / CNAME / TXT / NS 等記錄 | [dig](./Linux_工具_dig(DNS偵錯工具).md) |
 | **nslookup** | DNS | 互動式 DNS 正反向查詢 | [nslookup](./Linux_工具_nslookup(DNS偵錯工具).md) |
+| **getent** | 名稱解析 | 走系統解析流程（含 /etc/hosts、快取），看程式實際解析到的 IP | [getent](./Linux_工具_getent(查詢系統名稱解析).md) |
 | **ifconfig** | 網卡 | 查詢與設定網路介面 | [ifconfig](./Linux_工具_ifconfig(查詢和設定網路介面卡).md) |
 | **ip route** | 路由 | 查看與修改路由表 | [ip route](./Linux_工具_ip-route(顯示和管理_Linux_系統的_IP_路由表).md) |
 | **ethtool** | 網卡 | 網卡速率、雙工、驅動參數 | [ethtool](./Linux_工具_ethtool(網路卡狀態及設定).md) |
@@ -70,7 +72,7 @@
 | 主機可不可達（L3） | ping、mtr | 對方擋 ICMP 時 ping 不通不代表服務掛了 |
 | port 有沒有開（L4） | telnet、nmap、curl | telnet / curl 測單一 port，nmap 掃多個 |
 | 應用層回應（L7） | curl | 可看 HTTP 狀態碼、各階段耗時 |
-| 名稱解析 | dig、nslookup | 排查 DNS 時優先用 dig（輸出完整） |
+| 名稱解析 | dig、nslookup、getent | 排查 DNS 記錄用 dig；確認程式實際解析結果用 getent |
 | 本機網卡 / 路由 | ifconfig、ip route、ethtool | |
 | 本機連線 / 頻寬 | netstat、iftop、iptraf、tcpdump、sar | 由粗到細：netstat → iftop → tcpdump |
 
@@ -99,6 +101,7 @@
 
 - **dig**：腳本與排錯首選，可指定 DNS 伺服器（`dig @8.8.8.8 example.com`）。
 - **nslookup**：互動式、Windows 也有，適合快速查一筆。
+- **getent**：走和應用程式相同的解析流程（`/etc/hosts`、快取），確認程式會連到哪個 IP；`getent ahosts` 看全部位址。
 
 ## 網卡與路由
 
@@ -124,6 +127,7 @@
 | 連得上但很慢 | mtr、curl `-w` | 找出延遲在網路路徑還是伺服器回應 |
 | 確認服務 port 有開 | telnet、curl、nmap | 單一 port 用 telnet / curl，多個用 nmap |
 | DNS 設定後確認生效 | dig | 可指定公共 DNS 比對結果 |
+| 程式連到錯的主機 / IP | getent → dig | 先看程式實際解析結果，不一致再查 /etc/hosts 或快取 |
 | 查哪個程式佔了 port | netstat、ss | `-tlnp` 顯示 PID |
 | 頻寬異常 | iftop → tcpdump | 先找連線，再看封包內容 |
 | 事後回顧資源用量 | sar | 有歷史資料 |

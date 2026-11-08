@@ -17,6 +17,8 @@
 
 [python-dotenv pypi](https://pypi.org/project/python-dotenv/)
 
+[SQLAlchemy 筆記（env 檔密碼佔位字串替換、連線字串 URL 編碼）](Python_Database(資料庫)/Python_模組_SQLAlchemy(SQL_ORM工具).md)
+
 # 指令
 
 ```bash

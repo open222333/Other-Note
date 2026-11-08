@@ -16,6 +16,8 @@ dig是域名伺服器軟體套件BIND的組成部分。
 
 [dig (domain information groper)](https://ss64.com/bash/dig.html)
 
+[getent 筆記（走系統解析流程，含 /etc/hosts 與快取）](./Linux_工具_getent(查詢系統名稱解析).md)
+
 # 指令
 
 ```bash
