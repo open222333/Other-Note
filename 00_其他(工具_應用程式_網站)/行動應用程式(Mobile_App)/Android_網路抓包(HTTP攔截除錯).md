@@ -28,9 +28,9 @@
 
 [HTTP Toolkit 官網](https://httptoolkit.com/)
 
-[Chrome DevTools 追蹤 API 呼叫（Web 版做法，原理相同）](../../影像工具(圖片處理)/瀏覽器開發者工具(偵錯工具)/Chrome(Google瀏覽器).md)
+[Chrome DevTools 追蹤 API 呼叫（Web 版做法，原理相同）](../影像工具(圖片處理)/瀏覽器開發者工具(偵錯工具)/Chrome(Google瀏覽器).md)
 
-[mitmproxy 筆記（另一套可替代 HTTP Toolkit 的攔截工具）](../../../02_作業系統/Unix/Linux/Linux_工具/Linux_工具_mitmproxy(中間人代理工具).md)
+[mitmproxy 筆記（另一套可替代 HTTP Toolkit 的攔截工具）](../../02_作業系統/Unix/Linux/Linux_工具/Linux_工具_mitmproxy(中間人代理工具).md)
 
 # 安裝
 

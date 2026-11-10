@@ -100,11 +100,11 @@ InnoDB: 也支援事務，是一個關係型資料庫引擎，適用於需要強
 
 ### MySQL Shell 相關
 
-[MySQL 工具 MySQL Shell(交互式的命令行工具)](../MySQL/MySQL%20工具%20MySQL%20Shell(交互式的命令行工具).md)
+[MySQL 工具 MySQL Shell(交互式的命令行工具)](MySQL_工具_MySQL_Shell(交互式的命令行工具).md)
 
 ### MySQL Router 相關
 
-[MySQL 工具 Mysql Router(輕量級的路由器)](../MySQL/MySQL%20工具%20MySQL%20Router(輕量級的路由器).md)
+[MySQL 工具 Mysql Router(輕量級的路由器)](MySQL_工具_MySQL_Router(輕量級的路由器).md)
 
 ### 叢集(Cluster)相關
 

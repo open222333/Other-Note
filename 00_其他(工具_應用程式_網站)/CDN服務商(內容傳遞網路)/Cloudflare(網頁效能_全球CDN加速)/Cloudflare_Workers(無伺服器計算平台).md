@@ -66,11 +66,11 @@ Cloudflare Workers 的一些關鍵特點和用途：
 
 [HTTP Basic Authentication](https://developers.cloudflare.com/workers/examples/basic-auth/)
 
-[JavaScript Node 模組 wrangler(Cloudflare Workers 的命令行工具)](https://github.com/open222333/Other-Note/blob/main/01_%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/JavaScript/NodeJs(%E5%9F%B7%E8%A1%8C%E7%92%B0%E5%A2%83)/JavaScript%20Node%20%E6%A8%A1%E7%B5%84%20wrangler(Cloudflare%20Workers%20%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7).md)
+[JavaScript Node 模組 wrangler(Cloudflare Workers 的命令行工具)](../../../01_程式語言/JavaScript/NodeJs(執行環境)/Cloudflare工具/JavaScript_Node_模組_wrangler(Cloudflare_Workers_的命令行工具).md)
 
 [Enable Node.js with Pages Functions - ](https://developers.cloudflare.com/workers/runtime-apis/nodejs/#enable-nodejs-with-pages-functions)
 
-[筆記](https://github.com/open222333/Other-Note/blob/main/01_%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/JavaScript/NodeJs(%E5%9F%B7%E8%A1%8C%E7%92%B0%E5%A2%83)/Cloudflare%E5%B7%A5%E5%85%B7/JavaScript%20Node%20%E6%A8%A1%E7%B5%84%20wrangler(Cloudflare%20Workers%20%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7).md)
+[筆記](../../../01_程式語言/JavaScript/NodeJs(執行環境)/Cloudflare工具/JavaScript_Node_模組_wrangler(Cloudflare_Workers_的命令行工具).md)
 
 # 安裝
 

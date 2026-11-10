@@ -160,7 +160,7 @@ RDBMS
 
 [SQL語法手冊](https://www.1keydata.com/tw/sql/sql.html)
 
-[SQL 筆記](https://github.com/open222333/Other-Note/blob/main/01_%E7%A8%8B%E5%BC%8F%E8%AA%9E%E8%A8%80/SQL/SQL%20%E7%AD%86%E8%A8%98.md)
+[SQL 筆記](../../../01_程式語言/SQL/SQL_筆記.md)
 
 ### 使用者權限相關
 
@@ -941,7 +941,7 @@ innodb_redo_log_capacity = 2G
 
 ##### MySQL 8.4 調整設定檔 — Linode Dedicated 64GB（Master）
 
-[MySQL 8.4 設定檔 Linode Dedicated 64GB（Master）](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_範例_linode64gb_master_config.md)
+[MySQL 8.4 設定檔 Linode Dedicated 64GB（Master）— 已併入 MySQL 8.4 主從範例](MySQL_範例_MySQL84_Ubuntu24_04_lts_master_slave.md#九編輯-etcmysqlmysqlconfdmysqldcnflinode-dedicated-64gb)
 
 #### 常見問題
 
@@ -2090,7 +2090,7 @@ gunzip < all_20260429.sql.gz > all_20260429.sql
 python3 fix_mysql84.py all_20260429.sql all_20260429_fixed.sql
 ```
 
-[Python 腳本 fix_mysql84.py](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/python腳本/fix_mysql84.py)
+[Python 腳本 fix_mysql84.py](python腳本/fix_mysql84.py)
 
 | 修正項目 | 說明 |
 |---|---|

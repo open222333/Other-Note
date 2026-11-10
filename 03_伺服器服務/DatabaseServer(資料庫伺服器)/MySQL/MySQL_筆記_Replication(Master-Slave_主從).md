@@ -194,7 +194,7 @@ GTID 模式
 
 ### keepalived(實現高可用性的工具) 相關
 
-[Linux 工具 keepalived(實現高可用性的工具).md](../../../02_作業系統/Unix/Linux/Linux%20工具/Linux%20工具%20keepalived(實現高可用性的工具).md)
+[Linux 工具 keepalived(實現高可用性的工具).md](../../../02_作業系統/Unix/Linux/Linux_工具/Linux_High_Availability_HA(高可用性工具)/Linux_工具_keepalived(高可用性（High_Availability,_HA）的工具).md)
 
 [一个月后，我们又从 MySQL 双主切换成了主-从！](https://www.51cto.com/article/713751.html)
 

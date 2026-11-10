@@ -79,7 +79,7 @@ Python 基本：書籍推薦、Python 之禪、pip 與 python 指令。
 
 [pip documentation 官方文檔](https://pip.pypa.io/en/stable/#)
 
-[Python 工具 pip(安裝模組)](/01_程式語言/01_Python/Python%20工具%20pip(安裝模組).txt)
+[Python 工具 pip / pipx(套件管理器)](Python_工具_pip_pipx(套件管理器).md)
 
 [安裝 pip](https://pip.pypa.io/en/stable/getting-started/)
 

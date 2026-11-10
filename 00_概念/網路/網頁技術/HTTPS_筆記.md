@@ -20,4 +20,4 @@ HTTPS 加密傳輸相關參考資料。
 
 [官方網站(詳細操作筆記 建立在各種作業系統筆記資料夾)](https://certbot.eff.org/)
 
-[Linux 工具 certbot(https憑證)](../../../02_作業系統/01_Unix/01_Linux/Linux%20工具%20certbot(https憑證).md)
+[Linux 工具 certbot(https憑證)](../../../02_作業系統/Unix/Linux/Linux_工具/Linux_加密/Linux_工具_certbot(https憑證).md)

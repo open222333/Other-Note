@@ -19,7 +19,7 @@
 
 ### ssh相關
 
-[Linux 工具 OpenSSL OpenSSH(連線、密鑰).md](https://github.com/open222333/Other-Note/blob/main/02_%E4%BD%9C%E6%A5%AD%E7%B3%BB%E7%B5%B1/Unix/Linux/Linux%20%E5%B7%A5%E5%85%B7/Linux%20%E5%8A%A0%E5%AF%86/Linux%20%E5%B7%A5%E5%85%B7%20OpenSSL%20OpenSSH(%E9%80%A3%E7%B7%9A%E3%80%81%E5%AF%86%E9%91%B0).md)
+[Linux 工具 OpenSSL OpenSSH(連線、密鑰).md](../../../02_作業系統/Unix/Linux/Linux_工具/Linux_SSH_工具/Linux_工具_OpenSSL_OpenSSH(連線、密鑰).md)
 
 ### 心得相關
 

@@ -9,10 +9,10 @@ dig是域名伺服器軟體套件BIND的組成部分。
 
 - [Linux 工具 dig(DNS偵錯工具)](#linux-工具-digdns偵錯工具)
 	- [目錄](#目錄)
-- [參考資料](#參考資料)
+	- [參考資料](#參考資料)
 - [指令](#指令)
 
-# 參考資料
+## 參考資料
 
 [dig (domain information groper)](https://ss64.com/bash/dig.html)
 

@@ -381,13 +381,13 @@ Elasticsearch Index Lifecycle Management（ILM）是一個功能強大的工具�
 
 [mongo-connector实现MongoDB与elasticsearch实时同步](https://blog.csdn.net/jerrism/article/details/110318159)
 
-[Python 模組 mongo-connector(MongoDB and Elasticsearch)](../../01_程式語言/Python/Python%20Elasticsearch(搜尋引擎)/Python%20模組%20mongo-connector(MongoDB%20and%20Elasticsearch).md)
+[Python 模組 mongo-connector(MongoDB and Elasticsearch)](../../../01_程式語言/Python/Python_第三方模組/Python_Elasticsearch(搜尋引擎)/Python_模組_mongo-connector(MongoDB_and_Elasticsearch).md)
 
 [mongo-connector实现MongoDB与elasticsearch实时同步深入详解](https://blog.csdn.net/laoyang360/article/details/51842822)
 
 [29.mongo-connector實現MongoDB與elasticsearch實時同步(ES與非關係型資料庫同步)](https://www.796t.com/content/1549085781.html)
 
-[https://www.796t.com/content/1549137781.html](mongo-connector實現MongoDB與elasticsearch實時同步深入詳解)
+[mongo-connector實現MongoDB與elasticsearch實時同步深入詳解](https://www.796t.com/content/1549137781.html)
 
 [利用mongo-connector將mongodb數據同步到elasticsearch的流程以及會遇到的坑](https://www.twblogs.net/a/5b8c06592b717718832fe1d2)
 

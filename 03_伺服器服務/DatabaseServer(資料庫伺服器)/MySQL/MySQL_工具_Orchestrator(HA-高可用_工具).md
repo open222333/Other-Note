@@ -72,7 +72,7 @@ Orchestrator 是一個用於 MySQL 高可用性和自動故障恢復的開源工
 
 `安裝 Go`
 
-[Go(Golang) 筆記](../../../01_程式語言/Golang/Go(Golang)%20筆記.md)
+[Go(Golang) 筆記](../../../01_程式語言/Golang/Go(Golang)_筆記.md)
 
 `使用 go get 安裝`
 

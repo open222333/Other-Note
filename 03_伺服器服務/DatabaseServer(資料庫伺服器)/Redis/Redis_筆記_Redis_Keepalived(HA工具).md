@@ -8,7 +8,7 @@ Redis 搭配 Keepalived 做高可用的幾種架構（含 Sentinel 方案）。
 
 - [Redis 筆記 Redis Keepalived(HA工具)](#redis-筆記-redis-keepalivedha工具)
   - [目錄](#目錄)
-- [參考資料](#參考資料)
+  - [參考資料](#參考資料)
     - [心得相關](#心得相關)
 - [範例](#範例)
   - [Keepalived + Redis Sentinel（推薦）](#keepalived--redis-sentinel推薦)
@@ -19,9 +19,9 @@ Redis 搭配 Keepalived 做高可用的幾種架構（含 Sentinel 方案）。
   - [多台 keepalived 都指向同一 Redis（無主從）](#多台-keepalived-都指向同一-redis無主從)
 
 
-# 參考資料
+## 參考資料
 
-[Linux 工具 keepalived(高可用性（High Availability, HA）的工具)](https://github.com/open222333/Other-Note/blob/main/02_%E4%BD%9C%E6%A5%AD%E7%B3%BB%E7%B5%B1/Unix/Linux/Linux%20%E5%B7%A5%E5%85%B7/Linux%20High%20Availability%20HA(%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%E5%B7%A5%E5%85%B7)/Linux%20%E5%B7%A5%E5%85%B7%20keepalived(%E9%AB%98%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%88High%20Availability%2C%20HA%EF%BC%89%E7%9A%84%E5%B7%A5%E5%85%B7).md)
+[Linux 工具 keepalived(高可用性（High Availability, HA）的工具)](../../../02_作業系統/Unix/Linux/Linux_工具/Linux_High_Availability_HA(高可用性工具)/Linux_工具_keepalived(高可用性（High_Availability,_HA）的工具).md)
 
 ### 心得相關
 
