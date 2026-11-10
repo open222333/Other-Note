@@ -104,6 +104,22 @@ linode-cli linodes shutdown <ID>
 linode-cli linodes reboot <ID>
 ```
 
+重建主機（清空磁碟、重裝系統；IP、方案、ID 不變，不可逆）
+
+```sh
+# 密碼用環境變數帶入，避免留在 shell 歷史
+linode-cli linodes rebuild <ID> \
+  --image linode/ubuntu24.04 \
+  --root_pass "$ROOT_PASS" \
+  --authorized_keys "$(cat ~/.ssh/id_ed25519.pub)"
+
+# 查可用映像名稱
+linode-cli images list --is_public true --text
+
+# 重建後清除本機舊的主機指紋
+ssh-keygen -R <IP>
+```
+
 刪除主機（不可逆）
 
 ```sh

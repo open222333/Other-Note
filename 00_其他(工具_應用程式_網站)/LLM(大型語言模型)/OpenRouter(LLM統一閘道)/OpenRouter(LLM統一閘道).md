@@ -32,6 +32,8 @@ API 格式與 OpenAI 相容，只需切換 base_url 即可無縫切換模型
 
 [API 文件](https://openrouter.ai/docs)
 
+[AI 免費額度輪換問答設計（多家免費額度輪流）](../../../01_程式語言/AI/AI_免費額度輪換問答設計(系統設計文件).md)
+
 [OpenRouter Playground](https://openrouter.ai/playground)
 
 ---

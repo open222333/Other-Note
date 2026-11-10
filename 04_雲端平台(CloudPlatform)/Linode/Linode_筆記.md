@@ -10,6 +10,7 @@ Linode Cloud Firewall、VPC 與主機內防火牆的搭配與連通性測試。
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 - [Linodes](#linodes)
+	- [重建 Rebuild（還原初始化）](#重建-rebuild還原初始化)
 - [網路介面（Linode Interfaces / Configuration Profile）](#網路介面linode-interfaces--configuration-profile)
 - [Firewall](#firewall)
 	- [Cloud Firewall 規則與限制](#cloud-firewall-規則與限制)
@@ -36,6 +37,8 @@ Linode Cloud Firewall、VPC 與主機內防火牆的搭配與連通性測試。
 [Select default Cloud Firewalls for new Linodes](https://techdocs.akamai.com/cloud-computing/docs/select-default-firewalls-for-new-linodes)
 
 [Comparing Cloud Firewalls to Linux firewall software](https://techdocs.akamai.com/cloud-computing/docs/comparing-cloud-firewalls-to-linux-firewall-software)
+
+[Rebuild a Linode（重建）](https://techdocs.akamai.com/cloud-computing/docs/rebuild-a-compute-instance)
 
 [Linode VPC(私有網路) 筆記](Linode_VPC(私有網路).md)
 
@@ -65,6 +68,47 @@ Linode Plan
 
 Private IP: 開啟內網IP功能，讓內網的伺服器可以溝通。
 ```
+
+## 重建 Rebuild（還原初始化）
+
+把主機還原成剛開好的狀態：刪除所有磁碟資料，用指定映像重新安裝系統。
+
+- **保留**：IP、方案規格、Linode ID、Region（DNS 不用改）
+- **清除**：所有磁碟與資料，**無法復原**
+- 適用：測試機重來、系統弄亂想重灌。測試用機不需要保留資料時可直接重建，免備份
+- 正式機重建前先備份要留的資料（設定檔、網站、資料庫匯出）
+
+Cloud Manager 操作：
+
+```
+Linodes → 點選主機 → 右上角「⋯」→ Rebuild
+→ 選映像（例如 Ubuntu 24.04）→ 設定 root 密碼、勾選 SSH Key
+→ 輸入主機名稱確認 → Rebuild（自動關機、重建、開機，約數分鐘）
+```
+
+linode-cli 指令見 [linode-cli 筆記](Linode_工具_linode-cli(Linode（Akamai_Cloud）官方命令列工具).md)「重建主機」。
+
+重建後：
+
+```bash
+# 主機指紋已變，先刪除本機舊紀錄，否則 SSH 會出現 REMOTE HOST IDENTIFICATION HAS CHANGED 警告
+ssh-keygen -R <IP>
+ssh root@<IP>
+
+apt update && apt upgrade -y
+```
+
+接著重新做初始化（新使用者、防火牆、關閉密碼登入等）。
+
+做法比較：
+
+| 做法 | 適用情境 | IP |
+|---|---|---|
+| Rebuild | 想要乾淨的新系統 | 不變 |
+| 從 Backups 還原（Backups 分頁 → Restore → 覆蓋現有 Linode） | 回到某個備份時間點（需已開 Backups 服務） | 不變 |
+| 刪除主機再新建 | 不在意 IP | **會變** |
+
+- Rebuild 後 Backups 服務中的舊備份是否保留，以官方文件為準；需要時先另拍一份 Snapshot
 
 # 網路介面（Linode Interfaces / Configuration Profile）
 

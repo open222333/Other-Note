@@ -132,12 +132,14 @@
 | AGENTS.md、AI 代理指令檔、Codex/Cursor/Gemini CLI 共用規則、AGENTS.md vs CLAUDE.md | [AGENTS_md(AI代理指令檔)](01_程式語言/AI/AGENTS_md(AI代理指令檔).md) |
 | Claude Code subagent、主機巡檢、多主機異常檢查、claude -p 排程、.claude/agents | [Claude_Code_主機巡檢(多主機異常檢查)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Code_主機巡檢(多主機異常檢查).md) |
 | 主機巡檢系統設計文件、告警狀態機、alert_key 去重、資料模型（PostgreSQL / MySQL / SQLite / MongoDB）、介面契約、驗收測試 | [AI_主機巡檢系統設計(系統設計文件)](01_程式語言/AI/AI_主機巡檢系統設計(系統設計文件).md) |
+| AI 免費額度輪換、多家 LLM 輪流、Gemini / Groq / Cerebras / OpenRouter、429 冷卻、Redis、工具呼叫、Discord /ask、每人限流 | [AI_免費額度輪換問答設計(系統設計文件)](01_程式語言/AI/AI_免費額度輪換問答設計(系統設計文件).md) |
 | Claude API tool use、主機巡檢系統 Python 參考實作、外掛式檢查項目 / 回報方式、Telegram / webhook 告警 | [Claude_API_主機巡檢系統(可擴充架構)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_API_主機巡檢系統(可擴充架構).md) |
 | 多人 AI 協作開發、Multi-Agent、AI IDE 共用 | [AI_多人協作開發架構(團隊AI整合)](01_程式語言/AI/AI_多人協作開發架構(團隊AI整合).md) |
 | 金流串接、綠界 ECPay、藍新 NewebPay、歐付寶、電子發票 | [API_金流串接總覽](00_其他(工具_應用程式_網站)/串接API(第三方API串接)/金流(金流API)/API_金流串接總覽.md) |
 | 外送串接、UberEats、Foodpanda | [API_外送平台串接總覽](00_其他(工具_應用程式_網站)/串接API(第三方API串接)/外送平台(外送API)/API_外送平台串接總覽.md) |
 | Linode VPC、子網路、VLAN、Private IP、1:1 NAT、手動指定 VPC IP、VPC 防火牆搭配、不同 VPC 互連、CIDR 網段規劃、Invalid filterable vpc_type、not in the allowed VPC ranges、只有 VPC 網卡 SSH timeout、公網 IP 灰色、linode-cli vpcs | [Linode_VPC(私有網路)](04_雲端平台(CloudPlatform)/Linode/Linode_VPC(私有網路).md) |
 | Linode Cloud Firewall、Linode Interfaces vs Configuration Profile、主機防火牆搭配 | [Linode_筆記](04_雲端平台(CloudPlatform)/Linode/Linode_筆記.md)（見「網路介面」「Firewall」章節） |
+| Linode 重建、Rebuild、還原初始化、清空主機重裝系統、IP 不變、ssh-keygen -R | [Linode_筆記](04_雲端平台(CloudPlatform)/Linode/Linode_筆記.md)（見「重建 Rebuild（還原初始化）」章節） |
 | 雲端主機比價、Hetzner/Vultr/DigitalOcean/Azure VM | [04_雲端平台(CloudPlatform)_總覽](04_雲端平台(CloudPlatform)/04_雲端平台(CloudPlatform)_總覽.md) |
 | Fail2Ban、封鎖 IP、jail.local、unbanip、ignoreip、永久封鎖、bantime -1、dbpurgeage | [Linux_工具_Fail2Ban(防止暴力破解攻擊)](02_作業系統/Unix/Linux/Linux_工具/Linux_防止暴力破解攻擊/Linux_工具_Fail2Ban(防止暴力破解攻擊).md) |
 | SSH 暴力破解、Failed password、關閉密碼登入、PasswordAuthentication、攻擊 IP 排行 | [Linux_工具_OpenSSL_OpenSSH(連線、密鑰)](02_作業系統/Unix/Linux/Linux_工具/Linux_SSH_工具/Linux_工具_OpenSSL_OpenSSH(連線、密鑰).md)（見「排查 SSH 暴力破解」章節） |

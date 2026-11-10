@@ -23,6 +23,8 @@ Google DeepMind 開發的多模態 AI，深度整合 Google 生態系
 
 [Gemini API 文件](https://ai.google.dev/docs)
 
+[AI 免費額度輪換問答設計（多家免費額度輪流）](../../../01_程式語言/AI/AI_免費額度輪換問答設計(系統設計文件).md)
+
 # 模型版本
 
 | 模型 | Model ID | 特性 |
