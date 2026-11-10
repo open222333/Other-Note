@@ -1,6 +1,7 @@
 # Windows 工具 Rufus(製作可開機的 USB 磁碟機)
 
 ```
+Rufus：製作可開機 USB 磁碟機的 Windows 工具（待補充）。
 ```
 
 ## 目錄

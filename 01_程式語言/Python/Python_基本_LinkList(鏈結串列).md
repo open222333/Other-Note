@@ -1,6 +1,7 @@
 # Python 基本 LinkList(鏈結串列)
 
 ```
+Python 實作鏈結串列（Linked List）。
 ```
 
 ## 目錄

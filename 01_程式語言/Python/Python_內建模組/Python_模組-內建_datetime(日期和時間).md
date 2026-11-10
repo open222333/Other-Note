@@ -1,6 +1,7 @@
 # Python 模組-內建 datetime(日期和時間)
 
 ```
+datetime：Python 內建日期與時間處理。
 ```
 
 ## 目錄

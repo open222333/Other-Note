@@ -1,6 +1,7 @@
 # Python 模組 Finlab(股票)
 
 ```
+FinLab：台股資料與回測的 Python 套件。
 ```
 
 ## 目錄

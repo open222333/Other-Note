@@ -1,6 +1,7 @@
 # Python 模組-內建 functools(高階函數)
 
 ```
+functools：Python 內建高階函數工具（partial、lru_cache 等）。
 ```
 
 ## 目錄

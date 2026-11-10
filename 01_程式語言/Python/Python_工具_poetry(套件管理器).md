@@ -1,6 +1,7 @@
 # Python 工具 poetry(套件管理器)
 
 ```
+Poetry：Python 套件與虛擬環境管理工具的指令與用法。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # Git Bucket 筆記
 
 ```
+Bitbucket 筆記：webhook 建立與接收、code review 流程、認證方式（App Password 已停用，改用 API Token）。
 ```
 
 ## 目錄

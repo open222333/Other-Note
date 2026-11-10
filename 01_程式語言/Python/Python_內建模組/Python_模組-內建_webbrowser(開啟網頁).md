@@ -1,6 +1,7 @@
 # Python 模組-內建 webbrowser(開啟網頁)
 
 ```
+webbrowser：Python 內建以預設瀏覽器開啟網頁。
 ```
 
 ## 目錄

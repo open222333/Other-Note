@@ -1,6 +1,7 @@
 # Python 模組 paramiko(遠端 ssh)
 
 ```
+Paramiko：Python SSH 連線，含金鑰登入、上傳下載檔案與遠端執行 docker 指令。
 ```
 
 ## 目錄

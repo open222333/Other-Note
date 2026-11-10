@@ -1,6 +1,7 @@
 # Linux 工具 apt-get(套件管理器)
 
 ```
+apt-get：Debian / Ubuntu 套件管理器常用指令。
 ```
 
 ## 目錄

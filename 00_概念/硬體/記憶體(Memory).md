@@ -1,6 +1,7 @@
 # 記憶體(Memory)
 
 ```
+記憶體概念：快取記憶體（Cache memory）與實體記憶體（Physical memory）的差異。
 ```
 
 ## 目錄

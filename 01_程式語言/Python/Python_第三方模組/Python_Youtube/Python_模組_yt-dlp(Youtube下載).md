@@ -1,6 +1,7 @@
 # Python 模組 yt-dlp(Youtube下載)
 
 ```
+yt-dlp：YouTube 等影片下載工具，含提取資訊、下載與 cookies / OAuth 相關例外處理。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # compare & sync folders(Mac 同步工具)
 
 ```
+Compare & Sync Folders：macOS 資料夾比對與同步工具，說明各種同步規則（單向 / 雙向、是否追蹤刪除）。
 ```
 
 ## 目錄

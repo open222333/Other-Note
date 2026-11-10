@@ -1,6 +1,7 @@
 # Linux 工具 snappy(套件管理器)
 
 ```
+snap：Ubuntu snap 套件管理器常用指令。
 ```
 
 ## 目錄

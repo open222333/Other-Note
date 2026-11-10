@@ -1,6 +1,7 @@
 # Python 模組 opentelemetry(監控開源項目)
 
 ```
+OpenTelemetry Python：Traces / Metrics 收集與以 OTLP 匯出遙測資料（Flask 範例）。
 ```
 
 ## 目錄

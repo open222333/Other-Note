@@ -1,6 +1,7 @@
 # OpenAI()
 
 ```
+OpenAI：OpenAI 服務與 API 相關筆記（待補充）。
 ```
 
 ## 目錄

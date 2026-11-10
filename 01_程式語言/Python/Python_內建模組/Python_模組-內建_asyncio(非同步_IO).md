@@ -1,6 +1,7 @@
 # Python 模組-內建 asyncio(非同步 I/O)
 
 ```
+asyncio：Python 內建非同步 I/O 的用法。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # Python 模組 pymediainfo(影片)
 
 ```
+pymediainfo：以 Python 讀取影片 / 音訊檔的媒體資訊。
 ```
 
 ## 目錄

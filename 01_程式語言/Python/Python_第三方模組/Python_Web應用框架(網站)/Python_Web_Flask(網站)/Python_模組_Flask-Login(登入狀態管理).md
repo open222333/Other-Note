@@ -1,6 +1,7 @@
 # Python 模組 Flask-Login(登入狀態管理)
 
 ```
+Flask-Login：Flask 使用者登入狀態管理。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # Homebrew 筆記
 
 ```
+Homebrew：macOS 套件管理器，含安裝、環境變數、常用指令與 formula 說明。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # Windows Server 筆記
 
 ```
+Windows Server 筆記（待補充）。
 ```
 
 ## 目錄

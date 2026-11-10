@@ -1,6 +1,7 @@
 # Porkbun(域名註冊)
 
 ```
+Porkbun：域名註冊商，購買域名並將 DNS 交給 Cloudflare 管理的步驟。
 ```
 
 ## 目錄

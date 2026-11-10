@@ -1,6 +1,7 @@
 # Python 模組-內建 argparse(命令列解析模組)
 
 ```
+argparse：Python 內建命令列參數解析，含限制、分組與參數相依的寫法。
 ```
 
 ## 目錄

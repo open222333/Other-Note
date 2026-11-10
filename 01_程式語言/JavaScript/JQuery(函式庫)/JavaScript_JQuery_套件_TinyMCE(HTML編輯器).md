@@ -1,6 +1,7 @@
 # JavaScript JQuery 套件 TinyMCE(HTML編輯器)
 
 ```
+TinyMCE：jQuery / JavaScript 的 HTML 所見即所得編輯器（待補充）。
 ```
 
 ## 目錄

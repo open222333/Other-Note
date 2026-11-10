@@ -1,6 +1,7 @@
 # 樹莓派(Raspberry Pi)
 
 ```
+樹莓派（Raspberry Pi）筆記（待補充）。
 ```
 
 ## 目錄

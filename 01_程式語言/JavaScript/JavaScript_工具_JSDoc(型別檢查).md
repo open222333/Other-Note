@@ -1,6 +1,7 @@
 # JavaScript 工具 JSDoc(型別檢查)
 
 ```
+JSDoc：以註解標註型別（@type、@param、@typedef、@callback、@class 等）做型別檢查。
 ```
 
 ## 目錄

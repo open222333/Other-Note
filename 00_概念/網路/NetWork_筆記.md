@@ -1,6 +1,7 @@
 # NetWork 筆記()
 
 ```
+網路基礎筆記：IP、IPv4 / IPv6、常見連線錯誤（CDN 50x、ERR_CONNECTION_RESET、DNS_PROBE_FINISHED_NXDOMAIN）與檢測流程。
 ```
 
 ## 目錄

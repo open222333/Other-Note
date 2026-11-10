@@ -1,6 +1,7 @@
 # Python 模組 OpenCV(圖像處理)
 
 ```
+OpenCV：Python 圖像處理套件的安裝與用法。
 ```
 
 ## 目錄

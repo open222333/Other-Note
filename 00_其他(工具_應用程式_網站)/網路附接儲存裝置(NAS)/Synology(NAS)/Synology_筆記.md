@@ -1,6 +1,7 @@
 # Synology 筆記
 
 ```
+Synology NAS 筆記（待補充）。
 ```
 
 ## 目錄

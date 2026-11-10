@@ -1,6 +1,7 @@
 # Github(版本紀錄)
 
 ```
+GitHub：以令牌（token）驗證身分、.gitignore 模板。
 ```
 
 ## 目錄

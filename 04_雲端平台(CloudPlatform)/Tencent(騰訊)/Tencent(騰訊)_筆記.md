@@ -1,6 +1,7 @@
 # Tencent(騰訊) 筆記
 
 ```
+騰訊雲 API：官方簽名流程（Canonical Request）與查詢帳戶剩餘金額。
 ```
 
 ## 目錄

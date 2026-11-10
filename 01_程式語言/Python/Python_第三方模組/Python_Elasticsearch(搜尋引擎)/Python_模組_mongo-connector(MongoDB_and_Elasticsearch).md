@@ -1,6 +1,7 @@
 # Python 模組 mongo-connector(MongoDB and Elasticsearch)
 
 ```
+mongo-connector：將 MongoDB 資料即時同步到 Elasticsearch 的工具，含設定檔。
 ```
 
 ## 目錄

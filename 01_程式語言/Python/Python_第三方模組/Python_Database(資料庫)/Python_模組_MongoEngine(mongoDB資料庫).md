@@ -1,6 +1,7 @@
 # Python 模組 MongoEngine(mongoDB資料庫)
 
 ```
+MongoEngine：Python MongoDB ODM，含欄位運算子查詢、Q 物件組合條件與 EmbeddedDocument 用法。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # Java 工具 gradle(建制專案)
 
 ```
+Gradle：Java 專案建置工具的用法。
 ```
 
 ## 目錄

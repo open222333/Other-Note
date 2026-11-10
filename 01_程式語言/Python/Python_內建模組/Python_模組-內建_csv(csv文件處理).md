@@ -1,6 +1,7 @@
 # Python 模組-內建 csv(csv文件處理)
 
 ```
+csv：Python 內建 CSV 檔案讀寫。
 ```
 
 ## 目錄

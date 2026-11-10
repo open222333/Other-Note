@@ -1,6 +1,7 @@
 # Python 模組 googletrans(免費翻譯套件)
 
 ```
+googletrans：免費 Google 翻譯 Python 套件。
 ```
 
 ## 目錄

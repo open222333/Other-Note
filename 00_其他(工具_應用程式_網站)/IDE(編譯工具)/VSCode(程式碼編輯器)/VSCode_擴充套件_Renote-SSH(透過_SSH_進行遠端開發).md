@@ -1,6 +1,7 @@
 # VSCode 擴充套件 Renote-SSH(透過 SSH 進行遠端開發)
 
 ```
+VSCode 擴充套件 Remote-SSH：透過 SSH 在遠端主機開發，含金鑰建立與連線設定。
 ```
 
 ## 目錄

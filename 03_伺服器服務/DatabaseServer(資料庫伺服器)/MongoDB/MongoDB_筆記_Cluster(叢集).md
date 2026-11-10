@@ -1,6 +1,7 @@
 # MongoDB 筆記 Cluster(叢集)
 
 ```
+MongoDB 叢集（Sharded Cluster）筆記（待補充）。
 ```
 
 ## 目錄

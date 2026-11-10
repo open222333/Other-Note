@@ -1,6 +1,7 @@
 # Linux 工具 firewall-cmd(防火牆)
 
 ```
+firewall-cmd：firewalld 防火牆（RedHat / CentOS）規則管理。
 ```
 
 ## 目錄

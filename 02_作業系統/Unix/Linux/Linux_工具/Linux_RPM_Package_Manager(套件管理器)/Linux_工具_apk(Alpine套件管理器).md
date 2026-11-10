@@ -1,6 +1,7 @@
 # Linux 工具 apk(Alpine套件管理器)
 
 ```
+apk：Alpine Linux 套件管理器，含軟體儲存庫設定與指令。
 ```
 
 ## 目錄

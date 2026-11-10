@@ -1,6 +1,7 @@
 # redoc(API文檔編寫工具)
 
 ```
+ReDoc：以 OpenAPI 規格產生 API 文件網頁的工具（待補充）。
 ```
 
 ## 目錄

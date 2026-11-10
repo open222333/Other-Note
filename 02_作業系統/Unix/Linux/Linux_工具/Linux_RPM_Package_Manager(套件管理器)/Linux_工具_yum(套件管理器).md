@@ -1,6 +1,7 @@
 # Linux 工具 yum(套件管理器)
 
 ```
+yum：RedHat / CentOS 套件管理器，含 EPEL 擴充庫與常用指令。
 ```
 
 ## 目錄

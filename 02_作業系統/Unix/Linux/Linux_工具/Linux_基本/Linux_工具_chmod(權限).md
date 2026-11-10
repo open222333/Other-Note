@@ -1,6 +1,7 @@
 # Linux 工具 chmod(權限)
 
 ```
+chmod / chown：Linux 檔案權限與擁有者設定。
 ```
 
 ## 目錄

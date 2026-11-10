@@ -1,6 +1,7 @@
 # PHP Laravel laravel-admin 筆記
 
 ```
+laravel-admin：Laravel 後台管理套件，含安裝、常用指令、Controller / Route API 與 Sanctum 驗證流程。
 ```
 
 路由慣例 筆記(非必要)

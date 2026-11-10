@@ -1,6 +1,7 @@
 # JavaScript 內建-物件 Date(日期與時間)
 
 ```
+JavaScript 內建 Date 物件：日期時間處理與時間運算。
 ```
 
 ## 目錄

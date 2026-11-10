@@ -1,6 +1,7 @@
 # JavaScript Node 模組 element-plus(UI元素)
 
 ```
+Element Plus：Vue 3 UI 元件庫，含安裝與瀏覽器直接引入方式。
 ```
 
 ## 目錄

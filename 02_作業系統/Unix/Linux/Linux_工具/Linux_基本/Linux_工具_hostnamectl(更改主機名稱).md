@@ -1,6 +1,7 @@
 # Linux 工具 hostnamectl(更改主機名稱)
 
 ```
+hostnamectl：查看與修改 Linux 主機名稱。
 ```
 
 ## 目錄

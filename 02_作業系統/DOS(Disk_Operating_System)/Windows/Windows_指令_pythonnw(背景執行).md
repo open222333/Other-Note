@@ -1,6 +1,7 @@
 # Windows 指令 pythonnw(背景執行)\
 
 ```
+pythonw：在 Windows 背景執行 Python 程式（不開主控台視窗）。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # Python 模組 pycryptodome(加密演算法)
 
 ```
+PyCryptodome：Python 加密套件，含 AES 加解密、SHA-256 雜湊與 RSA 加解密。
 ```
 
 ## 目錄

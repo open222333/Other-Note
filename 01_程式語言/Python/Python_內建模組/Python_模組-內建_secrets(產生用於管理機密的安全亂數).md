@@ -1,6 +1,7 @@
 # Python 模組-內建 secrets(產生用於管理機密的安全亂數)
 
 ```
+secrets：Python 內建產生安全亂數（token、密碼）。
 ```
 
 ## 目錄

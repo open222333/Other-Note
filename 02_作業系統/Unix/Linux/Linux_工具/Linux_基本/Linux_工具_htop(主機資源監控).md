@@ -1,6 +1,7 @@
 # Linux 工具 top htop(主機資源監控)
 
 ```
+top / htop：Linux 主機資源監控，含 htop 安裝與設定檔位置。
 ```
 
 ## 目錄

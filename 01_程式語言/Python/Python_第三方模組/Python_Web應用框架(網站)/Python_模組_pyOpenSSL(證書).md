@@ -1,6 +1,7 @@
 # Python 模組 pyOpenSSL(證書)
 
 ```
+pyOpenSSL：Python 處理 SSL 憑證。
 ```
 
 ## 目錄

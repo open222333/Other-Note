@@ -1,6 +1,7 @@
 # Python 模組 GoogleAPI Drive(雲端硬碟)
 
 ```
+Google Drive API：以 Python 驗證並下載 Google 雲端硬碟檔案。
 ```
 
 ## 目錄

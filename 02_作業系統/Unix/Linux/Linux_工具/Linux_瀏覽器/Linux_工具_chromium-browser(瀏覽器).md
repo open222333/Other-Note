@@ -1,6 +1,7 @@
 # Linux 工具 chromium-browser(瀏覽器)
 
 ```
+chromium-browser：Linux 安裝 Chromium（無頭瀏覽器）與服務操作。
 ```
 
 ## 目錄

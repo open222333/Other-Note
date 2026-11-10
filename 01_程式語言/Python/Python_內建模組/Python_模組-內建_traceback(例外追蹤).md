@@ -1,6 +1,7 @@
 # Python 模組-內建 traceback(例外追蹤)
 
 ```
+traceback：Python 內建例外追蹤與錯誤堆疊輸出。
 ```
 
 ## 目錄

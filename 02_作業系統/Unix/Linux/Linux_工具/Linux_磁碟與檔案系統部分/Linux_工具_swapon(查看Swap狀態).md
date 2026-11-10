@@ -1,6 +1,7 @@
 # Linux 工具 swapon(查看Swap狀態)
 
 ```
+swapon：查看與啟用 Linux Swap。
 ```
 
 ## 目錄

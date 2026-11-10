@@ -1,6 +1,7 @@
 # Python 模組 pymysql(MySQL資料庫)
 
 ```
+PyMySQL：Python 連線 MySQL，含建表、新增、查詢與 Flask current_app 搭配。
 ```
 
 ## 目錄

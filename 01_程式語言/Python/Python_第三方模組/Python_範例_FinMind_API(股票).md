@@ -1,6 +1,7 @@
 # Python 範例 FinMind_API(股票)
 
 ```
+FinMind API：台股資料 API 的 Python 使用範例（待補充）。
 ```
 
 ## 目錄

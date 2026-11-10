@@ -1,6 +1,7 @@
 # Cloudflare Registrar(域名註冊)
 
 ```
+Cloudflare Registrar：以成本價註冊域名，含購買、DNS 設定與從其他域名商轉移的步驟。
 ```
 
 ## 目錄

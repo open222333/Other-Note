@@ -1,6 +1,7 @@
 # SublimeText3 筆記
 
 ```
+Sublime Text 3：快捷鍵與設定檔紀錄。
 ```
 
 ## 目錄

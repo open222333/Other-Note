@@ -1,6 +1,7 @@
 # Python 模組 tencentcloud-sdk-python(騰訊雲SDK)
 
 ```
+騰訊雲 Python SDK：CDN 預熱自動化流程與腳本。
 ```
 
 ## 目錄

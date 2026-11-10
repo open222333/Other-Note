@@ -1,6 +1,7 @@
 # Linux RockyLinux 筆記
 
 ```
+Rocky Linux 筆記（待補充）。
 ```
 
 ## 目錄

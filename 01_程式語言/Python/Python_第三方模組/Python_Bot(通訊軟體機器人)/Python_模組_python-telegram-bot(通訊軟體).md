@@ -1,6 +1,7 @@
 # Python 模組 python-telegram-bot(通訊軟體)
 
 ```
+python-telegram-bot：建立 Telegram 機器人、取得聊天 ID 與基本用法。
 ```
 
 ## 目錄

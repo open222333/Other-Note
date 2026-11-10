@@ -1,6 +1,7 @@
 # JavaScript 基本 函式 Function
 
 ```
+JavaScript 函式：宣告、運算式、箭頭函式、巢狀函式與各種調用方式。
 ```
 
 ## 目錄

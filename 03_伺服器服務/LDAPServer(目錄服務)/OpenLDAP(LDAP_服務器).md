@@ -1,6 +1,7 @@
 # OpenLDAP(LDAP 服務器)
 
 ```
+OpenLDAP：LDAP 目錄服務的安裝、設定、服務操作與以 LDIF 新增用戶。
 ```
 
 ## 目錄

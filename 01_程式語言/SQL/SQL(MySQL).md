@@ -1,6 +1,7 @@
 # SQL(MySQL)
 
 ```
+MySQL 常用查詢：取得表格結構、計算筆數、LIKE / REGEXP 搜尋等。
 ```
 
 ## 目錄

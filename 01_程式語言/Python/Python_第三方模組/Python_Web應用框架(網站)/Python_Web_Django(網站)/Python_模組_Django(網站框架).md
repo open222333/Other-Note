@@ -1,6 +1,7 @@
 # Python 模組 Django(網站框架)
 
 ```
+Django：Python 網站框架的指令與基本用法。
 ```
 
 ## 目錄

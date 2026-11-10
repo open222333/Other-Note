@@ -1,6 +1,7 @@
 # Chrome(Google瀏覽器)
 
 ```
+Chrome 開發者工具：查看 SSL 憑證資訊、用 Network 分頁追蹤實際呼叫的 API。
 ```
 
 ## 目錄

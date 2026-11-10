@@ -1,6 +1,7 @@
 # Linux 工具 OpenSSL OpenSSH(連線、密鑰)
 
 ```
+OpenSSL / OpenSSH：金鑰與憑證產生、ssh / scp / ssh-copy-id / sshpass 連線與傳檔。
 ```
 
 > 適用版本：部分內容以 CentOS 7 撰寫（已停止維護），新版系統的套件名稱與指令可能不同

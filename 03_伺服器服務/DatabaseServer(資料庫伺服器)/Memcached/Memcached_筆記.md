@@ -1,6 +1,7 @@
 # Memcached 筆記
 
 ```
+Memcached：開機啟動方式與設定檔位置。
 ```
 
 ## 目錄

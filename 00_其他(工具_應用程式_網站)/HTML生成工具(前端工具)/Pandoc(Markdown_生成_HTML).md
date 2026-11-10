@@ -1,6 +1,7 @@
 # Pandoc(Markdown 生成 HTML)
 
 ```
+Pandoc：文件格式轉換工具（Markdown 轉 HTML 等），含安裝與指令。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # SQLite3 筆記
 
 ```
+SQLite3：安裝、DB Browser for SQLite、常用指令與 Docker 視覺化介面。
 ```
 
 ## 目錄

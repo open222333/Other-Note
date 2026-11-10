@@ -1,6 +1,7 @@
 # Java 函式庫-內建 net 類別 HttpURLConnection(HTTP工具)
 
 ```
+Java 內建 HttpURLConnection 發送 HTTP 請求的用法。
 ```
 
 ## 目錄

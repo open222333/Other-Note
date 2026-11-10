@@ -1,6 +1,7 @@
 # Python 模組 scp(ssh遠端傳輸)
 
 ```
+scp：Python 透過 SSH 傳輸檔案。
 ```
 
 ## 目錄

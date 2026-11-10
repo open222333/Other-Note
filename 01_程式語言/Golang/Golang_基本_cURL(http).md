@@ -1,6 +1,7 @@
 # Golang 基本 cURL(http)
 
 ```
+Go 以 net/http 發送 HTTP 請求：GET、POST、Basic Auth。
 ```
 
 ## 目錄

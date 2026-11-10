@@ -1,6 +1,7 @@
 # Python 模組-內建 time(時間)
 
 ```
+time：Python 內建時間處理。
 ```
 
 ## 目錄

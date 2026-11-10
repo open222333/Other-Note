@@ -1,6 +1,7 @@
 # MySQL 工具 Adminer(輕量級MySQL管理工具)
 
 ```
+Adminer：單一 PHP 檔的輕量資料庫管理工具（待補充）。
 ```
 
 ## 目錄

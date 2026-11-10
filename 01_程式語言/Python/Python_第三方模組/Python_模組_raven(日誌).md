@@ -1,6 +1,7 @@
 # Python 模組 raven(日誌)
 
 ```
+raven：Sentry 的舊版 Python 日誌回報客戶端。
 ```
 
 ## 目錄

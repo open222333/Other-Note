@@ -1,6 +1,7 @@
 # Python 模組 line-bot-sdk(通訊軟體)
 
 ```
+line-bot-sdk：LINE 聊天機器人 Python SDK 的安裝與用法。
 ```
 
 ## 目錄

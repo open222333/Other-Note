@@ -1,6 +1,7 @@
 # Python 模組-內建 platform(獲取作業系統數據)
 
 ```
+platform：Python 內建取得作業系統與硬體資訊。
 ```
 
 ## 目錄

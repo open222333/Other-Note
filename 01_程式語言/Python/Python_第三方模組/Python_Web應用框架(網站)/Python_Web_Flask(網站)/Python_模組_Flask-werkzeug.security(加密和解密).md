@@ -1,6 +1,7 @@
 # Python 模組 Flask-werkzeug.security(加密和解密)
 
 ```
+werkzeug.security：Flask 密碼雜湊與驗證。
 ```
 
 ## 目錄

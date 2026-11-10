@@ -1,6 +1,7 @@
 # Python 模組-內建 multiprocessing(多程序並行)
 
 ```
+multiprocessing：Python 內建多程序並行。
 ```
 
 ## 目錄

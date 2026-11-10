@@ -1,6 +1,7 @@
 # JavaScript Node 內建-模組 fs(操作實體檔案)
 
 ```
+Node.js 內建 fs 模組：檔案讀寫操作。
 ```
 
 ## 目錄

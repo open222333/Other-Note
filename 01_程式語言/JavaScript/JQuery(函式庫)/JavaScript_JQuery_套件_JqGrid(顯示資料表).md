@@ -1,6 +1,7 @@
 # JavaScript JQuery 套件 JqGrid(顯示資料表)
 
 ```
+jqGrid：jQuery 資料表格套件，含使用步驟、複選框與範例。
 ```
 
 ## 目錄

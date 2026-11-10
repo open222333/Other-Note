@@ -1,6 +1,7 @@
 # Python 模組 OpenCC(簡轉繁)
 
 ```
+OpenCC：簡繁中文轉換。
 ```
 
 ## 目錄

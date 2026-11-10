@@ -1,6 +1,7 @@
 # Python 模組 tqdm(進度條)
 
 ```
+tqdm：Python 進度條，含 for 迴圈、手動更新、enumerate 與描述文字設定。
 ```
 
 ## 目錄

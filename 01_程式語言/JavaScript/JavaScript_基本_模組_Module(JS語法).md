@@ -1,6 +1,7 @@
 # JavaScript 基本 模組 Module
 
 ```
+JavaScript 模組：Closure 模組、Node（CommonJS）與 ES6 的匯出 / 匯入。
 ```
 
 ## 目錄

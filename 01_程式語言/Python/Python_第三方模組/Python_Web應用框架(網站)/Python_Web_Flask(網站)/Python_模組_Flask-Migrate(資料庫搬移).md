@@ -1,6 +1,7 @@
 # Python 模組 Flask-Migrate(資料庫搬移)
 
 ```
+Flask-Migrate：Flask 以 Alembic 做資料庫結構搬移（migration）。
 ```
 
 ## 目錄

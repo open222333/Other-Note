@@ -1,6 +1,7 @@
 # VSCode 擴充套件 Markdown Preview Enhanced(Markdown 插件)
 
 ```
+VSCode 擴充套件 Markdown Preview Enhanced：Markdown 預覽、自訂 CSS 與匯出 HTML。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # PHP Lumen lumen-admin 筆記
 
 ```
+lumen-admin：Lumen 後台管理套件的安裝與指令。
 ```
 
 ## 目錄

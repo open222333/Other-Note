@@ -1,6 +1,7 @@
 # Python 模組 matplotlib(numpy繪圖)
 
 ```
+Matplotlib：Python 繪圖（搭配 NumPy）。
 ```
 
 ## 目錄

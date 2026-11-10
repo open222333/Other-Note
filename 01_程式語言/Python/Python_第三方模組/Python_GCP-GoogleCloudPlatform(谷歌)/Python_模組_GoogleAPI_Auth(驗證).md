@@ -1,6 +1,7 @@
 # Python 模組 GoogleAPI Auth(驗證)
 
 ```
+Google API 驗證：以 Google API 客戶端程式庫進行 OAuth 驗證，含官方快速開始與 Drive 下載範例。
 ```
 
 ## 目錄

@@ -1,6 +1,7 @@
 # Linode 工具 linode-cli(Linode（Akamai Cloud）官方命令列工具)
 
 ```
+linode-cli：Linode（Akamai Cloud）官方命令列工具，管理主機、備份、磁碟 / Volume、防火牆與 IP。
 ```
 
 linode-cli 可以做什麼

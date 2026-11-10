@@ -1,6 +1,7 @@
 # Python 模組 pyinstaller(打包windows exe)
 
 ```
+PyInstaller：將 Python 程式打包成 Windows exe 等執行檔。
 ```
 
 ## 目錄

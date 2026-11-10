@@ -1,6 +1,7 @@
 # Linux 工具 history(操作記錄 bash_history)
 
 ```
+history：Linux 操作記錄（bash_history）與相關環境變數。
 ```
 
 ## 目錄

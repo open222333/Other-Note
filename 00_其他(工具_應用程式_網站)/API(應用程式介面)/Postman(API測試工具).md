@@ -1,6 +1,7 @@
 # Postman(API測試工具)
 
 ```
+Postman：API 測試工具，記錄 Postman Collection 轉換成 Markdown API 文件的做法。
 ```
 
 ## 目錄

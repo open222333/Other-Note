@@ -1,6 +1,7 @@
 # Python 模組 GitPython(git套件)
 
 ```
+GitPython：以 Python 操作 Git 儲存庫。
 ```
 
 ## 目錄

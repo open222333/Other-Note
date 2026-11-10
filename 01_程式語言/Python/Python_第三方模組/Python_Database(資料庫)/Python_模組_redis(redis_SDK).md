@@ -1,6 +1,7 @@
 # Python 模組 redis(redis SDK)
 
 ```
+redis-py：Python Redis 客戶端，含 Hash、Sorted Set、遞增計數與 Redis Cluster 自動 failover。
 ```
 
 ## 目錄

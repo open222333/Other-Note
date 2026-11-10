@@ -1,6 +1,7 @@
 # Python 模組 cloudscraper(解決CLOUD FLARE反爬蟲)
 
 ```
+cloudscraper：繞過 Cloudflare 反爬蟲的 requests 替代套件，含 Cookies、代理與 FlareSolverr 設定。
 ```
 
 ## 目錄

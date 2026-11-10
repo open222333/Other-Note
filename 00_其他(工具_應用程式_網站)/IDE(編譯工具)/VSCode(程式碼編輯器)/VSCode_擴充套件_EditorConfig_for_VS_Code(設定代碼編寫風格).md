@@ -1,6 +1,7 @@
 # VSCode 擴充套件 EditorConfig for VS Code(設定代碼編寫風格)
 
 ```
+VSCode 擴充套件 EditorConfig：以 .editorconfig 統一團隊程式碼風格，含設定範例。
 ```
 
 ## 目錄

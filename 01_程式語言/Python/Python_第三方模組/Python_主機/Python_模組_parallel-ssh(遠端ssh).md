@@ -1,6 +1,7 @@
 # Python 模組 parallel-ssh(遠端ssh)
 
 ```
+parallel-ssh：Python 同時對多台主機執行 SSH 指令。
 ```
 
 ## 目錄

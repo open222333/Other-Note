@@ -1,6 +1,7 @@
 # apiDoc(API文檔編寫工具 js)
 
 ```
+apiDoc：以程式碼註解產生 API 文件的工具，含安裝、指令與 apidoc.js 註解範例。
 ```
 
 ## 目錄

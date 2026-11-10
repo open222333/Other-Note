@@ -1,6 +1,7 @@
 # Python 模組 celery(排程)
 
 ```
+Celery：Python 分散式任務佇列與排程，含 bind=True 任務用法。
 ```
 
 ## 目錄

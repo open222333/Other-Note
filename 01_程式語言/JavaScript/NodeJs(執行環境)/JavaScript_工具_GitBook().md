@@ -1,6 +1,7 @@
 # JavaScript 工具 GitBook()
 
 ```
+GitBook：以 Markdown 產生電子書 / 文件網站，含安裝、用法與插件。
 ```
 
 ## 目錄

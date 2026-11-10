@@ -1,6 +1,7 @@
 # Python 模組 Pillow PLI(影像處理)
 
 ```
+Pillow：Python 影像處理，含判斷圖片是否正常與取得圖片資訊。
 ```
 
 ## 目錄

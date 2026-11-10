@@ -1,6 +1,7 @@
 # IntelliJ IDEA 筆記
 
 ```
+IntelliJ IDEA：Java IDE 使用筆記（.iml 專案檔）。
 ```
 
 ## 目錄

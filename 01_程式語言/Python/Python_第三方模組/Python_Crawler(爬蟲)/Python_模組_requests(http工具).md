@@ -1,6 +1,7 @@
 # Python 模組 requests(http工具)
 
 ```
+requests：Python HTTP 請求套件，含 GET / POST、Proxy、送出 raw data、HTTP/2 與模擬登入取得 cookies。
 ```
 
 ## 目錄
