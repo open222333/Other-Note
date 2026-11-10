@@ -3189,14 +3189,14 @@ curl -X GET "http://localhost:9200/_settings?pretty" > "index_setting_$(date +\%
 
 ```toml
 # 1. 拿掉 direct-read 限制（或擴充更多 namespaces）
-# direct-read-namespaces = ["avnight.animat_video"]
+# direct-read-namespaces = ["myapp.animat_video"]
 
 # 新版本才有
 # 2. 開啟 trace 紀錄 ES 錯誤
 trace = true
 
 # 3. 加上 change stream namespaces（或不指定就監控全部）
-change-stream-namespaces = ["avnight.animat_video"]
+change-stream-namespaces = ["myapp.animat_video"]
 
 # 4. 若要重新 direct-read 整份資料
 exit-after-direct-reads = true

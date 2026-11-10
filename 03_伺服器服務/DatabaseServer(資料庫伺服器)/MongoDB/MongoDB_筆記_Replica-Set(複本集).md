@@ -867,7 +867,7 @@ def _load_ini_section(path, section_name):
 
 def _conn_defaults(timeout):
     return {
-        "host": None, "port": 27017, "database": "avnight", "collection": None,
+        "host": None, "port": 27017, "database": "myapp", "collection": None,
         "username": None, "password": None, "auth_source": None, "replica_set": None,
         "ssh_host": None, "ssh_port": 22, "ssh_username": None, "ssh_password": None,
         "ssh_private_key_path": None, "ssh_private_key_passphrase": None,
@@ -879,7 +879,7 @@ def _apply_ini_section(conn, config_path, section_name):
     section = _load_ini_section(config_path, section_name)
     conn["host"] = section.get("HOST", "").strip() or None
     conn["port"] = section.getint("PORT", fallback=27017)
-    conn["database"] = section.get("DATABASE", fallback="avnight")
+    conn["database"] = section.get("DATABASE", fallback="myapp")
     conn["collection"] = section.get("COLLECTION", "").strip() or None
     conn["username"] = section.get("USERNAME", "").strip() or None
     conn["password"] = section.get("PASSWORD", "").strip() or None
@@ -1318,7 +1318,7 @@ def parse_args():
 
     parser.add_argument("--host", help="Mongo 主機（IP 或網域名稱），沒給 --config 時必填")
     parser.add_argument("--port", type=int, help="Mongo port，預設 27017")
-    parser.add_argument("--database", help="要測試查詢的資料庫名稱，預設 avnight")
+    parser.add_argument("--database", help="要測試查詢的資料庫名稱，預設 myapp")
     parser.add_argument("--collection", help="要測試查詢的 collection 名稱（不給就跳過查詢測試）")
     parser.add_argument("--username")
     parser.add_argument("--password")

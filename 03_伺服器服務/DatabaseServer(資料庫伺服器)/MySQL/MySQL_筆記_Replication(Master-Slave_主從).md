@@ -145,7 +145,7 @@ GTID 模式
     - [測試環境：清空資料庫後重建 REPLICA](#測試環境清空資料庫後重建-replica)
   - [修復 master slave Slave\_SQL\_Running: No, Slave\_IO\_Running: No 解決方案](#修復-master-slave-slave_sql_running-no-slave_io_running-no-解決方案)
   - [ERROR 1872 (HY000): Slave failed to initialize relay log info structure from the repository](#error-1872-hy000-slave-failed-to-initialize-relay-log-info-structure-from-the-repository)
-  - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table iavnight\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-iavnight_cpiad_process-the-table-ad_process-is-full-error_code-1114)
+  - [Error in applier for group\_replication\_recovery: Could not execute Write\_rows event on table imyapp\_cpi.ad\_process; The table 'ad\_process' is full, Error\_code: 1114](#error-in-applier-for-group_replication_recovery-could-not-execute-write_rows-event-on-table-imyapp_cpiad_process-the-table-ad_process-is-full-error_code-1114)
   - [Last\_Errno: 1594 Last\_SQL\_Errno: 1594](#last_errno-1594-last_sql_errno-1594)
     - [重建 Slave 的 relay log（最常用）](#重建-slave-的-relay-log最常用)
   - [Last\_Errno: 1032 主從資料不一致 (Replication Error 1032)](#last_errno-1032-主從資料不一致-replication-error-1032)
@@ -1296,7 +1296,7 @@ set global group_replication_group_name = "";
 dba.rebootClusterFromCompleteOutage()
 ```
 
-## Error in applier for group_replication_recovery: Could not execute Write_rows event on table iavnight_cpi.ad_process; The table 'ad_process' is full, Error_code: 1114
+## Error in applier for group_replication_recovery: Could not execute Write_rows event on table imyapp_cpi.ad_process; The table 'ad_process' is full, Error_code: 1114
 
 ```sql
 -- https://stackoverflow.com/questions/730579/1114-hy000-the-table-is-full
@@ -1330,7 +1330,7 @@ START SLAVE;
 
 ## Last_Errno: 1032 主從資料不一致 (Replication Error 1032)
 
-Last_Error: Could not execute Update_rows event on table avnight.member_log; Can't find record in 'member_log', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event's master log mysql-bin.000077, end_log_pos 309389912
+Last_Error: Could not execute Update_rows event on table myapp.member_log; Can't find record in 'member_log', Error_code: 1032; handler error HA_ERR_KEY_NOT_FOUND; the event's master log mysql-bin.000077, end_log_pos 309389912
 
 ```
 錯誤代碼: 1032
@@ -1344,7 +1344,7 @@ Percona Toolkit 裡有個工具 pt-table-sync，可以自動比對 Master/Slave 
 
 ```sh
 pt-table-sync --execute --verbose \
-  h=master_host,u=repl,p=xxx,D=avnight,t=member_check_in \
+  h=master_host,u=repl,p=xxx,D=myapp,t=member_check_in \
   h=slave_host,u=repl,p=xxx
 ```
 

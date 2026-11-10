@@ -239,19 +239,19 @@ QUIT
 避免 SMTP Command Pipelining 問題，逐行發送 SMTP 命令：
 
 ```
-HELO mail.lovecutesealbaby.com
+HELO mail.example.com
 ```
 
 收到回應：
 
 ```
-250 mail.lovecutesealbaby.com
+250 mail.example.com
 ```
 
 發送 MAIL FROM 命令：
 
 ```
-MAIL FROM:<test@lovecutesealbaby.com>
+MAIL FROM:<test@example.com>
 ```
 
 收到回應：
@@ -263,7 +263,7 @@ MAIL FROM:<test@lovecutesealbaby.com>
 發送 RCPT TO 命令：
 
 ```
-RCPT TO:<user@lovecutesealbaby.com>
+RCPT TO:<user@example.com>
 ```
 
 收到回應：

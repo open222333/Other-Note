@@ -1062,7 +1062,7 @@ git config --global credential.helper store
 	輸入
 	protocol=https
 	host=bitbucket.org
-	username=deploy@appdet.com
+	username=deploy@example.com
 	password=$password
 
 ```
@@ -1246,8 +1246,8 @@ git stash pop
 import os
 
 # git 設定內容
-name = "Tom.Li"
-email = "open222333@gmail.com"
+name = "Your Name"
+email = "you@example.com"
 
 # 忽略的資料夾
 ingore_dir = ['.vscode']

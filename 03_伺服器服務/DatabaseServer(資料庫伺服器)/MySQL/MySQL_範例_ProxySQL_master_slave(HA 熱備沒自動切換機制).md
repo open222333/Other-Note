@@ -42,8 +42,8 @@ ProxySQL 搭配 MySQL master/slave 做讀寫分離（熱備，無自動切換）
 - **ProxySQL 本身故障**：無 Keepalived / VIP，需手動將應用程式連線目標改為另一台 ProxySQL。
 
 ```
-應用程式 A ──→ proxysql_avnight_master（ProxySQL 1）
-應用程式 B ──→ proxysql_avnight_slave（ProxySQL 2）
+應用程式 A ──→ proxysql_myapp_master（ProxySQL 1）
+應用程式 B ──→ proxysql_myapp_slave（ProxySQL 2）
                      │
           ┌──────────┴──────────┐
           ▼                     ▼
@@ -58,8 +58,8 @@ ProxySQL 搭配 MySQL master/slave 做讀寫分離（熱備，無自動切換）
 |------|----|------|------|
 | MySQL Master | 192.168.1.10 | 3306 | 處理寫入；同時加入 HG2 分擔讀取（weight 5） |
 | MySQL Slave  | 192.168.1.20 | 3306 | 僅處理讀取（weight 3） |
-| ProxySQL 1 | proxysql_avnight_master | 6032 / 6033 | Admin / MySQL 代理 |
-| ProxySQL 2 | proxysql_avnight_slave  | 6032 / 6033 | Admin / MySQL 代理（設定與 ProxySQL 1 相同） |
+| ProxySQL 1 | proxysql_myapp_master | 6032 / 6033 | Admin / MySQL 代理 |
+| ProxySQL 2 | proxysql_myapp_slave  | 6032 / 6033 | Admin / MySQL 代理（設定與 ProxySQL 1 相同） |
 
 ## Hostgroup 設計
 
@@ -85,12 +85,12 @@ ProxySQL 搭配 MySQL master/slave 做讀寫分離（熱備，無自動切換）
 
 | username | default_hostgroup | max_connections |
 |----------|-------------------|-----------------|
-| avnight | 1（master） | 10000 |
-| avnight_cpi_user | 1（master） | 10000 |
+| myapp | 1（master） | 10000 |
+| myapp_cpi_user | 1（master） | 10000 |
 | laravel_admin | 1（master） | 10000 |
 | proxysql | 1（master） | 10000 |
 
-> `proxysql` 帳號僅存在於 proxysql_avnight_master，slave 端無此帳號。
+> `proxysql` 帳號僅存在於 proxysql_myapp_master，slave 端無此帳號。
 
 ---
 
@@ -148,9 +148,9 @@ ORDER BY hostgroup_id, hostname;
 +-------------+-----------------+------+--------+--------+------------------------+
 | hostgroup_id| hostname        | port | status | weight | comment                |
 +-------------+-----------------+------+--------+--------+------------------------+
-| 1           | 192.168.1.10  | 3306 | ONLINE | 1      | jp-avnight-mysql-master|
-| 2           | 192.168.1.10  | 3306 | ONLINE | 5      | jp-avnight-mysql-master|
-| 2           | 192.168.1.20 | 3306 | ONLINE | 3      | jp-avnight-mysql-slave |
+| 1           | 192.168.1.10  | 3306 | ONLINE | 1      | jp-myapp-mysql-master|
+| 2           | 192.168.1.10  | 3306 | ONLINE | 5      | jp-myapp-mysql-master|
+| 2           | 192.168.1.20 | 3306 | ONLINE | 3      | jp-myapp-mysql-slave |
 +-------------+-----------------+------+--------+--------+------------------------+
 ```
 
@@ -168,11 +168,11 @@ CREATE USER 'monitor'@'%' IDENTIFIED WITH mysql_native_password BY '<MONITOR_PAS
 GRANT REPLICATION CLIENT ON *.* TO 'monitor'@'%';
 
 -- 應用連線帳號（依需求建立）
-CREATE USER 'avnight'@'%' IDENTIFIED WITH mysql_native_password BY '<AVNIGHT_PASSWORD>';
-GRANT ALL PRIVILEGES ON *.* TO 'avnight'@'%';
+CREATE USER 'myapp'@'%' IDENTIFIED WITH mysql_native_password BY '<MYAPP_PASSWORD>';
+GRANT ALL PRIVILEGES ON *.* TO 'myapp'@'%';
 
-CREATE USER 'avnight_cpi_user'@'%' IDENTIFIED WITH mysql_native_password BY '<CPI_PASSWORD>';
-GRANT ALL PRIVILEGES ON *.* TO 'avnight_cpi_user'@'%';
+CREATE USER 'myapp_cpi_user'@'%' IDENTIFIED WITH mysql_native_password BY '<CPI_PASSWORD>';
+GRANT ALL PRIVILEGES ON *.* TO 'myapp_cpi_user'@'%';
 
 CREATE USER 'laravel_admin'@'%' IDENTIFIED WITH mysql_native_password BY '<LARAVEL_PASSWORD>';
 GRANT ALL PRIVILEGES ON *.* TO 'laravel_admin'@'%';
@@ -205,11 +205,11 @@ VALUES (1, 2, 'read_only');
 
 -- 後端節點
 INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight, max_connections, comment)
-VALUES (1, '192.168.1.10',  3306, 1, 10000, 'jp-avnight-mysql-master');
+VALUES (1, '192.168.1.10',  3306, 1, 10000, 'jp-myapp-mysql-master');
 INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight, max_connections, comment)
-VALUES (2, '192.168.1.10',  3306, 5, 10000, 'jp-avnight-mysql-master');
+VALUES (2, '192.168.1.10',  3306, 5, 10000, 'jp-myapp-mysql-master');
 INSERT INTO mysql_servers (hostgroup_id, hostname, port, weight, max_connections, comment)
-VALUES (2, '192.168.1.20', 3306, 3, 10000, 'jp-avnight-mysql-slave');
+VALUES (2, '192.168.1.20', 3306, 3, 10000, 'jp-myapp-mysql-slave');
 
 LOAD MYSQL SERVERS TO RUNTIME;
 SAVE MYSQL SERVERS TO DISK;
@@ -228,9 +228,9 @@ SAVE MYSQL VARIABLES TO DISK;
 
 ```sql
 INSERT INTO mysql_users (username, password, active, default_hostgroup, max_connections)
-VALUES ('avnight',          '<AVNIGHT_PASSWORD>', 1, 1, 10000);
+VALUES ('myapp',          '<MYAPP_PASSWORD>', 1, 1, 10000);
 INSERT INTO mysql_users (username, password, active, default_hostgroup, max_connections)
-VALUES ('avnight_cpi_user', '<CPI_PASSWORD>',     1, 1, 10000);
+VALUES ('myapp_cpi_user', '<CPI_PASSWORD>',     1, 1, 10000);
 INSERT INTO mysql_users (username, password, active, default_hostgroup, max_connections)
 VALUES ('laravel_admin',    '<LARAVEL_PASSWORD>', 1, 1, 10000);
 

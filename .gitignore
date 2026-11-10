@@ -5,6 +5,7 @@ node_modules
 note_tool.conf
 .claude
 note_temp/
+Claude outputs/
 
 # 憑證 / 本機設定（禁止入版控）
 .env

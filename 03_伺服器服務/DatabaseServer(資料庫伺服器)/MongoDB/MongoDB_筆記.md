@@ -1191,7 +1191,7 @@ db.createUser( { user: "accountAdmin01",
 
 // 修改使用者
 db.updateUser(用户名，更新，* writeConcern *)
-db.updateUser("user123",{pwd: "KNlZmiaNUp0B", customData: { title: "Senior Manager" }})
+db.updateUser("user123",{pwd: "<NEW_PASSWORD>", customData: { title: "Senior Manager" }})
 
 db.dropUser('test') // 刪除使用者
 
@@ -1493,7 +1493,7 @@ security:
 replication:
   oplogSizeMB: 15000              # oplog 大小（MB）
                                   # 建議依磁碟空間調整，越大可保留更久的操作記錄
-  replSetName: avnight            # 複製集名稱（所有節點需一致）
+  replSetName: myapp            # 複製集名稱（所有節點需一致）
 
 # ==========================================================
 # 🌎 分片（Sharding）設定（可選）

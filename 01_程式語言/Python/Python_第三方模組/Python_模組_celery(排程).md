@@ -92,8 +92,8 @@ celery -A [celery worker的檔案名稱].[celery名稱] worker --loglevel=info
 
 # celery worker的檔案名稱 : 這邊使用celeryworker.py，所以是celeryworker
 # celery 名稱 : 這個定義在app.__init__.py裡面的celery = Celery(__name__)
-celery worker -A avnight.celery -l info -E -P gevent --purge --autoscale=3,1
-celery beat -A avnight.celery -l info --pidfile=workers.html#inspecting-workers
+celery worker -A myapp.celery -l info -E -P gevent --purge --autoscale=3,1
+celery beat -A myapp.celery -l info --pidfile=workers.html#inspecting-workers
 
 # 啟動 Flower
 # 要運行 Flower，您需要提供代理 URL

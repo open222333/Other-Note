@@ -8,7 +8,7 @@ Commit 訊息要解決的問題只有一個：三個月後有人 git log 找「�
 自動產生的 changelog 分不分得出「使用者看得到的改動」與「內部整理」、
 以及 code review 時看到標題就知道該用什麼標準審。
 
-本篇採用 Conventional Commits 格式，並依 avnight 各專案（api2019、jjkk-flask）
+本篇採用 Conventional Commits 格式，並依 myapp 各專案（project-api、project-admin）
 的實際使用情況調整，另附「該選哪個 type」的判斷流程與常見情境對照。
 ```
 
@@ -119,7 +119,7 @@ scope 寫「改動落在哪個模組／功能領域」，不是寫檔名，也�
 一律小寫，多字用底線。改動橫跨多個模組時省略 scope，不要塞兩個。
 ```
 
-api2019 實際在用的 scope（依使用次數）：
+project-api 實際在用的 scope（依使用次數）：
 
 ```
 refund  chinese_dubbing  video  member  breast_coin  ai_chinese_dubbing
@@ -127,7 +127,7 @@ search  domain_monitor   tasks  ngs_avdata  api  celery  actor  models
 main_screen  event  schedule  mysql_queries  endpoints
 ```
 
-jjkk-flask 額外要注意的 scope：
+project-admin 額外要注意的 scope：
 
 ```
 s1 / sw2 兩個 Blueprint 是兩份程式碼。
@@ -305,7 +305,7 @@ docker/20260724-JK_api/dev_note/CLAUDE.md 的「主分類」刻意沿用同一�
 # 現況統計
 
 ```
-以下為 api2019 近 400 筆 commit 的實測分佈（2026-09 取樣），
+以下為 project-api 近 400 筆 commit 的實測分佈（2026-09 取樣），
 用來對照「規範」與「實際」的落差，不是目標值。
 ```
 

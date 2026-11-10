@@ -124,7 +124,7 @@ DISK 和 CONFIG FILE：持久化配置訊息，重啟後記憶體中的配置資
     - [MySQL 單節點故障保證](#mysql-單節點故障保證)
     - [與方案一的差異](#與方案一的差異)
     - [手動切換流程](#手動切換流程)
-    - [目前節點設定（avnight 環境）](#目前節點設定avnight-環境)
+    - [目前節點設定（myapp 環境）](#目前節點設定myapp-環境)
 - [腳本](#腳本)
   - [gr\_sw\_mode\_checker.sh](#gr_sw_mode_checkersh)
   - [gr\_mw\_mode\_sw\_cheker.sh](#gr_mw_mode_sw_chekersh)
@@ -2124,13 +2124,13 @@ SAVE MYSQL SERVERS TO DISK;
 
 ## 方案三：HA 熱備（無自動切換機制）
 
-目前 `proxysql_avnight_master` / `proxysql_avnight_slave` 採用此方案。
+目前 `proxysql_myapp_master` / `proxysql_myapp_slave` 採用此方案。
 
 ### 架構
 
 ```
-應用程式 A → proxysql_avnight_master（ProxySQL 1）
-應用程式 B → proxysql_avnight_slave（ProxySQL 2）
+應用程式 A → proxysql_myapp_master（ProxySQL 1）
+應用程式 B → proxysql_myapp_slave（ProxySQL 2）
                      │
           ┌──────────┴──────────┐
           ▼                     ▼
@@ -2176,7 +2176,7 @@ mysql -uadmin -p<PASSWORD> -h<PROXYSQL_2_IP> -P6032 -e "
 # 重啟應用或熱更新設定
 ```
 
-### 目前節點設定（avnight 環境）
+### 目前節點設定（myapp 環境）
 
 | Hostgroup | 成員 | IP | Weight |
 |-----------|------|----|--------|

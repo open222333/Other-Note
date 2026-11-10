@@ -1872,7 +1872,7 @@ services:
     image: mysql_innodb_cluster
     container_name: node_1
     hostname: node_1
-    # hostname: 172.104.191.195
+    # hostname: 203.0.113.10
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_ROOT_HOST: "%"
@@ -1893,12 +1893,12 @@ services:
       - ./setup_innodb_cluster.js:/setup_innodb_cluster.js
       - ./sql_backup:/sql_backup
     # extra_hosts:
-    #   - "test-mysql-2 node_3 node_4 manager_node_23:139.144.119.64"
+    #   - "test-mysql-2 node_3 node_4 manager_node_23:203.0.113.20"
   node_2:
     image: mysql_innodb_cluster
     container_name: node_2
     hostname: node_2
-    # hostname: 172.104.191.195
+    # hostname: 203.0.113.10
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_ROOT_HOST: "%"
@@ -1912,7 +1912,7 @@ services:
       - ./logs:/var/log
       # - ./sqls:/docker-entrypoint-initdb.d
     # extra_hosts:
-    #   - "test-mysql-2 node_3 node_4 manager_node_23:139.144.119.64"
+    #   - "test-mysql-2 node_3 node_4 manager_node_23:203.0.113.20"
   phpmyadmin_1:
     container_name: phpmyadmin_1
     hostname: phpmyadmin-container
@@ -2000,7 +2000,7 @@ docker0: flags=4099<UP,BROADCAST,MULTICAST>  mtu 1500
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
 eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
-        inet 172.104.191.195  netmask 255.255.255.0  broadcast 172.104.191.255
+        inet 203.0.113.10  netmask 255.255.255.0  broadcast 203.0.113.255
         inet6 fe80::f03c:93ff:fec0:307a  prefixlen 64  scopeid 0x20<link>
         inet6 2400:8901::f03c:93ff:fec0:307a  prefixlen 64  scopeid 0x0<global>
         ether f2:3c:93:c0:30:7a  txqueuelen 1000  (Ethernet)
@@ -2063,7 +2063,7 @@ PEERDNS="no"
 
 DOMAIN=members.linode.com
 
-GATEWAY0=172.104.191.1
+GATEWAY0=203.0.113.1
 
 
 # resolvconf doesn't recognize more than 3 nameservers.
@@ -2080,7 +2080,7 @@ DNS3=139.162.27.5
 
 
 # IP assignment for eth0
-IPADDR0=172.104.191.195
+IPADDR0=203.0.113.10
 PREFIX0=24
 
 #IPADDR1=192.168.154.112
@@ -2137,7 +2137,7 @@ BOOTPROTO="static"
 
 #DOMAIN=members.linode.com
 
-#GATEWAY0=172.104.191.1
+#GATEWAY0=203.0.113.1
 
 
 # resolvconf doesn't recognize more than 3 nameservers.
@@ -2154,7 +2154,7 @@ BOOTPROTO="static"
 
 
 # IP assignment for eth0
-#IPADDR0=172.104.191.195
+#IPADDR0=203.0.113.10
 #PREFIX0=24
 
 ; 需注意沒有 0

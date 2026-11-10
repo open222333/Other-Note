@@ -158,7 +158,7 @@ go version
 
 ```bash
 cd /usr/local
-git clone https://bitbucket.org/avnight/elasticsearch.git
+git clone https://bitbucket.org/myorg/elasticsearch.git
 
 # 進入 /usr/local/elasticsearch
 mkdir es/data

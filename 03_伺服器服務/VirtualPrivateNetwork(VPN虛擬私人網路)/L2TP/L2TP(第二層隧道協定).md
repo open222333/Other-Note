@@ -119,12 +119,12 @@ username : EAP "password"
 ```bash
 # 產生CA
 strongswan pki --gen --type rsa --size 2048 --outform pem > vpnca.key.pem
-strongswan pki --self --flag serverAuth --in vpnca.key.pem --type rsa --digest sha256 --dn "C=TW, O=Organization, CN=128.199.112.215" --ca > vpnca.crt.der
+strongswan pki --self --flag serverAuth --in vpnca.key.pem --type rsa --digest sha256 --dn "C=TW, O=Organization, CN=203.0.113.40" --ca > vpnca.crt.der
 
 # 產生server憑證
 strongswan pki --gen --type rsa --size 2048 --outform pem > do-basic.key.pem
 strongswan pki --pub --in do-basic.key.pem --type rsa > do-basic.csr
-strongswan pki --issue --cacert vpnca.crt.der --cakey vpnca.key.pem --digest sha256 --dn "C=TW, O=Organization, CN=128.199.112.215" --san "128.199.112.215" --flag serverAuth --flag ikeIntermediate --outform pem < do-basic.csr > do-basic.crt.pem
+strongswan pki --issue --cacert vpnca.crt.der --cakey vpnca.key.pem --digest sha256 --dn "C=TW, O=Organization, CN=203.0.113.40" --san "203.0.113.40" --flag serverAuth --flag ikeIntermediate --outform pem < do-basic.csr > do-basic.crt.pem
 
 # 複製過去
 cp vpnca.crt.der /etc/strongswan/ipsec.d/cacerts/

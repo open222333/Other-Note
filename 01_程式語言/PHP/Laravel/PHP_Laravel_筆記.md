@@ -311,8 +311,8 @@ server {
     error_log /var/log/nginx/example_error.log;
     access_log /var/log/nginx/example_access.log;
 
-    ssl_certificate /etc/letsencrypt/live/iavnight.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/iavnight.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
 
     root /usr/share/nginx/html/example.com/public;
     include allow_ip.conf;

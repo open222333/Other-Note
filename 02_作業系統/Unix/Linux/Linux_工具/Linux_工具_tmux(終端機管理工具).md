@@ -27,6 +27,7 @@ tmux（Terminal Multiplexer）是一個終端機多工管理工具，讓一個�
   - [macOS（Homebrew）](#macoshomebrew)
   - [直接從 vault.centos.org 手動下載 tmux RPM](#直接從-vaultcentosorg-手動下載-tmux-rpm)
 - [指令](#指令)
+  - [長時間作業：一邊執行、一邊看 log](#長時間作業一邊執行一邊看-log)
   - [向上滾動查看（Copy Mode）](#向上滾動查看copy-mode)
   - [設定檔](#設定檔)
 
@@ -170,6 +171,23 @@ Ctrl+b 再輸入 )	切換至下一個 session。
 組合鍵	說明
 Ctrl+b 再輸入 f	在所有 window 視窗中搜尋關鍵字（很好用）。
 ```
+
+## 長時間作業：一邊執行、一邊看 log
+
+```bash
+tmux new -s job                                  # 1. 開 session，執行作業並把 log 寫到檔案
+time long_running_command > /data/job.log 2>&1
+```
+
+```
+2. Ctrl+b c 開新 window（或 Ctrl+b % 左右分割、Ctrl+b " 上下分割）
+3. 在新 window / pane 執行 tail -F /data/job.log
+4. Ctrl+b n / p 或方向鍵切換；Ctrl+b d detach 離開 SSH，作業繼續跑
+5. 回來：tmux a -t job
+```
+
+- 監看用的視窗按 `Ctrl+C` 只停 `tail`，不影響作業。
+- 重跑前先移開舊 log、tail 選項細節見 [tail 筆記](Linux_文本編碼/Linux_工具_tail(顯示檔案最後幾行).md)。
 
 ## 向上滾動查看（Copy Mode）
 

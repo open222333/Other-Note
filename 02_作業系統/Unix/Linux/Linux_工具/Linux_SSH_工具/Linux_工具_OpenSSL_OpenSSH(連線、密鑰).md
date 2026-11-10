@@ -438,7 +438,7 @@ ssh -i ~/.ssh/key user@host "echo ok"
 
 # 測試遠程檔案是否存在
 ssh $ssh_host test -e $file
-ssh root@172.104.86.251 test -e /var/jiaobaba/uploads/UP-4ca87e5a296de3b1f812ae248ac8cae9/UP-4ca87e5a296de3b1f812ae248ac8cae9.mp4
+ssh root@203.0.113.30 test -e /var/myapp/uploads/UP-xxxx/UP-xxxx.mp4
 
 # chmod u=rw,go= file
 # 對file的所有者設定讀寫權限，清空該使用者群組和其他使用者對file的所有權限（空格代表無權限）
@@ -636,7 +636,7 @@ cat ~/.ssh/authorized_keys
 - 24 小時內 7724 次密碼登入失敗，0 次密碼登入成功
 - 7 天內成功登入皆為管理者 IP、用金鑰登入的 root
 - 被猜最多的帳號：`root` 3468、`admin` 209、`ubuntu` 187、`user` 99、`deploy` 66
-- 攻擊來源前幾名：`77.239.124.72`、`77.239.124.202`（各約 1460 次）、`4.195.33.191`、`109.160.32.145`、`109.160.32.103`
+- 攻擊來源前幾名：`198.51.100.72`、`198.51.100.202`（各約 1460 次）、`198.51.100.191`、`192.0.2.145`、`192.0.2.103`
 
 **檢查指令**
 

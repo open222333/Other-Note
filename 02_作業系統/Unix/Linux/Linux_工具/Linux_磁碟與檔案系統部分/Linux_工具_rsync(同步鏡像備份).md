@@ -304,7 +304,7 @@ xinetd 預設從 /etc 讀取設定檔，確認 rsyncd.conf 存在於 /etc。
 **11. Connection timed out**
 
 ```
-rsync: failed to connect to 203.100.192.66: Connection timed out (110)
+rsync: failed to connect to 198.51.100.10: Connection timed out (110)
 ```
 
 連線逾時，確認伺服器埠號（`netstat -tunlp`）及遠端 telnet 測試連通性。

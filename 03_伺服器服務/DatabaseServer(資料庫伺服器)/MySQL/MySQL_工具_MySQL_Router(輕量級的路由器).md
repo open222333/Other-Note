@@ -359,7 +359,7 @@ interval = 60
 # 設定日誌記錄的級別
 level = INFO
 
-[metadata_cache:avnight]
+[metadata_cache:myapp]
 # 元數據緩存的名稱，可根據需要命名
 router_id=1
 # 啟動元數據緩存時要連接的目標 MySQL 服務器地址和端口，多個地址使用逗號分隔
@@ -367,7 +367,7 @@ bootstrap_server_addresses=node_1:3306,node_2:4306,node_3:5306,node_4:6306,node_
 # 連接 MySQL 服務器時要使用的用戶名
 user=root
 # 元數據緩存所屬的集群名稱，用於識別元數據緩存屬於哪個集群
-metadata_cluster=avnight
+metadata_cluster=myapp
 # 元數據的存活時間（Time-To-Live），單位是秒。這裡設置為 0.5 秒，表示元數據在緩存中的存活時間很短。
 ttl=0.5
 
@@ -381,7 +381,7 @@ max_connections = 1024
 # 設定模式，這裡設定為 read-write，表示這個路由器實例可以處理讀和寫的查詢
 mode=read-write
 # 設定目標資料庫實例的地址和端口
-destinations=metadata-cache://avnight/default?role=PRIMARY
+destinations=metadata-cache://myapp/default?role=PRIMARY
 # 假設有三個目標資料庫實例，它們的地址分別是 A、B 和 C。如果路由策略設置為 routing_strategy=round-robin，則第一個查詢會被發送到實例 A，第二個查詢會被發送到實例 B，第三個查詢會被發送到實例 C，然後循環進行。
 # 配置將查詢請求按照順序依次分發給不同的目標資料庫實例，實現查詢負載均衡。
 # 這種策略適用於平均分配查詢請求的情況，但不考慮目標實例的當前負載或可用性。
@@ -403,7 +403,7 @@ mode = read-only
 # metadata-cache://: 這是一個指示 MySQL Router 使用元數據緩存的 URL 方案。
 # ClusterName/default: ClusterName 是元數據緩存的名稱，default 表示元數據緩存中的預設配置。
 # role=SECONDARY: 這是一個查詢參數，表示只選擇元數據緩存中標記為 SECONDARY 角色的資料庫實例作為目標。這通常用於路由讀取查詢到次要節點，以實現讀取的負載平衡和高可用性。
-destinations=metadata-cache://avnight/default?role=SECONDARY
+destinations=metadata-cache://myapp/default?role=SECONDARY
 # 這個參數設定了路由策略為“循環分發（Round Robin）加備用（Fallback）”。
 # 這意味著 MySQL Router 會按照設定的順序將查詢請求依次分發給目標資料庫實例，如果其中某個實例無法正常響應或處於不可用狀態，Router 會自動將查詢轉發給下一個可用的實例。
 # 這樣可以在一定程度上實現高可用性和負載均衡。

@@ -33,6 +33,9 @@ myloader：多執行緒平行還原，速度遠快於 mysql < dump.sql。
   - [常用參數](#常用參數)
     - [mydumper 參數](#mydumper-參數)
     - [myloader 參數](#myloader-參數)
+  - [長時間備份還原：tmux 執行 + tail -f 監看 log](#長時間備份還原tmux-執行--tail--f-監看-log)
+  - [備份完成後的完整性檢查](#備份完成後的完整性檢查)
+  - [還原到雲端 Managed Database（SSL）](#還原到雲端-managed-databasessl)
 - [與 mysqldump 比較](#與-mysqldump-比較)
 - [匯入加速設定](#匯入加速設定)
 - [Replica 相關](#replica-相關)
@@ -196,6 +199,11 @@ myloader \
 | `--triggers` | 包含 Triggers |
 | `--no-data` | 只備份 schema，不備份資料 |
 | `--rows` | 每個資料檔的最大列數（切分大表） |
+| `-a` / `--ask-password` | 互動輸入密碼（不留在指令與 history，取代 `-p`） |
+| `-S` / `--socket` | 走本機 socket 連線（例 `/var/run/mysqld/mysqld.sock`） |
+| `-L` / `--logfile` | log 寫到檔案（不輸出到畫面） |
+| `-v` / `--verbose` | log 詳細程度：`0` 靜音、`1` 錯誤、`2` 警告、`3` 資訊 |
+| `-l` / `--long-query-guard` | 長查詢等待秒數上限，超過就中止（大表可設 `86400`） |
 
 ### myloader 參數
 
@@ -213,6 +221,122 @@ myloader \
 | `--skip-triggers` | 不還原 Triggers |
 | `--skip-post` | 不執行 post-import SQL（如重建 index） |
 | `-s` / `--source-db` | 從備份中選擇指定來源資料庫 |
+
+## 長時間備份還原：tmux 執行 + tail -f 監看 log
+
+大型資料庫備份/還原動輒數小時，固定流程：**舊 log 移開 → tmux 裡執行並寫 log → 另一個視窗 `tail -f` 看進度 → 完成後 grep 檢查錯誤**。
+
+**1. 重跑前先把舊 log 移開**
+
+同名 log 若被接在舊內容後面寫，完成後 `grep -c CRITICAL` 會把上一次的錯誤也算進去，誤判這次失敗。舊 log 移到另一個目錄留作紀錄，用不到再刪：
+
+```bash
+mkdir -p /data/old_run && mv /data/dump_full.log /data/load_full.log /data/old_run/ && ls /data /data/old_run
+```
+
+**2. 在 tmux 裡執行，log 寫到檔案**
+
+```bash
+tmux new -s dump
+
+mkdir -p /data && rm -rf /data/dump_full && time mydumper \
+  -S /var/run/mysqld/mysqld.sock -u root -a \
+  -B mydb -t 4 -r 500000 -c gzip --trx-tables -l 86400 \
+  -o /data/dump_full \
+  -L /data/dump_full.log --verbose 3
+```
+
+- `time`：結束時印出總耗時，方便下次估時間。
+- `-L` + `--verbose 3`：進度寫進 log 檔，畫面上幾乎沒有輸出，要靠下一步看進度。
+- `rm -rf` 輸出目錄：mydumper 要求輸出目錄是空的；目錄不存在也不影響。
+
+**3. 另開視窗看進度**
+
+```
+Ctrl+b c        tmux 開新 window（或 Ctrl+b % / Ctrl+b " 分割 pane，一邊跑一邊看）
+```
+
+```bash
+tail -f /data/dump_full.log
+
+# 只看錯誤
+tail -f /data/dump_full.log | grep --line-buffered -E 'CRITICAL|ERROR|WARNING'
+```
+
+- 在監看視窗按 `Ctrl+C` 只會停掉 `tail`，不會中斷備份。
+- 要離開 SSH：`Ctrl+b d` detach，之後 `tmux a -t dump` 回來。
+
+**4. 完成後檢查**
+
+```bash
+grep -c CRITICAL /data/dump_full.log      # 0 才算成功
+grep -n CRITICAL /data/dump_full.log | head
+```
+
+**5. 看懂 `time` 的輸出**
+
+```
+real    19m10s    ← 實際經過時間（遷移停機時間看這個）
+user    68m...    ← 所有執行緒加總的 CPU 時間（多執行緒時會大於 real）
+sys     ...       ← 系統呼叫（磁碟 I/O 等）耗用的 CPU 時間
+```
+
+- 換版本或換參數後 `real` 變長時，比對 `user`：`user` 大增多半是壓縮（`-c gzip`）或匯出的資料變多，不一定是異常。
+- 每次的 `real` 記進遷移時間紀錄，用來估正式切換的停機時間。
+
+## 備份完成後的完整性檢查
+
+還原前先確認備份完整，不完整的備份匯進去只會浪費一輪時間：
+
+```bash
+du -sh /data/dump_full
+ls /data/dump_full/*-schema.sql.gz | grep -v 'schema-create' | wc -l
+grep -ciE 'error|critical' /data/dump_full.log
+tail -3 /data/dump_full.log
+grep -A3 -i 'master' /data/dump_full/metadata
+```
+
+| 檢查 | 預期 |
+|---|---|
+| `du -sh` | 和來源資料量同一個數量級（壓縮後通常為原本的幾分之一）；明顯過小代表資料不完整 |
+| `-schema.sql.gz` 數量 | 等於來源資料庫的表數（`<db>-schema-create` 是建庫語法，要排除；有 view 時也會被算進去） |
+| `grep -ci 'error\|critical'` | `0` |
+| `tail -3` | 有 `Finished dump at` |
+| `metadata` | 有 binlog 檔名、位置與 GTID，代表這份備份的時間點（之後接 Replica 或補增量要用，見「查看 metadata 取得 binlog 位置」） |
+
+來源表數查法：
+
+```sql
+SELECT COUNT(*) FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = 'mydb' AND TABLE_TYPE = 'BASE TABLE';
+```
+
+## 還原到雲端 Managed Database（SSL）
+
+雲端代管資料庫（Linode / Akamai Managed Database 等）通常是**非預設 port、強制 SSL**，連線參數照控制台提供的填：
+
+```bash
+# 1. 先清掉上一次失敗匯入的資料（確認是目標 DB，不是來源！）
+mysql -h $DB_HOST -P $DB_PORT -u $DB_USER -p --ssl-mode=REQUIRED \
+  -e "DROP DATABASE IF EXISTS mydb; SHOW DATABASES;"
+
+# 2. 舊的 load log 已移開後，在 tmux 裡還原
+tmux new -s load
+time myloader \
+  -h $DB_HOST -P $DB_PORT -u $DB_USER -a --ssl-mode=REQUIRED \
+  -d /data/dump_full -t 4 \
+  -L /data/load_full.log --verbose 3
+
+# 3. 另開視窗監看，完成後檢查
+tail -F /data/load_full.log
+grep -c CRITICAL /data/load_full.log
+```
+
+- 重匯前一定要 DROP 舊資料：上一輪部分成功的表會讓這輪出現重複資料或錯誤（或改用 `--overwrite-tables`）。
+- `DROP DATABASE` 前再確認一次 `$DB_HOST` 是目標主機。
+- 代管資料庫的管理帳號通常沒有 SUPER 權限，匯入 Trigger / Routine 的 `DEFINER` 可能失敗，看 log 的 CRITICAL 判斷。
+
+tail / tmux 用法細節見 [tail 筆記](../../../02_作業系統/Unix/Linux/Linux_工具/Linux_文本編碼/Linux_工具_tail(顯示檔案最後幾行).md)、[tmux 筆記](../../../02_作業系統/Unix/Linux/Linux_工具/Linux_工具_tmux(終端機管理工具).md)。
 
 # 與 mysqldump 比較
 
