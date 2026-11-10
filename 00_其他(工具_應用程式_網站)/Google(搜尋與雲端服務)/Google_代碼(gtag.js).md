@@ -10,9 +10,6 @@ Google 代碼 (gtag.js) 是一組代碼，可供新增至網站以使用各種 G
 - [Google 代碼(gtag.js)](#google-代碼gtagjs)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
-- [指令](#指令)
 
 ## 參考資料
 
@@ -21,14 +18,3 @@ Google 代碼 (gtag.js) 是一組代碼，可供新增至網站以使用各種 G
 [加入 Google 代碼 (gtag.js)](https://developers.google.com/tag-platform/gtagjs/install?hl=zh-tw)
 
 [gtag.js](https://www.googletagmanager.com/gtag/js)
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
-```
-
-# 指令

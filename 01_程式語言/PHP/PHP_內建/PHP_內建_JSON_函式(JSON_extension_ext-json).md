@@ -20,24 +20,12 @@ json_last_error()  // 取得最近一次 JSON 操作的錯誤代碼
 - [PHP 內建 JSON 函式(JSON extension ext-json)](#php-內建-json-函式json-extension-ext-json)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-- [安裝](#安裝)
-- [指令](#指令)
 - [用法](#用法)
   - [json\_decode json\_encode](#json_decode-json_encode)
 
 ## 參考資料
 
 [JSON 函式](https://www.php.net/manual/zh/book.JSON.php)
-
-# 安裝
-
-```bash
-```
-
-# 指令
-
-```bash
-```
 
 # 用法
 

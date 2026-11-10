@@ -14,8 +14,6 @@
   - [RedHat (CentOS)](#redhat-centos)
 - [DB Browser for SQLite (視圖化工具)](#db-browser-for-sqlite-視圖化工具)
   - [MacOS](#macos)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [指令](#指令)
 - [docker 設置 sqlitez視圖化網站](#docker-設置-sqlitez視圖化網站)
 
@@ -53,15 +51,6 @@ yum install -y sqlite
 
 ```bash
 brew install --cask db-browser-for-sqlite
-```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
 ```
 
 # 指令

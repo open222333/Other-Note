@@ -45,15 +45,6 @@ Codis 是一套 分散式 Redis 叢集方案，由國產公司 豌豆莢（Wando
 - [Redis 筆記 Codis(分散式 Redis 叢集方案)](#redis-筆記-codis分散式-redis-叢集方案)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-- [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
-  - [Windows](#windows)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
-- [指令](#指令)
 
 ## 參考資料
 
@@ -67,41 +58,3 @@ Codis 是一套 分散式 Redis 叢集方案，由國產公司 豌豆莢（Wando
 [Redis - Sentinel 哨兵 HA](./Redis_筆記_Redis_Sentinel(哨兵(高可用性)).md)
 [Redis - Keepalived HA](./Redis_筆記_Redis_Keepalived(HA工具).md)
 [Redis - Predixy Proxy 代理層](./Redis_筆記_Redis_Predixy(高效的_Redis_Proxy(代理層)).md)
-
-# 安裝
-
-## docker-compose 部署
-
-```yml
-```
-
-## Debian (Ubuntu)
-
-```bash
-```
-
-## RedHat (CentOS)
-
-```bash
-```
-
-## Homebrew (MacOS)
-
-```bash
-```
-
-## Windows
-
-```
-```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
-```
-
-# 指令

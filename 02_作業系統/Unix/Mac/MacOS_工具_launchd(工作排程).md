@@ -31,7 +31,6 @@ Apple 提供的代理程式，適用於以使用者為基礎的所有使用者
 - [MacOS 工具 launchd(工作排程)](#macos-工具-launchd工作排程)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [指令](#指令)
 - [配置文檔](#配置文檔)
 
 ## 參考資料
@@ -43,11 +42,6 @@ Apple 提供的代理程式，適用於以使用者為基礎的所有使用者
 [macOS 的啟動守護行程 (Launch Daemon)：launchd](http://mt116.blogspot.com/2017/11/launch-daemonslaunchd.html)
 
 [在 Mac 上的「終端機」中使用 launchd 進行工序指令管理](https://support.apple.com/zh-tw/guide/terminal/apdc6c1077b-5d5d-4d35-9c19-60f2397b2369/mac)
-
-# 指令
-
-```bash
-```
 
 # 配置文檔
 

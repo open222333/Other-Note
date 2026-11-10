@@ -9,19 +9,7 @@ sar（System Activity Reporter, 系統活動情況報告）: 是用於監控Linu
 - [Linux 工具 sar(監控Linux)](#linux-工具-sar監控linux)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝](#安裝)
-- [指令](#指令)
 
 ## 參考資料
 
 [sar(1) - Linux man page](https://linux.die.net/man/1/sar)
-
-# 安裝
-
-```bash
-```
-
-# 指令
-
-```bash
-```

@@ -8,7 +8,6 @@
 - [Linux 工具 tcpdump(擷取通過網路介面的封包)](#linux-工具-tcpdump擷取通過網路介面的封包)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝](#安裝)
 - [指令](#指令)
 
 ## 參考資料
@@ -16,11 +15,6 @@
 [tcpdump(8) - Linux man page](https://linux.die.net/man/8/tcpdump)
 
 [文字介面封包擷取器： tcpdump](https://linux.vbird.org/linux_server/centos6/0140networkcommand.php#tcpdump)
-
-# 安裝
-
-```bash
-```
 
 # 指令
 

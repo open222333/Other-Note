@@ -28,13 +28,9 @@ Hugo 自動把它轉成 完整的 HTML 網站（含排版、主題、美化、�
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
   - [Homebrew (MacOS)](#homebrew-macos)
   - [Windows](#windows)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [用法](#用法)
   - [最小化 Hugo 設定 + 美術範例](#最小化-hugo-設定--美術範例)
   - [把單一 Markdown 轉成有樣式的 HTML](#把單一-markdown-轉成有樣式的-html)
@@ -45,22 +41,12 @@ Hugo 自動把它轉成 完整的 HTML 網站（含排版、主題、美化、�
 
 # 安裝
 
-## docker-compose 部署
-
-```yml
-```
-
 ## Debian (Ubuntu)
 
 ```bash
 sudo apt update
 sudo apt install hugo
 # 或用 snap: sudo snap install hugo --channel=extended
-```
-
-## RedHat (CentOS)
-
-```bash
 ```
 
 ## Homebrew (MacOS)
@@ -73,15 +59,6 @@ brew install hugo
 
 ```powershell
 choco install hugo -confirm
-```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
 ```
 
 # 用法

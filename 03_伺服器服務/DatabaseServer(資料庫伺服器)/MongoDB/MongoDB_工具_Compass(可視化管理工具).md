@@ -19,15 +19,10 @@
   - [參考資料](#參考資料)
     - [心得相關](#心得相關)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
   - [Docker 部署](#docker-部署)
     - [MongoDB Compass配置文件的YAML格式](#mongodb-compass配置文件的yaml格式)
     - [MongoDB Compass配置文件的JSON格式](#mongodb-compass配置文件的json格式)
     - [環境變數](#環境變數)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
-- [指令](#指令)
 
 ## 參考資料
 
@@ -36,16 +31,6 @@
 ### 心得相關
 
 # 安裝
-
-## Debian (Ubuntu)
-
-```bash
-```
-
-## RedHat (CentOS)
-
-```bash
-```
 
 ## Docker 部署
 
@@ -204,14 +189,3 @@ networks:
   mongodb-network:
     driver: bridge
 ```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
-```
-
-# 指令

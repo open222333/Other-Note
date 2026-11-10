@@ -42,13 +42,9 @@ Typora 內建工具（常用）
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
   - [Homebrew (MacOS)](#homebrew-macos)
   - [Windows](#windows)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [指令](#指令)
 
 ## 參考資料
@@ -56,11 +52,6 @@ Typora 內建工具（常用）
 [官網](https://typora.io/)
 
 # 安裝
-
-## docker-compose 部署
-
-```yml
-```
 
 ## Debian (Ubuntu)
 
@@ -77,11 +68,6 @@ sudo apt update
 sudo apt install typora
 ```
 
-## RedHat (CentOS)
-
-```bash
-```
-
 ## Homebrew (MacOS)
 
 ```bash
@@ -91,15 +77,6 @@ brew install --cask typora
 ## Windows
 
 [官網 安裝（推薦）](https://typora.io/)
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
-```
 
 # 指令
 

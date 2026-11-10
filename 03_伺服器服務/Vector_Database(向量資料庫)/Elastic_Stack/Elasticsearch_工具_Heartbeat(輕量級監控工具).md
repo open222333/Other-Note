@@ -16,12 +16,7 @@ Ping 檢查：可以執行 ICMP（類似 ping）、TCP、HTTP 等協議的監控
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [指令](#指令)
 
 ## 參考資料
@@ -29,16 +24,6 @@ Ping 檢查：可以執行 ICMP（類似 ping）、TCP、HTTP 等協議的監控
 [Heartbeat quick start: installation and configuration](https://www.elastic.co/guide/en/beats/heartbeat/7.13/heartbeat-installation-configuration.html)
 
 # 安裝
-
-## docker-compose 部署
-
-```yml
-```
-
-## Debian (Ubuntu)
-
-```bash
-```
 
 ## RedHat (CentOS)
 
@@ -52,20 +37,6 @@ sudo rpm -vi heartbeat-${version}-x86_64.rpm
 ```bash
 curl -L -O https://artifacts.elastic.co/downloads/beats/heartbeat/heartbeat-7.13.3-x86_64.rpm
 sudo rpm -vi heartbeat-7.13.3-x86_64.rpm
-```
-
-## Homebrew (MacOS)
-
-```bash
-```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
 ```
 
 # 用法

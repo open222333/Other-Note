@@ -11,7 +11,6 @@ MEGA 官方提供的命令列工具 megacmd，然後透過 Python 執行命令�
   - [參考資料](#參考資料)
 - [安裝](#安裝)
   - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
 - [指令](#指令)
   - [登入](#登入)
   - [上傳檔案](#上傳檔案)
@@ -38,11 +37,6 @@ MEGA 官方提供的命令列工具 megacmd，然後透過 Python 執行命令�
 
 ```bash
 apt install megatools
-```
-
-## RedHat (CentOS)
-
-```bash
 ```
 
 # 指令

@@ -39,12 +39,9 @@ Keepalived 的核心技術是：
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
   - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [指令](#指令)
   - [服務操作](#服務操作)
 
@@ -66,11 +63,6 @@ Keepalived 的核心技術是：
 
 # 安裝
 
-## docker-compose 部署
-
-```yml
-```
-
 ## Debian (Ubuntu)
 
 ```bash
@@ -82,11 +74,6 @@ apt-get -y install keepalived
 
 ```bash
 yum -y install keepalived
-```
-
-## Homebrew (MacOS)
-
-```bash
 ```
 
 ## 配置文檔
@@ -130,11 +117,6 @@ vrrp_instance VI_1 {
         192.168.1.100
     }
 }
-```
-
-### 基本範例
-
-```
 ```
 
 # 指令

@@ -9,19 +9,7 @@ ethtool是基於Linux內核的操作系統中的主要手段，用於從用戶�
 - [Linux 工具 ethtool(網路卡狀態及設定)](#linux-工具-ethtool網路卡狀態及設定)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝](#安裝)
-- [指令](#指令)
 
 ## 參考資料
 
 [ethtool(8) — Linux manual page](https://man7.org/linux/man-pages/man8/ethtool.8.html)
-
-# 安裝
-
-```bash
-```
-
-# 指令
-
-```bash
-```

@@ -13,7 +13,6 @@ libcurl 同時支持HTTPS 證書、HTTP POST、HTTP PUT、 FTP 上傳(也能通�
 - [PHP 函式庫 cURL(Client URL Library)](#php-函式庫-curlclient-url-library)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [指令](#指令)
 - [用法](#用法)
 
 ## 參考資料
@@ -23,11 +22,6 @@ libcurl 同時支持HTTPS 證書、HTTP POST、HTTP PUT、 FTP 上傳(也能通�
 [cURL轉成個別語言範本](https://curlconverter.com/#php)
 
 [Online REST & SOAP API Testing Tool - cURL轉換成程式碼](https://reqbin.com/)
-
-# 指令
-
-```bash
-```
 
 # 用法
 

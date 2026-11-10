@@ -46,7 +46,6 @@ MySQL Router 是 MySQL 提供的一個輕量級的路由器，用於提供高可
   - [RedHat (CentOS)](#redhat-centos)
   - [Docker 部署](#docker-部署)
   - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [指令](#指令)
 
 ## 參考資料
@@ -495,11 +494,6 @@ bind_address=127.0.0.1
 bind_port=3306
 destinations=127.0.0.1:3306
 routing_strategy=first-available
-```
-
-### 基本範例
-
-```
 ```
 
 # 指令

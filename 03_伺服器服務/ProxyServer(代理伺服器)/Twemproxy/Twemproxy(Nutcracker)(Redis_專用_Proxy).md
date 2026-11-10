@@ -17,45 +17,14 @@ Twemproxy 是 Twitter 開源的一款 高效 Redis/Memcached 代理（Proxy）�
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
-  - [Windows](#windows)
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
-- [指令](#指令)
 
 ## 參考資料
 
 []()
 
 # 安裝
-
-## docker-compose 部署
-
-```yml
-```
-
-## Debian (Ubuntu)
-
-```bash
-```
-
-## RedHat (CentOS)
-
-```bash
-```
-
-## Homebrew (MacOS)
-
-```bash
-```
-
-## Windows
-
-```
-```
 
 ## 配置文檔
 
@@ -84,5 +53,3 @@ redis_cluster:
 | `auto_eject_hosts`     | 失敗節點自動剔除               |
 | `servers`              | 後端 Redis 節點（:1 代表權重）   |
 
-
-# 指令

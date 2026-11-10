@@ -24,12 +24,8 @@ Metricbeat 通常將收集的度量數據發送到 Elasticsearch 中，並可以
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
   - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 
 ## 參考資料
 
@@ -37,26 +33,11 @@ Metricbeat 通常將收集的度量數據發送到 Elasticsearch 中，並可以
 
 # 安裝
 
-## docker-compose 部署
-
-```yml
-```
-
-## Debian (Ubuntu)
-
-```bash
-```
-
 ## RedHat (CentOS)
 
 ```bash
 curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.13.3-x86_64.rpm
 sudo rpm -vi metricbeat-7.13.3-x86_64.rpm
-```
-
-## Homebrew (MacOS)
-
-```bash
 ```
 
 ## 配置文檔
@@ -87,9 +68,4 @@ setup 指令載入 Kibana 儀表板。如果儀表板已設置，請省略此指
 ```sh
 metricbeat setup
 service metricbeat start
-```
-
-### 基本範例
-
-```
 ```

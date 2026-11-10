@@ -11,7 +11,6 @@ curl_cffi 是一個高效的 Python 庫，用於基於 libcurl 執行 HTTP 請�
   - [參考資料](#參考資料)
     - [教學相關](#教學相關)
 - [指令](#指令)
-- [安裝](#安裝)
 - [用法](#用法)
   - [使用 TLS 指紋](#使用-tls-指紋)
 
@@ -32,11 +31,6 @@ curl_cffi 是一個高效的 Python 庫，用於基於 libcurl 執行 HTTP 請�
 ```bash
 # 安裝
 pip install curl-cffi
-```
-
-# 安裝
-
-```bash
 ```
 
 # 用法

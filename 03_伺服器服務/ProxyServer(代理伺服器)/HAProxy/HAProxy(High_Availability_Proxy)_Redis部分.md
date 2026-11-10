@@ -20,10 +20,6 @@ HAProxy(High Availability Proxy) 是一款非常流行的 負載平衡器（Load
   - [參考資料](#參考資料)
 - [安裝](#安裝)
   - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
-  - [Windows](#windows)
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
     - [可自行加 Redis 後端](#可自行加-redis-後端)
@@ -56,26 +52,6 @@ services:
     volumes:
       - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     restart: unless-stopped
-```
-
-## Debian (Ubuntu)
-
-```bash
-```
-
-## RedHat (CentOS)
-
-```bash
-```
-
-## Homebrew (MacOS)
-
-```bash
-```
-
-## Windows
-
-```
 ```
 
 ## 配置文檔

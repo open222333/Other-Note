@@ -9,18 +9,12 @@ MEGA 官方提供的命令列工具 megacmd，然後透過 Python 執行命令�
 - [Python 工具 megacmd(官方提供的命令列工具)](#python-工具-megacmd官方提供的命令列工具)
   - [目錄](#目錄)
   - [參考資料](#參考資料)
-- [指令](#指令)
 - [安裝](#安裝)
 - [用法](#用法)
 
 ## 參考資料
 
 [meganz/MEGAcmd Github](https://github.com/meganz/MEGAcmd)
-
-# 指令
-
-```bash
-```
 
 # 安裝
 

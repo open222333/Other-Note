@@ -30,9 +30,6 @@ JSON 支援： MySQL Shell 具有強大的 JSON 支援，允許你使用 JSON �
   - [MacOS](#macos)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
-  - [Docker 部署](#docker-部署)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [指令](#指令)
 
 ## 參考資料
@@ -99,20 +96,6 @@ source /root/.bashrc
 wget https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
 rpm -ivh mysql80-community-release-el7-3.noarch.rpm
 yum install -y mysql-shell
-```
-
-## Docker 部署
-
-```yml
-```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
 ```
 
 # 指令

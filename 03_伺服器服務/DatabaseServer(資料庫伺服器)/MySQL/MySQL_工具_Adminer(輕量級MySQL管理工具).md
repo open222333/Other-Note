@@ -9,13 +9,6 @@
   - [目錄](#目錄)
   - [參考資料](#參考資料)
     - [心得相關](#心得相關)
-- [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Docker 部署](#docker-部署)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
-- [指令](#指令)
 
 ## 參考資料
 
@@ -39,31 +32,3 @@
 [MySQL 工具 - Percona pt-table-sync 修復複製錯誤](./MySQL_工具_Percona_pt-table-sync(修復複製錯誤_1032).md)
 [MySQL 工具 - mysqlbinlog](./MySQL_工具_mysqlbinlog(檢查主資料庫中的二進制日誌).md)
 [MySQL 工具 - phpMyAdmin](./MySQL_工具_phpMyAdmin(MySQL資料庫管理工具).md)
-
-# 安裝
-
-## Debian (Ubuntu)
-
-```bash
-```
-
-## RedHat (CentOS)
-
-```bash
-```
-
-## Docker 部署
-
-```yml
-```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
-```
-
-# 指令

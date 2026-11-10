@@ -16,7 +16,6 @@ PHP 版本需 ≥ 5.6.33
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-- [指令](#指令)
 - [用法](#用法)
 
 ## 參考資料
@@ -33,11 +32,6 @@ composer require tencentcloud/tencentcloud-sdk-php
 
 ```PHP
 require '/path/to/vendor/autoload.php';
-```
-
-# 指令
-
-```bash
 ```
 
 # 用法

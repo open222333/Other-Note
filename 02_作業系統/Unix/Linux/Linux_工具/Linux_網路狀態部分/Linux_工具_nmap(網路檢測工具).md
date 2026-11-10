@@ -9,7 +9,6 @@ Nmap 是一個開放原始碼的網路掃描與探測工具，可以讓網路管
 - [Linux 工具 nmap(網路檢測工具)](#linux-工具-nmap網路檢測工具)
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
-- [安裝](#安裝)
 - [指令](#指令)
 
 ## 參考資料
@@ -19,11 +18,6 @@ Nmap 是一個開放原始碼的網路掃描與探測工具，可以讓網路管
 [觀察 port： netstat, nmap](https://linux.vbird.org/linux_server/centos4/0210port_limit.php#nmap)
 
 [Nmap 網路診斷工具基本使用技巧與教學](https://blog.gtwang.org/linux/nmap-command-examples-tutorials/)
-
-# 安裝
-
-```bash
-```
 
 # 指令
 

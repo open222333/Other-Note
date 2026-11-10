@@ -22,7 +22,6 @@ FileBrowser 是一個基於 Web 的檔案管理工具，讓使用者能在網頁
   - [docker-compose 部署](#docker-compose-部署)
   - [Debian (Ubuntu)](#debian-ubuntu)
   - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [指令](#指令)
 
 ## 參考資料
@@ -116,11 +115,6 @@ filebrowser config set --port 8080 --address 0.0.0.0
 ## 配置文檔
 
 通常在 `/srv/.filebrowser.json`
-
-### 基本範例
-
-```
-```
 
 # 指令
 

@@ -23,9 +23,7 @@ Kibana APM UI： 讓存在 Elasticsearch 裡的 APM 資料能被快速的查閱�
   - [參考資料](#參考資料)
 - [安裝](#安裝)
   - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
 - [指令](#指令)
@@ -192,11 +190,6 @@ networks:
     driver: bridge
 ```
 
-## Debian (Ubuntu)
-
-```bash
-```
-
 ## RedHat (CentOS)
 
 ```bash
@@ -209,11 +202,6 @@ sudo rpm -vi apm-server-${version}-x86_64.rpm
 ```sh
 curl -L -O https://artifacts.elastic.co/downloads/apm-server/apm-server-7.13.3-x86_64.rpm
 sudo rpm -vi apm-server-7.13.3-x86_64.rpm
-```
-
-## Homebrew (MacOS)
-
-```bash
 ```
 
 ## 配置文檔

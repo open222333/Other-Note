@@ -24,7 +24,6 @@ Replica Set（複本集）是MongoDB中的一個機制，用於提供數據的�
   - [參考資料](#參考資料)
     - [心得相關](#心得相關)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
   - [Docker 部署](#docker-部署)
     - [docker-compose.yml](#docker-composeyml)
@@ -83,11 +82,6 @@ Replica Set（複本集）是MongoDB中的一個機制，用於提供數據的�
 [配置MongoDB replication遇到的坑](http://www.knockatdatabase.com/2022/06/02/mongodb-replication-erros-statestr-startup/)
 
 # 安裝
-
-## Debian (Ubuntu)
-
-```bash
-```
 
 ## RedHat (CentOS)
 

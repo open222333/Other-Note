@@ -28,8 +28,6 @@ FlareSolverr 是一個代理服務，用於繞過 Cloudflare 的反機器人檢�
     - [教學相關](#教學相關)
 - [安裝](#安裝)
   - [docker-compose 部署](#docker-compose-部署)
-  - [配置文檔](#配置文檔)
-    - [基本範例](#基本範例)
 - [用法](#用法)
   - [通過 CURL 測試 API 是否可用](#通過-curl-測試-api-是否可用)
   - [FlareSolverr 通過 HTTP POST 請求來解決反爬蟲問題。](#flaresolverr-通過-http-post-請求來解決反爬蟲問題)
@@ -83,15 +81,6 @@ services:
       - MAX_TIMEOUT=60000       # 設定請求的最大超時時間 (單位: 毫秒)
       - CAPTCHA_SOLVER=none     # 如果有 Captcha 解決服務，填寫對應值
     restart: unless-stopped
-```
-
-## 配置文檔
-
-通常在 ``
-
-### 基本範例
-
-```
 ```
 
 # 用法

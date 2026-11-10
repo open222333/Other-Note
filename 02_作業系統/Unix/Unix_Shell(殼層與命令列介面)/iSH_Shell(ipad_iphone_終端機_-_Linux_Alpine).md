@@ -10,7 +10,6 @@ iSH是一款開源的終端機APP，基於32位元Alpine Linux開發，套件管
 	- [目錄](#目錄)
 	- [參考資料](#參考資料)
 		- [教學相關](#教學相關)
-- [指令](#指令)
 
 ## 參考資料
 
@@ -19,8 +18,3 @@ iSH是一款開源的終端機APP，基於32位元Alpine Linux開發，套件管
 ### 教學相關
 
 [iSH Shell: 在iOS上執行Linux終端機指令的APP](https://ivonblog.com/posts/ish-shell-ios/#1-%E5%AE%89%E8%A3%9Dish)
-
-# 指令
-
-```bash
-```

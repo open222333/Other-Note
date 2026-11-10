@@ -62,11 +62,6 @@ Predixy 是用 C++ 開發的 Redis 高效代理，主要用途包括：
   - [參考資料](#參考資料)
     - [心得相關](#心得相關)
 - [安裝](#安裝)
-  - [docker-compose 部署](#docker-compose-部署)
-  - [Debian (Ubuntu)](#debian-ubuntu)
-  - [RedHat (CentOS)](#redhat-centos)
-  - [Homebrew (MacOS)](#homebrew-macos)
-  - [Windows](#windows)
   - [配置文檔](#配置文檔)
     - [基本範例](#基本範例)
 - [指令](#指令)
@@ -93,31 +88,6 @@ Predixy 是用 C++ 開發的 Redis 高效代理，主要用途包括：
 [Redis - Codis 分散式叢集](./Redis_筆記_Codis(分散式_Redis_叢集方案).md)
 
 # 安裝
-
-## docker-compose 部署
-
-```yml
-```
-
-## Debian (Ubuntu)
-
-```bash
-```
-
-## RedHat (CentOS)
-
-```bash
-```
-
-## Homebrew (MacOS)
-
-```bash
-```
-
-## Windows
-
-```
-```
 
 ## 配置文檔
 

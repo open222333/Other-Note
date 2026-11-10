@@ -15,7 +15,6 @@ Conda 主要用於管理 Python 和 R 的環境及依賴，但它也能安裝一
 - [安裝](#安裝)
   - [CentOS7 Miniconda(輕量化)](#centos7-miniconda輕量化)
   - [卸載](#卸載)
-- [指令](#指令)
 
 ## 參考資料
 
@@ -86,9 +85,4 @@ rm -rf ~/miniconda
 # .conda目錄
 # .continuum目錄
 rm -rf ~/.condarc ~/.conda ~/.continuum
-```
-
-# 指令
-
-```bash
 ```

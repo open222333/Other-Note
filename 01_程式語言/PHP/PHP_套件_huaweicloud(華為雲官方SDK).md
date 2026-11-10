@@ -10,7 +10,6 @@ huaweicloud/huaweicloud-sdk-php
   - [目錄](#目錄)
   - [參考資料](#參考資料)
 - [安裝](#安裝)
-- [指令](#指令)
 - [用法](#用法)
   - [Huawei class 自製類別](#huawei-class-自製類別)
   - [建立 → 再更新](#建立--再更新)
@@ -39,11 +38,6 @@ huaweicloud/huaweicloud-sdk-php
 
 ```bash
 composer require huaweicloud/huaweicloud-sdk-php
-```
-
-# 指令
-
-```bash
 ```
 
 # 用法

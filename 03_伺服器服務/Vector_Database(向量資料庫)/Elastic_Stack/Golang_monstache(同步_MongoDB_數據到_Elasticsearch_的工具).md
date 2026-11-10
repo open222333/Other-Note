@@ -24,7 +24,6 @@
     - [狀況相關](#狀況相關)
       - [Location17138](#location17138)
 - [安裝](#安裝)
-  - [Debian (Ubuntu)](#debian-ubuntu)
   - [RedHat (CentOS)](#redhat-centos)
   - [配置文檔](#配置文檔)
     - [僅記錄失敗的紀錄](#僅記錄失敗的紀錄)
@@ -59,11 +58,6 @@
 [Error with direct-read-namespaces with monstache v6.0.8](https://github.com/rwynn/monstache/issues/247)
 
 # 安裝
-
-## Debian (Ubuntu)
-
-```bash
-```
 
 ## RedHat (CentOS)
 
