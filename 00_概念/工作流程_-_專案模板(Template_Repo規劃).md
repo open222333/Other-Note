@@ -10,6 +10,7 @@
   - [目錄](#目錄)
   - [參考資料](#參考資料)
   - [現有模板](#現有模板)
+    - [怎麼選](#怎麼選)
     - [共同慣例](#共同慣例)
     - [分層關係](#分層關係)
   - [待新增模板](#待新增模板)
@@ -46,7 +47,16 @@
 | `Template-Backup` | 備份（Python） | files / MySQL / PostgreSQL / Mongo、sha256、保留 N 份輪替、rclone / S3 上傳、通知、`verify` / `restore`、`RESTORE.md` |
 | `Template-PythonVectorAPI` | 語意搜尋 / RAG | FastAPI + pgvector、Embedding Provider（Ollama / OpenAI 相容）、切塊匯入、向量 / 全文 / Hybrid 搜尋、Alembic、reembed |
 | `Template-VisualTool` | 視覺 UI 工具（React） | Vite + shadcn/ui 三欄工作台、Zustand + zundo undo、Zod schema 自動表單、匯出 PNG / SVG / JSON、⌘K 指令面板 |
-| `Template-ReactDashboard` | 後台 Dashboard（React） | Vite + shadcn/ui、可收合側欄 + 麵包屑 + ⌘K、React Router、React Query + API client（後端格式轉換集中於 adapters）、伺服器端資料表格（網址同步）、CRUD 範例、角色權限、mock API |
+| `Template-ReactDashboard` | 後台 Dashboard / 公開數據視覺化網站（React） | Vite + shadcn/ui、可收合側欄 + 麵包屑 + ⌘K、React Router（頁面 lazy 拆分）、React Query + API client（後端格式轉換集中於 adapters）、伺服器端資料表格（網址同步）、CRUD 範例、角色權限、mock API；**訪客模式**（`VITE_GUEST_MODE`，不登入可瀏覽、登入才能新增 / 編輯 / 進設定）；**圖表頁**（Recharts：折線、面積、堆疊長條、環圈、橫向長條、雷達、散佈、漏斗、熱力圖，色盲可辨配色、可切換表格檢視） |
+
+### 怎麼選
+
+| 需求 | 用哪個 |
+|---|---|
+| 不登入可瀏覽、登入才可用部分功能 | `Template-ReactDashboard`（訪客模式，預設開啟） |
+| 多種圖表的數據視覺化網站 | `Template-ReactDashboard`（圖表頁，`src/pages/charts.tsx`） |
+| 調參數產生圖 / 樣式並匯出（產生器工具） | `Template-VisualTool` |
+| 後端 API + 全站需登入的管理後台 | `Template-PythonFlaskAPI` |
 
 ### 共同慣例
 
@@ -72,7 +82,7 @@ Template-Repo
 │   └── (待新增) Template-DockerStack
 ├── Template-PythonFlaskAPI
 ├── Template-VisualTool              ✅（React + shadcn/ui，獨立前端）
-├── Template-ReactDashboard          ✅（React + shadcn/ui，後台前端；與 VisualTool 共用 UI 元件與主題）
+├── Template-ReactDashboard          ✅（React + shadcn/ui，後台 / 視覺化前端；與 VisualTool 共用 UI 元件與主題）
 └── (待新增) Template-VueWeb
 ```
 
