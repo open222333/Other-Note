@@ -69,6 +69,7 @@
 | Nginx、反向代理、nginx.conf | [Nginx_筆記](03_伺服器服務/WebServer(網站伺服器)/Nginx/Nginx_筆記.md) |
 | MySQL、mysqldump、my.cnf | [MySQL_筆記](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_筆記.md) |
 | max_connections 自動調降、open_files_limit、LimitNOFILE | [MySQL_筆記](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_筆記.md)（見「max_connections 被自動調降」章節） |
+| ERROR 1129 Host is blocked、max_connect_errors、flush-hosts、host_cache | [MySQL_筆記](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_筆記.md)（見「ERROR 1129」） |
 | MySQL 主從、Replication、Master-Slave | [MySQL_筆記_Replication(Master-Slave_主從)](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_筆記_Replication(Master-Slave_主從).md) |
 | MySQL Cluster、叢集 | [MySQL_筆記_Cluster(叢集)](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_筆記_Cluster(叢集).md) |
 | XtraBackup、全量備份、增量備份 | [MySQL_工具_Percona_XtraBackup(資料備份的工具)](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_工具_Percona_XtraBackup(資料備份的工具).md) |

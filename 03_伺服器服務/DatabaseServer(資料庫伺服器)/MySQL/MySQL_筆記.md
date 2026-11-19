@@ -127,7 +127,7 @@ RDBMS
   - [匯出時, 查詢結果過大, 批次處理](#匯出時-查詢結果過大-批次處理)
   - [將 NULL 改成字串 "NULL"](#將-null-改成字串-null)
   - [匯出 csv 時, null 直不進行匯出的處理](#匯出-csv-時-null-直不進行匯出的處理)
-  - [避免過多的連線嘗試引發錯誤](#避免過多的連線嘗試引發錯誤)
+  - [ERROR 1129 (HY000): Host is blocked because of many connection errors](#error-1129-hy000-host-is-blocked-because-of-many-connection-errors)
   - [\[Warning\] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known](#warning-ip-address-xxxxxxxxxxxx-could-not-be-resolved--name-or-service-not-known)
   - [Table 'db.table' doesn't exist (1146)](#table-dbtable-doesnt-exist-1146)
   - [mysqldump: Got error: 1290: The MySQL server is running with the --secure-file-priv option so it cannot execute this statement when executing 'SELECT INTO OUTFILE'](#mysqldump-got-error-1290-the-mysql-server-is-running-with-the---secure-file-priv-option-so-it-cannot-execute-this-statement-when-executing-select-into-outfile)
@@ -2780,14 +2780,55 @@ df.fillna('NULL', inplace=True)
 df.to_csv('/path/to/your/processed_file.csv', index=False)
 ```
 
-## 避免過多的連線嘗試引發錯誤
+## ERROR 1129 (HY000): Host is blocked because of many connection errors
 
-```sql
+```
+ERROR 1129 (HY000): Host '203.0.113.10' is blocked because of many connection errors;
+unblock with 'mysqladmin flush-hosts'
+```
+
+原因：
+
+- MySQL 記錄每個來源主機**連續**連線失敗的次數，超過 `max_connect_errors`（預設 `100`）後，該主機的所有連線都被拒絕，直到清除紀錄。
+- 只有 handshake 階段的錯誤會計入；**帳號密碼錯誤不計入**。
+- 常見來源：
+  - 網路不穩，連線在 handshake 階段就斷了。
+  - 負載平衡器或監控的健康檢查只做 TCP 連線、沒有完成登入。
+  - 應用程式連線池設定有問題（例如逾時太短）。
+
+解封（在**被連線的那台** MySQL 上執行，例如 slave），擇一：
+
+```bash
+mysqladmin -u root -p flush-hosts
 ```
 
 ```sql
-SET GLOBAL max_connect_errors = 10000000;
+TRUNCATE TABLE performance_schema.host_cache;
 ```
+
+- `FLUSH HOSTS;` 從 MySQL 8.0.23 起不建議使用，8.4 已移除；8.4 請用上面兩種方法。
+
+查是哪台主機在出錯（解封只是治標，來源不修很快又會被封）：
+
+```sql
+SELECT IP, HOST, SUM_CONNECT_ERRORS, COUNT_HANDSHAKE_ERRORS, LAST_ERROR_SEEN
+FROM performance_schema.host_cache
+WHERE SUM_CONNECT_ERRORS > 0;
+```
+
+修正來源後，若確定是無害的連線失敗（例如健康檢查），可調高門檻：
+
+```sql
+SET PERSIST max_connect_errors = 10000;   -- 8.0+，重啟後仍有效
+SHOW VARIABLES LIKE 'max_connect_errors';
+```
+
+```ini
+# 或寫進 my.cnf [mysqld]
+max_connect_errors = 10000
+```
+
+- 健康檢查改用能完成登入的方式（例如 `mysqladmin ping -u monitor -p...`、ProxySQL monitor 帳號），比單純 TCP 檢查好。
 
 ## [Warning] IP address 'xxx.xxx.xxx.xxx' could not be resolved- Name or service not known
 
