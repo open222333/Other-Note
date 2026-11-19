@@ -150,7 +150,7 @@
 | 敏感檔案加密選擇、GPG、7-Zip、SOPS、git-crypt、LUKS、VeraCrypt、gocryptfs、restic、密碼管理器 | [資安_-_敏感檔案加密(加密工具比較與選擇)](00_概念/資安/資安_-_敏感檔案加密(加密工具比較與選擇).md) |
 | age、檔案加密、公鑰加密、age-keygen、加密備份、SSH 金鑰加密檔案 | [Linux_工具_age(檔案公鑰加密)](02_作業系統/Unix/Linux/Linux_工具/Linux_加密/Linux_工具_age(檔案公鑰加密).md) |
 | iptables、netfilter-persistent、rules.v4、防火牆規則 | [Linux_工具_iptables_ip6tables(管理網路封包的處理和轉發)](02_作業系統/Unix/Linux/Linux_工具/Linux_防火牆部分/Linux_工具_iptables_ip6tables(管理網路封包的處理和轉發).md) |
-| 網路診斷、ping、dig、getent、curl、mtr、netstat、tcpdump、iftop | [Linux_網路狀態部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_網路狀態部分/Linux_網路狀態部分_總覽.md) |
+| 網路診斷、ping、dig、getent、curl、mtr、netstat、tcpdump、iftop、ip -6 route 看不到本機 IPv6 | [Linux_網路狀態部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_網路狀態部分/Linux_網路狀態部分_總覽.md) |
 | 長時間作業監看、tail -f / tail -F、grep --line-buffered、tmux 另開視窗看 log、重跑前移開舊 log | [Linux_工具_tail(顯示檔案最後幾行)](02_作業系統/Unix/Linux/Linux_工具/Linux_文本編碼/Linux_工具_tail(顯示檔案最後幾行).md) |
 | mydumper / myloader 平行備份還原、tmux + log 監看、grep CRITICAL 檢查、備份完整性檢查、time 輸出解讀、還原到 Managed Database（SSL） | [MySQL_工具_mydumper_myloader(平行備份還原工具)](03_伺服器服務/DatabaseServer(資料庫伺服器)/MySQL/MySQL_工具_mydumper_myloader(平行備份還原工具).md) |
 | 磁碟、掛載、NFS、sshfs、rsync、swap | [Linux_磁碟與檔案系統部分_總覽](02_作業系統/Unix/Linux/Linux_工具/Linux_磁碟與檔案系統部分/Linux_磁碟與檔案系統部分_總覽.md) |
