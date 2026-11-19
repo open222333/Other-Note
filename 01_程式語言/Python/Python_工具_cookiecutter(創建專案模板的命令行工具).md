@@ -26,6 +26,8 @@ Cookiecutter 是一個用於創建專案模板的命令行工具，可以根據�
 
 [cookiecutter 官方文檔](https://cookiecutter.readthedocs.io/en/latest/)
 
+[Python 工具 copier 筆記（可同步模板更新的替代工具）](Python_工具_copier(專案模板產生工具).md)
+
 ### 心得相關
 
 [Cookiecutter: 更好的项目模板工具：（1）简介及可用资源汇总](https://www.cnblogs.com/taceywong/p/10506032.html)

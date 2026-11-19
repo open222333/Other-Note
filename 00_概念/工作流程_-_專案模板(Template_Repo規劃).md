@@ -21,11 +21,15 @@
 
 ## 參考資料
 
+[工作流程 - 專案模板待優化(Template_Repo檢查清單)](工作流程_-_專案模板待優化(Template_Repo檢查清單).md)
+
 [程式設計 - 視覺UI工具模板(前端架構選型)](程式設計_-_視覺UI工具模板(前端架構選型).md)
 
 [程式設計 - 專案檔案結構](程式設計_-_專案檔案結構(程式概念).md)
 
 [copier（專案模板產生工具）](https://copier.readthedocs.io/)
+
+[Python 工具 copier 筆記](../01_程式語言/Python/Python_工具_copier(專案模板產生工具).md)
 
 [cookiecutter（專案模板產生工具）](https://cookiecutter.readthedocs.io/)
 
@@ -119,12 +123,6 @@ Template-Repo
 - **延續分層**：新模板建在既有模板之上（共用 `common_tool` Log 等），不從零複製
 - **每個模板放 `CLAUDE.md`**：目前只有 FlaskAPI 有，補齊讓 AI 協作規則一致
 - **共用 CI**：每個模板附 `.github/workflows`（lint + test + docker build）與 `pre-commit`
-- **變數化建立**：用 copier / cookiecutter 在建立時替換專案名稱、port、是否啟用 DB，取代手動 `rm -rf .git` 後逐一修改
-
-```bash
-# copier 範例：由模板建立新專案
-pipx install copier
-copier copy <模板 repo URL> your-new-project
-```
+- **變數化建立**：用 copier / cookiecutter 在建立時替換專案名稱、port、是否啟用 DB，取代手動 `rm -rf .git` 後逐一修改；copier 還能用 `copier update` 把模板更新同步到已建立的專案，做法見 [copier 筆記](../01_程式語言/Python/Python_工具_copier(專案模板產生工具).md)
 
 - **GitHub Template repository**：在 repo Settings 勾選 Template repository，可直接「Use this template」建立新專案
