@@ -5,6 +5,8 @@
 ```
 
 > 檢查日期：2026-11-16。完成一項就勾選；全部完成的章節可直接刪除（歷史交給 Git）。
+>
+> 2026-11-19：「建議先修」8 項已完成（另順手完成 Watcher 的狀態檔清理）。
 
 ## 目錄
 
@@ -61,28 +63,28 @@ npm outdated
 
 會造成功能失效、漏通知或安全風險的項目：
 
-- [ ] **PythonCrawler：Playwright 版本對不上**
+- [x] **PythonCrawler：Playwright 版本對不上**（已改為 `playwright==1.57.0` + 映像 `v1.57.0-noble`，測試檢查兩邊一致）
   - Docker 映像固定 `v1.48.0`，但 `requirements-playwright.txt` 是 `playwright>=1.48`，會裝到較新的版本，與映像內的瀏覽器不相容，Playwright 模式很可能無法啟動（未實際 build 驗證）
   - 做法：改成 `playwright==<與映像相同的版本>`，兩邊一起升級
-- [ ] **PythonCrawler：403 / 404 被算成成功**
+- [x] **PythonCrawler：403 / 404 被算成成功**
   - 只有 429、5xx 會重試；403（被擋）會當成正常頁面交給 `parse()`，統計顯示 0 失敗，代理也不會被標記失效
   - 做法：4xx 計入 `failed`；403 / 407 標記代理失效並換代理重試
-- [ ] **PythonWatcher：通知送失敗就漏掉告警**
+- [x] **PythonWatcher：通知送失敗就漏掉告警**
   - `state.update()` 在送出前就記成已通知，`send_all()` 的回傳值沒被使用；網路斷線時告警要等 `REMIND_INTERVAL` 才會再送，恢復通知不會補送
   - 做法：送出成功才更新 `last_notified`，失敗的下一輪重送
-- [ ] **PythonWatcher：失敗一次就告警**
+- [x] **PythonWatcher：失敗一次就告警**
   - 沒有「連續失敗 N 次才告警」，單次逾時就會發通知
   - 做法：`[check:*]` 加 `fail_threshold`（預設 2～3）
-- [ ] **PythonFlaskAPI：套件有已知弱點**
+- [x] **PythonFlaskAPI：套件有已知弱點**（`pip-audit`、`npm audit` 皆 0 筆；Vite 升到 8）
   - `pymongo 4.10.1`、`requests 2.32.3`、`dnspython 2.8.0` 共 11 筆
   - 前端 `npm audit` 7 筆（6 筆高風險），Vite 還在 4.x
-- [ ] **PythonFlaskAPI：資料庫密碼有弱預設值**
+- [x] **PythonFlaskAPI：資料庫密碼有弱預設值**
   - 沒設 `.env` 時會用 `root_password`、`flask_password`、`redis_password` 啟動
   - 做法：比照 VectorAPI 用 `${MYSQL_ROOT_PASSWORD:?請在 .env 設定}`，沒設就拒絕啟動
-- [ ] **PythonFlaskAPI：Swagger 設定寫死個人聯絡資訊與測試網址**
+- [x] **PythonFlaskAPI：Swagger 設定寫死個人聯絡資訊與測試網址**
   - `app/__init__.py` 的 `SWAGGER_TEMPLATE`（title、contact、termsOfService）每個新專案都會帶著
   - 做法：改讀設定檔，並可用環境變數在正式環境關閉 Swagger UI
-- [ ] **Backup：dump 指令輸出大量錯誤訊息時可能卡死**
+- [x] **Backup：dump 指令輸出大量錯誤訊息時可能卡死**
   - `run_pipeline()` 等 gzip 結束後才讀 dump 指令的 stderr，緩衝區滿了兩邊會互等
   - 做法：stderr 改寫入暫存檔，或用執行緒同時讀取
 
@@ -137,7 +139,7 @@ mkdir -p logs data && sudo chown -R 1001:1001 logs data
 
 - [ ] 檢查逐一執行，項目多又逾時會超過 `INTERVAL`，healthcheck 可能誤判 → 改用 `ThreadPoolExecutor`
 - [ ] `docker stop` 要等 10 秒：Python 當 PID 1 沒處理 SIGTERM → compose 加 `init: true` 或自行處理訊號
-- [ ] 設定檔刪掉的檢查項目仍留在 `state.json`
+- [x] 設定檔刪掉的檢查項目仍留在 `state.json`
 - [ ] 可加的檢查類型：TLS 憑證到期日、HTTP 回應內容關鍵字
 
 ### Template-PythonCrawler
