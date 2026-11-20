@@ -159,6 +159,7 @@
 | sh、ash、dash、/bin/sh、chsh、登入 shell | [Unix_Shell(UNIX作業系統_殼層與命令列介面)](02_作業系統/Unix/Unix_Shell(殼層與命令列介面)/Unix_Shell(UNIX作業系統_殼層與命令列介面).md) |
 | 磁碟滿了、df、du、ncdu、tune2fs 保留空間、lsof +L1 | [Linux_工具_df_du(硬碟空間資訊)](02_作業系統/Unix/Linux/Linux_工具/Linux_磁碟與檔案系統部分/Linux_工具_df_du(硬碟空間資訊).md)（見「例外狀況」） |
 | Linux 基本、常用指令 | [Linux_基本_筆記](02_作業系統/Unix/Linux/Linux_基本_筆記.md) |
+| 使用者與群組管理、useradd、usermod、userdel、passwd、chage、鎖定帳號、sudo 群組、visudo、sudoers.d、Cmnd_Alias | [Linux_基本_使用者管理(Linux指令)](02_作業系統/Unix/Linux/Linux_基本_使用者管理(Linux指令).md) |
 | CentOS、yum、firewalld | [Linux_CentOS_筆記](02_作業系統/Unix/Linux/Linux_版本/CentOS/Linux_CentOS_筆記.md) |
 | Windows、cmd、系統設定 | [Windows_筆記](02_作業系統/DOS(Disk_Operating_System)/Windows/Windows_筆記.md) |
 | macOS、mac 常用指令、環境變數、NVRAM | [MacOS_筆記](02_作業系統/Unix/Mac/MacOS_筆記.md) |
