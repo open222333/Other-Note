@@ -100,6 +100,7 @@
 | CLAUDE.md、專案設定檔、讀取順序 | [CLAUDE_md(專案設定檔)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/CLAUDE_md(專案設定檔).md) |
 | Claude Code settings.json、權限、hooks | [Claude_Code_專案設定(CLI設定)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Code_專案設定(CLI設定).md) |
 | Claude Skill、自訂技能、SKILL.md | [Claude_Skill(自訂技能)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Skill(自訂技能).md) |
+| Claude 排程任務、Scheduled Tasks、排程提示詞、排程指令模板、cron、CRON_TZ、待辦事項.md、自動核准 | [Claude_排程任務(排程指令模板)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_排程任務(排程指令模板).md) |
 | AI 寫前端用舊技術、Context7、llms.txt、shadcn / Vercel 官方 Skill、skills.sh | [Claude_Skill(自訂技能)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Skill(自訂技能).md)（見「公開 Skill：避免 AI 用舊技術寫前端」章節） |
 | Claude Dispatch、Agent SDK、子 Agent 並行 | [Claude_Dispatch(多Agent分派)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Dispatch(多Agent分派).md) |
 | Claude Desktop 多帳號、多實例、user-data-dir、Parall | [Claude_Desktop_多實例(多帳號)](00_其他(工具_應用程式_網站)/LLM(大型語言模型)/Claude(AI)/Claude_Desktop_多實例(多帳號).md) |

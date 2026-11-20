@@ -57,6 +57,7 @@ Claude 是由 [Anthropic](https://www.anthropic.com/) 開發的大型語言模�
 | [Claude Skill](Claude_Skill(自訂技能).md) | 自訂技能 |
 | [Claude Cowork](Claude_Cowork(協作).md) | 在 IDE 內與 Claude 協作開發 |
 | [Claude Dispatch](Claude_Dispatch(多Agent分派).md) | 用 Agent SDK 把任務分派給多個子 Agent 並行執行 |
+| [Claude 排程任務](Claude_排程任務(排程指令模板).md) | 排程任務特性、提示詞必備要素、常見衝突與各情境指令模板 |
 | [Claude Desktop 多實例](Claude_Desktop_多實例(多帳號).md) | 同一台電腦執行多個 Claude Desktop、登入不同帳號 |
 | [ubuntu-server-setup Skill](ubuntu-server-setup-skill-usage/ubuntu-server-setup_Skill使用說明(Claude_Skill).md) | Skill 實例：Ubuntu 伺服器安裝 |
 
