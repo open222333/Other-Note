@@ -527,9 +527,12 @@ Cmnd_Alias MAINT_CMDS = /sbin/reboot, /usr/bin/systemctl restart nginx, /usr/bin
 
 ### 手動建立 home 目錄（如果已經存在使用者但沒 home）
 
+-R 遞迴修改，包含所有子資料夾及檔案
+
 ```sh
 mkdir -p /home/username
 chown username:username /home/username
+chown -R username:username /home/username
 chmod 700 /home/username
 usermod -d /home/username username # 修改 home 設定
 ```
